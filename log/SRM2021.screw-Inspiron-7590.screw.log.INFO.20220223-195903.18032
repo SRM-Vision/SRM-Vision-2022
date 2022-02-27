@@ -1,0 +1,17 @@
+Log file created at: 2022/02/23 19:59:03
+Running on machine: screw-Inspiron-7590
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+I0223 19:59:03.675163 18032 cmdline_arg_parser.cpp:54] Running with camera.
+I0223 19:59:03.675735 18032 cmdline_arg_parser.cpp:55] Running without serial communication.
+I0223 19:59:03.675792 18032 cmdline_arg_parser.cpp:56] Running without gimbal control.
+I0223 19:59:03.675846 18032 cmdline_arg_parser.cpp:57] Controller type: infantry
+I0223 19:59:03.675920 18032 detector_armor.cpp:186] Engine will be built from cache.
+I0223 19:59:05.492861 18032 camera_hik.cpp:48] Found device with serial number 00D27551311.
+I0223 19:59:05.743034 18032 camera_hik.h:57] Imported 's configuration to ../config/cameras/MV-CA016-10UC_00D27551311.mfs.
+I0223 19:59:05.743201 18032 camera_hik.cpp:143] Opened camera 00D27551311.
+I0223 19:59:05.749333 18032 camera_hik.h:46] Saved 00D27551311's configuration to ../cache/00D27551311.txt.
+I0223 19:59:05.764679 18032 camera_hik.cpp:161] 00D27551311's stream started.
+I0223 19:59:05.851482 18032 controller_infantry.cpp:48] Rune detector initialize successfully!
+I0223 19:59:05.851557 18032 controller_infantry.cpp:52] Rune predictor initialize successfully!
+I0223 19:59:05.851564 18032 controller_infantry.cpp:56] Infantry controller is ready.
+W0223 19:59:10.655354 18032 main.cpp:13] Caught terminate signal. Attempting to exit...

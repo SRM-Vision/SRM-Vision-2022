@@ -1,0 +1,14 @@
+Log file created at: 2022/02/23 19:06:58
+Running on machine: screw-Inspiron-7590
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+I0223 19:06:58.441015  8404 cmdline_arg_parser.cpp:54] Running without camera.
+I0223 19:06:58.441706  8404 cmdline_arg_parser.cpp:55] Running without serial communication.
+I0223 19:06:58.441795  8404 cmdline_arg_parser.cpp:56] Running without gimbal control.
+I0223 19:06:58.441880  8404 cmdline_arg_parser.cpp:57] Controller type: infantry
+I0223 19:06:58.441962  8404 controller_factory.h:70] Created infantry object.
+I0223 19:06:58.442081  8404 detector_armor.cpp:186] Engine will be built from cache.
+I0223 19:07:00.822139  8404 image_provider_factory.h:75] Created video object.
+I0223 19:07:00.949699  8404 controller_infantry.cpp:48] Rune detector initialize successfully!
+I0223 19:07:00.949831  8404 controller_infantry.cpp:52] Rune predictor initialize successfully!
+I0223 19:07:00.949849  8404 controller_infantry.cpp:56] Infantry controller is ready.
+W0223 19:07:05.373373  8404 main.cpp:13] Caught terminate signal. Attempting to exit...

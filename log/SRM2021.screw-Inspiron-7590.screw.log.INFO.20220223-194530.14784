@@ -1,0 +1,21 @@
+Log file created at: 2022/02/23 19:45:30
+Running on machine: screw-Inspiron-7590
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+I0223 19:45:30.197783 14784 cmdline_arg_parser.cpp:54] Running with camera.
+I0223 19:45:30.198220 14784 cmdline_arg_parser.cpp:55] Running without serial communication.
+I0223 19:45:30.198258 14784 cmdline_arg_parser.cpp:56] Running without gimbal control.
+I0223 19:45:30.198289 14784 cmdline_arg_parser.cpp:57] Controller type: infantry
+I0223 19:45:30.198321 14784 controller_factory.h:70] Created infantry object.
+I0223 19:45:30.198377 14784 detector_armor.cpp:186] Engine will be built from cache.
+I0223 19:45:31.817257 14784 image_provider_factory.h:75] Created camera object.
+I0223 19:45:31.817481 14784 camera_factory.h:65] Created DHCamera object.
+I0223 19:45:33.059337 14784 camera_dh.h:98] Imported KE0210010101's configuration from ../config/cameras/KE0210010101.txt.
+I0223 19:45:33.059412 14784 camera_dh.h:134] Registered KE0210010101's capture callback.
+I0223 19:45:33.059573 14784 camera_dh.cpp:112] KE0210010101's daemon thread 140377843556352 started.
+I0223 19:45:33.059614 14784 camera_dh.cpp:114] Opened camera KE0210010101.
+I0223 19:45:33.269356 14784 camera_dh.h:91] Saved KE0210010101's configuration to ../cache/KE0210010101.txt.
+I0223 19:45:33.288542 14784 camera_dh.cpp:186] KE0210010101's stream started.
+I0223 19:45:33.371337 14784 controller_infantry.cpp:48] Rune detector initialize successfully!
+I0223 19:45:33.371464 14784 controller_infantry.cpp:52] Rune predictor initialize successfully!
+I0223 19:45:33.371484 14784 controller_infantry.cpp:56] Infantry controller is ready.
+W0223 19:45:36.383180 14784 main.cpp:13] Caught terminate signal. Attempting to exit...

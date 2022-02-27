@@ -1,0 +1,16 @@
+Log file created at: 2022/02/24 00:16:03
+Running on machine: screw-Inspiron-7590
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+I0224 00:16:03.882576  7243 cmdline_arg_parser.cpp:54] Running with camera.
+I0224 00:16:03.882901  7243 cmdline_arg_parser.cpp:55] Running without serial communication.
+I0224 00:16:03.882934  7243 cmdline_arg_parser.cpp:56] Running without gimbal control.
+I0224 00:16:03.882957  7243 cmdline_arg_parser.cpp:57] Controller type: infantry
+I0224 00:16:03.883000  7243 detector_armor.cpp:186] Engine will be built from cache.
+I0224 00:16:07.117259  7243 camera_dh.h:100] Imported KE0210010101's configuration from ../config/cameras/KE0210010101.txt.
+I0224 00:16:07.117393  7243 camera_dh.cpp:114] Opened camera KE0210010101.
+I0224 00:16:07.289011  7243 camera_dh.h:93] Saved KE0210010101's configuration to ../cache/KE0210010101.txt.
+I0224 00:16:07.307955  7243 camera_dh.cpp:186] KE0210010101's stream started.
+I0224 00:16:07.425232  7243 controller_infantry.cpp:48] Rune detector initialize successfully!
+I0224 00:16:07.425428  7243 controller_infantry.cpp:52] Rune predictor initialize successfully!
+I0224 00:16:07.425449  7243 controller_infantry.cpp:56] Infantry controller is ready.
+W0224 00:16:15.727777  7243 main.cpp:13] Caught terminate signal. Attempting to exit...

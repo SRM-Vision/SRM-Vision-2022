@@ -1,0 +1,15 @@
+Log file created at: 2022/02/24 00:15:52
+Running on machine: screw-Inspiron-7590
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+I0224 00:15:52.836012  7172 cmdline_arg_parser.cpp:54] Running with camera.
+I0224 00:15:52.836714  7172 cmdline_arg_parser.cpp:55] Running without serial communication.
+I0224 00:15:52.836787  7172 cmdline_arg_parser.cpp:56] Running without gimbal control.
+I0224 00:15:52.836853  7172 cmdline_arg_parser.cpp:57] Controller type: infantry
+I0224 00:15:52.836942  7172 detector_armor.cpp:186] Engine will be built from cache.
+I0224 00:15:56.004225  7172 camera_dh.h:100] Imported KE0210010101's configuration from ../config/cameras/KE0210010101.txt.
+I0224 00:15:56.004345  7172 camera_dh.cpp:114] Opened camera KE0210010101.
+I0224 00:15:56.168365  7172 camera_dh.h:93] Saved KE0210010101's configuration to ../cache/KE0210010101.txt.
+I0224 00:15:56.187304  7172 camera_dh.cpp:186] KE0210010101's stream started.
+I0224 00:15:56.307334  7172 controller_infantry.cpp:48] Rune detector initialize successfully!
+I0224 00:15:56.307471  7172 controller_infantry.cpp:52] Rune predictor initialize successfully!
+I0224 00:15:56.307516  7172 controller_infantry.cpp:56] Infantry controller is ready.

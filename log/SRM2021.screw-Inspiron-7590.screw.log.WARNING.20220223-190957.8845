@@ -1,0 +1,5 @@
+Log file created at: 2022/02/23 19:09:57
+Running on machine: screw-Inspiron-7590
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+E0223 19:09:57.954058  8845 camera_dh.cpp:41] {-1004}{CIFOpenDeviceAgency:line[537]}{{-1004}{CDevice:line[136]}{TL Error:The device has been open}}
+E0223 19:09:57.957307  8845 controller_infantry.cpp:26] Failed to initialize image provider.

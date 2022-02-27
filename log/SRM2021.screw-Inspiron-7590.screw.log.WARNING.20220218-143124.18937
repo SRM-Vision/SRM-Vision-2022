@@ -1,0 +1,629 @@
+Log file created at: 2022/02/18 14:31:24
+Running on machine: screw-Inspiron-7590
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+W0218 14:31:24.034433 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:24.034591 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:24.038254 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:24.038302 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:24.042033 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:24.042086 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:24.045603 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:24.045645 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:24.049909 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:24.049970 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:24.053828 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:24.053897 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:24.057425 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:24.057459 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:24.096518 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:24.096580 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:26.500557 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:26.500623 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:26.504490 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:26.504570 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:26.509943 18937 detector_rune.cpp:177] No center R found.
+W0218 14:31:26.510012 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:26.514045 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:26.514107 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:26.518033 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:26.518103 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:26.522047 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:26.522094 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:26.526760 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:26.526835 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:26.530906 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:26.530972 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:26.534850 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:26.534883 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:26.538837 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:26.538872 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:26.543243 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:26.543303 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:26.550148 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:26.550252 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:26.557600 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:26.557695 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:26.565114 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:26.565260 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:26.574481 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:26.574575 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.114959 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.115000 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.118614 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.118654 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.122649 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.122706 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.126515 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.126557 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.130244 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.130285 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.134071 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.134109 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.138638 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.138677 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.142740 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.142779 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.146358 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.146399 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.149961 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.150003 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.154000 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.154079 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.157982 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.158027 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.161499 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.161532 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.164997 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.165040 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.168609 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.168650 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.172474 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.172519 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.176100 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.176136 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.179548 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.179581 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.182991 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.183051 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.186930 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.186997 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.190852 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.190907 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.194489 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.194535 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.197983 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.198022 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.201402 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.201488 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.204944 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.204990 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.208389 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.208424 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.211861 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.211896 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.215281 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.215315 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.218946 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.218989 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.223284 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.223328 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.226989 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.227053 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.230618 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.230695 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.234100 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.234153 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.239082 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.239136 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.242765 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.242820 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.246277 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.246335 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.249747 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.249819 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.275928 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.276124 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.678567 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.678625 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.682376 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.682416 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.686141 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.686203 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.690045 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.690096 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.693820 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.693859 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.697496 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.697572 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.701280 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.701330 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.708628 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.708768 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.712445 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.712502 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.716353 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.716432 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.720659 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.720707 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.724450 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.724500 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.728220 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.728281 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.732245 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.732314 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.736196 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.736275 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.741353 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.741422 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.745721 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.745770 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.750260 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.750324 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.754071 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.754129 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.757915 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.757972 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.761751 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.761801 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.765444 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.765503 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.769289 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.769341 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.772977 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.773044 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.776757 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.776808 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.784235 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.784304 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.788023 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.788094 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:27.791891 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:27.791944 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:30.577322 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:30.577401 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:30.580945 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:30.580978 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:30.585096 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:30.585137 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:30.589315 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:30.589370 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:30.593024 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:30.593055 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:30.596588 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:30.596623 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:30.600142 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:30.600175 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:30.604213 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:30.604271 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:30.607980 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:30.608012 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:30.611541 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:30.611574 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:30.615079 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:30.615103 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:30.619640 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:30.619684 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:30.623489 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:30.623519 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:30.627161 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:30.627194 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:30.630702 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:30.630733 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:30.634696 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:30.634735 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:30.638486 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:30.638537 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:30.642194 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:30.642241 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:30.645757 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:30.645792 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:30.649344 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:30.649399 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:30.653221 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:30.653285 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:30.657091 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:30.657140 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:30.660768 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:30.660795 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:30.664153 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:30.664186 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:30.667908 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:30.667973 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:30.671697 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:30.671753 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:30.675495 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:30.675539 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:30.679232 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:30.679275 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:30.682822 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:30.682859 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:30.686607 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:30.686661 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:30.690415 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:30.690454 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:31.212743 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:31.212792 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:31.216547 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:31.216609 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:31.221197 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:31.221256 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:31.225045 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:31.225095 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:31.228595 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:31.228627 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:31.232141 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:31.232178 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:31.237295 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:31.237334 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:31.241151 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:31.241200 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:31.244820 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:31.244854 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:31.248706 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:31.248745 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:31.253207 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:31.253314 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:31.256881 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:31.256915 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:31.260362 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:31.260409 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:31.263873 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:31.263908 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:31.267977 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:31.268035 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:31.271669 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:31.271703 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:31.286628 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:31.286687 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:31.290196 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:31.290246 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:31.293781 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:31.293828 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:31.297355 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:31.297407 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:34.677563 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:34.677611 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:34.681787 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:34.681829 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:34.686033 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:34.686079 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:34.703860 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:34.703917 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:34.708634 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:34.708693 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:34.712715 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:34.712754 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:34.716846 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:34.716883 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:34.722255 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:34.722309 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:34.726475 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:34.726547 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:34.730547 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:34.730590 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:34.734824 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:34.734872 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:34.739900 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:34.739949 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:34.745501 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:34.745568 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:34.749775 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:34.749814 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:34.753933 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:34.753989 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:34.758584 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:34.758661 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:34.762501 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:34.762547 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:34.766341 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:34.766386 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:34.770298 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:34.770354 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:34.774405 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:34.774473 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:35.297242 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:35.297369 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:35.305090 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:35.305194 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:35.315791 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:35.315912 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:35.326457 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:35.326576 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:35.342752 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:35.342826 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:35.347560 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:35.347625 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:35.352056 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:35.352106 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:35.356662 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:35.356741 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:35.360616 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:35.360647 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:35.365403 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:35.365448 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:35.369333 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:35.369385 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:35.373234 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:35.373284 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:35.377056 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:35.377094 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:35.380784 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:35.380825 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:35.384516 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:35.384562 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:35.388553 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:35.388617 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:35.392303 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:35.392343 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:35.396189 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:35.396230 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:35.400050 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:35.400090 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:35.404142 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:35.404202 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:35.408109 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:35.408141 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:35.412130 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:35.412170 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:35.510723 18937 detector_rune.cpp:177] No center R found.
+W0218 14:31:35.510794 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:36.048831 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:36.048880 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:36.052793 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:36.052839 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:36.056600 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:36.056640 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:36.060353 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:36.060386 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:36.064169 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:36.064214 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:36.068387 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:36.068450 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:36.072160 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:36.072201 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:36.076071 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:36.076112 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:36.079707 18937 detector_rune.cpp:177] No center R found.
+W0218 14:31:36.079751 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:38.739871 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:38.739920 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:38.745117 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:38.745173 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:38.749560 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:38.749603 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:38.753676 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:38.753719 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:38.767022 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:38.767077 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:38.771500 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:38.771546 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:38.776648 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:38.776705 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:38.781075 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:38.781118 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:38.785363 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:38.785400 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:38.789633 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:38.789683 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:38.794955 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:38.795018 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:38.799319 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:38.799360 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:38.803484 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:38.803520 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:38.807787 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:38.807833 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:38.812819 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:38.812881 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:38.817056 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:38.817114 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:38.821341 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:38.821398 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:38.826411 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:38.826474 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:38.830807 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:38.830857 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:38.835005 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:38.835078 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:38.839346 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:38.839385 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:38.844616 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:38.844678 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:39.344575 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:39.344642 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:39.353016 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:39.353060 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:39.357419 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:39.357475 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:39.361456 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:39.361513 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:39.365372 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:39.365412 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:39.369585 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:39.369628 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:39.373979 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:39.374048 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:39.377728 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:39.377775 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:39.381657 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:39.381691 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:39.386325 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:39.386368 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:39.390774 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:39.390833 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:39.394796 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:39.394826 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:39.398622 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:39.398663 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:39.402822 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:39.402881 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:39.407284 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:39.407364 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:39.411504 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:39.411556 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:39.415416 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:39.415474 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:39.419607 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:39.419669 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:39.432619 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:39.432683 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:39.436568 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:39.436623 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:39.441084 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:39.441148 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:42.968468 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:42.968536 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:42.972332 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:42.972369 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:42.976075 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:42.976115 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:42.989151 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:42.989205 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:42.992991 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:42.993046 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:42.996784 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:42.996825 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:43.000821 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:43.000905 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:43.004860 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:43.004927 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:43.008656 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:43.008713 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:43.012310 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:43.012351 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:43.016063 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:43.016119 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:43.020259 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:43.020313 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:43.024114 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:43.024147 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:43.027858 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:43.027897 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:43.039654 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:43.039705 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:43.043452 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:43.043503 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:43.047411 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:43.047459 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:43.550940 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:43.550995 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:43.554896 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:43.554936 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:43.558774 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:43.558813 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:43.562690 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:43.562726 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:43.567526 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:43.567593 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:43.571532 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:43.571571 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:43.575255 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:43.575292 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:43.579360 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:43.579421 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:43.584142 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:43.584198 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:43.588279 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:43.588325 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:43.592461 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:43.592507 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:43.596630 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:43.596666 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:43.601297 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:43.601351 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:43.605509 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:43.605542 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:43.609498 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:43.609549 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:43.613691 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:43.613729 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:43.618340 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:43.618400 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:43.622561 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:43.622642 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:43.626471 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:43.626516 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:43.630586 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:43.630640 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:43.635483 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:43.635541 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:43.639711 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:43.639782 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:43.643767 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:43.643821 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:43.647866 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:43.647907 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:43.652453 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:43.652518 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:43.656481 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:43.656529 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:43.661561 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:43.661607 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:43.670550 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:43.670614 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:43.674496 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:43.674546 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:43.765522 18937 detector_rune.cpp:177] No center R found.
+W0218 14:31:43.765583 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:47.125028 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:47.125072 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:47.129446 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:47.129495 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:47.133455 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:47.133507 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:47.137485 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:47.137529 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:47.166425 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:47.166472 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:47.170138 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:47.170168 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:47.678993 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:47.679073 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:47.683254 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:47.683297 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:47.687312 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:47.687351 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:47.691323 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:47.691367 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:47.695745 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:47.695796 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:47.699873 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:47.699904 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:47.704084 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:47.704119 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:47.708338 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:47.708389 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:47.712656 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:47.712707 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:47.716609 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:47.716657 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:47.720508 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:47.720556 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:47.724421 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:47.724457 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:47.728644 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:47.728715 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:47.732882 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:47.732931 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:47.736883 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:47.736932 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:47.740926 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:47.740968 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:47.745499 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:47.745563 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:47.749657 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:47.749688 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:47.753871 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:47.753908 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:47.757906 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:47.757947 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:47.762320 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:47.762377 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:47.766391 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:47.766440 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:47.770393 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:47.770445 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:47.774327 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:47.774376 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!
+W0218 14:31:47.778925 18937 detector_rune.cpp:158] No possible center R points found.
+W0218 14:31:47.778993 18937 detector_rune.cpp:303] Have not found R, P and G points at the same time!

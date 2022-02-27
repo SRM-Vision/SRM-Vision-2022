@@ -1,0 +1,5 @@
+Log file created at: 2022/02/23 19:55:39
+Running on machine: screw-Inspiron-7590
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+E0223 19:55:39.242116 17323 camera_hik.cpp:84] Failed to get device info with error 0x80000001.
+E0223 19:55:40.320530 17323 controller_infantry.cpp:26] Failed to initialize image provider.
