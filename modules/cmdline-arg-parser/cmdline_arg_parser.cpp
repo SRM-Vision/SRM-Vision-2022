@@ -16,7 +16,7 @@ DEFINE_bool(gimbal, false, "run with gimbal control");
 DEFINE_int32(mode_chooser, 0, "controller running mode chooser");
 
 // TODO Temporary flag for debug, will be removed in the future.
-DEFINE_bool(rune, false, "run with rune, must under infantry controller");
+DEFINE_bool(rune, false, "run with rune, must under infantry3 controller");
 DEFINE_bool(debug_image, false, "in debug mode show image");
 DEFINE_bool(debug_trackbar, true, "in debug use trackbar");
 
@@ -48,8 +48,8 @@ void CmdlineArgParser::Parse(int argc, char **argv) {
     // You must enable gimbal control to establish serial communication.
     assert(!run_with_serial_ || run_with_gimbal_);
 
-    // Rune mode must be run in infantry controller.
-    assert(!run_mode_rune_ || controller_type_ == "infantry");
+    // Rune mode must be run in infantry3 controller.
+    assert(!run_mode_rune_ || controller_type_ == "infantry3");
 
     LOG(INFO) << "Running " << (run_with_camera_ ? "with" : "without") << " camera.";
     LOG(INFO) << "Running " << (run_with_serial_ ? "with" : "without") << " serial communication.";

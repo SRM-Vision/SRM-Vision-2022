@@ -14,7 +14,7 @@
  *   (Thus, do not use this variable in any other place and you should not modify it.)
  */
 ControllerRegistry<InfantryController>
-        InfantryController::infantry_controller_registry_("infantry");
+        InfantryController::infantry_controller_registry_("infantry3");
 
 bool InfantryController::Initialize() {
     // Use reset here to allocate memory for an abstract class.
@@ -22,7 +22,7 @@ bool InfantryController::Initialize() {
             CREATE_IMAGE_PROVIDER(CmdlineArgParser::Instance().RunWithCamera() ? "camera" : "video"));
     if (!image_provider_->Initialize(
             CmdlineArgParser::Instance().RunWithCamera() ?
-            "../config/infantry/camera-init.yaml" : "../config/infantry/video-init.yaml")) {
+            "../config/infantry3/camera-init.yaml" : "../config/infantry3/video-init.yaml")) {
         LOG(ERROR) << "Failed to initialize image provider.";
         // Till now the camera may be open, it's necessary to reset image_provider_ manually to release camera.
         image_provider_.reset();
@@ -43,12 +43,12 @@ bool InfantryController::Initialize() {
     // rune initialize program.
     Frame init_frame;
     image_provider_->GetFrame(init_frame);
-    if (rune_detector_.Initialize("../config/infantry/rune-param.yaml", init_frame,
+    if (rune_detector_.Initialize("../config/infantry3/rune-param.yaml", init_frame,
                                   CmdlineArgParser::Instance().DebugUseTrackbar()))
         LOG(INFO) << "Rune detector initialize successfully!";
     else
         LOG(ERROR) << "Rune detector initialize unsuccessfully!";
-    if (RunePredictor::Initialize("../config/infantry/rune-param.yaml"))
+    if (RunePredictor::Initialize("../config/infantry3/rune-param.yaml"))
         LOG(INFO) << "Rune predictor initialize successfully!";
     else
         LOG(ERROR) << "Rune predictor initialize unsuccessfully!";

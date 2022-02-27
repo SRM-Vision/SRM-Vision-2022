@@ -20,7 +20,7 @@ bool RuneDetector::Initialize(const std::string &config_path, const Frame &frame
     // Initial center will be center of the image.
     energy_center_r_ = fan_center_g_ = armor_center_p_ = cv::Point2f(0, 0);
 
-    RuneDetectorDebug::Instance().Initialize("../config/infantry/rune-param.yaml", debug_use_trackbar);
+    RuneDetectorDebug::Instance().Initialize("../config/infantry3/rune-param.yaml", debug_use_trackbar);
 
     return true;
 }
