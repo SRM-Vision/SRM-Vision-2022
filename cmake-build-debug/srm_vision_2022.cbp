@@ -1,0 +1,694 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="srm_vision_2022"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;CMake Files\cmake\;CMake Files\..\;CMake Files\..\..\;CMake Files\..\..\..\;CMake Files\..\..\..\..\;CMake Files\..\..\..\..\usr\;CMake Files\..\..\..\..\usr\local\;CMake Files\..\..\..\..\usr\local\opencv451\;CMake Files\..\..\..\..\usr\local\opencv451\lib\;CMake Files\..\..\..\..\usr\local\opencv451\lib\cmake\;CMake Files\..\..\..\..\usr\local\opencv451\lib\cmake\opencv4\;CMake Files\..\..\..\..\usr\local\lib\;CMake Files\..\..\..\..\usr\local\lib\cmake\;CMake Files\..\..\..\..\usr\local\lib\cmake\fmt\;CMake Files\..\..\..\..\usr\local\lib\cmake\Ceres\;CMake Files\..\..\..\..\usr\lib\;CMake Files\..\..\..\..\usr\lib\cmake\;CMake Files\..\..\..\..\usr\lib\cmake\eigen3\;CMake Files\..\..\..\..\usr\lib\x86_64-linux-gnu\;CMake Files\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\;CMake Files\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\gflags\;CMake Files\benchmark\;CMake Files\test\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="SRM2021">
+				<Option output="/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/SRM2021" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DCERES_EXPORT_INTERNAL_SYMBOLS"/>
+					<Add option="-DGFLAGS_IS_A_DLL=0"/>
+					<Add option="-DFMT_LOCALE"/>
+					<Add directory="/usr/local/cuda/include"/>
+					<Add directory="/opt/TensorRT-7.2.3.4/include"/>
+					<Add directory="/opt/TensorRT-7.2.3.4/samples/common"/>
+					<Add directory="/opt/MVS/include"/>
+					<Add directory="/opt/Galaxy_camera/inc"/>
+					<Add directory="/home/screw/Desktop/SRM-Vision-2022/modules"/>
+					<Add directory="/home/screw/Desktop/SRM-Vision-2022/3rdparty"/>
+					<Add directory="/usr/local/opencv451/include/opencv4"/>
+					<Add directory="/usr/include/eigen3"/>
+					<Add directory="/usr/include/c++/8"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/8"/>
+					<Add directory="/usr/include/c++/8/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/8/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/Makefile&quot;  VERBOSE=1 SRM2021"/>
+					<CompileFile command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="SRM2021/fast">
+				<Option output="/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/SRM2021" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DCERES_EXPORT_INTERNAL_SYMBOLS"/>
+					<Add option="-DGFLAGS_IS_A_DLL=0"/>
+					<Add option="-DFMT_LOCALE"/>
+					<Add directory="/usr/local/cuda/include"/>
+					<Add directory="/opt/TensorRT-7.2.3.4/include"/>
+					<Add directory="/opt/TensorRT-7.2.3.4/samples/common"/>
+					<Add directory="/opt/MVS/include"/>
+					<Add directory="/opt/Galaxy_camera/inc"/>
+					<Add directory="/home/screw/Desktop/SRM-Vision-2022/modules"/>
+					<Add directory="/home/screw/Desktop/SRM-Vision-2022/3rdparty"/>
+					<Add directory="/usr/local/opencv451/include/opencv4"/>
+					<Add directory="/usr/include/eigen3"/>
+					<Add directory="/usr/include/c++/8"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/8"/>
+					<Add directory="/usr/include/c++/8/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/8/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/Makefile&quot;  VERBOSE=1 SRM2021/fast"/>
+					<CompileFile command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="benchmark-rsqrt">
+				<Option output="/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/benchmark/benchmark-rsqrt" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/benchmark"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/local/cuda/include"/>
+					<Add directory="/opt/TensorRT-7.2.3.4/include"/>
+					<Add directory="/opt/TensorRT-7.2.3.4/samples/common"/>
+					<Add directory="/usr/local/opencv451/include/opencv4"/>
+					<Add directory="/opt/MVS/include"/>
+					<Add directory="/opt/Galaxy_camera/inc"/>
+					<Add directory="/usr/include/eigen3"/>
+					<Add directory="/home/screw/Desktop/SRM-Vision-2022/modules"/>
+					<Add directory="/home/screw/Desktop/SRM-Vision-2022/3rdparty"/>
+					<Add directory="/usr/include/c++/8"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/8"/>
+					<Add directory="/usr/include/c++/8/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/8/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/benchmark/Makefile&quot;  VERBOSE=1 benchmark-rsqrt"/>
+					<CompileFile command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/benchmark/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/benchmark/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/benchmark/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="benchmark-rsqrt/fast">
+				<Option output="/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/benchmark/benchmark-rsqrt" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/benchmark"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/local/cuda/include"/>
+					<Add directory="/opt/TensorRT-7.2.3.4/include"/>
+					<Add directory="/opt/TensorRT-7.2.3.4/samples/common"/>
+					<Add directory="/usr/local/opencv451/include/opencv4"/>
+					<Add directory="/opt/MVS/include"/>
+					<Add directory="/opt/Galaxy_camera/inc"/>
+					<Add directory="/usr/include/eigen3"/>
+					<Add directory="/home/screw/Desktop/SRM-Vision-2022/modules"/>
+					<Add directory="/home/screw/Desktop/SRM-Vision-2022/3rdparty"/>
+					<Add directory="/usr/include/c++/8"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/8"/>
+					<Add directory="/usr/include/c++/8/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/8/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/benchmark/Makefile&quot;  VERBOSE=1 benchmark-rsqrt/fast"/>
+					<CompileFile command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/benchmark/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/benchmark/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/benchmark/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="benchmark-sse2">
+				<Option output="/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/benchmark/benchmark-sse2" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/benchmark"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/local/cuda/include"/>
+					<Add directory="/opt/TensorRT-7.2.3.4/include"/>
+					<Add directory="/opt/TensorRT-7.2.3.4/samples/common"/>
+					<Add directory="/usr/local/opencv451/include/opencv4"/>
+					<Add directory="/opt/MVS/include"/>
+					<Add directory="/opt/Galaxy_camera/inc"/>
+					<Add directory="/usr/include/eigen3"/>
+					<Add directory="/home/screw/Desktop/SRM-Vision-2022/modules"/>
+					<Add directory="/home/screw/Desktop/SRM-Vision-2022/3rdparty"/>
+					<Add directory="/usr/include/c++/8"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/8"/>
+					<Add directory="/usr/include/c++/8/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/8/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/benchmark/Makefile&quot;  VERBOSE=1 benchmark-sse2"/>
+					<CompileFile command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/benchmark/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/benchmark/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/benchmark/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="benchmark-sse2/fast">
+				<Option output="/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/benchmark/benchmark-sse2" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/benchmark"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/local/cuda/include"/>
+					<Add directory="/opt/TensorRT-7.2.3.4/include"/>
+					<Add directory="/opt/TensorRT-7.2.3.4/samples/common"/>
+					<Add directory="/usr/local/opencv451/include/opencv4"/>
+					<Add directory="/opt/MVS/include"/>
+					<Add directory="/opt/Galaxy_camera/inc"/>
+					<Add directory="/usr/include/eigen3"/>
+					<Add directory="/home/screw/Desktop/SRM-Vision-2022/modules"/>
+					<Add directory="/home/screw/Desktop/SRM-Vision-2022/3rdparty"/>
+					<Add directory="/usr/include/c++/8"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/8"/>
+					<Add directory="/usr/include/c++/8/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/8/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/benchmark/Makefile&quot;  VERBOSE=1 benchmark-sse2/fast"/>
+					<CompileFile command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/benchmark/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/benchmark/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/benchmark/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="benchmark-trigonometric">
+				<Option output="/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/benchmark/benchmark-trigonometric" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/benchmark"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/local/cuda/include"/>
+					<Add directory="/opt/TensorRT-7.2.3.4/include"/>
+					<Add directory="/opt/TensorRT-7.2.3.4/samples/common"/>
+					<Add directory="/usr/local/opencv451/include/opencv4"/>
+					<Add directory="/opt/MVS/include"/>
+					<Add directory="/opt/Galaxy_camera/inc"/>
+					<Add directory="/usr/include/eigen3"/>
+					<Add directory="/home/screw/Desktop/SRM-Vision-2022/modules"/>
+					<Add directory="/home/screw/Desktop/SRM-Vision-2022/3rdparty"/>
+					<Add directory="/usr/include/c++/8"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/8"/>
+					<Add directory="/usr/include/c++/8/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/8/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/benchmark/Makefile&quot;  VERBOSE=1 benchmark-trigonometric"/>
+					<CompileFile command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/benchmark/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/benchmark/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/benchmark/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="benchmark-trigonometric/fast">
+				<Option output="/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/benchmark/benchmark-trigonometric" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/benchmark"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/local/cuda/include"/>
+					<Add directory="/opt/TensorRT-7.2.3.4/include"/>
+					<Add directory="/opt/TensorRT-7.2.3.4/samples/common"/>
+					<Add directory="/usr/local/opencv451/include/opencv4"/>
+					<Add directory="/opt/MVS/include"/>
+					<Add directory="/opt/Galaxy_camera/inc"/>
+					<Add directory="/usr/include/eigen3"/>
+					<Add directory="/home/screw/Desktop/SRM-Vision-2022/modules"/>
+					<Add directory="/home/screw/Desktop/SRM-Vision-2022/3rdparty"/>
+					<Add directory="/usr/include/c++/8"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/8"/>
+					<Add directory="/usr/include/c++/8/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/8/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/benchmark/Makefile&quot;  VERBOSE=1 benchmark-trigonometric/fast"/>
+					<CompileFile command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/benchmark/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/benchmark/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/benchmark/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="benchmark-neon">
+				<Option output="/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/benchmark/benchmark-neon" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/benchmark"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/local/cuda/include"/>
+					<Add directory="/opt/TensorRT-7.2.3.4/include"/>
+					<Add directory="/opt/TensorRT-7.2.3.4/samples/common"/>
+					<Add directory="/usr/local/opencv451/include/opencv4"/>
+					<Add directory="/opt/MVS/include"/>
+					<Add directory="/opt/Galaxy_camera/inc"/>
+					<Add directory="/usr/include/eigen3"/>
+					<Add directory="/home/screw/Desktop/SRM-Vision-2022/modules"/>
+					<Add directory="/home/screw/Desktop/SRM-Vision-2022/3rdparty"/>
+					<Add directory="/usr/include/c++/8"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/8"/>
+					<Add directory="/usr/include/c++/8/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/8/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/benchmark/Makefile&quot;  VERBOSE=1 benchmark-neon"/>
+					<CompileFile command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/benchmark/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/benchmark/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/benchmark/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="benchmark-neon/fast">
+				<Option output="/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/benchmark/benchmark-neon" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/benchmark"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/local/cuda/include"/>
+					<Add directory="/opt/TensorRT-7.2.3.4/include"/>
+					<Add directory="/opt/TensorRT-7.2.3.4/samples/common"/>
+					<Add directory="/usr/local/opencv451/include/opencv4"/>
+					<Add directory="/opt/MVS/include"/>
+					<Add directory="/opt/Galaxy_camera/inc"/>
+					<Add directory="/usr/include/eigen3"/>
+					<Add directory="/home/screw/Desktop/SRM-Vision-2022/modules"/>
+					<Add directory="/home/screw/Desktop/SRM-Vision-2022/3rdparty"/>
+					<Add directory="/usr/include/c++/8"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/8"/>
+					<Add directory="/usr/include/c++/8/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/8/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/benchmark/Makefile&quot;  VERBOSE=1 benchmark-neon/fast"/>
+					<CompileFile command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/benchmark/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/benchmark/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/benchmark/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="test-fsm">
+				<Option output="/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/test/test-fsm" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/test"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DCERES_EXPORT_INTERNAL_SYMBOLS"/>
+					<Add option="-DGFLAGS_IS_A_DLL=0"/>
+					<Add directory="/usr/local/cuda/include"/>
+					<Add directory="/opt/TensorRT-7.2.3.4/include"/>
+					<Add directory="/opt/TensorRT-7.2.3.4/samples/common"/>
+					<Add directory="/usr/local/opencv451/include/opencv4"/>
+					<Add directory="/opt/MVS/include"/>
+					<Add directory="/opt/Galaxy_camera/inc"/>
+					<Add directory="/home/screw/Desktop/SRM-Vision-2022/modules"/>
+					<Add directory="/home/screw/Desktop/SRM-Vision-2022/3rdparty"/>
+					<Add directory="/usr/include/eigen3"/>
+					<Add directory="/usr/include/c++/8"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/8"/>
+					<Add directory="/usr/include/c++/8/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/8/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/test/Makefile&quot;  VERBOSE=1 test-fsm"/>
+					<CompileFile command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/test/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/test/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/test/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="test-fsm/fast">
+				<Option output="/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/test/test-fsm" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/test"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DCERES_EXPORT_INTERNAL_SYMBOLS"/>
+					<Add option="-DGFLAGS_IS_A_DLL=0"/>
+					<Add directory="/usr/local/cuda/include"/>
+					<Add directory="/opt/TensorRT-7.2.3.4/include"/>
+					<Add directory="/opt/TensorRT-7.2.3.4/samples/common"/>
+					<Add directory="/usr/local/opencv451/include/opencv4"/>
+					<Add directory="/opt/MVS/include"/>
+					<Add directory="/opt/Galaxy_camera/inc"/>
+					<Add directory="/home/screw/Desktop/SRM-Vision-2022/modules"/>
+					<Add directory="/home/screw/Desktop/SRM-Vision-2022/3rdparty"/>
+					<Add directory="/usr/include/eigen3"/>
+					<Add directory="/usr/include/c++/8"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/8"/>
+					<Add directory="/usr/include/c++/8/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/8/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/test/Makefile&quot;  VERBOSE=1 test-fsm/fast"/>
+					<CompileFile command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/test/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/test/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j12 -f &quot;/home/screw/Desktop/SRM-Vision-2022/cmake-build-debug/test/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/benchmark/neon.cpp">
+			<Option target="benchmark-neon"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/benchmark/rsqrt.cpp">
+			<Option target="benchmark-rsqrt"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/benchmark/sse2.cpp">
+			<Option target="benchmark-sse2"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/benchmark/trigonometric.cpp">
+			<Option target="benchmark-trigonometric"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/main.cpp">
+			<Option target="SRM2021"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/modules/camera-dh/camera_dh.cpp">
+			<Option target="SRM2021"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/modules/camera-dh/camera_dh.h">
+			<Option target="SRM2021"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/modules/camera-hik/camera_hik.cpp">
+			<Option target="SRM2021"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/modules/camera-hik/camera_hik.h">
+			<Option target="SRM2021"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/modules/cmdline-arg-parser/cmdline_arg_parser.cpp">
+			<Option target="SRM2021"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/modules/cmdline-arg-parser/cmdline_arg_parser.h">
+			<Option target="SRM2021"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/modules/controller-hero/controller_hero.cpp">
+			<Option target="SRM2021"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/modules/controller-hero/controller_hero.h">
+			<Option target="SRM2021"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/modules/controller-infantry/controller_infantry.cpp">
+			<Option target="SRM2021"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/modules/controller-infantry/controller_infantry.h">
+			<Option target="SRM2021"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/modules/controller-sentry-lower/controller_sentry_lower.cpp">
+			<Option target="SRM2021"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/modules/controller-sentry-lower/controller_sentry_lower.h">
+			<Option target="SRM2021"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/modules/debug-tools/trackbar.cpp">
+			<Option target="SRM2021"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/modules/debug-tools/trackbar.h">
+			<Option target="SRM2021"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/modules/detector-armor/detector_armor.cpp">
+			<Option target="SRM2021"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/modules/detector-armor/detector_armor.h">
+			<Option target="SRM2021"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/modules/detector-rune-debug/detector_rune_debug.cpp">
+			<Option target="SRM2021"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/modules/detector-rune-debug/detector_rune_debug.h">
+			<Option target="SRM2021"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/modules/detector-rune/detector_rune.cpp">
+			<Option target="SRM2021"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/modules/detector-rune/detector_rune.h">
+			<Option target="SRM2021"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/modules/digital-twin/battlefield.cpp">
+			<Option target="SRM2021"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/modules/digital-twin/battlefield.h">
+			<Option target="SRM2021"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/modules/fsm-base/machine.cc">
+			<Option target="SRM2021"/>
+			<Option target="test-fsm"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/modules/fsm-base/machine.h">
+			<Option target="SRM2021"/>
+			<Option target="test-fsm"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/modules/fsm-base/machine_operation_event.cc">
+			<Option target="SRM2021"/>
+			<Option target="test-fsm"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/modules/fsm-base/machine_operation_event.h">
+			<Option target="SRM2021"/>
+			<Option target="test-fsm"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/modules/fsm-base/machine_set.cc">
+			<Option target="SRM2021"/>
+			<Option target="test-fsm"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/modules/fsm-base/machine_set.h">
+			<Option target="SRM2021"/>
+			<Option target="test-fsm"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/modules/fsm-base/machine_set_handler.cc">
+			<Option target="SRM2021"/>
+			<Option target="test-fsm"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/modules/fsm-base/machine_set_handler.h">
+			<Option target="SRM2021"/>
+			<Option target="test-fsm"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/modules/fsm-base/machine_type.cc">
+			<Option target="SRM2021"/>
+			<Option target="test-fsm"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/modules/fsm-base/machine_type.h">
+			<Option target="SRM2021"/>
+			<Option target="test-fsm"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/modules/fsm-base/state.cc">
+			<Option target="SRM2021"/>
+			<Option target="test-fsm"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/modules/fsm-base/state.h">
+			<Option target="SRM2021"/>
+			<Option target="test-fsm"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/modules/fsm-base/timeout_event.cc">
+			<Option target="SRM2021"/>
+			<Option target="test-fsm"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/modules/fsm-base/timeout_event.h">
+			<Option target="SRM2021"/>
+			<Option target="test-fsm"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/modules/fsm-base/timeout_predicate.cc">
+			<Option target="SRM2021"/>
+			<Option target="test-fsm"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/modules/fsm-base/timeout_predicate.h">
+			<Option target="SRM2021"/>
+			<Option target="test-fsm"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/modules/fsm-base/transition.cc">
+			<Option target="SRM2021"/>
+			<Option target="test-fsm"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/modules/fsm-base/transition.h">
+			<Option target="SRM2021"/>
+			<Option target="test-fsm"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/modules/image-provider-camera/image_provider_camera.cpp">
+			<Option target="SRM2021"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/modules/image-provider-camera/image_provider_camera.h">
+			<Option target="SRM2021"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/modules/image-provider-video/image_provider_video.cpp">
+			<Option target="SRM2021"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/modules/image-provider-video/image_provider_video.h">
+			<Option target="SRM2021"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/modules/predictor-armor-debug/predictor_armor_debug.cpp">
+			<Option target="SRM2021"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/modules/predictor-armor-debug/predictor_armor_debug.h">
+			<Option target="SRM2021"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/modules/predictor-armor/predictor_armor.cpp">
+			<Option target="SRM2021"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/modules/predictor-armor/predictor_armor.h">
+			<Option target="SRM2021"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/modules/predictor-rune/predictor_rune.cpp">
+			<Option target="SRM2021"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/modules/predictor-rune/predictor_rune.h">
+			<Option target="SRM2021"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/modules/serial/serial.cpp">
+			<Option target="SRM2021"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/modules/serial/serial.h">
+			<Option target="SRM2021"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/test/fsm.cpp">
+			<Option target="test-fsm"/>
+		</Unit>
+		<Unit filename="/opt/TensorRT-7.2.3.4/samples/common/logger.cpp">
+			<Option target="SRM2021"/>
+		</Unit>
+		<Unit filename="/opt/TensorRT-7.2.3.4/samples/common/logger.h">
+			<Option target="SRM2021"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/cmake/FindTensorRT.cmake">
+			<Option virtualFolder="CMake Files\cmake\"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/../../../../usr/local/opencv451/lib/cmake/opencv4/OpenCVConfig-version.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\local\opencv451\lib\cmake\opencv4\"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/../../../../usr/local/opencv451/lib/cmake/opencv4/OpenCVConfig.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\local\opencv451\lib\cmake\opencv4\"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/../../../../usr/local/opencv451/lib/cmake/opencv4/OpenCVModules-release.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\local\opencv451\lib\cmake\opencv4\"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/../../../../usr/local/opencv451/lib/cmake/opencv4/OpenCVModules.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\local\opencv451\lib\cmake\opencv4\"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/../../../../usr/local/lib/cmake/fmt/fmt-config-version.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\local\lib\cmake\fmt\"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/../../../../usr/local/lib/cmake/fmt/fmt-config.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\local\lib\cmake\fmt\"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/../../../../usr/local/lib/cmake/fmt/fmt-targets-release.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\local\lib\cmake\fmt\"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/../../../../usr/local/lib/cmake/fmt/fmt-targets.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\local\lib\cmake\fmt\"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/../../../../usr/local/lib/cmake/Ceres/CeresConfig.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\local\lib\cmake\Ceres\"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/../../../../usr/local/lib/cmake/Ceres/CeresConfigVersion.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\local\lib\cmake\Ceres\"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/../../../../usr/local/lib/cmake/Ceres/CeresTargets-release.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\local\lib\cmake\Ceres\"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/../../../../usr/local/lib/cmake/Ceres/CeresTargets.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\local\lib\cmake\Ceres\"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/../../../../usr/local/lib/cmake/Ceres/FindGlog.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\local\lib\cmake\Ceres\"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/../../../../usr/lib/cmake/eigen3/Eigen3Config.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\lib\cmake\eigen3\"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/../../../../usr/lib/cmake/eigen3/Eigen3ConfigVersion.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\lib\cmake\eigen3\"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/../../../../usr/lib/cmake/eigen3/Eigen3Targets.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\lib\cmake\eigen3\"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/../../../../usr/lib/x86_64-linux-gnu/cmake/gflags/gflags-config-version.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\gflags\"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/../../../../usr/lib/x86_64-linux-gnu/cmake/gflags/gflags-config.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\gflags\"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/../../../../usr/lib/x86_64-linux-gnu/cmake/gflags/gflags-nonamespace-targets-release.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\gflags\"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/../../../../usr/lib/x86_64-linux-gnu/cmake/gflags/gflags-nonamespace-targets.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\gflags\"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/benchmark/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\benchmark\"/>
+		</Unit>
+		<Unit filename="/home/screw/Desktop/SRM-Vision-2022/test/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\test\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

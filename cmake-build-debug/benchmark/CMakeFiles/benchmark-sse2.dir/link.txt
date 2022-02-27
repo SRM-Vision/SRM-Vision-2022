@@ -1,0 +1,1 @@
+/usr/bin/g++-8 -g CMakeFiles/benchmark-sse2.dir/sse2.cpp.o -o benchmark-sse2   -L/opt/TensorRT-7.2.3.4/lib 

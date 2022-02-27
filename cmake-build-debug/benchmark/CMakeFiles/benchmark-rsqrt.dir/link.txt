@@ -1,0 +1,1 @@
+/usr/bin/g++-8 -g CMakeFiles/benchmark-rsqrt.dir/rsqrt.cpp.o -o benchmark-rsqrt   -L/opt/TensorRT-7.2.3.4/lib 
