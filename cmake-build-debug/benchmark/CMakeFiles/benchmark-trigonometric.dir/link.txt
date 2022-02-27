@@ -1,1 +1,0 @@
-/usr/bin/g++-8 -g CMakeFiles/benchmark-trigonometric.dir/trigonometric.cpp.o -o benchmark-trigonometric   -L/opt/TensorRT-7.2.3.4/lib 
