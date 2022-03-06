@@ -43,10 +43,8 @@ class FoodMachine : public fsm::StateMachine {
 public:
     explicit FoodMachine(const std::string &name);
 
-public:
     void Initialize() override;
 
-public:
     fsm::StateSharedPtr startup_;
     fsm::StateSharedPtr logging_;
     fsm::StateSharedPtr welcome_;
@@ -59,8 +57,7 @@ public:
 };
 
 FoodMachine::FoodMachine(const std::string &name)
-        : StateMachine(name) {
-}
+        : StateMachine(name) {}
 
 void FoodMachine::Initialize() {
     startup_ = fsm::State::MakeState(*this, "STARTUP");

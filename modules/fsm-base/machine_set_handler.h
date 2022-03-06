@@ -17,7 +17,6 @@ namespace fsm {
             kContinue [[maybe_unused]]   ///< If continue, call MachineSet's function.
         };
 
-    public:
         MachineSetHandler() = default;
 
         virtual ~MachineSetHandler() = default;
@@ -27,7 +26,6 @@ namespace fsm {
         [[maybe_unused]] static void ProcessTimeOutMachine(const MachineSetSharedPtr &machine_set,
                                                            const MachineBaseSharedPtr &machine);
 
-    public:
         [[maybe_unused]] virtual HandleResult OnEventEnqueue(const EventSharedPtr &event) = 0;
 
         [[maybe_unused]] virtual int OnUpdateMachineTimeOut(const MachineSetSharedPtr &machine_set,

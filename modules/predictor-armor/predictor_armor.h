@@ -7,7 +7,7 @@
 #ifndef PREDICTOR_ARMOR_H_
 #define PREDICTOR_ARMOR_H_
 
-#include "data-structure/serial_data.h"
+#include "data-structure/communication.h"
 #include "lang-feature-extension/disable_constructor.h"
 #include "digital-twin/battlefield.h"
 #include "ekf.h"

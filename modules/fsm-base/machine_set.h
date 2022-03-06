@@ -27,11 +27,11 @@ namespace fsm {
 
         [[maybe_unused]] void Enqueue(EventSharedPtr event);
 
-        [[maybe_unused]] [[maybe_unused]] void StartBackground(unsigned int sleep_time);
+        [[maybe_unused]] void StartBackground(unsigned int sleep_time);
 
         void StopBackground();
 
-        [[maybe_unused]] [[maybe_unused]] void Process();
+        [[maybe_unused]] void Process();
 
         void Process(const EventSharedPtr &event);
 

@@ -20,7 +20,7 @@ bool RuneDetector::Initialize(const std::string &config_path, const Frame &frame
     // Initial center will be center of the image.
     energy_center_r_ = fan_center_g_ = armor_center_p_ = cv::Point2f(0, 0);
 
-    RuneDetectorDebug::Instance().Initialize("../config/infantry3/rune-param.yaml", debug_use_trackbar);
+    RuneDetectorDebug::Instance().Initialize("../config/infantry/rune-param.yaml", debug_use_trackbar);
 
     return true;
 }
@@ -42,9 +42,9 @@ PowerRune RuneDetector::Run(Frame &frame) {
     else
         FindArmorCenterP(image_);
 
-    debug::Painter::Instance().DrawPoint(armor_center_p_,cv::Scalar(0, 255, 255));
-    debug::Painter::Instance().DrawPoint(energy_center_r_,cv::Scalar(255, 0, 255));
-    debug::Painter::Instance().DrawContours(fan_contours_,cv::Scalar(255, 255, 0));
+    debug::Painter::Instance().DrawPoint(armor_center_p_, cv::Scalar(0, 255, 255));
+    debug::Painter::Instance().DrawPoint(energy_center_r_, cv::Scalar(255, 0, 255));
+    debug::Painter::Instance().DrawContours(fan_contours_, cv::Scalar(255, 255, 0));
 
     return {color_,
             clockwise_,
@@ -114,7 +114,7 @@ bool RuneDetector::FindCenterR(cv::Mat &image) {
 
         if (debug_) {
             cv::line(image, fan_rect_points_[0], fan_rect_points_[1],
-                 cv::Scalar_<double>(255, 0, 0), 3);
+                     cv::Scalar_<double>(255, 0, 0), 3);
         }
     } else {
         cv::Point2f vec = fan_rect_points_[1] - fan_rect_points_[2];
@@ -125,7 +125,7 @@ bool RuneDetector::FindCenterR(cv::Mat &image) {
 
         if (debug_) {
             cv::line(image, fan_rect_points_[2], fan_rect_points_[1],
-                 cv::Scalar_<double>(255, 0, 0), 3);
+                     cv::Scalar_<double>(255, 0, 0), 3);
         }
     }
 
@@ -176,7 +176,7 @@ bool RuneDetector::FindArmorCenterP(cv::Mat &image) {
                      cv::RETR_TREE,
                      cv::CHAIN_APPROX_SIMPLE);
 
-    if(debug_){
+    if (debug_) {
         debug::Painter::Instance().DrawContours(fan_contours_, cv::Scalar(255, 255, 0));
         cv::imshow("image", image);
         cv::waitKey(1);
@@ -236,7 +236,7 @@ bool RuneDetector::FindArmorCenterP(cv::Mat &image) {
                         armor_center_p_ = armor_encircle_rect_.center;
 
                         if (debug_)
-                            debug::Painter::Instance().DrawPoint(armor_center_p_,cv::Scalar_<double>(255, 0, 0));
+                            debug::Painter::Instance().DrawPoint(armor_center_p_, cv::Scalar_<double>(255, 0, 0));
 
                         found_armor_center_p = true;
 

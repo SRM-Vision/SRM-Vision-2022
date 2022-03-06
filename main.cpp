@@ -20,8 +20,7 @@ int main(int argc, char *argv[]) {
     CmdlineArgParser::Instance().Parse(argc, argv);
 
     // Create controller.
-    Controller *controller = CREATE_CONTROLLER(
-            CmdlineArgParser::Instance().ControllerType());
+    Controller *controller = CREATE_CONTROLLER(CmdlineArgParser::Instance().ControllerType());
 
     if (controller == nullptr)
         return -1;

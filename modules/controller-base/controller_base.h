@@ -9,6 +9,7 @@
 #define CONTROLLER_BASE_H_
 
 #include "lang-feature-extension/disable_constructor.h"
+#include "data-structure/communication.h"
 #include "digital-twin/battlefield.h"
 #include "serial/serial.h"
 #include "image-provider-base/image_provider_base.h"

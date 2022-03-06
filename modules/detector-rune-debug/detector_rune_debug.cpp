@@ -1,7 +1,3 @@
-//
-// Created by screw on 2022/2/19.
-//
-
 #include "detector_rune_debug.h"
 
 void RuneDetectorDebug::Initialize(const std::string &config_path, bool debug_use_trackbar) {
@@ -32,8 +28,7 @@ void RuneDetectorDebug::Initialize(const std::string &config_path, bool debug_us
     }
     config_.release();
 
-    if(debug_use_trackbar)
-    {
+    if (debug_use_trackbar) {
         /// --- binary threshold ---
         debug::Trackbar<int>::Instance().AddTrackbar("Binary threshold (0-255):",
                                                      trackbar_window_name_,
@@ -131,6 +126,5 @@ void RuneDetectorDebug::Initialize(const std::string &config_path, bool debug_us
         return;
     }
     config_.release();
-    LOG(INFO) << "Update config of run detector successfully!";
+    LOG(INFO) << "Config of rune detector is updated.";
 }
-

@@ -36,7 +36,6 @@ private:
     /// Own registry in controller factory.
     [[maybe_unused]] static ControllerRegistry<InfantryController> infantry_controller_registry_;
 
-    // energy class
     RuneDetector rune_detector_;
     RunePredictor rune_predictor_;
     PowerRune power_rune_;
