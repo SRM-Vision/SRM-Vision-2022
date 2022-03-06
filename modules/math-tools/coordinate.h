@@ -40,7 +40,7 @@ namespace coordinate::transform {
         RotationMatrix r_yaw, r_roll, r_pitch;
 
         // [Experimental] Use SSE2 or NEON to accelerate sine and cosine.
-#if defined(HW_ACC_SSE2) | defined(HW_ACC_NEON)
+#if defined(__x86_64__) | defined(__aarch64__)
         float r[4] = {float(e_yaw), float(e_roll), float(e_pitch), float(0)}, sin_r[4], cos_r[4];
         algorithm::SinCosFloatX4(r, sin_r, cos_r);
         r_yaw << cos_r[0], 0, sin_r[0],

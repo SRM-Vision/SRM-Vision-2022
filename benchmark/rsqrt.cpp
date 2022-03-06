@@ -28,7 +28,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
     printf("Benchmark for inverse sqrt. Based on %u experiments.\n", (unsigned int) kExperiments);
     printf("================================================\n");
 
-#if defined(HW_ACC_SSE2)
+#if defined(__x86_64__) | defined(__aarch64__)
     {
         printf("SSE2 or NEON detected. Testing accelerated inverse sqrt:\n");
         clock_t t = clock();

@@ -14,8 +14,7 @@
 
 bool HeroController::Initialize() {
     // Use reset here to allocate memory for an abstract class.
-    image_provider_.reset(
-            CREATE_IMAGE_PROVIDER(CmdlineArgParser::Instance().RunWithCamera() ? "camera" : "video"));
+    image_provider_.reset(CREATE_IMAGE_PROVIDER(CmdlineArgParser::Instance().RunWithCamera() ? "camera" : "video"));
     if (!image_provider_->Initialize(
             CmdlineArgParser::Instance().RunWithCamera() ?
             "../config/hero/camera-init.yaml" : "../config/hero/video-init.yaml")) {
@@ -41,13 +40,15 @@ bool HeroController::Initialize() {
 }
 
 void HeroController::Run() {
+    sleep(2);
+
     while (!exit_signal_) {
         if (!image_provider_->GetFrame(frame_))
             break;
-        SerialReceivePacket serial_receive_packet{};
 
         if (CmdlineArgParser::Instance().RunWithGimbal()) {
-            serial_->GetData(serial_receive_packet, std::chrono::milliseconds(20));
+            SerialReceivePacket serial_receive_packet{};
+            serial_->GetData(serial_receive_packet, std::chrono::milliseconds(5));
             receive_packet_ = ReceivePacket(serial_receive_packet);
         }
 
@@ -63,12 +64,15 @@ void HeroController::Run() {
                         cv::FONT_HERSHEY_SIMPLEX, 1,
                         cv::Scalar((box.color == 0) * 255, 0, (box.color == 1) * 255), 2);
         }
+
         cv::imshow("Hero", img);
         if ((cv::waitKey(1) & 0xff) == 'q')
             break;
 
         BboxToArmor();
-        battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.quaternion,
+        battlefield_ = Battlefield(frame_.time_stamp,
+                                   receive_packet_.bullet_speed,
+                                   receive_packet_.quaternion,
                                    armors_);
 
         boxes_.clear();

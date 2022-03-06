@@ -1,0 +1,26 @@
+<component name="ProjectCodeStyleConfiguration">
+  <code_scheme name="Project" version="173">
+    <Objective-C>
+      <option name="ADD_BRIEF_TAG" value="true" />
+      <option name="HEADER_GUARD_STYLE_PATTERN" value="${FILE_NAME}_${EXT}_" />
+    </Objective-C>
+    <Objective-C-extensions>
+      <extensions>
+        <pair source="cpp" header="h" fileNamingConvention="SNAKE_CASE" />
+        <pair source="c" header="h" fileNamingConvention="SNAKE_CASE" />
+        <pair source="cu" header="cuh" fileNamingConvention="SNAKE_CASE" />
+      </extensions>
+      <rules>
+        <rule entity="MACRO" visibility="ANY" specifier="ANY" prefix="" style="SCREAMING_SNAKE_CASE" suffix="" />
+        <rule entity="NAMESPACE" visibility="ANY" specifier="ANY" prefix="" style="SNAKE_CASE" suffix="" />
+        <rule entity="CLASS,ENUM,UNION,TYPEDEF" visibility="ANY" specifier="ANY" prefix="" style="PASCAL_CASE" suffix="" />
+        <rule entity="CLASS_MEMBER_FIELD" visibility="ANY" specifier="ANY" prefix="" style="SNAKE_CASE" suffix="_" />
+        <rule entity="STRUCT_MEMBER_FIELD" visibility="ANY" specifier="ANY" prefix="" style="SNAKE_CASE" suffix="" />
+        <rule entity="ENUMERATOR" visibility="ANY" specifier="ANY" prefix="k" style="PASCAL_CASE" suffix="" />
+        <rule entity="GLOBAL_FUNCTION,CLASS_MEMBER_FUNCTION,STRUCT_MEMBER_FUNCTION" visibility="ANY" specifier="ANY" prefix="" style="PASCAL_CASE" suffix="" />
+        <rule entity="PARAMETER,LOCAL_VARIABLE" visibility="ANY" specifier="ANY" prefix="" style="SNAKE_CASE" suffix="" />
+        <rule entity="GLOBAL_VARIABLE,LOCAL_VARIABLE" visibility="ANY" specifier="CONST" prefix="k" style="PASCAL_CASE" suffix="" />
+      </rules>
+    </Objective-C-extensions>
+  </code_scheme>
+</component>

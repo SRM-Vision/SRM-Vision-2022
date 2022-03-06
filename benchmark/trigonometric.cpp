@@ -11,7 +11,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
     printf("Benchmark for trigonometric functions. Based on %u experiments.\n", (unsigned int) kExperiments);
     printf("================================================\n");
 
-#if defined(HW_ACC_SSE2) | defined(HW_ACC_NEON)
+#if defined(__x86_64__) | defined(__aarch64__)
     {
         printf("SSE2 or NEON detected. Testing accelerated sin and cos:\n");
         clock_t t = clock();
@@ -37,7 +37,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
         printf("------------------------------------------------\n");
     }
 
-#if defined(HW_ACC_SSE2) | defined(HW_ACC_NEON)
+#if defined(__x86_64__) | defined(__aarch64__)
     {
         printf("SSE2 or NEON detected. Testing accelerated tan and cot:\n");
         clock_t t = clock();
@@ -63,7 +63,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
         printf("------------------------------------------------\n");
     }
 
-#if defined(HW_ACC_SSE2) | defined(HW_ACC_NEON)
+#if defined(__x86_64__) | defined(__aarch64__)
     {
         printf("SSE2 or NEON detected. Testing accelerated atan:\n");
         clock_t t = clock();

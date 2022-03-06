@@ -1,4 +1,0 @@
-Log file created at: 2022/02/23 19:25:12
-Running on machine: screw-Inspiron-7590
-Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
-W0223 19:25:12.766398 13327 main.cpp:13] Caught terminate signal. Attempting to exit...
