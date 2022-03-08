@@ -9,6 +9,8 @@ const float kSwitchArmorAreaProportion = 1.1f;  ///< Minimal area of armor to sw
 SendPacket ArmorPredictor::Run(const Battlefield &battlefield, Modes mode) {
     auto &robots = battlefield.Robots();
 
+
+    if(!antitop_detector_.IsInit())  antitop_detector_.Initialize(battlefield.TimeStamp());
     // Do nothing if nothing is found.
     // ================================================
     // Find grey armors.
@@ -637,6 +639,9 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, Modes mode) {
             break;
         }
     }
+    if(antitop_detector_.IsInit())
+        if(antitop_detector_.Is_Top(target_.armor->ID() == target->ID(), anticlockwise_, same_id, battlefield.TimeStamp()))
+            LOG(INFO)<<"abaaaaaaaaa"<<antitop_detector_.GetTopReriod();
     target_.armor = target;
     target_locked_ = true;
     armor_num_ = armor_num;

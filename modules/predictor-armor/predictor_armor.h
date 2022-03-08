@@ -10,6 +10,7 @@
 #include "data-structure/communication.h"
 #include "lang-feature-extension/disable_constructor.h"
 #include "digital-twin/battlefield.h"
+#include "antitop_detector.h"
 #include "ekf.h"
 
 /// Predicting function template structure.
@@ -315,6 +316,7 @@ private:
 
     Eigen::Vector3d translation_vector_cam_predict_;
     std::vector<Node> antitop_candidates_;
+    AntitopDetector antitop_detector_;
 };
 
 #endif  // PREDICTOR_ARMOR_H_
