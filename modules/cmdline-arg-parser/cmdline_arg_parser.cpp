@@ -54,5 +54,6 @@ void CmdlineArgParser::Parse(int argc, char **argv) {
     LOG(INFO) << "Running " << (run_with_camera_ ? "with" : "without") << " camera.";
     LOG(INFO) << "Running " << (run_with_serial_ ? "with" : "without") << " serial communication.";
     LOG(INFO) << "Running " << (run_with_gimbal_ ? "with" : "without") << " gimbal control.";
+    LOG(INFO) << "Running " << (run_mode_rune_ ? "with" : "without") << " rune mode.";
     LOG(INFO) << "Controller type: " << controller_type_;
 }
