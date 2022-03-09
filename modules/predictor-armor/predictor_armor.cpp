@@ -4,6 +4,7 @@ const double kDistanceThreshold = 6;            ///< Distance threshold to judge
 const float kACSpeedXCoefficient = .5f;         ///< Coefficient of inherit anti-top candidate's speed x.
 const float kACSpeedYCoefficient = .5f;         ///< Coefficient of inherit anti-top candidate's speed y.
 const double kACInitMinLastingTime = 1;         ///< Minimal lasting time to enter anti-top candidates.
+const double kAccelerationThreshold = 100;        ///< Maximal acceleration allow to fire.
 const float kSwitchArmorAreaProportion = 1.1f;  ///< Minimal area of armor to switch to.
 
 SendPacket ArmorPredictor::Run(const Battlefield &battlefield, Modes mode) {
@@ -17,6 +18,8 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, Modes mode) {
     bool exist_grey = true;
     if (robots.find(Entity::Colors::kGrey) == robots.end())
         exist_grey = false;
+
+    fire_ = false;
 
     // Find enemy armors.
     bool exist_enemy = true;
@@ -354,7 +357,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, Modes mode) {
         Eigen::Vector3d shoot_point_spherical;
 
         predict.delta_t = delta_t;
-        Eigen::Vector2d y_predict_speed;
+        Eigen::Vector2d predict_speed;
         Eigen::Matrix<double, 5, 1> x_real;
         Eigen::Matrix<double, 3, 1> y_real;
 
@@ -410,11 +413,11 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, Modes mode) {
                 Eigen::Vector3d::Zero(),
                 Eigen::Matrix3d::Identity());
 
-        Eigen::Vector3d y_predict_delta = coordinate::convert::Rectangular2Spherical(tv_imu_delta);
-        Eigen::Vector3d y_predict_current = coordinate::convert::Rectangular2Spherical(tv_imu_current);
+        Eigen::Vector3d predict_delta = coordinate::convert::Rectangular2Spherical(tv_imu_delta);
+        Eigen::Vector3d predict_current = coordinate::convert::Rectangular2Spherical(tv_imu_current);
 
-        y_predict_speed(0, 0) = (y_predict_delta(0, 0) - y_predict_current(0, 0)) / 0.001;
-        y_predict_speed(1, 0) = (y_predict_delta(1, 0) - y_predict_current(1, 0)) / 0.001;
+        predict_speed(0, 0) = (predict_delta(0, 0) - predict_current(0, 0)) / 0.001;
+        predict_speed(1, 0) = (predict_delta(1, 0) - predict_current(1, 0)) / 0.001;
     }
 
     // There's no reference, re-initialize anti-top.
@@ -514,7 +517,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, Modes mode) {
                 } else {
                     antitop_candidate.need_init = false;
                     Eigen::Vector3d tv_world_measure = antitop_candidate.armor->TranslationVectorWorld();
-                    Eigen::Vector2d y_predict_speed;
+                    Eigen::Vector2d predict_speed;
                     coordinate::TranslationVector shoot_point_rectangular;
                     predict.delta_t = delta_t;
                     Eigen::Matrix<double, 5, 1> x_real;
@@ -569,11 +572,15 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, Modes mode) {
                             Eigen::Vector3d::Zero(),
                             Eigen::Matrix3d::Identity());
 
-                    Eigen::Vector3d y_predict_delta = coordinate::convert::Rectangular2Spherical(tv_imu_delta);
-                    Eigen::Vector3d y_predict_current = coordinate::convert::Rectangular2Spherical(tv_imu_current);
+                    Eigen::Vector3d predict_delta = coordinate::convert::Rectangular2Spherical(tv_imu_delta);
+                    Eigen::Vector3d predict_current = coordinate::convert::Rectangular2Spherical(tv_imu_current);
 
-                    y_predict_speed(0, 0) = (y_predict_delta(0, 0) - y_predict_current(0, 0)) / 0.001;
-                    y_predict_speed(1, 0) = (y_predict_delta(1, 0) - y_predict_current(1, 0)) / 0.001;
+                    predict_speed(0, 0) = (predict_delta(0, 0) - predict_current(0, 0)) / 0.001;
+                    predict_speed(1, 0) = (predict_delta(1, 0) - predict_current(1, 0)) / 0.001;
+                    if(abs(last_armor_speed-predict_speed.norm())/delta_t < kAccelerationThreshold)
+                        fire_ = true;
+                    last_armor_speed = predict_speed.norm();
+                    LOG(WARNING) <<"Whether fire:  "<<fire_<<std::endl;
                 }
                 break;
             }
@@ -641,9 +648,9 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, Modes mode) {
     }
     if(antitop_detector_.IsInit())
         if(antitop_detector_.Is_Top(target_.armor->ID() == target->ID(), anticlockwise_, same_id, battlefield.TimeStamp()))
-            LOG(INFO)<<"abaaaaaaaaa"<<antitop_detector_.GetTopReriod();
+            LOG(INFO)<<"top_period"<< antitop_detector_.GetTopPeriod();
     target_.armor = target;
     target_locked_ = true;
     armor_num_ = armor_num;
-    return target_.GenerateSendPacket();
+    return target_.GenerateSendPacket(fire_);
 }

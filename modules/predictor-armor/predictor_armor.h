@@ -121,9 +121,9 @@ public:
          * \brief Generate a packet according to data inside.
          * \return Send packet to serial port.
          */
-        [[nodiscard]] inline SendPacket GenerateSendPacket() const {
-            // TODO Add delay and check_sum here.
-            SendPacket send_packet = {float(yaw), float(pitch),};
+        [[nodiscard]] inline SendPacket GenerateSendPacket(bool fire) const {
+            auto delay = 1.f;// TODO Add delay and check_sum here.
+            SendPacket send_packet = {float(yaw), float(pitch),delay,fire,float(yaw+pitch+delay+fire)};
             return send_packet;
         }
     };
@@ -308,10 +308,12 @@ private:
     Node target_;  ///< Cached and currently locked target.
     Entity::Colors color_;  ///< Target's color.
 
+    bool fire_ = false;                 ///< Sentry is firing ,only sentry use.
     bool target_locked_ = false;       ///< Target is currently locked.
     bool long_distance_ = false;       ///< Current target is far from self.
     bool target_is_the_right_ = true;  ///< Target is on the right, opposite left.
     bool anticlockwise_ = true;        ///< Target robot is rotating anticlockwise.
+    double last_armor_speed = 0;       ///< Armor's last speed.
     uint8_t armor_num_ = 0;            ///< Num of armors with same id as target's.
 
     Eigen::Vector3d translation_vector_cam_predict_;

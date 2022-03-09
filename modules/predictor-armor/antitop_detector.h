@@ -11,7 +11,7 @@ public:
 
     ATTR_READER(initialized,IsInit)
 
-    inline double GetTopReriod()
+    inline double GetTopPeriod()
     {
         lasting_time = 0;
         for(auto time:lasting_time_once)

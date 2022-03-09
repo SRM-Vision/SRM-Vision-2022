@@ -32,11 +32,12 @@ struct SerialSendPacket {
     float yaw;
     float pitch;
     float delay;
+    bool fire;
     float check_sum;
 };
 
 inline std::ostream &operator<<(std::ostream &str, const SerialSendPacket &send_packet) {
-    str << send_packet.yaw << " | " << send_packet.pitch << " | " << send_packet.delay;
+    str << send_packet.yaw << " | " << send_packet.pitch << " | " << send_packet.delay << " | " << send_packet.fire;
     return str;
 }
 
