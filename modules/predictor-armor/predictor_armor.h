@@ -313,7 +313,7 @@ private:
     bool long_distance_ = false;       ///< Current target is far from self.
     bool target_is_the_right_ = true;  ///< Target is on the right, opposite left.
     bool anticlockwise_ = true;        ///< Target robot is rotating anticlockwise.
-    double last_armor_speed = 0;       ///< Armor's last speed.
+    Eigen::Vector2d last_armor_speed{0,0};       ///< Armor's last speed.
     uint8_t armor_num_ = 0;            ///< Num of armors with same id as target's.
 
     Eigen::Vector3d translation_vector_cam_predict_;
