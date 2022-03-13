@@ -9,7 +9,6 @@
 
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
-#include <utility>
 
 namespace debug {
     class Painter {
@@ -40,8 +39,8 @@ namespace debug {
 
         inline void DrawRotatedRectangle(const cv::Point2f &left_top,
                                          const cv::Point2f &right_top,
-                                         const cv::Point2f &left_bottom,
                                          const cv::Point2f &right_bottom,
+                                         const cv::Point2f &left_bottom,
                                          const cv::Scalar &color,
                                          int thickness) {
             cv::line(image_, left_top, right_top, color, thickness);

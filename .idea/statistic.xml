@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Statistic">
+    <option name="excludedDirectories">
+      <list>
+        <option value="$PROJECT_DIR$/cmake-build-release-coverage" />
+        <option value="$PROJECT_DIR$/cmake-build-release" />
+        <option value="$PROJECT_DIR$/cmake-build-debug-coverage" />
+        <option value="$PROJECT_DIR$/cmake-build-debug" />
+        <option value="$PROJECT_DIR$/assets" />
+        <option value="$PROJECT_DIR$/config" />
+        <option value="$PROJECT_DIR$/docs" />
+        <option value="$PROJECT_DIR$/log" />
+        <option value="$PROJECT_DIR$/scripts" />
+        <option value="$PROJECT_DIR$/3rdparty" />
+        <option value="$PROJECT_DIR$/cache" />
+      </list>
+    </option>
+  </component>
+</project>

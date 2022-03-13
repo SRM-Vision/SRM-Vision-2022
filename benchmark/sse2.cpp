@@ -1,4 +1,4 @@
-#if defined(HW_ACC_SSE2)
+#if defined(__x86_64__)
 
 #include <cstdio>
 #include <xmmintrin.h>

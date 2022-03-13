@@ -1,6 +1,5 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
-
 #include "cmdline-arg-parser/cmdline_arg_parser.h"
 #include "image-provider-base/image_provider_factory.h"
 #include "controller_sentry_lower.h"
@@ -11,8 +10,7 @@
 
 bool SentryLowerController::Initialize() {
     // Use reset here to allocate memory for an abstract class.
-    image_provider_.reset(
-            CREATE_IMAGE_PROVIDER(CmdlineArgParser::Instance().RunWithCamera() ? "camera" : "video"));
+    image_provider_.reset(CREATE_IMAGE_PROVIDER(CmdlineArgParser::Instance().RunWithCamera() ? "camera" : "video"));
     if (!image_provider_->Initialize(
             CmdlineArgParser::Instance().RunWithCamera() ?
             "../config/sentry/camera-init.yaml" : "../config/sentry/video-init.yaml")) {
@@ -37,7 +35,6 @@ bool SentryLowerController::Initialize() {
 }
 
 void SentryLowerController::Run() {
-
     ArmorPredictor armor_predictor(Entity::Colors::kBlue, true);
 
     sleep(2);
@@ -46,10 +43,9 @@ void SentryLowerController::Run() {
         if (!image_provider_->GetFrame(frame_))
             break;
 
-        SerialReceivePacket serial_receive_packet{};
-
         if (CmdlineArgParser::Instance().RunWithGimbal()) {
-            serial_->GetData(serial_receive_packet, std::chrono::milliseconds(20));
+            SerialReceivePacket serial_receive_packet{};
+            serial_->GetData(serial_receive_packet, std::chrono::milliseconds(5));
             receive_packet_ = ReceivePacket(serial_receive_packet);
         }
 
@@ -70,15 +66,18 @@ void SentryLowerController::Run() {
         battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.quaternion,
                                    armors_);
 
-        send_packet_ = armor_predictor.Run(battlefield_, ArmorPredictor::Modes::kAntiTop);
+        send_packet_ = SerialSendPacket(armor_predictor.Run(battlefield_, ArmorPredictor::Modes::kAutoAntitop));
         Eigen::Matrix3d camera_matrix;
         cv::cv2eigen(image_provider_->IntrinsicMatrix(), camera_matrix);
         DrawPredictedPoint(img, camera_matrix, armor_predictor.TranslationVectorCamPredict());
-        cv::imshow("Sentry_Lower", img);
-        if ((cv::waitKey(1) & 0xff) == 'q')
-            break;
+        cv::imshow("Sentry Lower", img);
 
-        serial_->SendData(send_packet_, std::chrono::milliseconds(20));
+        if ((cv::waitKey(1) & 0xff) == 'q'){
+            ArmorPredictorDebug::Instance().Save();
+            break;
+        }
+        SerialSendPacket send_packet{1.f, 2.f, 3.f, false,4.f};
+        //serial_->SendData(send_packet, std::chrono::milliseconds(5));
 
         boxes_.clear();
         armors_.clear();

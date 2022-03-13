@@ -1,0 +1,7 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="SSE2" type="CMakeRunConfiguration" factoryName="Application" folderName="Benchmarks" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="srm-vision-2022" TARGET_NAME="benchmark-sse2" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="srm-vision-2022" RUN_TARGET_NAME="benchmark-sse2">
+    <method v="2">
+      <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+    </method>
+  </configuration>
+</component>

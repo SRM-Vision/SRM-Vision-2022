@@ -51,7 +51,6 @@ namespace fsm {
         MachineBaseWeakPtrVec target_machines_;
     };
 
-
     /**
      * \brief Template for custom event type.
      * \tparam EventType An enumerate type including all types of this custom event.

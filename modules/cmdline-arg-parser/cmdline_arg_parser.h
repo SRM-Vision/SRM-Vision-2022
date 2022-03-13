@@ -53,10 +53,10 @@ private:
     bool run_with_serial_;         ///< Running with serial else communication flag.
     std::string controller_type_;  ///< Controller type, no default value.
 
-    int mode_chooser_;        ///< TODO Controller mode chooser, will be implemented in the future.
+    int mode_chooser_;         ///< TODO Controller mode chooser, will be implemented in the future.
     bool debug_show_image_;
     bool debug_use_trackbar_;
-    bool run_mode_rune_;      ///< secondly controller mode.
+    bool run_mode_rune_;       ///< secondly controller mode.
 };
 
 #endif  // CMDLINE_ARG_PARSER_H_

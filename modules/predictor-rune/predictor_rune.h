@@ -10,7 +10,7 @@
 #include <ceres/ceres.h>
 #include "data-structure/buffer.h"
 #include "data-structure/frame.h"
-#include "data-structure/serial_data.h"
+#include "data-structure/communication.h"
 #include "digital-twin/facilities/power_rune.h"
 
 // Ceres.
@@ -37,11 +37,12 @@ public:
     ATTR_READER_REF(final_target_point_send_to_control_, FinalTargetPoint)
 
     ATTR_READER_REF(predicted_target_point_, PredictedTargetPoint)
+
     RunePredictor()
             : present_time_(0.0),
               current_fan_angular_velocity_(0.0),
               final_target_point_send_to_control_(0, 0),
-              last_RTG_vec_(0,0),
+              last_RTG_vec_(0, 0),
               is_target_changed_(false),
               is_small_model_(false),
               is_big_model_(false) {};
@@ -49,7 +50,7 @@ public:
     ~RunePredictor() = default;
 
     /// 参数初始化
-    [[nodiscard]] static bool Initialize(const std::string &config_path) ;
+    [[nodiscard]] static bool Initialize(const std::string &config_path);
 
     SendPacket Predict(const PowerRune &power_rune);
 

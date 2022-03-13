@@ -6,6 +6,3 @@ add_executable(benchmark-trigonometric ${CMAKE_CURRENT_SOURCE_DIR}/trigonometric
 
 # Compile benchmark for SSE2 fast math.
 add_executable(benchmark-sse2 ${CMAKE_CURRENT_SOURCE_DIR}/sse2.cpp)
-
-# Compile benchmark for NEON fast math.
-add_executable(benchmark-neon ${CMAKE_CURRENT_SOURCE_DIR}/neon.cpp)

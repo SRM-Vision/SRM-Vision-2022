@@ -46,14 +46,10 @@ namespace fsm {
     };
 
     template<class T>
-    EventQueue<T>::EventQueue()
-            :queue_() {
-    }
+    EventQueue<T>::EventQueue() : queue_() {}
 
     template<class T>
-    EventQueue<T>::~EventQueue() {
-        Clear();
-    }
+    EventQueue<T>::~EventQueue() { Clear(); }
 
     template<class T>
     [[maybe_unused]] bool EventQueue<T>::Empty() const {

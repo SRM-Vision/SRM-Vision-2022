@@ -1,4 +1,8 @@
-# SRM Vision Project Remastered
+# SRM Vision Project 2022
+<br>
+<p>
+   SRM Vision Project 2022 is the first well established visual project from SRM. Using deeplearning model detection, kalman prediction etc.
+</p>
 
 ## Build project
 
@@ -35,6 +39,25 @@ Steps to build with CMake:
 4. If no error occurs, run `make -jn` (replace `n` with your cpu core number like `make -j4`) to build executable file.
 5. Predict `./SRM2021 --type=controller_type` to run, with `controller_type` replaced with a valid type in this list:
     - infantry
+    - Hero
+    - Sentry (lower gimbal)
+
+## Benchmarks
+
+Some math algorithms in this project support x86_64 SSE2 and ARMv8 NEON for hardware acceleration. To benchmark these
+algorithms, build all targets with CMake and run executables in `benchmark` folder. Here are all benchmark items:
+
+1. `rsqrt` includes hardware acceleration, "magic
+   number" [0x5f375a86](https://en.wikipedia.org/wiki/Fast_inverse_square_root) and standard inverse square root
+   algorithms.
+2. `trigonometric` includes hardware acceleration and standard trigonometric functions.
+3. `sse2` is an x86-only basic benchmark for float performance.
+
+All of these accelerated method are based on [SSEMath](http://gruntthepeon.free.fr/ssemath/) (
+under [Zlib license](https://opensource.org/licenses/Zlib)) and [SSE2NEON](https://github.com/DLTcollab/sse2neon) (
+under [MIT license](https://opensource.org/licenses/MIT)) open source projects.
+
+Note that when building benchmark targets on mismatching architectures, targets will be empty to avoid errors.
 
 ## Documentation
 

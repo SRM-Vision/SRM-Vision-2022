@@ -1,12 +1,14 @@
 cmake_minimum_required(VERSION 3.10)
-project(srm_vision_2022)
+project(srm-vision-2022)
 
 # Custom executable name.
-set(EXECUTABLE_NAME SRM2021)
+set(EXECUTABLE_NAME srm-vision)
 
 # Custom library path.
 if (CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "x86_64")
     set(TensorRT_PATH /opt/TensorRT-7.2.3.4)
+    # Override TensorRT path for WSL 2.
+    # set(TensorRT_PATH /usr/src/tensorrt)
 elseif (CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "aarch64")
     set(TensorRT_PATH /usr/src/tensorrt)
     set(TensorRT_LIB_PATH /usr/lib/aarch64-linux-gnu)
@@ -21,9 +23,9 @@ set(CMAKE_CXX_STANDARD 17)
 
 # Common compile options.
 if (CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "x86_64")
-    add_compile_options(-msse2 -DHW_ACC_SSE2)
+    add_compile_options(-msse2)
 elseif (CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "aarch64")
-    add_compile_options(-DHW_ACC_NEON)
+    add_compile_options()
 endif ()
 
 # Options for different build type.

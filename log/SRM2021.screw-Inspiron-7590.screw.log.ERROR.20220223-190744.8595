@@ -1,5 +1,0 @@
-Log file created at: 2022/02/23 19:07:44
-Running on machine: screw-Inspiron-7590
-Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
-E0223 19:07:44.178773  8595 camera_dh.cpp:41] {-3}{OpenDevice:line[1028]}{Not found device}
-E0223 19:07:44.184356  8595 controller_infantry.cpp:26] Failed to initialize image provider.

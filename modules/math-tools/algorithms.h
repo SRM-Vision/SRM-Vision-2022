@@ -14,7 +14,7 @@ namespace algorithm {
      * \param [out] c Output cosine value.
      */
     inline void SinCosFloatX4(const float x[4], float s[4], float c[4]) {
-#if defined(HW_ACC_SSE2) | defined(HW_ACC_NEON)
+#if defined(__x86_64__) | defined(__aarch64__)
         v4sf x_v4sf = {x[0], x[1], x[2], x[3]}, s_v4sf, c_v4sf;
         sincos_ps(x_v4sf, &s_v4sf, &c_v4sf);
         auto s_ptr = (float *) &s_v4sf, c_ptr = (float *) &c_v4sf;
@@ -39,7 +39,7 @@ namespace algorithm {
      * \param [in,out] x Input 4 floats and will be output.
      */
     [[maybe_unused]] inline void SinFloatX4(float x[4]) {
-#if defined(HW_ACC_SSE2) | defined(HW_ACC_NEON)
+#if defined(__x86_64__) | defined(__aarch64__)
         v4sf x_v4sf = {x[0], x[1], x[2], x[3]}, s_v4sf = sin_ps(x_v4sf);
         auto s_ptr = (float *) &s_v4sf;
         x[0] = *s_ptr++;
@@ -57,7 +57,7 @@ namespace algorithm {
      * \param [in,out] x Input 4 floats and will be output.
      */
     [[maybe_unused]] inline void CosFloatX4(float x[4]) {
-#if defined(HW_ACC_SSE2) | defined(HW_ACC_NEON)
+#if defined(__x86_64__) | defined(__aarch64__)
         v4sf x_v4sf = {x[0], x[1], x[2], x[3]}, c_v4sf = cos_ps(x_v4sf);
         auto c_ptr = (float *) &c_v4sf;
         x[0] = *c_ptr++;
@@ -75,7 +75,7 @@ namespace algorithm {
      * \param [in,out] x Input 4 floats and will be output.
      */
     [[maybe_unused]] inline void TanFloatX4(float x[4]) {
-#if defined(HW_ACC_SSE2) | defined(HW_ACC_NEON)
+#if defined(__x86_64__) | defined(__aarch64__)
         v4sf x_v4sf = {x[0], x[1], x[2], x[3]}, t_v4sf = tan_ps(x_v4sf);
         auto t_ptr = (float *) &t_v4sf;
         x[0] = *t_ptr++;
@@ -93,7 +93,7 @@ namespace algorithm {
      * \param [in,out] x Input 4 floats and will be output.
      */
     [[maybe_unused]] inline void CotFloatX4(float x[4]) {
-#if defined(HW_ACC_SSE2) | defined(HW_ACC_NEON)
+#if defined(__x86_64__) | defined(__aarch64__)
         v4sf x_v4sf = {x[0], x[1], x[2], x[3]}, t_v4sf = cot_ps(x_v4sf);
         auto t_ptr = (float *) &t_v4sf;
         x[0] = *t_ptr++;
@@ -111,7 +111,7 @@ namespace algorithm {
      * \param [in,out] x Input 4 floats and will be output.
      */
     [[maybe_unused]] inline void AtanFloatX4(float x[4]) {
-#if defined(HW_ACC_SSE2) | defined(HW_ACC_NEON)
+#if defined(__x86_64__) | defined(__aarch64__)
         v4sf x_v4sf = {x[0], x[1], x[2], x[3]}, t_v4sf = atan_ps(x_v4sf);
         auto t_ptr = (float *) &t_v4sf;
         x[0] = *t_ptr++;
@@ -133,7 +133,7 @@ namespace algorithm {
      * \param [out] res Output 4 results.
      */
     [[maybe_unused]] inline void Atan2FloatX4(const float y[4], const float x[4], float res[4]) {
-#if defined(HW_ACC_SSE2) | defined(HW_ACC_NEON)
+#if defined(__x86_64__) | defined(__aarch64__)
         v4sf x_v4sf = {x[0], x[1], x[2], x[3]}, y_v4sf = {y[0], y[1], y[2], y[3]};
         v4sf res_v4sf = atan2_ps(y_v4sf, x_v4sf);
         auto res_ptr = (float *) &res_v4sf;
@@ -154,7 +154,7 @@ namespace algorithm {
      * \return atan2(y, x).
      */
     [[maybe_unused]] inline float Atan2Float(float y, float x) {
-#if defined(HW_ACC_SSE2) | defined(HW_ACC_NEON)
+#if defined(__x86_64__) | defined(__aarch64__)
         return atan2_ref(y, x);
 #else
         return std::atan2(y, x);
@@ -201,7 +201,7 @@ namespace algorithm {
     // ------------------------------------------------
 
     [[maybe_unused]] inline float SqrtFloat(float x) {
-#if defined(HW_ACC_SSE2) | defined(HW_ACC_NEON)
+#if defined(__x86_64__) | defined(__aarch64__)
         return sqrt_ps(x);
 #else
         return std::sqrt(x);
@@ -209,7 +209,7 @@ namespace algorithm {
     }
 
     inline float RsqrtFloat(float x) {
-#if defined(HW_ACC_SSE2) | defined(HW_ACC_NEON)
+#if defined(__x86_64__) | defined(__aarch64__)
         return rsqrt_ps(x);
 #else
         return 1 / std::sqrt(x);

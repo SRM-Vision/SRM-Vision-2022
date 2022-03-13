@@ -1,4 +1,0 @@
-Log file created at: 2022/02/23 19:55:37
-Running on machine: screw-Inspiron-7590
-Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
-I0223 19:55:37.420908 17323 cmdline_arg_parser.cpp:54] Running with camera.
