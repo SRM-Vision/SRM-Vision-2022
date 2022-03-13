@@ -147,7 +147,7 @@ public:
     SendPacket Run(const Battlefield &battlefield, Modes mode = kNormal);
 
     inline bool Initialize() {
-        ArmorPredictorDebug::Instance().Initialize();
+        ArmorPredictorDebug::Instance().Initialize("../config/sentry/ekf-param.yaml");
         for (auto i = 0; i < Robot::RobotTypes::SIZE; ++i)
             grey_count_[Robot::RobotTypes(i)] = 0;
         return true;

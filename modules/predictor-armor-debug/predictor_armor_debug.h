@@ -13,10 +13,14 @@ public:
         return _;
     }
 
-    void Initialize(bool debug_use_trackbar = false);
+    void Initialize(const std::string &config_path, bool debug_use_trackbar = true);
+
+    [[maybe_unused]] void Save();
 
 private:
     const std::string trackbar_windows_name_ = "Armor Predictor Debug";
+    cv::FileStorage config_;
+    std::string config_path_;
 
 public:
     ATTR_READER(p_xyz_noise_, PredictedXZYNoise)
@@ -29,9 +33,9 @@ public:
 
 
 private:
-    const int kMax_p_xyz_noise = 1;
-    const int  kMax_p_xy_speed_noise = 500;
-    const int kMax_m_xy_noise = 10;
+    const double kMax_p_xyz_noise = 0.1;
+    const double  kMax_p_xy_speed_noise = 500;
+    const double kMax_m_xy_noise = 10;
     const int  kMax_m_z_noise = 1000;
 
     double p_xyz_noise_ = 0.01;

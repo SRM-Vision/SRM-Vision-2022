@@ -72,8 +72,10 @@ void SentryLowerController::Run() {
         DrawPredictedPoint(img, camera_matrix, armor_predictor.TranslationVectorCamPredict());
         cv::imshow("Sentry Lower", img);
 
-        if ((cv::waitKey(1) & 0xff) == 'q')
+        if ((cv::waitKey(1) & 0xff) == 'q'){
+            ArmorPredictorDebug::Instance().Save();
             break;
+        }
         SerialSendPacket send_packet{1.f, 2.f, 3.f, false,4.f};
         //serial_->SendData(send_packet, std::chrono::milliseconds(5));
 

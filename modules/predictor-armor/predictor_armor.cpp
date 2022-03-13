@@ -10,7 +10,6 @@ const float kSwitchArmorAreaProportion = 1.1f;  ///< Minimal area of armor to sw
 SendPacket ArmorPredictor::Run(const Battlefield &battlefield, Modes mode) {
     auto &robots = battlefield.Robots();
 
-
     // Do nothing if nothing is found.
     // ================================================
     // Find grey armors.

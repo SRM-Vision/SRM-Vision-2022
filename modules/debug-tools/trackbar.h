@@ -60,7 +60,7 @@ namespace debug {
         inline void AddTrackbar(const std::string &trackbar_name,
                                 const std::string &window_name,
                                 double &var_value,
-                                const int &max_value) {
+                                const double &max_value) {
             if (trackbar_window_names_.end() ==
                 find(trackbar_window_names_.begin(), trackbar_window_names_.end(), window_name)) {
                 cv::namedWindow(window_name, cv::WINDOW_AUTOSIZE);
@@ -75,7 +75,7 @@ namespace debug {
             cv::createTrackbar(trackbar_name,
                                window_name,
                                &trackbar_values_.at(trackbar_name),
-                               max_value, Callback);
+                               int(max_value * 1000), Callback);
         }
 
         static void Callback(int, void *) {
