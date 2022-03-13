@@ -11,7 +11,6 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, Modes mode) {
     auto &robots = battlefield.Robots();
 
 
-    if(!antitop_detector_.IsInit())  antitop_detector_.Initialize(battlefield.TimeStamp());
     // Do nothing if nothing is found.
     // ================================================
     // Find grey armors.
@@ -28,7 +27,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, Modes mode) {
 
     if (!exist_enemy && !exist_grey) {
         Clear();
-        return {0, 0, 0, 0};
+        return {0, 0, 0, false,0};
     }
 
     // Reset and update grey counts of all armors found.
@@ -51,7 +50,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, Modes mode) {
     // ================================================
     if (grey_count_min >= kMaxGreyCount && !exist_enemy) {
         Clear();
-        return {0, 0, 0, 0};
+        return {0, 0, 0, false,0};
     }
 
     // TODO Calibrate bullet speed and shoot delay.
@@ -69,6 +68,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, Modes mode) {
     bool same_id = false;           ///< Target is not the same but has same id.
     bool switch_armor = false;      ///< Switch target to lock to another.
     bool need_init = false;         ///< Missed conditions to keep locking previous target.
+    bool antitop = (mode == kAntiTop || (mode == kAutoAntitop && antitop_));    /// Is antitop
     int target_selected = 0;   ///< Where a target is selected.
     uint8_t armor_num;
 
@@ -100,7 +100,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, Modes mode) {
                 switch_armor = false;
                 need_init = false;
             }
-        } else if (armor_num_ > 1 && armor_num == 1 && mode == kAntiTop) {
+        } else if (armor_num_ > 1 && armor_num == 1 && antitop) {
             // The interfering armor disappeared.
             // ================================================
             target_selected = 2;
@@ -153,7 +153,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, Modes mode) {
                     need_init = true;
                 }
             }
-        } else if (armor_num_ == 1 && armor_num > 1 && mode == kAntiTop) {
+        } else if (armor_num_ == 1 && armor_num > 1 && antitop) {
             // Another armor appeared.
             // ================================================
             target_selected = 3;
@@ -320,7 +320,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, Modes mode) {
 
     // Update target's left and right position when another armor disappeared.
     // ================================================
-    if (same_id && mode != kAntiTop) {
+    if (same_id && !antitop) {
         auto antitop_candidate_ = antitop_candidates_.begin();
         for (; antitop_candidate_ != antitop_candidates_.end(); ++antitop_candidate_)
             if (target->Center().inside(GetROI(*antitop_candidate_->armor))
@@ -646,9 +646,9 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, Modes mode) {
             break;
         }
     }
-    if(antitop_detector_.IsInit())
-        if(antitop_detector_.Is_Top(target_.armor->ID() == target->ID(), anticlockwise_, same_id, battlefield.TimeStamp()))
-            LOG(INFO)<<"top_period"<< antitop_detector_.GetTopPeriod();
+
+    antitop_ = antitop_detector_.Is_Top(target_.armor->ID() == target->ID(), anticlockwise_, switch_armor, battlefield.TimeStamp());
+    LOG(INFO)<<"top_period"<< antitop_detector_.GetTopPeriod();
     target_.armor = target;
     target_locked_ = true;
     armor_num_ = armor_num;
