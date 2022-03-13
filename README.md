@@ -1,4 +1,8 @@
-# SRM Vision Project Remastered
+# SRM Vision Project 2022
+<br>
+<p>
+   SRM Vision Project 2022 is the first well established visual project from SRM. Using deeplearning model detection, kalman prediction etc.
+</p>
 
 ## Build project
 
@@ -53,7 +57,7 @@ All of these accelerated method are based on [SSEMath](http://gruntthepeon.free.
 under [Zlib license](https://opensource.org/licenses/Zlib)) and [SSE2NEON](https://github.com/DLTcollab/sse2neon) (
 under [MIT license](https://opensource.org/licenses/MIT)) open source projects.
 
-Note that built benchmark target on mismatching architectures will be empty to avoid errors when building.
+Note that when building benchmark targets on mismatching architectures, targets will be empty to avoid errors.
 
 ## Documentation
 
