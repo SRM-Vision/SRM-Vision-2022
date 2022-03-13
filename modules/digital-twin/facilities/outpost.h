@@ -15,6 +15,8 @@ public:
     Outpost(Colors color,
             double health) :
             Facility(color, health, kOutpost) {}
+    cv::Point2f center_point;
+    float shoot_delay;
 };
 
 #endif  // OUTPOST_H_
