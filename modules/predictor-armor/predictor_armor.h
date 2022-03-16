@@ -9,8 +9,10 @@
 
 #include "data-structure/communication.h"
 #include "lang-feature-extension/disable_constructor.h"
+#include "cmdline-arg-parser/cmdline_arg_parser.h"
 #include "digital-twin/battlefield.h"
 #include "antitop_detector.h"
+#include "predictor_fsm.h"
 #include "ekf.h"
 
 /// Predicting function template structure.
@@ -134,8 +136,8 @@ public:
     ATTR_READER(bool(flag_ &kDebug), Debug)
 
     ArmorPredictor(Entity::Colors color, uint8_t flag) :
-            color_(color),
-            flag_(flag) {
+            color_(color),flag_(flag) {
+        ClearStateBits();
         Initialize();
     }
 
@@ -144,14 +146,13 @@ public:
         antitop_candidates_.clear();
     }
 
+    inline void ClearStateBits(){
+        state_bits_=ArmorMachine::StateBits{0, false, false, false, false};
+    }
+
     SendPacket Run(const Battlefield &battlefield, Modes mode = kNormal);
 
-    inline bool Initialize() {
-        ArmorPredictorDebug::Instance().Initialize("../config/sentry/ekf-param.yaml");
-        for (auto i = 0; i < Robot::RobotTypes::SIZE; ++i)
-            grey_count_[Robot::RobotTypes(i)] = 0;
-        return true;
-    }
+    bool Initialize();
 
     ~ArmorPredictor() = default;
 
@@ -318,9 +319,12 @@ private:
     Eigen::Vector2d last_armor_speed{0,0};       ///< Armor's last speed.
     uint8_t armor_num_ = 0;            ///< Num of armors with same id as target's.
 
+    ArmorMachine::StateBits state_bits_;
     Eigen::Vector3d translation_vector_cam_predict_;
     std::vector<Node> antitop_candidates_;
     AntitopDetector antitop_detector_;
+    fsm::MachineSetSharedPtr machine_set_;
+    std::shared_ptr<ArmorMachine> armor_machine_;
 };
 
 #endif  // PREDICTOR_ARMOR_H_
