@@ -1,3 +1,10 @@
+# Linux GNU Library.
+if (CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "x86_64")
+    include_directories(/usr/include/x86_64-linux-gnu)
+elseif (CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "aarch64")
+    include_directories(/usr/include/aarch64-linux-gnu)
+endif ()
+
 # Find Cuda
 # Custom library path.
 set(CUDA_PATH /usr/local/cuda)
@@ -11,10 +18,13 @@ if (CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "x86_64")
     set(TensorRT_PATH /opt/TensorRT-7.2.3.4)
     # Override TensorRT path for WSL 2.
     # set(TensorRT_PATH /usr/src/tensorrt)
+    file(GLOB TensorRT_LIBS ${TensorRT_PATH}/lib/libnv*.so)
 elseif (CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "aarch64")
     set(TensorRT_PATH /usr/src/tensorrt)
     set(TensorRT_LIB_PATH /usr/lib/aarch64-linux-gnu)
+    file(GLOB TensorRT_LIBS ${TensorRT_LIB_PATH}/libnv*.so)
 endif ()
+link_directories(${TensorRT_PATH}/lib)
 
 find_path(TensorRT_INCLUDE_DIRS NvInfer.h
         HINTS ${TensorRT_PATH} ${CUDA_TOOLKIT_ROOT_DIR}
@@ -28,11 +38,6 @@ find_library(TensorRT_LIBRARY_INFER_PLUGIN nvinfer_plugin
         HINTS ${TensorRT_PATH} ${CUDA_TOOLKIT_ROOT_DIR}
         PATH_SUFFIXES lib lib64 lib/x64)
 
-if (CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "x86_64")
-    file(GLOB TensorRT_LIBS ${TensorRT_PATH}/lib/libnv*.so)
-elseif (CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "aarch64")
-    file(GLOB TensorRT_LIBS ${TensorRT_LIB_PATH}/libnv*.so)
-endif ()
 
 set(Nvidia_Tools_INCLUDE_DIRS
         ${TensorRT_INCLUDE_DIRS}

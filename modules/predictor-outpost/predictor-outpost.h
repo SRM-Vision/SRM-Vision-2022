@@ -6,7 +6,7 @@
 #ifndef SRM_VISION_2022_PREDICTOR_OUTPOST_H
 #define SRM_VISION_2022_PREDICTOR_OUTPOST_H
 
-#include "data-structure/serial_data.h"
+#include "data-structure/communication.h"
 #include "digital-twin/battlefield.h"
 #include "digital-twin/components/armor.h"
 #include "math-tools/algorithms.h"

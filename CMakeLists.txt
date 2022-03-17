@@ -8,22 +8,6 @@ set(EXECUTABLE_NAME srm-vision)
 set(CMAKE_CXX_COMPILER /usr/bin/g++-8)
 set(CMAKE_CXX_STANDARD 17)
 
-# Find modules.
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-
-set(Visual_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-find_package(Visual)
-include_directories(${Visual_INCLUDE_DIRS})
-
-set(Nvidia_Tools_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-find_package(Nvidia_Tools)
-include_directories(${Nvidia_Tools_INCLUDE_DIRS})
-
-set(Utils_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-find_package(Utils)
-include_directories(${Utils_INCLUDE_DIRS})
-
-
 # Common compile options.
 if (CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "x86_64")
     add_compile_options(-msse2)
@@ -48,12 +32,27 @@ elseif (CMAKE_BUILD_TYPE STREQUAL Release)
     )
 endif ()
 
+# Find modules.
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
 # Linux GNU Library.
 if (CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "x86_64")
     include_directories(/usr/include/x86_64-linux-gnu)
 elseif (CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "aarch64")
     include_directories(/usr/include/aarch64-linux-gnu)
 endif ()
+
+set(Visual_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+find_package(Visual)
+include_directories(${Visual_INCLUDE_DIRS})
+
+set(Nvidia_Tools_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+find_package(Nvidia_Tools)
+include_directories(${Nvidia_Tools_INCLUDE_DIRS})
+
+set(Utils_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+find_package(Utils)
+include_directories(${Utils_INCLUDE_DIRS})
 
 # Project sources.
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/modules)

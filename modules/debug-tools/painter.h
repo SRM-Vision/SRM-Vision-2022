@@ -10,6 +10,8 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 
+#include "detector-rune-debug/detector_rune_debug.h"
+
 namespace debug {
     class Painter {
     public:
