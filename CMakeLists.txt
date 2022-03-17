@@ -13,16 +13,16 @@ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 set(Visual_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 find_package(Visual)
-include_directories(Visual_INCLUDE_DIRS)
+include_directories(${Visual_INCLUDE_DIRS})
 
 
 set(Nvidia_Tools_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 find_package(Nvidia_Tools)
-include_directories(Nvidia_Tools_INCLUDE_DIRS)
+include_directories(${Nvidia_Tools_INCLUDE_DIRS})
 
 set(Utils_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 find_package(Utils)
-include_directories(Utils_INCLUDE_DIRS)
+include_directories(${Utils_INCLUDE_DIRS})
 
 
 # Common compile options.
@@ -48,11 +48,6 @@ elseif (CMAKE_BUILD_TYPE STREQUAL Release)
             -march=native
     )
 endif ()
-
-
-# GFlags
-find_package(gflags REQUIRED)
-include_directories(${gflags_INCLUDE_DIR})
 
 # Linux GNU Library.
 if (CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "x86_64")
