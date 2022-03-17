@@ -4,6 +4,17 @@
 
 #include "predictor-outpost.h"
 
+double SortTarget(const std::vector<Armor>& target)
+{
+    double temp;
+    for(const Armor& armor : target)
+    {
+        if(armor.TranslationVectorWorld().x() < temp)
+            temp = armor.TranslationVectorWorld().x();
+    }
+    return temp;
+}
+
 SendPacket OutpostPredictor::Run(const Battlefield &battlefield) {
     if(battlefield.Facilities().count(color_) == 0)
         std::cout << "Not Found" << std::endl;
@@ -15,8 +26,8 @@ SendPacket OutpostPredictor::Run(const Battlefield &battlefield) {
     int num = 0;
     if(is_clockwise == 0 || num < kCollectNum)
     {
-        std::sort(target_.begin(), target_.end());    // TODO Current method is not 100% safe.
-        clockwise_assist = target_[0].TranslationVectorWorld().x() - clockwise_assist; // Origin is 0.
+        double minimum_x = SortTarget(target_);   // TODO Current method is not 100% safe.
+        clockwise_assist = minimum_x - clockwise_assist; // Origin is 0.
         if (clockwise_assist < 0)
             is_clockwise = -1;
         else
@@ -92,6 +103,8 @@ coordinate::TranslationVector OutpostPredictor::CalculatePredictShootCenter(cons
                                                                             const Eigen::Quaternionf &quaternion,
                                                                             float distance)
 {
+    double tm_cam_to_imu_data[] = {0, -0.026, -0.075};  // TODO
+    const static coordinate::TranslationMatrix camera_to_imu_translation_matrix(tm_cam_to_imu_data);
     coordinate::TranslationVector predict_shoot_center;
     shoot_delay_ = distance / bullet_speed;
     float rotate_angle = kControl_delay_ * shoot_delay_ * kRotate_angular_speed_;
@@ -100,16 +113,16 @@ coordinate::TranslationVector OutpostPredictor::CalculatePredictShootCenter(cons
     predict_shoot_center.y() = moving_center.y() * std::cos((-1.0) * is_clockwise * rotate_angle) + moving_center.x() * std::sin((-1.0) * is_clockwise * rotate_angle);
     predict_shoot_center.z() = moving_center.z();
 
-    Eigen::Vector3d tv_world_predict{predict_shoot_center.x(), predict_shoot_center.y(), predict_shoot_center.z()};
-    shoot_point_camera = coordinate::transform::WorldToCamera(tv_world_predict,
+    predict_shoot_center = coordinate::transform::WorldToCamera(predict_shoot_center,
                                                               coordinate::transform::QuaternionToRotationMatrix(quaternion),
-                                                              Eigen::Vector3d::Zero(),
+                                                              camera_to_imu_translation_matrix,    // TODO
                                                               Eigen::Matrix3d::Identity());
     return predict_shoot_center;
 }
 
 void OutpostPredictor::DecideGoingAndComing(const std::vector<Armor> & target)
 {
+    going_armor_ = target[0];
     if(target[0].Center().x < target[1].Center().x)
     {
         coming_armor_ = target[0];

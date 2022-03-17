@@ -1,8 +1,10 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
+#include <debug-tools/painter.h>
 #include "cmdline-arg-parser/cmdline_arg_parser.h"
 #include "image-provider-base/image_provider_factory.h"
 #include "controller_hero.h"
+#include "predictor-outpost/predictor-outpost.h"
 
 /**
  * \warning Controller registry will be initialized before the program entering the main function!
@@ -33,6 +35,7 @@ bool HeroController::Initialize() {
             // So, there's no need to reset it manually.
             return false;
         }
+
     }
 
     LOG(INFO) << "Hero controller is ready.";
@@ -64,16 +67,25 @@ void HeroController::Run() {
                         cv::FONT_HERSHEY_SIMPLEX, 1,
                         cv::Scalar((box.color == 0) * 255, 0, (box.color == 1) * 255), 2);
         }
-
-        cv::imshow("Hero", img);
-        if ((cv::waitKey(1) & 0xff) == 'q')
-            break;
-
         BboxToArmor();
         battlefield_ = Battlefield(frame_.time_stamp,
                                    receive_packet_.bullet_speed,
                                    receive_packet_.quaternion,
                                    armors_);
+        Eigen::Matrix3d camera_matrix;
+        OutpostPredictor outpost_predictor;
+        cv::cv2eigen(image_provider_->IntrinsicMatrix(), camera_matrix);
+        auto point = camera_matrix * outpost_predictor.TranslationVectorCamPredict() / outpost_predictor.TranslationVectorCamPredict()(2, 0);
+        cv::Point2d point_cv = {point[0], point[1]};
+        debug::Painter::Instance().DrawPoint(point_cv, cv::Scalar(0, 0, 255), 1, 10);
+        debug::Painter::Instance().ShowImage("ARMOR DETECT");
+
+        cv::imshow("Hero", img);
+        if ((cv::waitKey(1) & 0xff) == 'q')
+            break;
+
+
+
 
         boxes_.clear();
         armors_.clear();

@@ -15,7 +15,8 @@
 class OutpostPredictor
 {
 public:
-    OutpostPredictor() = default;
+    ATTR_READER_REF(predict_shoot_center_, TranslationVectorCamPredict);
+    OutpostPredictor();
 
     SendPacket Run(const Battlefield& battlefield);
 private:
@@ -28,7 +29,7 @@ private:
 
     // Control and Robot properties
     const float kControl_delay_ = 1;             // TODO
-    float shoot_delay_;
+    float shoot_delay_ = 0;
 
     //  Outpost properties
     Outpost::Colors color_;
