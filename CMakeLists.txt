@@ -15,7 +15,6 @@ set(Visual_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 find_package(Visual)
 include_directories(${Visual_INCLUDE_DIRS})
 
-
 set(Nvidia_Tools_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 find_package(Nvidia_Tools)
 include_directories(${Nvidia_Tools_INCLUDE_DIRS})
