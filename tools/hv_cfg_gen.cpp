@@ -65,6 +65,8 @@ int main() {
         std::cin >> s;
         std::cin.get();
     }
+    if (!s)
+        return 0;
     std::string sn = sn_list[s - 1];
 
     // Open device.
