@@ -72,6 +72,24 @@ int main() {
     // Open device.
     // ================================================
     void *device = nullptr;
+    for (unsigned int i = 0; i < device_list.nDeviceNum; ++i) {
+        MV_CC_DEVICE_INFO *device_info = device_list.pDeviceInfo[i];
+        std::string temp_sn;
+        if (device_info->nTLayerType == MV_USB_DEVICE)
+            temp_sn = std::string(reinterpret_cast<char *>(device_info->SpecialInfo.stUsb3VInfo.chSerialNumber));
+        if (temp_sn == sn) {
+            status_code = MV_CC_CreateHandle(&device, device_info);
+            if (MV_OK != status_code) {
+                ERROR << "Failed to create device handle with error " << "0x" << std::hex << status_code
+                      << ".";
+                return 0;
+            }
+            goto confirmed_sn;  // WARNING: Do NOT change anything when NOT you used GOTO statement.
+        }
+    }
+    ERROR << "Select USB device is not found. Program will exit." << ENDL;
+    return 0;
+    confirmed_sn:
     status_code = MV_CC_OpenDevice(device, MV_ACCESS_Exclusive, 1);
     if (MV_OK != status_code) {
         ERROR << "Failed to open device with error " << "0x" << std::hex << status_code << "." << ENDL;
