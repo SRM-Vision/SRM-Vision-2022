@@ -78,6 +78,7 @@ bool ImageProviderCamera::Initialize(const std::string &file_path) {
     if (intrinsic_matrix_.empty() || distortion_matrix_.empty()) {
         LOG(ERROR) << "Camera len configurations not found.";
         delete camera_;
+        camera_ = nullptr;
         intrinsic_matrix_.release();
         distortion_matrix_.release();
         return false;
@@ -93,6 +94,7 @@ bool ImageProviderCamera::Initialize(const std::string &file_path) {
     }
     if (!camera_->OpenCamera(serial_number, camera_config_file)) {
         delete camera_;
+        camera_ = nullptr;
         intrinsic_matrix_.release();
         distortion_matrix_.release();
         return false;
@@ -102,6 +104,7 @@ bool ImageProviderCamera::Initialize(const std::string &file_path) {
     if (!camera_->StartStream()) {
         camera_->CloseCamera();
         delete camera_;
+        camera_ = nullptr;
         intrinsic_matrix_.release();
         distortion_matrix_.release();
         return false;
