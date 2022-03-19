@@ -145,3 +145,5 @@ target_link_libraries(${EXECUTABLE_NAME} ${NVIDIA_LIBS} ${CAM_LIBS} ${COMMON_LIB
 add_subdirectory(benchmark)
 # Compile tests.
 add_subdirectory(test)
+# Compile tools.
+add_subdirectory(tools)
