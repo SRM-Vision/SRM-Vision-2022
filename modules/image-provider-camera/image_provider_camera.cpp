@@ -90,6 +90,10 @@ bool ImageProviderCamera::Initialize(const std::string &file_path) {
     all_cams_config[camera_init_config["CAMERA"]]["CONFIG"] >> camera_config_file;
     if (serial_number.empty() || camera_config_file.empty()) {
         LOG(ERROR) << "Camera configurations not found.";
+        delete camera_;
+        camera_ = nullptr;
+        intrinsic_matrix_.release();
+        distortion_matrix_.release();
         return false;
     }
     if (!camera_->OpenCamera(serial_number, camera_config_file)) {
