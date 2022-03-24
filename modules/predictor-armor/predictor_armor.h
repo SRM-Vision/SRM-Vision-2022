@@ -126,7 +126,11 @@ public:
          */
         [[nodiscard]] inline SendPacket GenerateSendPacket(bool fire) const {
             auto delay = 1.f;// TODO Add delay and check_sum here.
-            SendPacket send_packet = {float(yaw), float(pitch),delay,fire,float(yaw+pitch+delay+fire)};
+            uint8_t distance_mode = 0 ;
+            if(0 <= armor->Distance() && armor->Distance()< 2)  distance_mode = 1;
+            if(2 <= armor->Distance() && armor->Distance()< 4)  distance_mode = 2;
+            if(4 <= armor->Distance() && armor->Distance()< 6)  distance_mode = 3;
+            SendPacket send_packet = {float(yaw), float(pitch),delay,distance_mode,fire,float(yaw+pitch+distance_mode+delay+fire)};
             return send_packet;
         }
     };
