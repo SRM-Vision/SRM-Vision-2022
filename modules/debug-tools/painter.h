@@ -24,9 +24,11 @@ namespace debug {
         inline void ShowImage(const std::string &window_name,
                               int wait_time = 1) {
             cv::imshow(window_name, image_);
-            if ((cv::waitKey(1) & 0xff) == 'q')
+            auto key = cv::waitKey(1) & 0xff;
+
+            if (key == 'q')
                 cv::waitKey(wait_time);
-            else if ((cv::waitKey(1) & 0xff) == 's')
+            else if (key == 's')
                 RuneDetectorDebug::Instance().Save();
         }
 

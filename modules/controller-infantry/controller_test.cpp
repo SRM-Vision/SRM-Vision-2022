@@ -57,7 +57,7 @@ bool InfantryController::Initialize() {
 }
 
 void InfantryController::Run() {
-    ArmorPredictor armor_predictor(Entity::Colors::kBlue, true);
+    ArmorPredictor armor_predictor(Entity::Colors::kBlue, true,"infantry");
 
     sleep(2);
 

@@ -7,8 +7,8 @@ const double kACInitMinLastingTime = 1;         ///< Minimal lasting time to ent
 const double kAccelerationThreshold = 100;        ///< Maximal acceleration allow to fire.
 const float kSwitchArmorAreaProportion = 1.1f;  ///< Minimal area of armor to switch to.
 
-bool ArmorPredictor::Initialize() {
-    ArmorPredictorDebug::Instance().Initialize("../config/sentry/ekf-param.yaml",CmdlineArgParser::Instance().DebugUseTrackbar());
+bool ArmorPredictor::Initialize(const std::string& car_name) {
+    ArmorPredictorDebug::Instance().Initialize("../config/"+car_name+"/ekf-param.yaml",CmdlineArgParser::Instance().DebugUseTrackbar());
     for (auto i = 0; i < Robot::RobotTypes::SIZE; ++i)
         grey_count_[Robot::RobotTypes(i)] = 0;
 
@@ -255,6 +255,12 @@ bool ArmorPredictor::Initialize() {
 
 SendPacket ArmorPredictor::Run(const Battlefield &battlefield, int mode) {
     auto &robots = battlefield.Robots();
+
+    for(auto& robot:robots){
+        for(auto& armor:robot.second){
+            DLOG(INFO)<<armor.second->Armors().data()->Distance();
+        }
+    }
 
     // Do nothing if nothing is found.
     // ================================================

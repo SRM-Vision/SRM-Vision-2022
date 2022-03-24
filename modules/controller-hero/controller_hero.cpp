@@ -1,6 +1,7 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 #include <debug-tools/painter.h>
+#include <predictor-armor/predictor_armor.h>
 #include "cmdline-arg-parser/cmdline_arg_parser.h"
 #include "image-provider-base/image_provider_factory.h"
 #include "controller_hero.h"
@@ -43,6 +44,7 @@ bool HeroController::Initialize() {
 }
 
 void HeroController::Run() {
+    ArmorPredictor armor_predictor(Entity::Colors::kBlue, true,"hero");
     sleep(2);
 
     while (!exit_signal_) {
@@ -73,11 +75,15 @@ void HeroController::Run() {
                                    receive_packet_.quaternion,
                                    armors_);
         Eigen::Matrix3d camera_matrix;
-        OutpostPredictor outpost_predictor;
+        // OutpostPredictor outpost_predictor;
         cv::cv2eigen(image_provider_->IntrinsicMatrix(), camera_matrix);
-        auto point = camera_matrix * outpost_predictor.TranslationVectorCamPredict() / outpost_predictor.TranslationVectorCamPredict()(2, 0);
-        cv::Point2d point_cv = {point[0], point[1]};
-        debug::Painter::Instance().DrawPoint(point_cv, cv::Scalar(0, 0, 255), 1, 10);
+        // auto point = camera_matrix * outpost_predictor.TranslationVectorCamPredict() / outpost_predictor.TranslationVectorCamPredict()(2, 0);
+        // cv::Point2d point_cv = {point[0], point[1]};
+        // debug::Painter::Instance().DrawPoint(point_cv, cv::Scalar(0, 0, 255), 1, 10);
+        send_packet_ = SerialSendPacket(armor_predictor.Run(battlefield_, ArmorPredictor::kAutoAntitop));//TODO mode
+
+        cv::cv2eigen(image_provider_->IntrinsicMatrix(), camera_matrix);
+        // DrawPredictedPoint(img, camera_matrix, armor_predictor.TranslationVectorCamPredict());
         debug::Painter::Instance().ShowImage("ARMOR DETECT");
 
         cv::imshow("Hero", img);

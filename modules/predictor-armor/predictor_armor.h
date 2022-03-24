@@ -135,10 +135,10 @@ public:
 
     ATTR_READER(bool(flag_ &kDebug), Debug)
 
-    ArmorPredictor(Entity::Colors color, uint8_t flag) :
+    ArmorPredictor(Entity::Colors color, uint8_t flag,std::string car_name) :
             color_(color),flag_(flag) {
         ClearStateBits();
-        Initialize();
+        Initialize(car_name);
     }
 
     inline void Clear() {
@@ -152,7 +152,7 @@ public:
 
     SendPacket Run(const Battlefield &battlefield, int mode = kNormal);
 
-    bool Initialize();
+    bool Initialize(const std::string& car_name);
 
     ~ArmorPredictor() = default;
 

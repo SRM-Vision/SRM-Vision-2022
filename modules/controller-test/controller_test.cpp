@@ -61,7 +61,7 @@ void TestController::Run() {
 }
 
 void TestController::Test() {
-    ArmorPredictor armor_predictor(Entity::Colors::kBlue, true);
+    ArmorPredictor armor_predictor(Entity::Colors::kBlue, true,"sentry");
 
     sleep(2);
 

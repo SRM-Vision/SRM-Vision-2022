@@ -68,7 +68,7 @@ TriggerDelay	0
 TriggerSelector	FrameBurstStart
 TriggerCacheEnable	0
 ExposureMode	Timed
-ExposureTime	5313
+ExposureTime	2313
 ExposureAuto	Off
 AutoExposureTimeLowerLimit	40
 AutoExposureTimeUpperLimit	2313
