@@ -150,7 +150,7 @@ public:
         state_bits_=ArmorMachine::StateBits{0, false, false, false, false};
     }
 
-    SendPacket Run(const Battlefield &battlefield, Modes mode = kNormal);
+    SendPacket Run(const Battlefield &battlefield, int mode = kNormal);
 
     bool Initialize();
 

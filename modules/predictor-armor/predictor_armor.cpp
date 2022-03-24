@@ -253,7 +253,7 @@ bool ArmorPredictor::Initialize() {
     return false;
 }
 
-SendPacket ArmorPredictor::Run(const Battlefield &battlefield, Modes mode) {
+SendPacket ArmorPredictor::Run(const Battlefield &battlefield, int mode) {
     auto &robots = battlefield.Robots();
 
     // Do nothing if nothing is found.
