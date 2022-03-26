@@ -269,7 +269,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, int mode) {
     if (robots.find(Entity::Colors::kGrey) == robots.end())
         exist_grey = false;
 
-    fire_ = false;
+    fire_ = 0;
 
     // Find enemy armors.
     bool exist_enemy = true;
@@ -705,7 +705,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, int mode) {
                     predict_speed(0, 0) = (predict_delta(0, 0) - predict_current(0, 0)) / 0.001;
                     predict_speed(1, 0) = (predict_delta(1, 0) - predict_current(1, 0)) / 0.001;
                     if(abs((last_armor_speed-predict_speed).norm())/delta_t < kAccelerationThreshold)
-                        fire_ = true;
+                        fire_ = 1;
                     last_armor_speed = predict_speed;
                     LOG(WARNING) <<"Whether fire:  "<<fire_<<std::endl;
                 }

@@ -32,8 +32,8 @@ struct SerialSendPacket {
     float yaw;
     float pitch;
     float delay;
-    uint8_t distance_mode;  // maybe only used in sentry
-    bool fire;
+    int distance_mode;  // maybe only used in sentry
+    int fire;
     float check_sum;
 };
 

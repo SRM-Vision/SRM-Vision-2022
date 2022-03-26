@@ -124,9 +124,9 @@ public:
          * \brief Generate a packet according to data inside.
          * \return Send packet to serial port.
          */
-        [[nodiscard]] inline SendPacket GenerateSendPacket(bool fire) const {
+        [[nodiscard]] inline SendPacket GenerateSendPacket(int fire) const {
             auto delay = 1.f;// TODO Add delay and check_sum here.
-            uint8_t distance_mode = 0 ;
+            int distance_mode = 0 ;
             if(0 <= armor->Distance() && armor->Distance()< 2)  distance_mode = 1;
             if(2 <= armor->Distance() && armor->Distance()< 4)  distance_mode = 2;
             if(4 <= armor->Distance() && armor->Distance()< 6)  distance_mode = 3;
@@ -314,7 +314,7 @@ private:
     Node target_;  ///< Cached and currently locked target.
     Entity::Colors color_;  ///< Target's color.
 
-    bool fire_ = false;                 ///< Sentry is firing ,only sentry use.
+    int fire_ = 0;                 ///< Sentry is firing ,only sentry use.
     bool target_locked_ = false;       ///< Target is currently locked.
     bool long_distance_ = false;       ///< Current target is far from self.
     bool target_is_the_right_ = true;  ///< Target is on the right, opposite left.
