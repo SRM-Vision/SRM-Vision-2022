@@ -108,9 +108,13 @@ void InfantryController::Run() {
         if ((cv::waitKey(1) & 0xff) == 'q')
             break;
 
+        SerialSendPacket send_packet{1.f, 2.f, 3.f, 4,5,6.f};
+
+        serial_->SendData(send_packet, std::chrono::milliseconds(5));
         boxes_.clear();
         armors_.clear();
     }
+
 
     // exit.
     if (CmdlineArgParser::Instance().RunWithGimbal())
