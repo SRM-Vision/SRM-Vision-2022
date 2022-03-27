@@ -25,9 +25,9 @@ Height	1024
 RegionSelector	Region0
 ChunkModeActive	0
 ChunkEnable	0
-ExposureTime	5000
+ExposureTime	3000
 AcquisitionFrameRateMode	Off
-AcquisitionFrameRate	210
+AcquisitionFrameRate	2020
 RegionSelector	Region0
 OffsetX	0
 RegionSelector	Region0
