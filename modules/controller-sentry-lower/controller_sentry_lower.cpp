@@ -66,10 +66,10 @@ void SentryLowerController::Run() {
         battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.quaternion,
                                    armors_);
 
-        send_packet_ = SerialSendPacket(armor_predictor.Run(battlefield_, ArmorPredictor::Modes::kAutoAntitop));
+        send_packet_ = SerialSendPacket(armor_predictor.Run(battlefield_, ArmorPredictor::Modes::kNormal));
         Eigen::Matrix3d camera_matrix;
         cv::cv2eigen(image_provider_->IntrinsicMatrix(), camera_matrix);
-        DrawPredictedPoint(img, camera_matrix, armor_predictor.TranslationVectorCamPredict());
+        //DrawPredictedPoint(img, camera_matrix, armor_predictor.TranslationVectorCamPredict());
         cv::imshow("Sentry Lower", img);
 
         auto key = cv::waitKey(1) & 0xff;

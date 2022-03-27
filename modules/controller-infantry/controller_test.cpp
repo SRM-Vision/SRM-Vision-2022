@@ -64,7 +64,8 @@ void InfantryController::Run() {
     while (!exit_signal_) {
         if (!image_provider_->GetFrame(frame_))
             break;
-        cv::waitKey(1);
+        cv::flip(frame_.image, frame_.image, 0);
+        cv::flip(frame_.image, frame_.image, 1);
         debug::Painter::Instance().UpdateImage(frame_.image);
 
         if (CmdlineArgParser::Instance().RunWithGimbal()) {

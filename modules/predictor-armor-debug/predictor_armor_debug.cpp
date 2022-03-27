@@ -40,7 +40,10 @@ void ArmorPredictorDebug::Initialize(const std::string &config_path, bool debug_
                                                         trackbar_windows_name_,
                                                         m_z_noise_,
                                                         kMax_m_z_noise);
-    }
+        debug::Trackbar<double>::Instance().AddTrackbar("delta_pitch",
+                                                        trackbar_windows_name_,
+                                                        delta_pitch_,
+                                                        kDelta_pitch);    }
 }
 
 void ArmorPredictorDebug::Save() {
