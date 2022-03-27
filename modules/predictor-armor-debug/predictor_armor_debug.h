@@ -31,17 +31,21 @@ public:
 
     ATTR_READER(m_z_noise_, MeasureZNoise)
 
+    ATTR_READER(delta_pitch_, DeltaPitch)
+
 
 private:
     const double kMax_p_xyz_noise = 0.1;
     const double  kMax_p_xy_speed_noise = 500;
     const double kMax_m_xy_noise = 10;
     const int  kMax_m_z_noise = 1000;
+    const double kDelta_pitch = 3;
 
     double p_xyz_noise_ = 0.01;
     double p_xy_speed_noise_ = 100;
     double m_xy_noise_ = 1;
     double m_z_noise_ = 800;
+    double delta_pitch_ = 0.0;
 };
 
 

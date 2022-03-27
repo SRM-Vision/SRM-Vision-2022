@@ -1,4 +1,5 @@
 #include "predictor_armor.h"
+#include "predictor-armor-debug/predictor_armor_debug.h"
 
 const double kDistanceThreshold = 6;            ///< Distance threshold to judge whether a target is too far.
 const float kACSpeedXCoefficient = .5f;         ///< Coefficient of inherit anti-top candidate's speed x.
@@ -255,12 +256,6 @@ bool ArmorPredictor::Initialize(const std::string& car_name) {
 
 SendPacket ArmorPredictor::Run(const Battlefield &battlefield, int mode) {
     auto &robots = battlefield.Robots();
-
-    for(auto& robot:robots){
-        for(auto& armor:robot.second){
-            DLOG(INFO)<<armor.second->Armors().data()->Distance();
-        }
-    }
 
     // Do nothing if nothing is found.
     // ================================================
@@ -520,7 +515,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, int mode) {
 
         shoot_point_spherical = coordinate::convert::Rectangular2Spherical(shoot_point_rectangular);
         target_.yaw = (float) shoot_point_spherical(0, 0);
-        target_.pitch = (float) shoot_point_spherical(1, 0);
+        target_.pitch = (float) shoot_point_spherical(1, 0) + ArmorPredictorDebug::Instance().DeltaPitch();
         target_.long_distance = long_distance_;
 
         predict.delta_t = 0.001;
@@ -576,7 +571,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, int mode) {
         Eigen::Vector3d shoot_point_spherical =
                 coordinate::convert::Rectangular2Spherical(shoot_point_rectangular);
         target_.yaw = (float) shoot_point_spherical(0, 0);
-        target_.pitch = (float) shoot_point_spherical(1, 0);
+        target_.pitch = (float) shoot_point_spherical(1, 0) + ArmorPredictorDebug::Instance().DeltaPitch();
         antitop_candidates_.clear();
     }
 
@@ -677,7 +672,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, int mode) {
                             coordinate::convert::Rectangular2Spherical(shoot_point_rectangular);
 
                     antitop_candidate.yaw = (float) shoot_point_spherical(0, 0);
-                    antitop_candidate.pitch = (float) shoot_point_spherical(1, 0);
+                    antitop_candidate.pitch = (float) shoot_point_spherical(1, 0) + ArmorPredictorDebug::Instance().DeltaPitch();
                     antitop_candidate.long_distance = long_distance_;
 
                     predict.delta_t = 0.001;
@@ -775,7 +770,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, int mode) {
     }
 
     antitop_ = antitop_detector_.Is_Top(target_.armor->ID() == armor_machine_->target_->ID(), anticlockwise_, state_bits_.switch_armor, battlefield.TimeStamp());
-    LOG(INFO)<<"top_period"<< antitop_detector_.GetTopPeriod();
+    LOG(INFO)<<"top_period "<< antitop_detector_.GetTopPeriod();
     target_.armor = armor_machine_->target_;
     target_locked_ = true;
     armor_num_ = armor_num;

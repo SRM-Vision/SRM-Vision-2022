@@ -25,7 +25,7 @@ Height	1024
 RegionSelector	Region0
 ChunkModeActive	0
 ChunkEnable	0
-ExposureTime	5000
+ExposureTime	5313
 AcquisitionFrameRateMode	On
 AcquisitionFrameRate	192
 RegionSelector	Region0
@@ -126,5 +126,5 @@ StreamSelector	0
 # Device = DahengImavision::USB3VisionTL -- TLDataStream RegisterMap -- Device version = 1.0.2 -- Product GUID = 62468F13-89FE-499c-88D9-AF83888F71FB -- Product version GUID = 4F738550-9C42-477B-BB0D-407E7638DC09
 StreamBufferHandlingMode	OldestFirst
 StreamTransferSize	65536
-StreamTransferNumberUrb	64
+StreamTransferNumberUrb	200
 AcquisitionBufferCachePrec	40
