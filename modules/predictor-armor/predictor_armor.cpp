@@ -515,7 +515,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, int mode) {
 
         shoot_point_spherical = coordinate::convert::Rectangular2Spherical(shoot_point_rectangular);
         target_.yaw = (float) shoot_point_spherical(0, 0);
-        target_.pitch = (float) shoot_point_spherical(1, 0) + ArmorPredictorDebug::Instance().DeltaPitch();
+        target_.pitch = (float) shoot_point_spherical(1, 0);
         target_.long_distance = long_distance_;
 
         predict.delta_t = 0.001;
@@ -571,7 +571,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, int mode) {
         Eigen::Vector3d shoot_point_spherical =
                 coordinate::convert::Rectangular2Spherical(shoot_point_rectangular);
         target_.yaw = (float) shoot_point_spherical(0, 0);
-        target_.pitch = (float) shoot_point_spherical(1, 0) + ArmorPredictorDebug::Instance().DeltaPitch();
+        target_.pitch = (float) shoot_point_spherical(1, 0);
         antitop_candidates_.clear();
     }
 
@@ -672,7 +672,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, int mode) {
                             coordinate::convert::Rectangular2Spherical(shoot_point_rectangular);
 
                     antitop_candidate.yaw = (float) shoot_point_spherical(0, 0);
-                    antitop_candidate.pitch = (float) shoot_point_spherical(1, 0) + ArmorPredictorDebug::Instance().DeltaPitch();
+                    antitop_candidate.pitch = (float) shoot_point_spherical(1, 0);
                     antitop_candidate.long_distance = long_distance_;
 
                     predict.delta_t = 0.001;
@@ -702,7 +702,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, int mode) {
                     if(abs((last_armor_speed-predict_speed).norm())/delta_t < kAccelerationThreshold)
                         fire_ = 1;
                     last_armor_speed = predict_speed;
-                    LOG(WARNING) <<"Whether fire:  "<<fire_<<std::endl;
+                    LOG(WARNING) <<"Whether fire:  "<<fire_;
                 }
                 break;
             }

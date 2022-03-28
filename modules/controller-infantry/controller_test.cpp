@@ -106,12 +106,15 @@ void InfantryController::Run() {
             debug::Painter::Instance().ShowImage("ARMOR DETECT");
         }
 
-        if ((cv::waitKey(1) & 0xff) == 'q')
+        auto key = cv::waitKey(1) & 0xff;
+
+        if (key == 'q')
             break;
-
-        SerialSendPacket send_packet{1.f, 2.f, 3.f, 4,5,6.f};
-
-        // serial_->SendData(send_packet, std::chrono::milliseconds(5));
+        else if(key == 's')
+            ArmorPredictorDebug::Instance().Save();
+        // SerialSendPacket send_packet{1.f, 2.f, 3.f, 4,5,6.f};
+        if(CmdlineArgParser::Instance().RunWithSerial())
+            serial_->SendData(send_packet_, std::chrono::milliseconds(5));
         boxes_.clear();
         armors_.clear();
     }

@@ -14,6 +14,7 @@
 #include <opencv2/core/eigen.hpp>
 #include <ceres/jet.h>
 #include "algorithms.h"
+#include <glog/logging.h>
 
 namespace coordinate {
     typedef Eigen::Vector3d TranslationVector;
@@ -30,12 +31,18 @@ namespace coordinate::transform {
     QuaternionToRotationMatrix(const Quaternion &quaternion) {
         // Prefix "e_" here means "Euler angle".
         double
-                e_yaw = atan2(2 * (quaternion.w() * quaternion.z() + quaternion.x() * quaternion.y()),
-                              2 * (quaternion.w() * quaternion.w() + quaternion.x() * quaternion.x()) - 1),
-                e_roll = asin(-2 * (quaternion.x() * quaternion.z() - quaternion.w() * quaternion.y())),
-                e_pitch = atan2(2 * (quaternion.w() * quaternion.x() + quaternion.y() * quaternion.z()),
-                                2 * (quaternion.w() * quaternion.w() + quaternion.z() * quaternion.z()) - 1);
-
+                e_pitch = atan2(2 * (quaternion.w() * quaternion.z() + quaternion.x() * quaternion.y()),
+                              2 * (quaternion.y() * quaternion.y() + quaternion.x() * quaternion.x()) - 1),
+                e_roll = asin(-2 * (quaternion.y() * quaternion.w() - quaternion.x() * quaternion.z())),
+                e_yaw = atan2(2 * (quaternion.w() * quaternion.x() + quaternion.y() * quaternion.z()),
+                                2 * (quaternion.x() * quaternion.x() + quaternion.y() * quaternion.y()) - 1);
+//        double
+//                e_yaw = atan((quaternion.x()*quaternion.w()+quaternion.y()*quaternion.z())/
+//                        (quaternion.x()*quaternion.x()+quaternion.y()*quaternion.y()-0.5)),
+//                e_pitch = asin(2*quaternion.x()*quaternion.z()-2*quaternion.y()*quaternion.w()),
+//                e_roll = atan((quaternion.x()*quaternion.y()+quaternion.z()*quaternion.w())/
+//                        (quaternion.x()*quaternion.x()+quaternion.w()*quaternion.w()-0.5));
+        DLOG(INFO) << "YAW  " << e_yaw << "  PITCH  "<<e_pitch<<"   ROLL  "<<e_roll;
         // Prefix "r_" here means "rotation".
         RotationMatrix r_yaw, r_roll, r_pitch;
 
