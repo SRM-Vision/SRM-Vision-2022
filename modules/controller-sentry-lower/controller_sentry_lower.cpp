@@ -36,7 +36,7 @@ bool SentryLowerController::Initialize() {
 }
 
 void SentryLowerController::Run() {
-
+    ArmorPredictor armor_predictor(Entity::Colors::kBlue, true,"sentry");
     sleep(2);
 
     while (!exit_signal_) {
@@ -48,7 +48,6 @@ void SentryLowerController::Run() {
             serial_->GetData(serial_receive_packet, std::chrono::milliseconds(5));
             receive_packet_ = ReceivePacket(serial_receive_packet);
         }
-        ArmorPredictor armor_predictor(Entity::Colors::kBlue, true,"sentry");
         boxes_ = armor_detector_(frame_.image);
         BboxToArmor();
         battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.quaternion,
