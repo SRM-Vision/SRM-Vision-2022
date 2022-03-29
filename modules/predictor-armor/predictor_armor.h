@@ -125,7 +125,7 @@ public:
          * \return Send packet to serial port.
          */
         [[nodiscard]] inline SendPacket GenerateSendPacket(int fire) const {
-            auto delay = 1.f;// TODO Add delay and check_sum here.
+            auto delay = 0.f;// TODO Add delay and check_sum here.
             int distance_mode = 0 ;
             if(0 <= armor->Distance() && armor->Distance()< 2)  distance_mode = 1;
             if(2 <= armor->Distance() && armor->Distance()< 4)  distance_mode = 2;

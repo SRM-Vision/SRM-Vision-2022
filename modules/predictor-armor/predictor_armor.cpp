@@ -5,7 +5,7 @@ const double kDistanceThreshold = 6;            ///< Distance threshold to judge
 const float kACSpeedXCoefficient = .5f;         ///< Coefficient of inherit anti-top candidate's speed x.
 const float kACSpeedYCoefficient = .5f;         ///< Coefficient of inherit anti-top candidate's speed y.
 const double kACInitMinLastingTime = 1;         ///< Minimal lasting time to enter anti-top candidates.
-const double kAccelerationThreshold = 100;        ///< Maximal acceleration allow to fire.
+const double kAccelerationThreshold = 10;        ///< Maximal acceleration allow to fire.
 const float kSwitchArmorAreaProportion = 1.1f;  ///< Minimal area of armor to switch to.
 
 bool ArmorPredictor::Initialize(const std::string& car_name) {
@@ -540,6 +540,10 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, int mode) {
 
         predict_speed(0, 0) = (predict_delta(0, 0) - predict_current(0, 0)) / 0.001;
         predict_speed(1, 0) = (predict_delta(1, 0) - predict_current(1, 0)) / 0.001;
+        if(abs((last_armor_speed-predict_speed).norm())/delta_t < kAccelerationThreshold)
+            fire_ = 1;
+        last_armor_speed = predict_speed;
+        LOG(WARNING) <<"Whether fire:  "<<fire_;
     }
 
     // There's no reference, re-initialize anti-top.
@@ -639,7 +643,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, int mode) {
                 } else {
                     antitop_candidate.need_init = false;
                     Eigen::Vector3d tv_world_measure = antitop_candidate.armor->TranslationVectorWorld();
-                    Eigen::Vector2d predict_speed;
+                    // Eigen::Vector2d predict_speed;
                     coordinate::TranslationVector shoot_point_rectangular;
                     predict.delta_t = delta_t;
                     Eigen::Matrix<double, 5, 1> x_real;
@@ -675,34 +679,30 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, int mode) {
                     antitop_candidate.pitch = (float) shoot_point_spherical(1, 0);
                     antitop_candidate.long_distance = long_distance_;
 
-                    predict.delta_t = 0.001;
-
-                    Eigen::Matrix<double, 5, 1> x_delta;
-                    predict(x_predict.data(), x_delta.data());
-
-                    Eigen::Vector3d tv_world_delta{x_delta(0, 0),
-                                                   x_delta(2, 0),
-                                                   x_delta(4, 0)};
-                    Eigen::Vector3d tv_imu_delta = coordinate::transform::WorldToCamera(
-                            tv_world_delta,
-                            coordinate::transform::QuaternionToRotationMatrix(battlefield.Quaternion()),
-                            Eigen::Vector3d::Zero(),
-                            Eigen::Matrix3d::Identity());
-                    Eigen::Vector3d tv_imu_current = coordinate::transform::WorldToCamera(
-                            tv_world_predict,
-                            coordinate::transform::QuaternionToRotationMatrix(battlefield.Quaternion()),
-                            Eigen::Vector3d::Zero(),
-                            Eigen::Matrix3d::Identity());
-
-                    Eigen::Vector3d predict_delta = coordinate::convert::Rectangular2Spherical(tv_imu_delta);
-                    Eigen::Vector3d predict_current = coordinate::convert::Rectangular2Spherical(tv_imu_current);
-
-                    predict_speed(0, 0) = (predict_delta(0, 0) - predict_current(0, 0)) / 0.001;
-                    predict_speed(1, 0) = (predict_delta(1, 0) - predict_current(1, 0)) / 0.001;
-                    if(abs((last_armor_speed-predict_speed).norm())/delta_t < kAccelerationThreshold)
-                        fire_ = 1;
-                    last_armor_speed = predict_speed;
-                    LOG(WARNING) <<"Whether fire:  "<<fire_;
+//                    predict.delta_t = 0.001;
+//
+//                    Eigen::Matrix<double, 5, 1> x_delta;
+//                    predict(x_predict.data(), x_delta.data());
+//
+//                    Eigen::Vector3d tv_world_delta{x_delta(0, 0),
+//                                                   x_delta(2, 0),
+//                                                   x_delta(4, 0)};
+//                    Eigen::Vector3d tv_imu_delta = coordinate::transform::WorldToCamera(
+//                            tv_world_delta,
+//                            coordinate::transform::QuaternionToRotationMatrix(battlefield.Quaternion()),
+//                            Eigen::Vector3d::Zero(),
+//                            Eigen::Matrix3d::Identity());
+//                    Eigen::Vector3d tv_imu_current = coordinate::transform::WorldToCamera(
+//                            tv_world_predict,
+//                            coordinate::transform::QuaternionToRotationMatrix(battlefield.Quaternion()),
+//                            Eigen::Vector3d::Zero(),
+//                            Eigen::Matrix3d::Identity());
+//
+//                    Eigen::Vector3d predict_delta = coordinate::convert::Rectangular2Spherical(tv_imu_delta);
+//                    Eigen::Vector3d predict_current = coordinate::convert::Rectangular2Spherical(tv_imu_current);
+//
+//                    predict_speed(0, 0) = (predict_delta(0, 0) - predict_current(0, 0)) / 0.001;
+//                    predict_speed(1, 0) = (predict_delta(1, 0) - predict_current(1, 0)) / 0.001;
                 }
                 break;
             }
