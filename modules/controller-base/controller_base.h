@@ -63,7 +63,7 @@ protected:
             armors_.emplace_back(box,
                                  image_provider_->IntrinsicMatrix(),
                                  image_provider_->DistortionMatrix(),
-                                 receive_packet_.quaternion);
+                                 receive_packet_.yaw_pitch_roll);
     }
 };
 

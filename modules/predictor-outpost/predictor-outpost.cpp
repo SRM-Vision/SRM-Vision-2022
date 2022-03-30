@@ -41,7 +41,7 @@ SendPacket OutpostPredictor::Run(const Battlefield &battlefield) {
         {
             coordinate::TranslationVector moving_center_ = coordinate::TranslationVector(target_[0].TranslationVectorWorld().x(), target_[0].TranslationVectorWorld().y(), target_[0].TranslationVectorWorld().z());
             target_moving_center_ = CalculateMovingTargetCenter(moving_center_, 1);
-            predict_shoot_center_ = CalculatePredictShootCenter(target_moving_center_, battlefield.BulletSpeed(), battlefield.Quaternion(), target_[0].Distance());
+            predict_shoot_center_ = CalculatePredictShootCenter(target_moving_center_, battlefield.BulletSpeed(), battlefield.YawPitchRoll(), target_[0].Distance());
 
         }
             // Detect 2 armors.
@@ -49,7 +49,7 @@ SendPacket OutpostPredictor::Run(const Battlefield &battlefield) {
         {
             DecideGoingAndComing(target_);
             target_moving_center_ = CalculateMovingTargetCenter(coming_armor_.TranslationVectorWorld(), 2);
-            predict_shoot_center_ = CalculatePredictShootCenter(target_moving_center_, battlefield.BulletSpeed(), battlefield.Quaternion(), going_armor_.Distance());
+            predict_shoot_center_ = CalculatePredictShootCenter(target_moving_center_, battlefield.BulletSpeed(), battlefield.YawPitchRoll(), going_armor_.Distance());
         }
         else if(target_.empty())
         {
@@ -100,7 +100,7 @@ coordinate::TranslationVector OutpostPredictor::CalculateMovingTargetCenter(cons
 
 coordinate::TranslationVector OutpostPredictor::CalculatePredictShootCenter(const coordinate::TranslationVector & moving_center,
                                                                             float bullet_speed,
-                                                                            const Eigen::Quaternionf &quaternion,
+                                                                            const float yaw_pitch_roll[],
                                                                             float distance)
 {
     double tm_cam_to_imu_data[] = {0, -0.026, -0.075};  // TODO
@@ -114,7 +114,8 @@ coordinate::TranslationVector OutpostPredictor::CalculatePredictShootCenter(cons
     predict_shoot_center.z() = moving_center.z();
 
     predict_shoot_center = coordinate::transform::WorldToCamera(predict_shoot_center,
-                                                              coordinate::transform::QuaternionToRotationMatrix(quaternion),
+                                                                coordinate::transform::EulerAngleToRotationMatrix(
+                                                                        yaw_pitch_roll),
                                                               camera_to_imu_translation_matrix,    // TODO
                                                               Eigen::Matrix3d::Identity());
     return predict_shoot_center;

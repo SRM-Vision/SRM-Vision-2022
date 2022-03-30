@@ -37,7 +37,7 @@ public:
     Armor(const bbox_t &box,
           const cv::Mat &intrinsic_mat,
           const cv::Mat &distortion_mat,
-          const Eigen::Quaternionf &quaternion) :
+          const float yaw_pitch_roll[]) :
             Component(Colors(box.color), kArmor),
             id_(box.id),
             confidence_(box.confidence) {
@@ -123,7 +123,7 @@ public:
 
         translation_vector_world_ = coordinate::transform::CameraToWorld(
                 translation_vector_cam_,
-                coordinate::transform::QuaternionToRotationMatrix(quaternion),
+                coordinate::transform::EulerAngleToRotationMatrix(yaw_pitch_roll),
                 camera_to_imu_translation_matrix,
                 camera_to_imu_rotation_matrix
         );

@@ -86,7 +86,7 @@ void TestController::Test() {
         } else {
             boxes_ = armor_detector_(frame_.image);
             BboxToArmor();
-            battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.quaternion,
+            battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.yaw_pitch_roll,
                                        armors_);
             /// TODO mode switch
             send_packet_ = SendPacket(armor_predictor.Run(battlefield_, ArmorPredictor::Modes::kNormal));

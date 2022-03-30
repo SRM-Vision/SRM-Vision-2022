@@ -501,13 +501,13 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, int mode) {
         Eigen::Vector3d tv_world_predict{x_predict(0, 0), x_predict(2, 0), x_predict(4, 0)};
         shoot_point_rectangular = coordinate::transform::WorldToCamera(
                 tv_world_predict,
-                coordinate::transform::QuaternionToRotationMatrix(battlefield.Quaternion()),
+                coordinate::transform::EulerAngleToRotationMatrix(battlefield.YawPitchRoll()),
                 Eigen::Vector3d::Zero(),
                 Eigen::Matrix3d::Identity());
 
         translation_vector_cam_predict_ = coordinate::transform::WorldToCamera(
                 tv_world_predict,
-                coordinate::transform::QuaternionToRotationMatrix(battlefield.Quaternion()),
+                coordinate::transform::EulerAngleToRotationMatrix(battlefield.YawPitchRoll()),
                 camera_to_imu_translation_matrix,
                 Eigen::Matrix3d::Identity());
 
@@ -526,12 +526,12 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, int mode) {
                                                x_predict_delta(4, 0)};
         Eigen::Vector3d tv_imu_delta = coordinate::transform::WorldToCamera(
                 tv_world_predict_delta,
-                coordinate::transform::QuaternionToRotationMatrix(battlefield.Quaternion()),
+                coordinate::transform::EulerAngleToRotationMatrix(battlefield.YawPitchRoll()),
                 Eigen::Vector3d::Zero(),
                 Eigen::Matrix3d::Identity());
         Eigen::Vector3d tv_imu_current = coordinate::transform::WorldToCamera(
                 tv_world_predict,
-                coordinate::transform::QuaternionToRotationMatrix(battlefield.Quaternion()),
+                coordinate::transform::EulerAngleToRotationMatrix(battlefield.YawPitchRoll()),
                 Eigen::Vector3d::Zero(),
                 Eigen::Matrix3d::Identity());
 
@@ -561,13 +561,13 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, int mode) {
         target_.ekf.Initialize(x_real);
         coordinate::TranslationVector shoot_point_rectangular = coordinate::transform::WorldToCamera(
                 armor_machine_->target_->TranslationVectorWorld(),
-                coordinate::transform::QuaternionToRotationMatrix(battlefield.Quaternion()),
+                coordinate::transform::EulerAngleToRotationMatrix(battlefield.YawPitchRoll()),
                 Eigen::Vector3d::Zero(),
                 Eigen::Matrix3d::Identity());
 
         translation_vector_cam_predict_ = coordinate::transform::WorldToCamera(
                 armor_machine_->target_->TranslationVectorWorld(),
-                coordinate::transform::QuaternionToRotationMatrix(battlefield.Quaternion()),
+                coordinate::transform::EulerAngleToRotationMatrix(battlefield.YawPitchRoll()),
                 camera_to_imu_translation_matrix,
                 Eigen::Matrix3d::Identity());
 
@@ -668,7 +668,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, int mode) {
 
                     shoot_point_rectangular = coordinate::transform::WorldToCamera(
                             tv_world_predict,
-                            coordinate::transform::QuaternionToRotationMatrix(battlefield.Quaternion()),
+                            coordinate::transform::EulerAngleToRotationMatrix(battlefield.YawPitchRoll()),
                             Eigen::Vector3d::Zero(),
                             Eigen::Matrix3d::Identity());
 
@@ -689,12 +689,12 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, int mode) {
 //                                                   x_delta(4, 0)};
 //                    Eigen::Vector3d tv_imu_delta = coordinate::transform::WorldToCamera(
 //                            tv_world_delta,
-//                            coordinate::transform::QuaternionToRotationMatrix(battlefield.Quaternion()),
+//                            coordinate::transform::EulerAngleToRotationMatrix(battlefield.Quaternion()),
 //                            Eigen::Vector3d::Zero(),
 //                            Eigen::Matrix3d::Identity());
 //                    Eigen::Vector3d tv_imu_current = coordinate::transform::WorldToCamera(
 //                            tv_world_predict,
-//                            coordinate::transform::QuaternionToRotationMatrix(battlefield.Quaternion()),
+//                            coordinate::transform::EulerAngleToRotationMatrix(battlefield.Quaternion()),
 //                            Eigen::Vector3d::Zero(),
 //                            Eigen::Matrix3d::Identity());
 //

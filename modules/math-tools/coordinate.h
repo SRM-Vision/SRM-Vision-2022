@@ -22,33 +22,19 @@ namespace coordinate {
 
     typedef Eigen::Matrix<double, 3, 1> TranslationMatrix;
     typedef Eigen::Matrix3d RotationMatrix;
-
-    typedef Eigen::Quaternionf Quaternion;
 }
 
 namespace coordinate::transform {
     [[maybe_unused]] inline RotationMatrix
-    QuaternionToRotationMatrix(const Quaternion &quaternion) {
+    EulerAngleToRotationMatrix(const float e_yaw_pitch_roll[]) {
         // Prefix "e_" here means "Euler angle".
-        double
-                e_pitch = atan2(2 * (quaternion.w() * quaternion.z() + quaternion.x() * quaternion.y()),
-                              2 * (quaternion.y() * quaternion.y() + quaternion.x() * quaternion.x()) - 1),
-                e_roll = asin(-2 * (quaternion.y() * quaternion.w() - quaternion.x() * quaternion.z())),
-                e_yaw = atan2(2 * (quaternion.w() * quaternion.x() + quaternion.y() * quaternion.z()),
-                                2 * (quaternion.x() * quaternion.x() + quaternion.y() * quaternion.y()) - 1);
-//        double
-//                e_yaw = atan((quaternion.x()*quaternion.w()+quaternion.y()*quaternion.z())/
-//                        (quaternion.x()*quaternion.x()+quaternion.y()*quaternion.y()-0.5)),
-//                e_pitch = asin(2*quaternion.x()*quaternion.z()-2*quaternion.y()*quaternion.w()),
-//                e_roll = atan((quaternion.x()*quaternion.y()+quaternion.z()*quaternion.w())/
-//                        (quaternion.x()*quaternion.x()+quaternion.w()*quaternion.w()-0.5));
-        DLOG(INFO) << "YAW  " << e_yaw << "  PITCH  "<<e_pitch<<"   ROLL  "<<e_roll;
+
         // Prefix "r_" here means "rotation".
         RotationMatrix r_yaw, r_roll, r_pitch;
 
         // [Experimental] Use SSE2 or NEON to accelerate sine and cosine.
 #if defined(__x86_64__) | defined(__aarch64__)
-        float r[4] = {float(e_yaw), float(e_roll), float(e_pitch), float(0)}, sin_r[4], cos_r[4];
+        float r[4] = {e_yaw_pitch_roll[0], e_yaw_pitch_roll[1], e_yaw_pitch_roll[2], float(0)}, sin_r[4], cos_r[4];
         algorithm::SinCosFloatX4(r, sin_r, cos_r);
         r_yaw << cos_r[0], 0, sin_r[0],
                 0, 1, 0,
@@ -60,15 +46,15 @@ namespace coordinate::transform {
                 0, cos_r[2], -sin_r[2],
                 0, sin_r[2], cos_r[2];
 #else
-        r_yaw << cos(e_yaw), 0, sin(e_yaw),
+        r_yaw << cos(e_yaw_pitch_roll[0]), 0, sin(e_yaw_pitch_roll[0]),
                 0, 1, 0,
-                -sin(e_yaw), 0, cos(e_yaw);
-        r_roll << cos(e_roll), -sin(e_roll), 0,
-                sin(e_roll), cos(e_roll), 0,
+                -sin(e_yaw_pitch_roll[0]), 0, cos(e_yaw_pitch_roll[0]);
+        r_roll << cos(e_yaw_pitch_roll[2]), -sin(e_yaw_pitch_roll[2]), 0,
+                sin(e_yaw_pitch_roll[2]), cos(e_yaw_pitch_roll[2]), 0,
                 0, 0, 1;
         r_pitch << 1, 0, 0,
-                0, cos(e_pitch), -sin(e_pitch),
-                0, sin(e_pitch), cos(e_pitch);
+                0, cos(e_yaw_pitch_roll[1]), -sin(e_yaw_pitch_roll[1]),
+                0, sin(e_yaw_pitch_roll[1]), cos(e_yaw_pitch_roll[1]);
 #endif
 
         return r_yaw * r_pitch * r_roll;

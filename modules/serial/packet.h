@@ -15,14 +15,15 @@ struct SerialReceivePacket {
     int prior_enemy;
     int color;
     float bullet_speed;
-    float quaternion[4];
+    float yaw;
+    float pitch;
+    float roll;
 };
 
 inline std::ostream &operator<<(std::ostream &str, const SerialReceivePacket &receive_packet) {
     str << receive_packet.mode << " | " << receive_packet.armor_kind << " | " << receive_packet.prior_enemy
-        << " | " << receive_packet.color << " | " << receive_packet.bullet_speed;
-    for (float i: receive_packet.quaternion)
-        str << " | " << i;
+        << " | " << receive_packet.color << " | " << receive_packet.bullet_speed << " | " << receive_packet.yaw
+        << " | " << receive_packet.pitch << " | " << receive_packet.roll;
     return str;
 }
 

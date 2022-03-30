@@ -75,11 +75,11 @@
 
 Battlefield::Battlefield(uint64_t time_stamp,
                          float bullet_speed,
-                         const Eigen::Quaternionf &quaternion,
+                         const float yaw_pitch_roll[],
                          const std::vector<Armor> &armors) :
         time_stamp_(time_stamp),
         bullet_speed_(bullet_speed),
-        quaternion_(quaternion),
+        yaw_pitch_roll_{yaw_pitch_roll[0],yaw_pitch_roll[1],yaw_pitch_roll[2]},
         robots_(),
         facilities_() {
 

@@ -20,7 +20,7 @@ struct ReceivePacket {
     int prior_enemy;
     int color;
     float bullet_speed;
-    Eigen::Quaternionf quaternion;
+    float yaw_pitch_roll[3];
 
     ReceivePacket() :
             mode(0),
@@ -28,7 +28,7 @@ struct ReceivePacket {
             prior_enemy(0),
             color(0),
             bullet_speed(0),
-            quaternion({1, 0, 0, 0}) {}
+            yaw_pitch_roll{0,0,0} {}
 
     explicit ReceivePacket(const SerialReceivePacket &serial_receive_packet) :
             mode(serial_receive_packet.mode),
@@ -36,7 +36,7 @@ struct ReceivePacket {
             prior_enemy(serial_receive_packet.prior_enemy),
             color(serial_receive_packet.color),
             bullet_speed(serial_receive_packet.bullet_speed),
-            quaternion(serial_receive_packet.quaternion) {}
+            yaw_pitch_roll{serial_receive_packet.yaw,serial_receive_packet.pitch,serial_receive_packet.roll} {}
 };
 
 #endif  // COMMUNICATION_H_
