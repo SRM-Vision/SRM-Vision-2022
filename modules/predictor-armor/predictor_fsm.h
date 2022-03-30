@@ -57,11 +57,11 @@ public:
     typedef std::unordered_map<Entity::Colors, std::unordered_map<Robot::RobotTypes, std::shared_ptr<Robot>>> RobotMap;
 
     struct StateBits{
-        int target_selected; ///< Where a target is selected.
-        bool same_target; ///< Target to shoot is same as the one on last time.
-        bool same_id; ///< Target is not the same but has same id.
-        bool switch_armor; ///< Switch target to lock to another.
-        bool need_init; ///< Missed conditions to keep locking previous target.
+        int target_selected;      ///< Where a target is selected.
+        bool same_target;         ///< Target to shoot is same as the one on last time.
+        bool same_id;             ///< Target is not the same but has same id.
+        bool switch_armor;        ///< Switch target to lock to another.
+        bool need_init;           ///< Missed conditions to keep locking previous target.
     };
 
     explicit ArmorMachine(const std::string &name);

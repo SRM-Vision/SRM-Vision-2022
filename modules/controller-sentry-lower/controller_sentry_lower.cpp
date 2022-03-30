@@ -53,7 +53,11 @@ void SentryLowerController::Run() {
         battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.yaw_pitch_roll,
                                    armors_);
 
-        send_packet_ = SerialSendPacket(armor_predictor.Run(battlefield_, AimModes::kAutoAntiTop));
+        if(CmdlineArgParser::Instance().RunWithSerial()) {
+            armor_predictor.color_ = receive_packet_.color;
+            send_packet_ = SendPacket(armor_predictor.Run(battlefield_, AimModes::kAutoAntiTop,receive_packet_.bullet_speed));
+        }else
+            send_packet_ = SendPacket(armor_predictor.Run(battlefield_, AimModes::kNormal));
         auto img = frame_.image.clone();
         debug::Painter::Instance().UpdateImage(frame_.image);
         for (const auto &box: boxes_) {

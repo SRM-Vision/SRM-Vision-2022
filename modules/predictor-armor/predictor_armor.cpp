@@ -5,7 +5,7 @@ const double kDistanceThreshold = 6;            ///< Distance threshold to judge
 const float kACSpeedXCoefficient = .5f;         ///< Coefficient of inherit anti-top candidate's speed x.
 const float kACSpeedYCoefficient = .5f;         ///< Coefficient of inherit anti-top candidate's speed y.
 const double kACInitMinLastingTime = 1;         ///< Minimal lasting time to enter anti-top candidates.
-const double kAccelerationThreshold = 10;        ///< Maximal acceleration allow to fire.
+const double kAccelerationThreshold = 5;        ///< Maximal acceleration allow to fire.
 const float kSwitchArmorAreaProportion = 1.1f;  ///< Minimal area of armor to switch to.
 
 bool ArmorPredictor::Initialize(const std::string& car_name) {
@@ -254,7 +254,7 @@ bool ArmorPredictor::Initialize(const std::string& car_name) {
     return false;
 }
 
-SendPacket ArmorPredictor::Run(const Battlefield &battlefield, AimModes mode) {
+SendPacket ArmorPredictor::Run(const Battlefield &battlefield, AimModes mode, double bullet_speed) {
     auto &robots = battlefield.Robots();
 
     // Do nothing if nothing is found.
@@ -304,7 +304,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, AimModes mode) {
     }
 
     // TODO Calibrate bullet speed and shoot delay.
-    const double bullet_speed = 15;
+
     const double shoot_delay = 0.02;
     double tm_cam_to_imu_data[] = {0, -0.026, -0.075};
     const static coordinate::TranslationMatrix camera_to_imu_translation_matrix(tm_cam_to_imu_data);

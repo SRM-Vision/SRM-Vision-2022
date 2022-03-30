@@ -149,7 +149,7 @@ public:
         state_bits_=ArmorMachine::StateBits{0, false, false, false, false};
     }
 
-    SendPacket Run(const Battlefield &battlefield, AimModes mode = kNormal);
+    SendPacket Run(const Battlefield &battlefield, AimModes mode = kNormal, double bullet_speed = 15);
 
     bool Initialize(const std::string& car_name);
 

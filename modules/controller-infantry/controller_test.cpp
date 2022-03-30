@@ -88,7 +88,7 @@ void InfantryController::Run() {
             /// TODO mode switch
             if(CmdlineArgParser::Instance().RunWithSerial()) {
                 armor_predictor.color_ = receive_packet_.color;
-                send_packet_ = SendPacket(armor_predictor.Run(battlefield_, receive_packet_.mode));
+                send_packet_ = SendPacket(armor_predictor.Run(battlefield_, receive_packet_.mode, receive_packet_.bullet_speed));
             }else
                 send_packet_ = SendPacket(armor_predictor.Run(battlefield_, AimModes::kNormal));
             auto img = frame_.image.clone();
