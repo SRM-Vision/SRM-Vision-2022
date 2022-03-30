@@ -75,7 +75,7 @@
 
 Battlefield::Battlefield(uint64_t time_stamp,
                          float bullet_speed,
-                         const float yaw_pitch_roll[],
+                         const std::array<float,3> yaw_pitch_roll,
                          const std::vector<Armor> &armors) :
         time_stamp_(time_stamp),
         bullet_speed_(bullet_speed),

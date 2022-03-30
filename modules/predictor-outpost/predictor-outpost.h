@@ -23,7 +23,7 @@ private:
     std::vector<Armor> TargetArmorFilter(const std::vector<Armor> &potential_target);
     coordinate::TranslationVector CalculateMovingTargetCenter(const coordinate::TranslationVector & moving_center, int detect_num);
     coordinate::TranslationVector CalculatePredictShootCenter(const coordinate::TranslationVector & target_moving_center
-                                                              , float bullet_speed, const float yaw_pitch_roll[]
+                                                              , float bullet_speed, std::array<float,3> yaw_pitch_roll
                                                               , float distance);
     void DecideGoingAndComing(const std::vector<Armor> & target);
 

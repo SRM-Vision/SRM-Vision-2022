@@ -70,13 +70,7 @@ public:
         kDebug = 0b00000001
     };
 
-    /// Predictor's running mode.
-    enum Modes {
-        kNormal = 0,
-        kAntiTop = 1,
-        kAutoAntitop = 2,
-        SIZE [[maybe_unused]] = 3
-    };
+    Entity::Colors color_;  ///< Target's color.
 
     struct Node {
         std::shared_ptr<Armor> armor;  ///< Armor data, shared pointer is used for deleted default constructor.
@@ -139,13 +133,14 @@ public:
 
     ATTR_READER(bool(flag_ &kDebug), Debug)
 
-    ArmorPredictor(Entity::Colors color, uint8_t flag,std::string car_name) :
-            color_(color),flag_(flag) {
+    ArmorPredictor(Entity::Colors color, uint8_t flag,const std::string& car_name) :
+            color_(color),flag_(flag), state_bits_() {
         ClearStateBits();
         Initialize(car_name);
     }
 
     inline void Clear() {
+        ClearStateBits();
         target_locked_ = false;
         antitop_candidates_.clear();
     }
@@ -154,7 +149,7 @@ public:
         state_bits_=ArmorMachine::StateBits{0, false, false, false, false};
     }
 
-    SendPacket Run(const Battlefield &battlefield, int mode = kNormal);
+    SendPacket Run(const Battlefield &battlefield, AimModes mode = kNormal);
 
     bool Initialize(const std::string& car_name);
 
@@ -312,14 +307,13 @@ private:
             grey_count_;  ///< Frame counts of lasting time of grey armors.
 
     Node target_;  ///< Cached and currently locked target.
-    Entity::Colors color_;  ///< Target's color.
 
     int fire_ = 0;                 ///< Sentry is firing ,only sentry use.
     bool target_locked_ = false;       ///< Target is currently locked.
     bool long_distance_ = false;       ///< Current target is far from self.
     bool target_is_the_right_ = true;  ///< Target is on the right, opposite left.
     bool anticlockwise_ = true;        ///< Target robot is rotating anticlockwise.
-    bool antitop_ = false;             ///< Only used in autoantitop.
+    bool antitop_ = false;             ///< Only used in auto antitop.
     Eigen::Vector2d last_armor_speed{0,0};       ///< Armor's last speed.
     uint8_t armor_num_ = 0;            ///< Num of armors with same id as target's.
 

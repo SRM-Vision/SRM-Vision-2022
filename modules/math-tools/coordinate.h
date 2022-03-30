@@ -26,7 +26,7 @@ namespace coordinate {
 
 namespace coordinate::transform {
     [[maybe_unused]] inline RotationMatrix
-    EulerAngleToRotationMatrix(const float e_yaw_pitch_roll[]) {
+    EulerAngleToRotationMatrix(const std::array<float,3> e_yaw_pitch_roll) {
         // Prefix "e_" here means "Euler angle".
 
         // Prefix "r_" here means "rotation".

@@ -86,7 +86,11 @@ void InfantryController::Run() {
             battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.yaw_pitch_roll,
                                        armors_);
             /// TODO mode switch
-            send_packet_ = SendPacket(armor_predictor.Run(battlefield_, receive_packet_.mode));
+            if(CmdlineArgParser::Instance().RunWithSerial()) {
+                armor_predictor.color_ = receive_packet_.color;
+                send_packet_ = SendPacket(armor_predictor.Run(battlefield_, receive_packet_.mode));
+            }else
+                send_packet_ = SendPacket(armor_predictor.Run(battlefield_, AimModes::kNormal));
             auto img = frame_.image.clone();
             debug::Painter::Instance().UpdateImage(frame_.image);
             for (const auto &box: boxes_) {
@@ -107,12 +111,11 @@ void InfantryController::Run() {
         }
 
         auto key = cv::waitKey(1) & 0xff;
-
         if (key == 'q')
             break;
         else if(key == 's')
             ArmorPredictorDebug::Instance().Save();
-        // SerialSendPacket send_packet{1.f, 2.f, 3.f, 4,5,6.f};
+
         if(CmdlineArgParser::Instance().RunWithSerial())
             serial_->SendData(send_packet_, std::chrono::milliseconds(5));
         boxes_.clear();

@@ -254,7 +254,7 @@ bool ArmorPredictor::Initialize(const std::string& car_name) {
     return false;
 }
 
-SendPacket ArmorPredictor::Run(const Battlefield &battlefield, int mode) {
+SendPacket ArmorPredictor::Run(const Battlefield &battlefield, AimModes mode) {
     auto &robots = battlefield.Robots();
 
     // Do nothing if nothing is found.
@@ -313,7 +313,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, int mode) {
     double delta_t = double(battlefield.TimeStamp() - time_stamp) * 1e-9;
     time_stamp = battlefield.TimeStamp();
 
-    bool antitop = (mode == kAntiTop || (mode == kAutoAntitop && antitop_));    /// Is antitop
+    bool antitop = (mode == kAntiTop || (mode == kAutoAntiTop && antitop_));    /// Is antitop
     uint8_t armor_num;
 
     // Find and select the same target as pre-locked one by anti-top.
@@ -774,5 +774,6 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, int mode) {
     target_.armor = armor_machine_->target_;
     target_locked_ = true;
     armor_num_ = armor_num;
+    ClearStateBits();
     return target_.GenerateSendPacket(fire_);
 }

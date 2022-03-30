@@ -38,6 +38,9 @@ namespace debug {
 
             trackbar_values_.emplace(trackbar_name, var);
 
+            /** TODO trackbar warning is a new bug from OpenCV 4.5.3.
+             * If wanna eliminate it, just give up use pointer to adjust parameter
+             */
             cv::createTrackbar(trackbar_name,
                                window_name,
                                &trackbar_values_.at(trackbar_name),

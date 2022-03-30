@@ -45,13 +45,13 @@ public:
      */
     Battlefield(uint64_t time_stamp,
                 float bullet_speed,
-                const float yaw_pitch_roll[],
+                const std::array<float,3> yaw_pitch_roll,
                 const std::vector<Armor> &armors);
 
 private:
     uint64_t time_stamp_;  ///< Time stamp from its source for tracking.
     float bullet_speed_;
-    float yaw_pitch_roll_[3];  ///< Gyroscope attitude Euler angle
+    std::array<float,3> yaw_pitch_roll_;  ///< Gyroscope attitude Euler angle
     std::unordered_map<Entity::Colors,
             std::unordered_map<Robot::RobotTypes,
                     std::shared_ptr<Robot>>> robots_;  ///< Robot data, stored in color and type order.
