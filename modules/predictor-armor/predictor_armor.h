@@ -315,7 +315,7 @@ private:
     bool anticlockwise_ = true;        ///< Target robot is rotating anticlockwise.
     bool antitop_ = false;             ///< Only used in auto antitop.
     Eigen::Vector2d last_armor_speed{0,0};       ///< Armor's last speed.
-    uint8_t armor_num_ = 0;            ///< Num of armors with same id as target's.
+    uint8_t armor_num_last_ = 0;            ///< Num of armors with same id as target's last time.
 
     ArmorMachine::StateBits state_bits_;
     Eigen::Vector3d translation_vector_cam_predict_;

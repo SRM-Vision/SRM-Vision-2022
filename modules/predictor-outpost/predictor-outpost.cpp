@@ -103,8 +103,6 @@ coordinate::TranslationVector OutpostPredictor::CalculatePredictShootCenter(cons
                                                                             const std::array<float,3> yaw_pitch_roll,
                                                                             float distance)
 {
-    double tm_cam_to_imu_data[] = {0, -0.026, -0.075};  // TODO
-    const static coordinate::TranslationMatrix camera_to_imu_translation_matrix(tm_cam_to_imu_data);
     coordinate::TranslationVector predict_shoot_center;
     shoot_delay_ = distance / bullet_speed;
     float rotate_angle = kControl_delay_ * shoot_delay_ * kRotate_angular_speed_;
@@ -116,8 +114,8 @@ coordinate::TranslationVector OutpostPredictor::CalculatePredictShootCenter(cons
     predict_shoot_center = coordinate::transform::WorldToCamera(predict_shoot_center,
                                                                 coordinate::transform::EulerAngleToRotationMatrix(
                                                                         yaw_pitch_roll),
-                                                              camera_to_imu_translation_matrix,    // TODO
-                                                              Eigen::Matrix3d::Identity());
+                                                              coordinate::camera_to_imu_translation_matrix,
+                                                              coordinate::camera_to_imu_rotation_matrix);
     return predict_shoot_center;
 }
 

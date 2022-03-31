@@ -22,6 +22,14 @@ namespace coordinate {
 
     typedef Eigen::Matrix<double, 3, 1> TranslationMatrix;
     typedef Eigen::Matrix3d RotationMatrix;
+
+    // IMU and Camera joint calibration.
+    static double rm_cam_to_imu_data[] = {1, 0, 0, 0, 1, 0, 0, 0, 1};
+    static double tm_cam_to_imu_data[] = {0, 0, 0};
+    static RotationMatrix camera_to_imu_rotation_matrix(rm_cam_to_imu_data);
+    static TranslationMatrix camera_to_imu_translation_matrix(tm_cam_to_imu_data);
+
+    bool InitializeMatrix(const std::string& path);
 }
 
 namespace coordinate::transform {

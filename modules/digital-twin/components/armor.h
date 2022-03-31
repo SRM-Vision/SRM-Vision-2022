@@ -114,18 +114,11 @@ public:
         center_ = (corners_[0] + corners_[1] + corners_[2] + corners_[3]) / 4;
         distance_ = (float) translation_vector_cam_.norm();
 
-        // IMU and Camera joint calibration.
-        const static double rm_cam_to_imu_data[] = {1, 0, 0, 0, 1, 0, 0, 0, 1};
-        const static coordinate::RotationMatrix camera_to_imu_rotation_matrix(rm_cam_to_imu_data);
-
-        const static double tm_cam_to_imu_data[] = {0, -0.026, 0.075};
-        const static coordinate::TranslationMatrix camera_to_imu_translation_matrix(tm_cam_to_imu_data);
-
         translation_vector_world_ = coordinate::transform::CameraToWorld(
                 translation_vector_cam_,
                 coordinate::transform::EulerAngleToRotationMatrix(yaw_pitch_roll),
-                camera_to_imu_translation_matrix,
-                camera_to_imu_rotation_matrix
+                coordinate::camera_to_imu_translation_matrix,
+                coordinate::camera_to_imu_rotation_matrix
         );
     }
 

@@ -39,6 +39,11 @@ bool HeroController::Initialize() {
 
     }
 
+    if(coordinate::InitializeMatrix("../config/infantry/matrix-init.yaml"))
+        LOG(INFO) << "Camera initialize successfully!";
+    else
+        LOG(ERROR) << "Camera initialize unsuccessfully!";
+
     LOG(INFO) << "Hero controller is ready.";
     return true;
 }

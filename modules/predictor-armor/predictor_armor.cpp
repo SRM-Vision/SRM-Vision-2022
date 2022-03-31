@@ -310,8 +310,6 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, AimModes mode, do
     // TODO Calibrate bullet speed and shoot delay.
 
     const double shoot_delay = 0.02;
-    double tm_cam_to_imu_data[] = {0, -0.026, -0.075};
-    const static coordinate::TranslationMatrix camera_to_imu_translation_matrix(tm_cam_to_imu_data);
 
 
 
@@ -510,8 +508,8 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, AimModes mode, do
         translation_vector_cam_predict_ = coordinate::transform::WorldToCamera(
                 tv_world_predict,
                 coordinate::transform::EulerAngleToRotationMatrix(battlefield.YawPitchRoll()),
-                camera_to_imu_translation_matrix,
-                Eigen::Matrix3d::Identity());
+                coordinate::camera_to_imu_translation_matrix,
+                coordinate::camera_to_imu_rotation_matrix);
 
         // TODO Rotation vector to camera required.
 
@@ -570,8 +568,8 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, AimModes mode, do
         translation_vector_cam_predict_ = coordinate::transform::WorldToCamera(
                 armor_machine_->target_->TranslationVectorWorld(),
                 coordinate::transform::EulerAngleToRotationMatrix(battlefield.YawPitchRoll()),
-                camera_to_imu_translation_matrix,
-                Eigen::Matrix3d::Identity());
+                coordinate::camera_to_imu_translation_matrix,
+                coordinate::camera_to_imu_rotation_matrix);
 
         // TODO Rotation vector to camera required.
         Eigen::Vector3d shoot_point_spherical =
@@ -608,7 +606,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, AimModes mode, do
                 IsSameArmorByDistance(*antitop_candidate.armor, armor,
                                       kDistanceThreshold)) {
                 is_same_armor = true;
-            } else if (armor_num_ > 1 && armor_num > 1) {
+            } else if (armor_num_last_ > 1 && armor_num > 1) {
                 auto temp_armor_ptr = MatchArmorsAndPickOne(
                         color_,
                         Robot::RobotTypes(same_armor.ID()),
@@ -775,7 +773,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, AimModes mode, do
     LOG(INFO)<<"top_period "<< antitop_detector_.GetTopPeriod();
     target_.armor = armor_machine_->target_;
     target_locked_ = true;
-    armor_num_ = armor_num;
+    armor_num_last_ = armor_num;
     ClearStateBits();
     return target_.GenerateSendPacket(fire_);
 }

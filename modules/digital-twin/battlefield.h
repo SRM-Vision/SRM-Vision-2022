@@ -45,7 +45,7 @@ public:
      */
     Battlefield(uint64_t time_stamp,
                 float bullet_speed,
-                const std::array<float,3> yaw_pitch_roll,
+                std::array<float,3> yaw_pitch_roll,
                 const std::vector<Armor> &armors);
 
 private:

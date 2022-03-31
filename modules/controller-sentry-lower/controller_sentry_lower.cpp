@@ -31,6 +31,12 @@ bool SentryLowerController::Initialize() {
             return false;
         }
     }
+
+    if(coordinate::InitializeMatrix("../config/infantry/matrix-init.yaml"))
+        LOG(INFO) << "Camera initialize successfully!";
+    else
+        LOG(ERROR) << "Camera initialize unsuccessfully!";
+
     LOG(INFO) << "Lower sentry controller is ready.";
     return true;
 }
