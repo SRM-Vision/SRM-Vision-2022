@@ -498,7 +498,8 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, AimModes mode, do
         predict.delta_t = delta_t_predict;
         predict(x_estimate.data(), x_predict.data());
         Eigen::Vector3d tv_world_current{x_estimate(0, 0), x_estimate(2, 0), x_estimate(4, 0)};
-        Eigen::Vector3d tv_world_predict{x_predict(0, 0), x_predict(2, 0), x_predict(4, 0)}shoot_point_rectangular = coordinate::transform::WorldToCamera( // World to imu
+        Eigen::Vector3d tv_world_predict{x_predict(0, 0), x_predict(2, 0), x_predict(4, 0)};
+        shoot_point_rectangular = coordinate::transform::WorldToCamera( // World to imu
                 tv_world_predict,
                 coordinate::transform::EulerAngleToRotationMatrix(battlefield.YawPitchRoll()),
                 Eigen::Vector3d::Zero(),
