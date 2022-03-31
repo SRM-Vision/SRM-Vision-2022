@@ -110,7 +110,12 @@ void HeroController::Run() {
             ArmorPredictorDebug::Instance().Save();
 
         if(CmdlineArgParser::Instance().RunWithSerial())
+        {
+            float coefficient1, coefficient2; // TODO today
+            send_packet_.pitch = coefficient1 * receive_packet_.bullet_speed + coefficient2 * static_cast<float>(send_packet_.distance_mode);
             serial_->SendData(send_packet_, std::chrono::milliseconds(5));
+        }
+
         boxes_.clear();
         armors_.clear();
     }
