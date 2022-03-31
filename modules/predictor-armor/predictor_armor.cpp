@@ -257,6 +257,10 @@ bool ArmorPredictor::Initialize(const std::string& car_name) {
 SendPacket ArmorPredictor::Run(const Battlefield &battlefield, AimModes mode, double bullet_speed) {
     auto &robots = battlefield.Robots();
 
+    static uint64_t time_stamp = 0;
+    double delta_t = double(battlefield.TimeStamp() - time_stamp) * 1e-9;
+    time_stamp = battlefield.TimeStamp();
+
     // Do nothing if nothing is found.
     // ================================================
     // Find grey armors.
@@ -309,9 +313,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, AimModes mode, do
     double tm_cam_to_imu_data[] = {0, -0.026, -0.075};
     const static coordinate::TranslationMatrix camera_to_imu_translation_matrix(tm_cam_to_imu_data);
 
-    static uint64_t time_stamp = 0;
-    double delta_t = double(battlefield.TimeStamp() - time_stamp) * 1e-9;
-    time_stamp = battlefield.TimeStamp();
+
 
     bool antitop = (mode == kAntiTop || (mode == kAutoAntiTop && antitop_));    /// Is antitop
     uint8_t armor_num;
