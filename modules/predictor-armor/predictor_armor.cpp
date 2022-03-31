@@ -498,8 +498,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, AimModes mode, do
         predict.delta_t = delta_t_predict;
         predict(x_estimate.data(), x_predict.data());
         Eigen::Vector3d tv_world_current{x_estimate(0, 0), x_estimate(2, 0), x_estimate(4, 0)};
-        Eigen::Vector3d tv_world_predict{x_predict(0, 0), x_predict(2, 0), x_predict(4, 0)};
-        shoot_point_rectangular = coordinate::transform::WorldToCamera(
+        Eigen::Vector3d tv_world_predict{x_predict(0, 0), x_predict(2, 0), x_predict(4, 0)}shoot_point_rectangular = coordinate::transform::WorldToCamera( // World to imu
                 tv_world_predict,
                 coordinate::transform::EulerAngleToRotationMatrix(battlefield.YawPitchRoll()),
                 Eigen::Vector3d::Zero(),
@@ -510,8 +509,6 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, AimModes mode, do
                 coordinate::transform::EulerAngleToRotationMatrix(battlefield.YawPitchRoll()),
                 coordinate::camera_to_imu_translation_matrix,
                 coordinate::camera_to_imu_rotation_matrix);
-
-        // TODO Rotation vector to camera required.
 
         shoot_point_spherical = coordinate::convert::Rectangular2Spherical(shoot_point_rectangular);
         target_.yaw = (float) shoot_point_spherical(0, 0);
@@ -524,12 +521,12 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, AimModes mode, do
         Eigen::Vector3d tv_world_predict_delta{x_predict_delta(0, 0),
                                                x_predict_delta(2, 0),
                                                x_predict_delta(4, 0)};
-        Eigen::Vector3d tv_imu_delta = coordinate::transform::WorldToCamera(
+        Eigen::Vector3d tv_imu_delta = coordinate::transform::WorldToCamera( // World to imu
                 tv_world_predict_delta,
                 coordinate::transform::EulerAngleToRotationMatrix(battlefield.YawPitchRoll()),
                 Eigen::Vector3d::Zero(),
                 Eigen::Matrix3d::Identity());
-        Eigen::Vector3d tv_imu_current = coordinate::transform::WorldToCamera(
+        Eigen::Vector3d tv_imu_current = coordinate::transform::WorldToCamera( // World to imu
                 tv_world_predict,
                 coordinate::transform::EulerAngleToRotationMatrix(battlefield.YawPitchRoll()),
                 Eigen::Vector3d::Zero(),
@@ -559,7 +556,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, AimModes mode, do
                 armor_machine_->target_->TranslationVectorWorld()[2];
 
         target_.ekf.Initialize(x_real);
-        coordinate::TranslationVector shoot_point_rectangular = coordinate::transform::WorldToCamera(
+        coordinate::TranslationVector shoot_point_rectangular = coordinate::transform::WorldToCamera( // World to imu
                 armor_machine_->target_->TranslationVectorWorld(),
                 coordinate::transform::EulerAngleToRotationMatrix(battlefield.YawPitchRoll()),
                 Eigen::Vector3d::Zero(),
@@ -666,7 +663,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, AimModes mode, do
                                              x_predict(2, 0),
                                              x_predict(4, 0)};
 
-                    shoot_point_rectangular = coordinate::transform::WorldToCamera(
+                    shoot_point_rectangular = coordinate::transform::WorldToCamera( // World to imu
                             tv_world_predict,
                             coordinate::transform::EulerAngleToRotationMatrix(battlefield.YawPitchRoll()),
                             Eigen::Vector3d::Zero(),

@@ -52,6 +52,11 @@ bool InfantryController::Initialize() {
     else
         LOG(ERROR) << "Rune predictor initialize unsuccessfully!";
 
+    if(coordinate::InitializeMatrix("../config/infantry/matrix-init.yaml"))
+        LOG(INFO) << "Camera initialize successfully!";
+    else
+        LOG(ERROR) << "Camera initialize unsuccessfully!";
+
     LOG(INFO) << "Infantry controller is ready.";
     return true;
 }
@@ -90,7 +95,7 @@ void InfantryController::Run() {
                 armor_predictor.color_ = receive_packet_.color;
                 send_packet_ = SendPacket(armor_predictor.Run(battlefield_, receive_packet_.mode, receive_packet_.bullet_speed));
             }else
-                send_packet_ = SendPacket(armor_predictor.Run(battlefield_, AimModes::kNormal));
+                send_packet_ = SendPacket(armor_predictor.Run(battlefield_, AimModes::kAntiTop));
             auto img = frame_.image.clone();
             debug::Painter::Instance().UpdateImage(frame_.image);
             for (const auto &box: boxes_) {
@@ -116,8 +121,9 @@ void InfantryController::Run() {
         else if(key == 's')
             ArmorPredictorDebug::Instance().Save();
 
-        if(CmdlineArgParser::Instance().RunWithSerial())
+        if(CmdlineArgParser::Instance().RunWithSerial()) {
             serial_->SendData(send_packet_, std::chrono::milliseconds(5));
+        }
         boxes_.clear();
         armors_.clear();
     }
