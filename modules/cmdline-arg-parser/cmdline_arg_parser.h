@@ -38,7 +38,7 @@ public:
             run_mode_rune_(false),
             mode_chooser_(0),
             debug_show_image_(false),
-            debug_use_trackbar_(true) {}
+            debug_use_trackbar_(false) {}
 
     inline static CmdlineArgParser &Instance() {
         static CmdlineArgParser _;

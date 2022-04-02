@@ -42,12 +42,13 @@ bool TestController::Initialize() {
     // rune initialize program.
     Frame init_frame;
     image_provider_->GetFrame(init_frame);
-    if (rune_detector_.Initialize("../config/test/rune-param.yaml", init_frame,
+    if (rune_detector_.Initialize("../config/test/rune-detector-param.yaml", init_frame,
                                   CmdlineArgParser::Instance().DebugUseTrackbar()))
         LOG(INFO) << "Rune detector initialize successfully!";
     else
         LOG(ERROR) << "Rune detector initialize unsuccessfully!";
-    if (RunePredictor::Initialize("../config/test/rune-param.yaml"))
+    if (rune_predictor_.Initialize("../config/test/rune-detector-param.yaml",
+                                   CmdlineArgParser::Instance().DebugUseTrackbar()))
         LOG(INFO) << "Rune predictor initialize successfully!";
     else
         LOG(ERROR) << "Rune predictor initialize unsuccessfully!";
@@ -77,9 +78,9 @@ void TestController::Test() {
             receive_packet_ = ReceivePacket(serial_receive_packet);
         }
 
-        if (CmdlineArgParser::Instance().RuneModeRune()) {
+        if (receive_packet_.mode == kSmallRune || receive_packet_.mode == kBigRune) {
             power_rune_ = rune_detector_.Run(frame_);
-            send_packet_ = SendPacket(rune_predictor_.Predict(power_rune_));
+            send_packet_ = SendPacket(rune_predictor_.Run(power_rune_, receive_packet_.mode));
             debug::Painter::Instance().DrawPoint(rune_predictor_.FinalTargetPoint(),
                                                  cv::Scalar(0, 255, 0), 3, 3);
             debug::Painter::Instance().ShowImage("Rune");

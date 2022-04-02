@@ -19,7 +19,7 @@ public:
     ~RuneDetector() = default;
 
     /**
-     * \brief Predict detector once.
+     * \brief Run detector once.
      * \param [in] frame Input frame.
      * \return Output power rune data.
      */

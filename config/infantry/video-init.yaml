@@ -4,4 +4,4 @@ ALL_CAMS_CONFIG_FILE: "../config/all-cams-config.yaml"
 ALL_LENS_CONFIG_FILE: "../config/all-lens-config.yaml"
 
 CAMERA: "HV_00F02724098"
-VIDEO: "../assets/armor_blue.avi"
+VIDEO: "../assets/big_rune_blue.avi"

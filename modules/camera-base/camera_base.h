@@ -53,7 +53,7 @@ public:
     virtual bool GetFrame(Frame &frame) = 0;
 
     /**
-     * \brief Predict the stream.
+     * \brief Run the stream.
      * \return Whether stream is started normally.
      * \attention This function will return false when stream is already started or camera is not opened.
      */

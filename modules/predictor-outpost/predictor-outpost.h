@@ -47,7 +47,7 @@ private:
     // Actual
     coordinate::TranslationVector target_moving_center_;
 
-    // Predict
+    // Run
     coordinate::TranslationVector predict_shoot_center_;
 
 

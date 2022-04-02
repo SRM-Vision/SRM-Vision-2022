@@ -42,12 +42,13 @@ bool InfantryController::Initialize() {
     // rune initialize program.
     Frame init_frame;
     image_provider_->GetFrame(init_frame);
-    if (rune_detector_.Initialize("../config/infantry/rune-param.yaml", init_frame,
+    if (rune_detector_.Initialize("../config/infantry/rune-detector-param.yaml", init_frame,
                                   CmdlineArgParser::Instance().DebugUseTrackbar()))
         LOG(INFO) << "Rune detector initialize successfully!";
     else
         LOG(ERROR) << "Rune detector initialize unsuccessfully!";
-    if (RunePredictor::Initialize("../config/infantry/rune-param.yaml"))
+    if (rune_predictor_.Initialize("../config/infantry/rune-predictor-param.yaml"),
+                                  CmdlineArgParser::Instance().DebugUseTrackbar())
         LOG(INFO) << "Rune predictor initialize successfully!";
     else
         LOG(ERROR) << "Rune predictor initialize unsuccessfully!";
@@ -76,7 +77,7 @@ void InfantryController::Run() {
 
         if (CmdlineArgParser::Instance().RuneModeRune()) {
             power_rune_ = rune_detector_.Run(frame_);
-            send_packet_ = SendPacket(rune_predictor_.Predict(power_rune_));
+            send_packet_ = SendPacket(rune_predictor_.Run(power_rune_, kBigRune));
             debug::Painter::Instance().DrawPoint(rune_predictor_.FinalTargetPoint(),
                                                  cv::Scalar(0, 255, 0), 3, 3);
             debug::Painter::Instance().ShowImage("Rune");
@@ -104,7 +105,8 @@ void InfantryController::Run() {
             }
             Eigen::Matrix3d camera_matrix;
             cv::cv2eigen(image_provider_->IntrinsicMatrix(), camera_matrix);
-            auto point = camera_matrix * armor_predictor.TranslationVectorCamPredict() / armor_predictor.TranslationVectorCamPredict()(2, 0);
+            auto point = camera_matrix * armor_predictor.TranslationVectorCamPredict()
+                    / armor_predictor.TranslationVectorCamPredict()(2, 0);
             cv::Point2d point_cv = {point[0], point[1]};
             debug::Painter::Instance().DrawPoint(point_cv, cv::Scalar(0, 0, 255), 1, 10);
             debug::Painter::Instance().ShowImage("ARMOR DETECT");

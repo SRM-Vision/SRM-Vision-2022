@@ -29,67 +29,67 @@ void RuneDetectorDebug::Initialize(const std::string &config_path, bool debug_us
     config_.release();
 
     if (debug_use_trackbar) {
-        /// --- binary threshold ---
+        // --- binary threshold ---
         debug::Trackbar<int>::Instance().AddTrackbar("Binary threshold (0-255):",
                                                      trackbar_window_name_,
                                                      split_gray_thresh_,
                                                      kMaxThresholdTrackbar);
 
-        /// --- min contour area ---
+        // --- min contour area ---
         debug::Trackbar<int>::Instance().AddTrackbar("Min contour area (0-6000):",
                                                      trackbar_window_name_,
                                                      min_contour_area_,
                                                      kMaxRuneAreaTrackbar);
 
-        /// --- max contour area ---
+        // --- max contour area ---
         debug::Trackbar<int>::Instance().AddTrackbar("Max contour area (0-6000)",
                                                      trackbar_window_name_,
                                                      max_contour_area_,
                                                      kMaxRuneAreaTrackbar);
 
-        /// --- min armor area ---
+        // --- min armor area ---
         debug::Trackbar<int>::Instance().AddTrackbar("Min armor area (0-6000)",
                                                      trackbar_window_name_,
                                                      min_armor_area_,
                                                      kMaxRuneAreaTrackbar);
 
-        /// --- max armor area ---
+        // --- max armor area ---
         debug::Trackbar<int>::Instance().AddTrackbar("Max armor area (0-6000)",
                                                      trackbar_window_name_,
                                                      max_armor_area_,
                                                      kMaxRuneAreaTrackbar);
 
-        /// --- min R area ---
+        // --- min R area ---
         debug::Trackbar<int>::Instance().AddTrackbar("Min R area (0-1000)",
                                                      trackbar_window_name_,
                                                      min_r_bounding_box_area_,
                                                      kMaxRAreaTrackbar);
 
-        /// --- max R area ---
+        // --- max R area ---
         debug::Trackbar<int>::Instance().AddTrackbar("Max R area (0-1000)",
                                                      trackbar_window_name_,
                                                      max_r_bounding_box_area_,
                                                      kMaxRAreaTrackbar);
 
-        /// --- min armor w:h ---
+        // --- min armor w:h ---
         debug::Trackbar<double>::Instance().AddTrackbar("Min armor weight / height ratio (0-1000)",
                                                         trackbar_window_name_,
                                                         min_armor_wh_ratio_,
                                                         kMaxRatioTrackbar);
 
-        /// --- max armor w:h ---
+        // --- max armor w:h ---
         debug::Trackbar<double>::Instance().AddTrackbar("Max armor weight / height ratio (0-1000)",
                                                         trackbar_window_name_,
                                                         max_armor_wh_ratio_,
                                                         kMaxRatioTrackbar);
 
-        /// --- min R w:h ---
+        // --- min R w:h ---
         debug::Trackbar<double>::Instance().AddTrackbar("Min R weight / height ratio (0-1000)",
                                                         trackbar_window_name_,
                                                         min_bounding_box_wh_ratio_,
                                                         kMaxRatioTrackbar);
 
-        /// --- max R w:h ---
+        // --- max R w:h ---
         debug::Trackbar<double>::Instance().AddTrackbar("Max R weight / height ratio (0-1000)",
                                                         trackbar_window_name_,
                                                         max_bounding_box_wh_ratio_,

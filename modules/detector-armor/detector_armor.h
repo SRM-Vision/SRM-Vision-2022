@@ -37,7 +37,7 @@ public:
     void Initialize(const std::string &onnx_file);
 
     /**
-     * \brief Predict detection model.
+     * \brief Run detection model.
      * \param [in] image Input image.
      * \return 4-point structures in a vector.
      */

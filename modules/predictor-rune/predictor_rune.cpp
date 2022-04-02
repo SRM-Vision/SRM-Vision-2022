@@ -1,7 +1,28 @@
 #include "predictor_rune.h"
 #include "math-tools/algorithms.h"
 
-bool RunePredictor::Initialize(const std::string &config_path) {
+[[maybe_unused]] RunePredictor::RunePredictor(bool debug) :
+        debug_(debug),
+        is_okay_to_fit_(false),
+        is_need_to_fit_(false),
+        b_(0),
+        phase_(0),
+        delta_u_(0),
+        delta_v_(0),
+        amplitude_(0),
+        palstance_(0),
+        rotated_angle_(0),
+        rotated_radian_(0),
+        current_time_(0.0),
+        predicted_angle_(0),
+        current_fan_angle_(0),
+        current_fan_radian_(0),
+        last_RTG_vec_(0, 0),
+        last_fan_current_angle_(0),
+        current_fan_palstance_(0.0),
+        final_target_point_send_to_control_(0, 0) {}
+
+bool RunePredictor::Initialize(const std::string &config_path, bool debug) {
     cv::FileStorage config;
 
     // Open config file.
@@ -11,23 +32,46 @@ bool RunePredictor::Initialize(const std::string &config_path) {
         LOG(ERROR) << "Failed to open rune detector config file " << config_path << ".";
     }
 
+    try {
+        config["AMPLITUDE"] >> amplitude_;
+        config["PALSTANCE"] >> palstance_;
+        config["PHASE"] >> phase_;
+    } catch (const std::exception &){
+        LOG(ERROR) << "Failed to load config of rune predictor.";
+    }
+    b_ = 2.090 - amplitude_;
+    is_okay_to_fit_ = false;
+    is_need_to_fit_ = false;
+    debug_ = debug;
+
     return true;
 }
 
-SendPacket RunePredictor::Predict(const PowerRune &power_rune) {
+SendPacket RunePredictor::Run(const PowerRune &power_rune, AimModes mode) {
     rune_ = power_rune;
 
-    current_fan_angular_velocity_ = CalAngularVelocity();
-    CalCurrentFanAngle();                  // Using armor_rotated_point
-    CalPredictAngle();                     // Calculate function parameters first, preparing 1000 frames;Then integral.
-    CalPredictPoint();                     // Calculate the predict_target_point
-    CalYawPitchDelay();
-    FanChanged();
+    if (mode == kBigRune){
+        LOG(INFO) << "Now Run Mode : Big Rune!";
+        current_fan_palstance_ = CalAngularVelocity();
+        CalCurrentFanAngle();                  // Using armor_rotated_point
+        CalPredictAngle(mode);                 // Calculate function parameters first, preparing 1000 frames;Then integral.
+        CalPredictPoint();                     // Calculate the predict_target_point
+        CalYawPitchDelay();
+        FanChanged();
+    }
+    else{
+        LOG(INFO) << "Now Run Mode : Small Rune!";
+        palstance_ = 1.04717;
+        CalPredictAngle(mode);
+        CalPredictPoint();
+        CalYawPitchDelay();
+        FanChanged();
+    }
 
     return {send_yaw_pitch_delay_.x,
             send_yaw_pitch_delay_.y,
             send_yaw_pitch_delay_.z,
-            send_yaw_pitch_delay_.x + send_yaw_pitch_delay_.y + send_yaw_pitch_delay_.z};
+            static_cast<int>(send_yaw_pitch_delay_.x + send_yaw_pitch_delay_.y + send_yaw_pitch_delay_.z)};
 }
 
 bool RunePredictor::FanChanged() {
@@ -45,7 +89,6 @@ bool RunePredictor::FanChanged() {
     }
 }
 
-
 /**
  * @Brief: 计算能量机关角速度
  */
@@ -57,42 +100,42 @@ double RunePredictor::CalAngularVelocity() {
     }
 
     float cal_angle;
-    current_fan_angular_velocity_ = -1;
+    current_fan_palstance_ = -1;
     auto current_time = std::chrono::high_resolution_clock::now();                 // Used to calculate time gap in order to cal angular velocity.
-    present_time_ = double(
+    current_time_ = double(
             std::chrono::duration_cast<std::chrono::milliseconds>(  // Used to provide time_data in order to fit the curve.
                     std::chrono::system_clock::now().time_since_epoch()).count());
-    present_time_ /= 1000;                                                         // ms to s
+    current_time_ /= 1000;                                                         // ms to s
     /// 滤掉无效帧
     if (last_RTG_vec_ != cv::Point2f(0.0, 0.0)) {
         cal_angle = algorithm::VectorAngle(last_RTG_vec_, rune_.RtgVec()); // 计算矢量夹角
         double time_gap = (static_cast<std::chrono::duration<double, std::milli>>(current_time - last_time_)).count();
-        current_fan_angular_velocity_ = cal_angle / time_gap * 1000.0;
-        circle_fan_palstance_queue.Push(std::make_pair(current_time, current_fan_angular_velocity_));
+        current_fan_palstance_ = cal_angle / time_gap * 1000.0;
+        circle_fan_palstance_queue.Push(std::make_pair(current_time, current_fan_palstance_));
     }
 
     /// 时间和位置矢量更新
     last_time_ = current_time;
     last_RTG_vec_ = rune_.RtgVec();
 
-    speed_data_.push_back(current_fan_angular_velocity_);
-    time_data_.push_back(present_time_);
+    speed_data_.push_back(current_fan_palstance_);
+    time_data_.push_back(current_time_);
 
-    return current_fan_angular_velocity_;
+    return current_fan_palstance_;
 }
 
 /**
  * @Brief: calculate current fan angle
  */
 void RunePredictor::CalCurrentFanAngle() {
-    current_fan_rad_ = std::atan2(rune_.RtpVec().y * (-1.0), rune_.RtpVec().x);
+    current_fan_radian_ = std::atan2(rune_.RtpVec().y * (-1.0), rune_.RtpVec().x);
 
     /** Adapt std::atan2 rad. Maybe in III or IV */
-    if (current_fan_rad_ < 0 && rune_.RtpVec().x < 0
-        || current_fan_rad_ < 0 && rune_.RtpVec().x > 0) {
-        current_fan_rad_ += CV_2PI;
+    if (current_fan_radian_ < 0 && rune_.RtpVec().x < 0
+        || current_fan_radian_ < 0 && rune_.RtpVec().x > 0) {
+        current_fan_radian_ += CV_2PI;
     }
-    current_fan_angle_ = current_fan_rad_ * 180 / CV_PI;
+    current_fan_angle_ = current_fan_radian_ * 180 / CV_PI;
 
     /** Adapt overflow value to normal region. */
     while (current_fan_angle_ < 0) {
@@ -109,7 +152,7 @@ void RunePredictor::CalCurrentFanAngle() {
 double RunePredictor::CalRadIntegralFromSpeed(const double &integral_time) {
     const double c = 0;
     return (-1.0) * rune_.Clockwise() *
-           (-amplitude_ / omega_ * cos(omega_ * integral_time + phi_) + b_ * integral_time + c);
+           (-amplitude_ / palstance_ * cos(palstance_ * integral_time + phase_) + b_ * integral_time + c);
 }
 
 /**
@@ -117,22 +160,22 @@ double RunePredictor::CalRadIntegralFromSpeed(const double &integral_time) {
 */
 void RunePredictor::CalFunctionParameters() {
     if (is_need_to_fit_ == 1) {
-        /// Prepare stage
+        // Prepare stage
         if (speed_data_.size() < kPrepareNum && is_okay_to_fit_ == 0) {
             return;
         }
         if (speed_data_.size() == kPrepareNum && is_okay_to_fit_ == 0) {
-            is_okay_to_fit_ = 1;
+            is_okay_to_fit_ = true;
             speed_data_.clear();
             return;
         }
 
-        /// Finish preparing and collect data
+        // Finish preparing and collect data
         if (speed_data_.size() < 335 && is_okay_to_fit_ == 1) {
             return;
         }
 
-        /// Finishing collecting
+        // Finishing collecting
         if (speed_data_.size() == 335 && is_okay_to_fit_ == 1) {
             for (double &speed: speed_data_) {
                 speed = speed / 180 * CV_PI;
@@ -145,8 +188,8 @@ void RunePredictor::CalFunctionParameters() {
                                 new TrigonometricResidual(time_data_[i], speed_data_[i], rune_.Clockwise())),
                         new ceres::CauchyLoss(0.5),
                         &amplitude_,
-                        &omega_,
-                        &phi_
+                        &palstance_,
+                        &phase_
                 );
             }
             ceres::Solver::Options options;
@@ -158,10 +201,10 @@ void RunePredictor::CalFunctionParameters() {
                 ceres::Solver::Summary summary;
                 ceres::Solve(options, &problem, &summary);
                 std::cout << summary.BriefReport() << "\n";
-                std::cout << "Inference A = " << amplitude_ << " Omega = " << omega_ << " phi_ = " << phi_ << std::endl;
+                std::cout << "Inference A = " << amplitude_ << " Omega = " << palstance_ << " phase = " << phase_ << std::endl;
             }
-            is_okay_to_fit_ = 0;
-            is_need_to_fit_ = 0;
+            is_okay_to_fit_ = false;
+            is_need_to_fit_ = false;
         }
     }
 }
@@ -169,16 +212,25 @@ void RunePredictor::CalFunctionParameters() {
 /**
 * @Brief: calculate rotated angle
 */
-void RunePredictor::CalPredictAngle() {
-    if (is_need_to_fit_) {
-        CalFunctionParameters();
-        rotated_angle_ = 0;
-        CalCurrentFanAngle();
-        predicted_angle_ = current_fan_angle_;
-    } else {
+void RunePredictor::CalPredictAngle(AimModes mode) {
+    if (mode == kBigRune){
+        if (is_need_to_fit_) {
+            CalFunctionParameters();
+            rotated_angle_ = 0;
+            CalCurrentFanAngle();
+            predicted_angle_ = current_fan_angle_;
+        } else {
+            double delay_time = 7.0 / 28.5;
+            rotated_radian_ = (-1.0) * rune_.Clockwise() * (palstance_ * (current_time_ + delay_time) - palstance_ * (current_time_));
+            rotated_angle_ = rotated_radian_ * 180 / CV_PI;
+
+            CalCurrentFanAngle();
+            predicted_angle_ = (-1) * rune_.Clockwise() * (current_fan_angle_ + rotated_angle_);
+        }
+    }else{
         double delay_time = 7.0 / 28.5;
-        rotated_rad_ = CalRadIntegralFromSpeed(present_time_ + delay_time) - CalRadIntegralFromSpeed(present_time_);
-        rotated_angle_ = rotated_rad_ * 180 / CV_PI;
+        rotated_radian_ = CalRadIntegralFromSpeed(current_time_ + delay_time) - CalRadIntegralFromSpeed(current_time_);
+        rotated_angle_ = rotated_radian_ * 180 / CV_PI;
 
         CalCurrentFanAngle();
         predicted_angle_ = (-1) * rune_.Clockwise() * (current_fan_angle_ + rotated_angle_);
@@ -261,3 +313,5 @@ cv::Point3f RunePredictor::CalYawPitchDelay() {
 
     return send_yaw_pitch_delay_;
 }
+
+

@@ -218,7 +218,7 @@ std::vector<bbox_t> ArmorDetector::operator()(const cv::Mat &image) const {
 
     x.convertTo(x, CV_32F);
 
-    // Predict model.
+    // Run model.
     std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
 
     cudaMemcpyAsync(device_buffer_[input_index_], x.data, input_size_ * sizeof(float), cudaMemcpyHostToDevice, stream_);

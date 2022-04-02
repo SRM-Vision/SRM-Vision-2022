@@ -1,7 +1,7 @@
 /**
  * Energy predictor definition header.
- * \author LIYunzhe1408, trantuan-20048607
- * \date 2022.2.4
+ * \author LIYunzhe1408, trantuan-20048607, LemonadeJJ
+ * \date 2022.3.31
  */
 
 #ifndef PREDICTOR_RUNE_H_
@@ -13,7 +13,6 @@
 #include "data-structure/communication.h"
 #include "digital-twin/facilities/power_rune.h"
 
-// Ceres.
 struct TrigonometricResidual {
     TrigonometricResidual(double _x, double _y, int rotate_direction) :
             x(_x), y(_y),
@@ -38,93 +37,85 @@ public:
 
     ATTR_READER_REF(predicted_target_point_, PredictedTargetPoint)
 
-    RunePredictor()
-            : present_time_(0.0),
-              current_fan_angular_velocity_(0.0),
-              final_target_point_send_to_control_(0, 0),
-              last_RTG_vec_(0, 0),
-              is_target_changed_(false),
-              is_small_model_(false),
-              is_big_model_(false) {};
+    [[maybe_unused]] explicit RunePredictor(bool debug = false);
 
     ~RunePredictor() = default;
 
-    /// 参数初始化
-    [[nodiscard]] static bool Initialize(const std::string &config_path);
+    /**
+     * \brief Initialize predictor.
+     * \param [in] config_path Config file path.
+     * \param [in] debug Whether open debug
+     * \return Whether predictor is ready.
+     */
+    bool Initialize(const std::string &config_path, bool debug = false);
 
-    SendPacket Predict(const PowerRune &power_rune);
+    SendPacket Run(const PowerRune &power_rune, AimModes mode = kBigRune);
 
 private:
-    PowerRune rune_;
-
-    int debug_ = 1;
-    double present_time_; // Decide in CalAngularVelocity
-
-    /// 扇叶切换
-    bool FanChanged();
-
-    double last_fan_current_angle_{};
-
-    /// 计算角速度
-    double CalAngularVelocity();
-
-    double current_fan_angular_velocity_;
-    cv::Point2f last_RTG_vec_;                                                  // 上一帧能量机关中心R指向扇叶中心G的矢量
-    std::chrono::high_resolution_clock::time_point last_time_;                  // 上一有效帧的时间戳
-    CircularBuffer<std::pair<std::chrono::high_resolution_clock::time_point, float>, 16> circle_fan_palstance_queue;
-
-    /// calculate current_fan_angle_
-    void CalCurrentFanAngle();
-
-    double current_fan_angle_{};
-    double current_fan_rad_{};
-
-    /// calculate function parameters
+    /// Calculate function parameters
     void CalFunctionParameters();
 
-    int is_okay_to_fit_ = 0;
-    std::vector<double> speed_data_;
-    std::vector<double> time_data_;
-    double amplitude_ = 0.780;
-    double omega_ = 1.884;
-    double phi_ = 0;
-    double b_ = 2.090 - amplitude_;
+    /// Whether the fan is changed
+    bool FanChanged();
 
-    const int kNumObservation = 300;
-    const int kPrepareNum = 1000;
+    /// Calculate big rune's palstance
+    double CalAngularVelocity();
 
-    /// calculate rotated angle
+    /// Calculate current_fan_angle_
+    void CalCurrentFanAngle();
+
+    /// Calculate rotated angle
     double CalRadIntegralFromSpeed(const double &integral_time);
 
-    void CalPredictAngle();
-
-    double rotated_angle_{};
-    double rotated_rad_{};
-    double predicted_angle_{};
-    int is_need_to_fit_ = 1;
-
-    /// calculate predict point
+    /// Calculate predict point
     void CalPredictPoint();
 
-    double CalRadius() const;
+    /// Calculate predict angle
+    void CalPredictAngle(AimModes mode);
 
-    cv::Point2f predicted_target_point_;  // 旋转后的装甲板中心, without offset
+    /// Calculate rune's radius
+    [[nodiscard]] double CalRadius() const;
 
-    /// offset
+    /// Calculate yaw and pitch offset
     cv::Point3f CalYawPitchDelay();
 
-    cv::Point2f final_target_point_send_to_control_;  // final预测后的装甲板中心(包括旋转预测和运动补偿）
-    float delta_u_{};  // x
-    float delta_v_{};  // y
-    cv::Point3f send_yaw_pitch_delay_;    // 识别成功(yaw,pitch)
+    const int kPrepareNum = 1000;                    ///< Amount of data required before fitting
+    const int kNumObservation = 300;                 ///< Amount of data observed in one circle
 
-    /// 数据参数
-    double last_fan_angle_{};  // 上一有效帧扇叶角度
+    CircularBuffer<std::pair<std::chrono::high_resolution_clock::time_point, float>, 16> circle_fan_palstance_queue;
 
-    /// 修正参数
-    bool is_target_changed_;  // 目标是否切换
-    bool is_big_model_;       // 是否是大能量机关
-    bool is_small_model_;     // 是否是小能量机关
+    /// State parameter
+    double current_time_;
+    double current_fan_angle_;
+    double current_fan_radian_;
+    double current_fan_palstance_;
+    double last_fan_current_angle_;
+    cv::Point2f last_RTG_vec_;
+    std::chrono::high_resolution_clock::time_point last_time_;         ///< Last valid frame timestamp
+
+    /// Amend parameter
+    bool debug_;
+    float delta_u_;
+    float delta_v_;
+    bool is_okay_to_fit_;                              ///< Whether is ok to fit
+    bool is_need_to_fit_;                              ///< whether need fitting
+
+    /// Data parameter
+    PowerRune rune_;                                   ///< Data from detector
+    double rotated_angle_;
+    double rotated_radian_;
+    double predicted_angle_;
+    std::vector<double> speed_data_;                   ///< Speed data for fitting
+    std::vector<double> time_data_;                    ///< Time data for fitting
+    cv::Point3f send_yaw_pitch_delay_;
+    cv::Point2f predicted_target_point_;               ///< Rotated armor center, without offset
+    cv::Point2f final_target_point_send_to_control_;   ///< Predicted armor center (get offset)
+
+    /// Formula parameter
+    double amplitude_;
+    double palstance_ ;
+    double phase_;
+    double b_;
 };
 
 #endif  // PREDICTOR_RUNE_H_
