@@ -79,14 +79,14 @@ bool RunePredictor::FanChanged() {
         last_fan_current_angle_ = current_fan_angle_;
         return false;
     }
-    double delta_angle = std::abs((current_fan_angle_ - last_fan_current_angle_) * 180.0 / CV_PI);
-    if (delta_angle > 60 && delta_angle < 350) {
-        last_fan_current_angle_ = current_fan_angle_;
+    double delta_angle = std::abs(current_fan_angle_ - last_fan_current_angle_);
+    last_fan_current_angle_ = current_fan_angle_;
+    if (delta_angle > 60 && delta_angle < 350){
+        LOG(INFO) << "Fan changed now! ";
         return true;
-    } else {
-        last_fan_current_angle_ = current_fan_angle_;
-        return false;
     }
+    else
+        return false;
 }
 
 /**
@@ -221,15 +221,20 @@ void RunePredictor::CalPredictAngle(AimModes mode) {
             predicted_angle_ = current_fan_angle_;
         } else {
             double delay_time = 7.0 / 28.5;
-            rotated_radian_ = (-1.0) * rune_.Clockwise() * (palstance_ * (current_time_ + delay_time) - palstance_ * (current_time_));
+            rotated_radian_ = CalRadIntegralFromSpeed(current_time_ + delay_time)
+                                                           - CalRadIntegralFromSpeed(current_time_);
             rotated_angle_ = rotated_radian_ * 180 / CV_PI;
 
             CalCurrentFanAngle();
             predicted_angle_ = (-1) * rune_.Clockwise() * (current_fan_angle_ + rotated_angle_);
         }
     }else{
-        double delay_time = 7.0 / 28.5;
-        rotated_radian_ = CalRadIntegralFromSpeed(current_time_ + delay_time) - CalRadIntegralFromSpeed(current_time_);
+        double delay_time = 7.0 / 28.5;  // The offset of bullet
+        current_time_ = double( std::chrono::duration_cast<std::chrono::milliseconds>
+                              (std::chrono::system_clock::now().time_since_epoch()).count());
+        current_time_ /= 1000;   // ms -> s
+        rotated_radian_ = (-1.0) * rune_.Clockwise() *
+                (palstance_ * (current_time_ + delay_time) - palstance_ * (current_time_));
         rotated_angle_ = rotated_radian_ * 180 / CV_PI;
 
         CalCurrentFanAngle();
