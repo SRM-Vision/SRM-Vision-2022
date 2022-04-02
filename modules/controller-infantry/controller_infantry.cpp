@@ -7,6 +7,7 @@
 #include "detector-rune/detector_rune.h"
 #include "predictor-rune/predictor_rune.h"
 #include "controller_infantry.h"
+#include "chrono"
 
 /**
  * \warning Controller registry will be initialized before the program entering the main function!
@@ -53,6 +54,11 @@ bool InfantryController::Initialize() {
     else
         LOG(ERROR) << "Rune predictor initialize unsuccessfully!";
 
+    if(coordinate::InitializeMatrix("../config/infantry/matrix-init.yaml"))
+        LOG(INFO) << "Camera initialize successfully!";
+    else
+        LOG(ERROR) << "Camera initialize unsuccessfully!";
+
     LOG(INFO) << "Infantry controller is ready.";
     return true;
 }
@@ -63,6 +69,7 @@ void InfantryController::Run() {
     sleep(2);
 
     while (!exit_signal_) {
+        auto time = std::chrono::steady_clock::now();
         if (!image_provider_->GetFrame(frame_))
             break;
         cv::flip(frame_.image, frame_.image, 0);
@@ -91,7 +98,7 @@ void InfantryController::Run() {
                 armor_predictor.color_ = receive_packet_.color;
                 send_packet_ = SendPacket(armor_predictor.Run(battlefield_, receive_packet_.mode, receive_packet_.bullet_speed));
             }else
-                send_packet_ = SendPacket(armor_predictor.Run(battlefield_, AimModes::kNormal));
+                send_packet_ = SendPacket(armor_predictor.Run(battlefield_, AimModes::kAntiTop));
             auto img = frame_.image.clone();
             debug::Painter::Instance().UpdateImage(frame_.image);
             for (const auto &box: boxes_) {
@@ -118,10 +125,14 @@ void InfantryController::Run() {
         else if(key == 's')
             ArmorPredictorDebug::Instance().Save();
 
-        if(CmdlineArgParser::Instance().RunWithSerial())
+        if(CmdlineArgParser::Instance().RunWithSerial()) {
             serial_->SendData(send_packet_, std::chrono::milliseconds(5));
+        }
         boxes_.clear();
         armors_.clear();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now()
+                - time);
+        DLOG(INFO) << "FPS: " << 1000.0/duration.count();
     }
 
 

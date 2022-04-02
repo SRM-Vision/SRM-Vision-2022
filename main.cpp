@@ -25,7 +25,8 @@ int main(int argc, char *argv[]) {
     if (controller == nullptr)
         return -1;
 
-    controller->Initialize();
+    if(!controller->Initialize())
+        return 0;
 
     std::signal(SIGINT, &SignalHandler);
     std::signal(SIGTERM, &SignalHandler);

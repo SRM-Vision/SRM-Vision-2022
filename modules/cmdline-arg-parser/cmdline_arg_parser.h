@@ -31,6 +31,8 @@ public:
 
     ATTR_READER_REF(controller_type_, ControllerType)
 
+    ATTR_READER(with_ekf_,WithEKF)
+
     CmdlineArgParser() :
             run_with_camera_(false),
             run_with_gimbal_(false),
@@ -57,6 +59,7 @@ private:
     bool debug_show_image_;
     bool debug_use_trackbar_;
     bool run_mode_rune_;       ///< secondly controller mode.
+    bool with_ekf_;
 };
 
 #endif  // CMDLINE_ARG_PARSER_H_

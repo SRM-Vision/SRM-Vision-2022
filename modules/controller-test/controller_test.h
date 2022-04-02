@@ -5,8 +5,8 @@
  * \warning NEVER include this file except in ./controller_infantry.cpp.
  */
 
-#ifndef CONTROLLER_TEST_H_
-#define CONTROLLER_TEST_H_
+#ifndef CONTROLLER_INFANTRY_H_
+#define CONTROLLER_INFANTRY_H_
 
 // Do NOT include anything to avoid being wrongly included.
 
@@ -43,4 +43,4 @@ private:
     PowerRune power_rune_;
 };
 
-#endif  // CONTROLLER_TEST_H_
+#endif  // CONTROLLER_INFANTRY_H_
