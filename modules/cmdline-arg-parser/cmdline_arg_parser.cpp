@@ -19,6 +19,7 @@ DEFINE_int32(mode_chooser, 0, "controller running mode chooser");
 DEFINE_bool(rune, false, "run with rune, must under infantry controller");
 DEFINE_bool(debug_image, false, "in debug mode show image");
 DEFINE_bool(debug_trackbar, true, "in debug use trackbar");
+DEFINE_bool(ekf,true,"use ekf");
 
 void CmdlineArgParser::Parse(int argc, char **argv) {
     gflags::ParseCommandLineFlags(&argc, &argv, true);
@@ -44,6 +45,7 @@ void CmdlineArgParser::Parse(int argc, char **argv) {
     debug_show_image_ = FLAGS_debug_image;
     debug_use_trackbar_ = FLAGS_debug_trackbar;
     run_mode_rune_ = FLAGS_rune;
+    with_ekf_ = FLAGS_ekf;
 
     // You must enable gimbal control to establish serial communication.
     assert(!run_with_serial_ || run_with_gimbal_);
@@ -55,5 +57,6 @@ void CmdlineArgParser::Parse(int argc, char **argv) {
     LOG(INFO) << "Running " << (run_with_serial_ ? "with" : "without") << " serial communication.";
     LOG(INFO) << "Running " << (run_with_gimbal_ ? "with" : "without") << " gimbal control.";
     LOG(INFO) << "Running " << (run_mode_rune_ ? "with" : "without") << " rune mode.";
+    LOG(INFO) << "Running " << (with_ekf_ ? "with" : "without") << " EKF.";
     LOG(INFO) << "Controller type: " << controller_type_;
 }

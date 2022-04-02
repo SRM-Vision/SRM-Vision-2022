@@ -7,6 +7,7 @@
 #include "detector-rune/detector_rune.h"
 #include "predictor-rune/predictor_rune.h"
 #include "controller_infantry.h"
+#include "chrono"
 
 /**
  * \warning Controller registry will be initialized before the program entering the main function!
@@ -67,6 +68,7 @@ void InfantryController::Run() {
     sleep(2);
 
     while (!exit_signal_) {
+        auto time = std::chrono::steady_clock::now();
         if (!image_provider_->GetFrame(frame_))
             break;
         cv::flip(frame_.image, frame_.image, 0);
@@ -126,6 +128,9 @@ void InfantryController::Run() {
         }
         boxes_.clear();
         armors_.clear();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now()
+                - time);
+        DLOG(INFO) << "FPS: " << 1000.0/duration.count();
     }
 
 

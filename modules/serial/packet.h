@@ -39,7 +39,8 @@ struct SerialSendPacket {
 };
 
 inline std::ostream &operator<<(std::ostream &str, const SerialSendPacket &send_packet) {
-    str << send_packet.yaw << " | " << send_packet.pitch << " | " << send_packet.delay << " | " << send_packet.distance_mode << " | " << send_packet.fire;
+    str << send_packet.yaw << " | " << send_packet.pitch << " | " << send_packet.delay << " | "
+        << send_packet.distance_mode << " | " << send_packet.fire << " | " << send_packet.check_sum;
     return str;
 }
 

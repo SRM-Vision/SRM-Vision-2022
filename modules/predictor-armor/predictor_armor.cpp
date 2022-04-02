@@ -261,6 +261,14 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, AimModes mode, do
     double delta_t = double(battlefield.TimeStamp() - time_stamp) * 1e-9;
     time_stamp = battlefield.TimeStamp();
 
+    for(auto & robot:robots){
+        for(auto &r:robot.second){
+            for(auto &armor:r.second->Armors()){
+                DLOG(INFO) << "DISTANCE: " <<armor.Distance();
+            }
+        }
+    }
+
     // Do nothing if nothing is found.
     // ================================================
     // Find grey armors.
@@ -338,6 +346,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, AimModes mode, do
         while(armor_machine_->is_transiting)    // waiting for armor machine finishing to transit.
             std::this_thread::sleep_for(std::chrono::nanoseconds(1));
     }
+
 
     // Find and select the same target as pre-locked one by ROI and distance.
     // ================================================
@@ -499,21 +508,40 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, AimModes mode, do
         predict(x_estimate.data(), x_predict.data());
         Eigen::Vector3d tv_world_current{x_estimate(0, 0), x_estimate(2, 0), x_estimate(4, 0)};
         Eigen::Vector3d tv_world_predict{x_predict(0, 0), x_predict(2, 0), x_predict(4, 0)};
-        shoot_point_rectangular = coordinate::transform::WorldToCamera( // World to imu
-                tv_world_predict,
-                coordinate::transform::EulerAngleToRotationMatrix(battlefield.YawPitchRoll()),
-                Eigen::Vector3d::Zero(),
-                Eigen::Matrix3d::Identity());
 
-        translation_vector_cam_predict_ = coordinate::transform::WorldToCamera(
-                tv_world_predict,
-                coordinate::transform::EulerAngleToRotationMatrix(battlefield.YawPitchRoll()),
-                coordinate::camera_to_imu_translation_matrix,
-                coordinate::camera_to_imu_rotation_matrix);
+        if(CmdlineArgParser::Instance().WithEKF()){
+            shoot_point_rectangular = coordinate::transform::WorldToCamera( // World to imu
+                    tv_world_predict,
+                    coordinate::transform::EulerAngleToRotationMatrix(battlefield.YawPitchRoll()),
+                    Eigen::Vector3d::Zero(),
+                    Eigen::Matrix3d::Identity());
 
-        shoot_point_spherical = coordinate::convert::Rectangular2Spherical(shoot_point_rectangular);
-        target_.yaw = (float) shoot_point_spherical(0, 0);
-        target_.pitch = (float) shoot_point_spherical(1, 0);
+            translation_vector_cam_predict_ = coordinate::transform::WorldToCamera(
+                    tv_world_predict,
+                    coordinate::transform::EulerAngleToRotationMatrix(battlefield.YawPitchRoll()),
+                    coordinate::camera_to_imu_translation_matrix,
+                    coordinate::camera_to_imu_rotation_matrix);
+            shoot_point_spherical = coordinate::convert::Rectangular2Spherical(shoot_point_rectangular);
+            target_.yaw = (float) shoot_point_spherical(0,0);
+            target_.pitch = (float) shoot_point_spherical(1,0);
+        }else{
+            shoot_point_rectangular = coordinate::transform::WorldToCamera(
+                    armor_machine_->target_->TranslationVectorWorld(),
+                    coordinate::transform::EulerAngleToRotationMatrix(battlefield.YawPitchRoll()),
+                    Eigen::Vector3d::Zero(),
+                    Eigen::Matrix3d::Identity()
+            );
+
+            translation_vector_cam_predict_ = coordinate::transform::WorldToCamera(
+                    armor_machine_->target_->TranslationVectorWorld(),
+                    coordinate::transform::EulerAngleToRotationMatrix(battlefield.YawPitchRoll()),
+                    coordinate::camera_to_imu_translation_matrix,
+                    coordinate::camera_to_imu_rotation_matrix);
+            shoot_point_spherical = coordinate::convert::Rectangular2Spherical(shoot_point_rectangular);
+            target_.yaw = (float) shoot_point_spherical(0,0);
+            target_.pitch = (float) shoot_point_spherical(1,0);
+        }
+
         target_.long_distance = long_distance_;
 
         predict.delta_t = 0.001;
@@ -557,6 +585,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, AimModes mode, do
                 armor_machine_->target_->TranslationVectorWorld()[2];
 
         target_.ekf.Initialize(x_real);
+
         coordinate::TranslationVector shoot_point_rectangular = coordinate::transform::WorldToCamera( // World to imu
                 armor_machine_->target_->TranslationVectorWorld(),
                 coordinate::transform::EulerAngleToRotationMatrix(battlefield.YawPitchRoll()),
@@ -572,8 +601,9 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, AimModes mode, do
         // TODO Rotation vector to camera required.
         Eigen::Vector3d shoot_point_spherical =
                 coordinate::convert::Rectangular2Spherical(shoot_point_rectangular);
-        target_.yaw = (float) shoot_point_spherical(0, 0);
-        target_.pitch = (float) shoot_point_spherical(1, 0);
+
+        target_.yaw = (float) shoot_point_spherical(0,0);
+        target_.pitch = (float) shoot_point_spherical(0,0);
         antitop_candidates_.clear();
     }
 
@@ -664,20 +694,32 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, AimModes mode, do
                                              x_predict(2, 0),
                                              x_predict(4, 0)};
 
-                    shoot_point_rectangular = coordinate::transform::WorldToCamera( // World to imu
-                            tv_world_predict,
-                            coordinate::transform::EulerAngleToRotationMatrix(battlefield.YawPitchRoll()),
-                            Eigen::Vector3d::Zero(),
-                            Eigen::Matrix3d::Identity());
+                    if(CmdlineArgParser::Instance().WithEKF()){
+                        shoot_point_rectangular = coordinate::transform::WorldToCamera( // World to imu
+                                tv_world_predict,
+                                coordinate::transform::EulerAngleToRotationMatrix(battlefield.YawPitchRoll()),
+                                Eigen::Vector3d::Zero(),
+                                Eigen::Matrix3d::Identity());
 
-                    Eigen::Vector3d shoot_point_spherical =
-                            coordinate::convert::Rectangular2Spherical(shoot_point_rectangular);
+                        Eigen::Vector3d shoot_point_spherical = coordinate::convert::Rectangular2Spherical(shoot_point_rectangular);
+                        antitop_candidate.yaw = (float) shoot_point_spherical(0,0);
+                        antitop_candidate.pitch = (float) shoot_point_spherical(0,0);
+                    }else{
+                        shoot_point_rectangular = coordinate::transform::WorldToCamera(
+                                armor_machine_->target_->TranslationVectorWorld(),
+                                coordinate::transform::EulerAngleToRotationMatrix(battlefield.YawPitchRoll()),
+                                Eigen::Vector3d::Zero(),
+                                Eigen::Matrix3d::Identity()
+                        );
 
-                    antitop_candidate.yaw = (float) shoot_point_spherical(0, 0);
-                    antitop_candidate.pitch = (float) shoot_point_spherical(1, 0);
+                        Eigen::Vector3d shoot_point_spherical = coordinate::convert::Rectangular2Spherical(shoot_point_rectangular);
+                        antitop_candidate.yaw = (float) shoot_point_spherical(0,0);
+                        antitop_candidate.pitch = (float) shoot_point_spherical(0,0);
+                    }
+
                     antitop_candidate.long_distance = long_distance_;
 
-//                    predict.delta_t = 0.001;
+//                    predict.d elta_t = 0.001;
 //
 //                    Eigen::Matrix<double, 5, 1> x_delta;
 //                    predict(x_predict.data(), x_delta.data());
