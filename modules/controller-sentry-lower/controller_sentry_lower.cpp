@@ -97,4 +97,6 @@ void SentryLowerController::Run() {
 
     if (CmdlineArgParser::Instance().RunWithGimbal())
         serial_->StopCommunication();
+
+    image_provider_.reset();
 }

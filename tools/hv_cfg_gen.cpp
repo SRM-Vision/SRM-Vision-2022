@@ -1,5 +1,10 @@
 /**
  * HikVision camera config generator source file.
+ * @details The formats of config file are different between MVS client and MvCameraControl API. \n
+ *   Connect the HikVision camera (change parameters in MVS client), compile and run this tool,
+ *   select the camera and the corresponding MvCameraControl API config file will be generated
+ *   at ../../config/cameras. \n
+ *   This program supports standard ASCII color output and requires MVS API to compile and run.
  * @author trantuan-20048607
  * @version 1
  * @date 2022.3.19
@@ -31,24 +36,23 @@ int main() {
         ERROR << "Failed to enumerate devices with error code " << "0x" << std::hex << status_code << "." << ENDL;
         return 0;
     }
-    std::vector<std::string> sn_list;
-    if (device_list.nDeviceNum > 0) {
+    std::vector<std::string> serial_number_list;
+    if (device_list.nDeviceNum > 0)
         for (auto i = 0; i < device_list.nDeviceNum; ++i) {
             MV_CC_DEVICE_INFO *device_info = device_list.pDeviceInfo[i];
-            std::string sn;
+            std::string serial_number;
             if (device_info->nTLayerType == MV_GIGE_DEVICE) {
-                sn = std::string(reinterpret_cast<char *>(device_info->SpecialInfo.stGigEInfo.chSerialNumber));
-                INFO << "GigE device with serial number " << sn << " found, which is not supported." << ENDL;
+                serial_number = std::string(reinterpret_cast<char *>(device_info->SpecialInfo.stGigEInfo.chSerialNumber));
+                INFO << "GigE device with serial number " << serial_number << " found, which is not supported." << ENDL;
             } else if (device_info->nTLayerType == MV_USB_DEVICE) {
-                sn = std::string(reinterpret_cast<char *>(device_info->SpecialInfo.stUsb3VInfo.chSerialNumber));
-                INFO << "USB device with serial number " << sn << " found." << ENDL;
-                sn_list.push_back(sn);
-            } else {
-                WARNING << "Device with unsupported device transport layer protocol type " << sn << "found." << ENDL;
-            }
+                serial_number = std::string(reinterpret_cast<char *>(device_info->SpecialInfo.stUsb3VInfo.chSerialNumber));
+                INFO << "USB device with serial number " << serial_number << " found." << ENDL;
+                serial_number_list.push_back(serial_number);
+            } else
+                WARNING << "Device with unsupported device transport layer protocol type " << serial_number << "found." << ENDL;
         }
-    }
-    if (sn_list.empty()) {
+
+    if (serial_number_list.empty()) {
         WARNING << "No USB device found. Program will exit now." << ENDL;
         return 0;
     }
@@ -56,40 +60,40 @@ int main() {
     // Select a device.
     // ================================================
     INFO << "==========Device List in Serial Number==========" << ENDL;
-    for (auto i = 0; i < sn_list.size(); ++i)
-        INFO << "[" << (i + 1) << "] SN: " << sn_list[i] << ENDL;
+    for (auto i = 0; i < serial_number_list.size(); ++i)
+        INFO << "[" << (i + 1) << "] SN: " << serial_number_list[i] << ENDL;
     INFO << "================================================" << ENDL;
-    int s = -1;
-    while (s < 0 || s > sn_list.size()) {
+    int selected_id = -1;
+    while (selected_id < 0 || selected_id > serial_number_list.size()) {
         INFO << "Select one to open, select 0 to exit: ";
-        std::cin >> s;
+        std::cin >> selected_id;
         std::cin.get();
     }
-    if (!s)
+    if (!selected_id)
         return 0;
-    std::string sn = sn_list[s - 1];
+    std::string selected_serial_number = serial_number_list[selected_id - 1];
 
     // Open device.
     // ================================================
     void *device = nullptr;
     for (unsigned int i = 0; i < device_list.nDeviceNum; ++i) {
         MV_CC_DEVICE_INFO *device_info = device_list.pDeviceInfo[i];
-        std::string temp_sn;
+        std::string temp_serial_number;
         if (device_info->nTLayerType == MV_USB_DEVICE)
-            temp_sn = std::string(reinterpret_cast<char *>(device_info->SpecialInfo.stUsb3VInfo.chSerialNumber));
-        if (temp_sn == sn) {
+            temp_serial_number = std::string(reinterpret_cast<char *>(device_info->SpecialInfo.stUsb3VInfo.chSerialNumber));
+        if (temp_serial_number == selected_serial_number) {
             status_code = MV_CC_CreateHandle(&device, device_info);
             if (MV_OK != status_code) {
                 ERROR << "Failed to create device handle with error " << "0x" << std::hex << status_code
                       << ".";
                 return 0;
             }
-            goto confirmed_sn;  // WARNING: Do NOT change anything when NOT you used GOTO statement.
+            goto confirmed;  // WARNING: Do NOT change anything when NOT YOU used GOTO statement.
         }
     }
     ERROR << "Select USB device is not found. Program will exit." << ENDL;
     return 0;
-    confirmed_sn:
+    confirmed:
     status_code = MV_CC_OpenDevice(device, MV_ACCESS_Exclusive, 1);
     if (MV_OK != status_code) {
         ERROR << "Failed to open device with error " << "0x" << std::hex << status_code << "." << ENDL;
@@ -101,14 +105,14 @@ int main() {
 
     // Save configuration.
     // ================================================
-    std::string file_path = "../../config/cameras/HV" + sn + ".txt";
+    std::string file_path = "../../config/cameras/HV" + selected_serial_number + ".txt";
     status_code = MV_CC_FeatureSave(device, file_path.c_str());
     if (status_code != MV_OK) {
-        INFO << "Failed to save " << sn << "'s configuration to "
+        INFO << "Failed to save " << selected_serial_number << "'selected_id configuration to "
              << file_path << " with error 0x" << std::hex << status_code << "." << ENDL;
         return 0;
     }
-    INFO << "Saved " << sn << "'s configuration to " << file_path << "." << ENDL;
+    INFO << "Saved " << selected_serial_number << "'selected_id configuration to " << file_path << "." << ENDL;
 
     // Close device.
     // ================================================
@@ -121,7 +125,7 @@ int main() {
     status_code = MV_CC_DestroyHandle(device);
     if (MV_OK != status_code)
         ERROR << "Failed to destroy handle with error " << "0x" << std::hex << status_code << "." << ENDL;
-    INFO << "Closed camera " << sn << "." << ENDL;
+    INFO << "Closed camera " << selected_serial_number << "." << ENDL;
 
     return 0;
 }
