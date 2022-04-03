@@ -139,5 +139,7 @@ void InfantryController::Run() {
     // exit.
     if (CmdlineArgParser::Instance().RunWithGimbal())
         serial_->StopCommunication();
+
+    image_provider_.reset();
 }
 
