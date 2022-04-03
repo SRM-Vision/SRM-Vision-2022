@@ -12,7 +12,7 @@ bool ArmorPredictor::Initialize(const std::string& car_name) {
     car_name_ = car_name;
     cv::FileStorage config_;
     try {
-        config_.open("../config/"+car_name_+"/setoff.yaml", cv::FileStorage::READ);
+        config_.open("../config/"+car_name_+"/setoff-param.yaml", cv::FileStorage::READ);
     } catch (const std::exception &) {
         LOG(ERROR) << "Failed to open ekf setoff file ";
     }
@@ -838,6 +838,6 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, AimModes mode, do
     target_locked_ = true;
     armor_num_last_ = armor_num;
     ClearStateBits();
-    setoff(car_name_,bullet_speed);
+    Setoff(car_name_, bullet_speed);
     return target_.GenerateSendPacket(fire_);
 }

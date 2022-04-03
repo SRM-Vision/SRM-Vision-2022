@@ -304,7 +304,11 @@ private:
         return {armor.Center().x - w / 2, armor.Center().y - h / 2, w * coefficient, h * coefficient};
     }
 
-    void setoff(std::string car_name,double bullet_speed){
+
+    /**
+     * \brief Setoff bullet pathway.
+     */
+    void Setoff(const std::string& car_name, double bullet_speed){
         if(car_name == "sentry"){
             double plane_distance = setoff0[0]*target_.armor->Distance()-setoff0[1];
             double delta_pitch = 0.01 * plane_distance + 0.003;
