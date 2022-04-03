@@ -265,6 +265,9 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, AimModes mode, do
         for(auto &r:robot.second){
             for(auto &armor:r.second->Armors()){
                 DLOG(INFO) << "DISTANCE: " <<armor.Distance();
+                DLOG(INFO) << "X: " << armor.TranslationVectorWorld()(0,0) << " Y: "
+                    << armor.TranslationVectorWorld()(1,0) << " Z: "
+                    << armor.TranslationVectorWorld()(0,0);
             }
         }
     }

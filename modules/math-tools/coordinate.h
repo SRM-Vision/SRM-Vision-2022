@@ -46,13 +46,13 @@ namespace coordinate::transform {
         algorithm::SinCosFloatX4(r, sin_r, cos_r);
         r_yaw << cos_r[0], 0, sin_r[0],
                 0, 1, 0,
-                -sin_r[0], 0, cos_r[0];
+                -sin_r[0], 0, cos_r[0]; // Y
         r_roll << cos_r[1], -sin_r[1], 0,
                 sin_r[1], cos_r[1], 0,
-                0, 0, 1;
+                0, 0, 1;    // Z
         r_pitch << 1, 0, 0,
                 0, cos_r[2], -sin_r[2],
-                0, sin_r[2], cos_r[2];
+                0, sin_r[2], cos_r[2];  // X
 #else
         r_yaw << cos(e_yaw_pitch_roll[0]), 0, sin(e_yaw_pitch_roll[0]),
                 0, 1, 0,

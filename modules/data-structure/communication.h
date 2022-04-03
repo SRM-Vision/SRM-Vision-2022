@@ -49,9 +49,9 @@ struct ReceivePacket {
             color(Entity::Colors::kBlue),
             bullet_speed(serial_receive_packet.bullet_speed),
             yaw_pitch_roll{serial_receive_packet.yaw,serial_receive_packet.pitch,serial_receive_packet.roll} {
-        if(serial_receive_packet.color == 23)
+        if(serial_receive_packet.color == 13)
             color = Entity::Colors::kBlue;
-        else if(serial_receive_packet.color == 13)
+        else if(serial_receive_packet.color == 23)
             color = Entity::Colors::kRed;
     }
 };

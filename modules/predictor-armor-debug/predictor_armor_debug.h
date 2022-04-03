@@ -39,7 +39,7 @@ private:
     const double  kMax_p_xy_speed_noise = 500;
     const double kMax_m_xy_noise = 10;
     const int  kMax_m_z_noise = 1000;
-    const double kDelta_pitch = 3;
+    const double kDelta_pitch = 1;
 
     double p_xyz_noise_ = 0.01;
     double p_xy_speed_noise_ = 100;
