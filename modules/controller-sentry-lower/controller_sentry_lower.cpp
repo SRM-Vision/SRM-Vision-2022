@@ -32,7 +32,7 @@ bool SentryLowerController::Initialize() {
         }
     }
 
-    if(coordinate::InitializeMatrix("../config/infantry/matrix-init.yaml"))
+    if(coordinate::InitializeMatrix("../config/sentry/matrix-init.yaml"))
         LOG(INFO) << "Camera initialize successfully!";
     else
         LOG(ERROR) << "Camera initialize unsuccessfully!";
@@ -46,6 +46,7 @@ void SentryLowerController::Run() {
     sleep(2);
 
     while (!exit_signal_) {
+        auto time = std::chrono::steady_clock::now();
         if (!image_provider_->GetFrame(frame_))
             break;
 
@@ -93,6 +94,9 @@ void SentryLowerController::Run() {
 
         boxes_.clear();
         armors_.clear();
+        auto duration = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now()
+                                                                              - time);
+        DLOG(INFO) << "FPS: " << 1000000.0/duration.count();
     }
 
     if (CmdlineArgParser::Instance().RunWithGimbal())
