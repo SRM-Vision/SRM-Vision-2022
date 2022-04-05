@@ -40,6 +40,8 @@ public:
 
     virtual void Run() = 0;
 
+    virtual ~Controller() = default;
+
 protected:
     std::unique_ptr<ImageProvider> image_provider_;  ///< Image provider handler.
     Frame frame_;

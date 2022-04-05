@@ -15,6 +15,7 @@ ImageProviderCamera::~ImageProviderCamera() {
         camera_->StopStream();
         camera_->CloseCamera();
         delete camera_;
+        camera_ = nullptr;
         intrinsic_matrix_.release();
         distortion_matrix_.release();
     }
@@ -70,7 +71,7 @@ bool ImageProviderCamera::Initialize(const std::string &file_path) {
         return false;
     }
 
-    // Get matrix for PnP.
+    // Get matrix for PnP solving.
     std::string len_type;
     all_cams_config[camera_init_config["CAMERA"]]["LEN"] >> len_type;
     all_lens_config[len_type]["IntrinsicMatrix"] >> intrinsic_matrix_;

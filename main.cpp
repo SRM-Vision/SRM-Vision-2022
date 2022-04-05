@@ -33,5 +33,7 @@ int main(int argc, char *argv[]) {
 
     controller->Run();
 
+    delete controller;
+
     google::ShutdownGoogleLogging();
 }
