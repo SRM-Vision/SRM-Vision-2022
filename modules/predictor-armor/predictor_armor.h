@@ -8,7 +8,7 @@
 #define PREDICTOR_ARMOR_H_
 
 #include "data-structure/communication.h"
-#include "lang-feature-extension/disable_constructor.h"
+#include "lang-feature-extension/disable_constructors.h"
 #include "cmdline-arg-parser/cmdline_arg_parser.h"
 #include "digital-twin/battlefield.h"
 #include "antitop_detector.h"
@@ -120,13 +120,14 @@ public:
          */
         [[nodiscard]] inline SendPacket GenerateSendPacket(int fire) const {
             auto delay = 0.f;// TODO Add delay and check_sum here.
-            int distance_mode = 0 ;
-            if(0 <= armor->Distance() && armor->Distance()< 2)  distance_mode = 1;
-            if(2 <= armor->Distance() && armor->Distance()< 4)  distance_mode = 2;
-            if(4 <= armor->Distance() && armor->Distance()< 6)  distance_mode = 3;
+            int distance_mode = 0;
+            if (0 <= armor->Distance() && armor->Distance() < 2) distance_mode = 1;
+            if (2 <= armor->Distance() && armor->Distance() < 4) distance_mode = 2;
+            if (4 <= armor->Distance() && armor->Distance() < 6) distance_mode = 3;
             SendPacket send_packet = {float(yaw), float(pitch - ArmorPredictorDebug::Instance().DeltaPitch()),
-                                      delay,distance_mode,fire,
-                                      float(yaw+pitch+distance_mode+delay+fire-ArmorPredictorDebug::Instance().DeltaPitch())};
+                                      delay, distance_mode, fire,
+                                      float(yaw + pitch + distance_mode + delay + fire -
+                                            ArmorPredictorDebug::Instance().DeltaPitch())};
             return send_packet;
         }
     };
@@ -135,8 +136,8 @@ public:
 
     ATTR_READER(bool(flag_ &kDebug), Debug)
 
-    ArmorPredictor(Entity::Colors color, uint8_t flag,const std::string& car_name) :
-            color_(color),flag_(flag), state_bits_() {
+    ArmorPredictor(Entity::Colors color, uint8_t flag, const std::string &car_name) :
+            color_(color), flag_(flag), state_bits_() {
         ClearStateBits();
         Initialize(car_name);
     }
@@ -147,13 +148,13 @@ public:
         antitop_candidates_.clear();
     }
 
-    inline void ClearStateBits(){
-        state_bits_=ArmorMachine::StateBits{0, false, false, false, false};
+    inline void ClearStateBits() {
+        state_bits_ = ArmorMachine::StateBits{0, false, false, false, false};
     }
 
     SendPacket Run(const Battlefield &battlefield, AimModes mode = kNormal, double bullet_speed = 15);
 
-    bool Initialize(const std::string& car_name);
+    bool Initialize(const std::string &car_name);
 
     ~ArmorPredictor() = default;
 
@@ -308,16 +309,14 @@ private:
     /**
      * \brief Setoff bullet pathway.
      */
-    void Setoff(const std::string& car_name, double bullet_speed){
-        if(car_name == "sentry"){
-            double plane_distance = setoff0[0]*target_.armor->Distance()-setoff0[1];
+    void Setoff(const std::string &car_name, double bullet_speed) {
+        if (car_name == "sentry") {
+            double plane_distance = setoff0[0] * target_.armor->Distance() - setoff0[1];
             double delta_pitch = 0.01 * plane_distance + 0.003;
             target_.pitch += delta_pitch;
-        }
-        else if(car_name == "hero"){
+        } else if (car_name == "hero") {
 
-        }
-        else if(car_name == "infantry"){
+        } else if (car_name == "infantry") {
 
         }
     }
@@ -336,7 +335,7 @@ private:
     bool target_is_the_right_ = true;  ///< Target is on the right, opposite left.
     bool anticlockwise_ = true;        ///< Target robot is rotating anticlockwise.
     bool antitop_ = false;             ///< Only used in auto antitop.
-    Eigen::Vector2d last_armor_speed{0,0};       ///< Armor's last speed.
+    Eigen::Vector2d last_armor_speed{0, 0};       ///< Armor's last speed.
     uint8_t armor_num_last_ = 0;            ///< Num of armors with same id as target's last time.
 
     ArmorMachine::StateBits state_bits_;

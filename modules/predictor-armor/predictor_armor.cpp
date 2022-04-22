@@ -8,11 +8,11 @@ const double kACInitMinLastingTime = 1;         ///< Minimal lasting time to ent
 const double kAccelerationThreshold = 5;        ///< Maximal acceleration allow to fire.
 const float kSwitchArmorAreaProportion = 1.1f;  ///< Minimal area of armor to switch to.
 
-bool ArmorPredictor::Initialize(const std::string& car_name) {
+bool ArmorPredictor::Initialize(const std::string &car_name) {
     car_name_ = car_name;
     cv::FileStorage config_;
     try {
-        config_.open("../config/"+car_name_+"/setoff-param.yaml", cv::FileStorage::READ);
+        config_.open("../config/" + car_name_ + "/setoff-param.yaml", cv::FileStorage::READ);
     } catch (const std::exception &) {
         LOG(ERROR) << "Failed to open ekf setoff file ";
     }
@@ -29,43 +29,44 @@ bool ArmorPredictor::Initialize(const std::string& car_name) {
     } catch (std::exception &) {
         LOG(ERROR) << "Failed to load config of setoff.";
     }
-    ArmorPredictorDebug::Instance().Initialize("../config/"+car_name_+"/ekf-param.yaml",CmdlineArgParser::Instance().DebugUseTrackbar());
+    ArmorPredictorDebug::Instance().Initialize("../config/" + car_name_ + "/ekf-param.yaml",
+                                               CmdlineArgParser::Instance().DebugUseTrackbar());
     for (auto i = 0; i < Robot::RobotTypes::SIZE; ++i)
         grey_count_[Robot::RobotTypes(i)] = 0;
 
     machine_set_ = fsm::MachineSet::MakeMachineSet();
-    if(machine_set_){
+    if (machine_set_) {
         machine_set_->StartBackground(500);
         // add armor machine to machine set
         armor_machine_ = fsm::MakeStateMachine<ArmorMachine>("Armor Machine #1");
-        if(armor_machine_){
+        if (armor_machine_) {
             armor_machine_->SetStartState(armor_machine_->one_);
 
             armor_machine_->one_->OnEnter = [&](fsm::MachineBase &machine,
-                                                const fsm::StateSharedPtr &state){
-                armor_machine_->is_transiting=false;
-                DLOG(INFO) << "Enter "<<state->name();
+                                                const fsm::StateSharedPtr &state) {
+                armor_machine_->is_transiting = false;
+                DLOG(INFO) << "Enter " << state->name();
             };
             armor_machine_->one_->OnExit = [&](fsm::MachineBase &machine,
-                                               const fsm::StateSharedPtr &state){
+                                               const fsm::StateSharedPtr &state) {
                 DLOG(INFO) << "Exit " << state->name();
             };
             armor_machine_->two_without_antitop_->OnEnter = [&](fsm::MachineBase &machine,
-                                                                const fsm::StateSharedPtr &state){
-                armor_machine_->is_transiting=false;
-                DLOG(INFO) << "Enter "<<state->name();
+                                                                const fsm::StateSharedPtr &state) {
+                armor_machine_->is_transiting = false;
+                DLOG(INFO) << "Enter " << state->name();
             };
             armor_machine_->two_without_antitop_->OnExit = [&](fsm::MachineBase &machine,
-                                                               const fsm::StateSharedPtr &state){
+                                                               const fsm::StateSharedPtr &state) {
                 DLOG(INFO) << "Exit " << state->name();
             };
             armor_machine_->two_with_antitop_->OnEnter = [&](fsm::MachineBase &machine,
-                                                             const fsm::StateSharedPtr &state){
-                armor_machine_->is_transiting=false;
-                DLOG(INFO) << "Enter "<<state->name();
+                                                             const fsm::StateSharedPtr &state) {
+                armor_machine_->is_transiting = false;
+                DLOG(INFO) << "Enter " << state->name();
             };
             armor_machine_->two_with_antitop_->OnExit = [&](fsm::MachineBase &machine,
-                                                            const fsm::StateSharedPtr &state){
+                                                            const fsm::StateSharedPtr &state) {
                 DLOG(INFO) << "Exit " << state->name();
             };
 
@@ -73,14 +74,14 @@ bool ArmorPredictor::Initialize(const std::string& car_name) {
                                                          const fsm::StateSharedPtr &from_state,
                                                          const fsm::ITransitionSharedPtr &transition,
                                                          const fsm::EventSharedPtr &event,
-                                                         const fsm::StateSharedPtr &to_state){
+                                                         const fsm::StateSharedPtr &to_state) {
                 DLOG(INFO) << transition->name()
                            << " | "
                            << from_state->name()
                            << " -> "
                            << to_state->name();
                 armor_machine_->target_ = ArmorPredictor::CopyArmorDataFromArmorPredictorNode
-                        (color_,target_,
+                        (color_, target_,
                          *armor_machine_->robots_,
                          armor_machine_->exist_enemy_);
                 state_bits_.target_selected = 1;
@@ -93,19 +94,19 @@ bool ArmorPredictor::Initialize(const std::string& car_name) {
                                                                          const fsm::StateSharedPtr &from_state,
                                                                          const fsm::ITransitionSharedPtr &transition,
                                                                          const fsm::EventSharedPtr &event,
-                                                                         const fsm::StateSharedPtr &to_state){
+                                                                         const fsm::StateSharedPtr &to_state) {
                 DLOG(INFO) << transition->name()
                            << " | "
                            << from_state->name()
                            << " -> "
                            << to_state->name();
-                state_bits_.target_selected=0;
+                state_bits_.target_selected = 0;
             };
             armor_machine_->one_two_with_antitop_->OnTransition = [&](fsm::MachineBase &machine,
                                                                       const fsm::StateSharedPtr &from_state,
                                                                       const fsm::ITransitionSharedPtr &transition,
                                                                       const fsm::EventSharedPtr &event,
-                                                                      const fsm::StateSharedPtr &to_state){
+                                                                      const fsm::StateSharedPtr &to_state) {
                 DLOG(INFO) << transition->name()
                            << " | "
                            << from_state->name()
@@ -163,7 +164,7 @@ bool ArmorPredictor::Initialize(const std::string& car_name) {
                                                                                          const fsm::StateSharedPtr &from_state,
                                                                                          const fsm::ITransitionSharedPtr &transition,
                                                                                          const fsm::EventSharedPtr &event,
-                                                                                         const fsm::StateSharedPtr &to_state){
+                                                                                         const fsm::StateSharedPtr &to_state) {
                 DLOG(INFO) << transition->name()
                            << " | "
                            << from_state->name()
@@ -202,7 +203,7 @@ bool ArmorPredictor::Initialize(const std::string& car_name) {
                                                                       const fsm::StateSharedPtr &from_state,
                                                                       const fsm::ITransitionSharedPtr &transition,
                                                                       const fsm::EventSharedPtr &event,
-                                                                      const fsm::StateSharedPtr &to_state){
+                                                                      const fsm::StateSharedPtr &to_state) {
                 DLOG(INFO) << transition->name()
                            << " | "
                            << from_state->name()
@@ -257,7 +258,7 @@ bool ArmorPredictor::Initialize(const std::string& car_name) {
                         state_bits_.same_target = true;
                         state_bits_.need_init = false;
                     } else {
-                        state_bits_={0, false, false, false, true};
+                        state_bits_ = {0, false, false, false, true};
                     }
                 }
             };
@@ -281,13 +282,13 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, AimModes mode, do
     double delta_t = double(battlefield.TimeStamp() - time_stamp) * 1e-9;
     time_stamp = battlefield.TimeStamp();
 
-    for(auto & robot:robots){
-        for(auto &r:robot.second){
-            for(auto &armor:r.second->Armors()){
-                DLOG(INFO) << "DISTANCE: " <<armor.Distance();
-                DLOG(INFO) << "X: " << armor.TranslationVectorWorld()(0,0) << " Y: "
-                    << armor.TranslationVectorWorld()(1,0) << " Z: "
-                    << armor.TranslationVectorWorld()(0,0);
+    for (auto &robot: robots) {
+        for (auto &r: robot.second) {
+            for (auto &armor: r.second->Armors()) {
+                DLOG(INFO) << "DISTANCE: " << armor.Distance();
+                DLOG(INFO) << "X: " << armor.TranslationVectorWorld()(0, 0) << " Y: "
+                           << armor.TranslationVectorWorld()(1, 0) << " Z: "
+                           << armor.TranslationVectorWorld()(0, 0);
             }
         }
     }
@@ -308,12 +309,12 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, AimModes mode, do
 
     if (!exist_enemy && !exist_grey) {
         Clear();
-        return {0, 0, 0, false,0};
+        return {0, 0, 0, false, 0};
     }
 
-    armor_machine_->exist_enemy_=exist_enemy;
-    armor_machine_->exist_grey_=exist_grey;
-    armor_machine_->robots_=&robots;
+    armor_machine_->exist_enemy_ = exist_enemy;
+    armor_machine_->exist_grey_ = exist_grey;
+    armor_machine_->robots_ = &robots;
 
     // Reset and update grey counts of all armors found.
     // ================================================
@@ -335,13 +336,12 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, AimModes mode, do
     // ================================================
     if (grey_count_min >= kMaxGreyCount && !exist_enemy) {
         Clear();
-        return {0, 0, 0, false,0};
+        return {0, 0, 0, false, 0};
     }
 
     // TODO Calibrate bullet speed and shoot delay.
 
     const double shoot_delay = 0.02;
-
 
 
     bool antitop = (mode == kAntiTop || (mode == kAutoAntiTop && antitop_));    /// Is antitop
@@ -351,22 +351,22 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, AimModes mode, do
     // ================================================
     if (target_locked_) {
         armor_num = GetSameIDArmorNum(color_, *target_.armor, robots, grey_count_, exist_enemy, exist_grey);
-        armor_machine_->is_transiting=true;
-        if(armor_num == 1) {
+        armor_machine_->is_transiting = true;
+        if (armor_num == 1) {
             machine_set_->Enqueue(std::make_shared<ArmorEvent>(
                     ArmorEventType::kOne,
                     armor_machine_));
-        }else if(armor_num > 1 && mode) {
+        } else if (armor_num > 1 && mode) {
             machine_set_->Enqueue(std::make_shared<ArmorEvent>(
                     ArmorEventType::kTwoWithAntiTop,
                     armor_machine_));
-        }else {
+        } else {
             machine_set_->Enqueue(std::make_shared<ArmorEvent>(
                     ArmorEventType::kTwoWithoutAntiTop,
                     armor_machine_));
         }
 
-        while(armor_machine_->is_transiting)    // waiting for armor machine finishing to transit.
+        while (armor_machine_->is_transiting)    // waiting for armor machine finishing to transit.
             std::this_thread::sleep_for(std::chrono::nanoseconds(1));
     }
 
@@ -384,7 +384,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, AimModes mode, do
                                                  armor,
                                                  kDistanceThreshold)) {
                         armor_machine_->target_ = std::make_shared<Armor>(armor);
-                        state_bits_={4,true,false,false,false};
+                        state_bits_ = {4, true, false, false, false};
                         break;
                     }
 
@@ -399,7 +399,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, AimModes mode, do
                                                                      armor,
                                                                      kDistanceThreshold))) {
                             armor_machine_->target_ = std::make_shared<Armor>(armor);
-                            state_bits_={5,true,false,false,false};
+                            state_bits_ = {5, true, false, false, false};
                             break;
                         }
     }
@@ -430,7 +430,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, AimModes mode, do
                         }
                     }
         armor_machine_->target_ = std::make_shared<Armor>(*max_area_target);
-        state_bits_ = {6,false,false,false,true};
+        state_bits_ = {6, false, false, false, true};
     }
 
     // Till now, target must have been found. Step into next stage.
@@ -532,7 +532,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, AimModes mode, do
         Eigen::Vector3d tv_world_current{x_estimate(0, 0), x_estimate(2, 0), x_estimate(4, 0)};
         Eigen::Vector3d tv_world_predict{x_predict(0, 0), x_predict(2, 0), x_predict(4, 0)};
 
-        if(CmdlineArgParser::Instance().WithEKF()){
+        if (CmdlineArgParser::Instance().WithEKF()) {
             shoot_point_rectangular = coordinate::transform::WorldToCamera( // World to imu
                     tv_world_predict,
                     coordinate::transform::EulerAngleToRotationMatrix(battlefield.YawPitchRoll()),
@@ -545,9 +545,9 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, AimModes mode, do
                     coordinate::camera_to_imu_translation_matrix,
                     coordinate::camera_to_imu_rotation_matrix);
             shoot_point_spherical = coordinate::convert::Rectangular2Spherical(shoot_point_rectangular);
-            target_.yaw = (float) shoot_point_spherical(0,0);
-            target_.pitch = (float) shoot_point_spherical(1,0);
-        }else{
+            target_.yaw = (float) shoot_point_spherical(0, 0);
+            target_.pitch = (float) shoot_point_spherical(1, 0);
+        } else {
             shoot_point_rectangular = coordinate::transform::WorldToCamera(
                     armor_machine_->target_->TranslationVectorWorld(),
                     coordinate::transform::EulerAngleToRotationMatrix(battlefield.YawPitchRoll()),
@@ -561,8 +561,8 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, AimModes mode, do
                     coordinate::camera_to_imu_translation_matrix,
                     coordinate::camera_to_imu_rotation_matrix);
             shoot_point_spherical = coordinate::convert::Rectangular2Spherical(shoot_point_rectangular);
-            target_.yaw = (float) shoot_point_spherical(0,0);
-            target_.pitch = (float) shoot_point_spherical(1,0);
+            target_.yaw = (float) shoot_point_spherical(0, 0);
+            target_.pitch = (float) shoot_point_spherical(1, 0);
         }
 
         target_.long_distance = long_distance_;
@@ -589,10 +589,10 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, AimModes mode, do
 
         predict_speed(0, 0) = (predict_delta(0, 0) - predict_current(0, 0)) / 0.001;
         predict_speed(1, 0) = (predict_delta(1, 0) - predict_current(1, 0)) / 0.001;
-        if(abs((last_armor_speed-predict_speed).norm())/delta_t < kAccelerationThreshold)
+        if (abs((last_armor_speed - predict_speed).norm()) / delta_t < kAccelerationThreshold)
             fire_ = 1;
         last_armor_speed = predict_speed;
-        LOG(WARNING) <<"Whether fire:  "<<fire_;
+        LOG(WARNING) << "Whether fire:  " << fire_;
     }
 
     // There's no reference, re-initialize anti-top.
@@ -625,8 +625,8 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, AimModes mode, do
         Eigen::Vector3d shoot_point_spherical =
                 coordinate::convert::Rectangular2Spherical(shoot_point_rectangular);
 
-        target_.yaw = (float) shoot_point_spherical(0,0);
-        target_.pitch = (float) shoot_point_spherical(0,0);
+        target_.yaw = (float) shoot_point_spherical(0, 0);
+        target_.pitch = (float) shoot_point_spherical(0, 0);
         antitop_candidates_.clear();
     }
 
@@ -717,17 +717,18 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, AimModes mode, do
                                              x_predict(2, 0),
                                              x_predict(4, 0)};
 
-                    if(CmdlineArgParser::Instance().WithEKF()){
+                    if (CmdlineArgParser::Instance().WithEKF()) {
                         shoot_point_rectangular = coordinate::transform::WorldToCamera( // World to imu
                                 tv_world_predict,
                                 coordinate::transform::EulerAngleToRotationMatrix(battlefield.YawPitchRoll()),
                                 Eigen::Vector3d::Zero(),
                                 Eigen::Matrix3d::Identity());
 
-                        Eigen::Vector3d shoot_point_spherical = coordinate::convert::Rectangular2Spherical(shoot_point_rectangular);
-                        antitop_candidate.yaw = (float) shoot_point_spherical(0,0);
-                        antitop_candidate.pitch = (float) shoot_point_spherical(0,0);
-                    }else{
+                        Eigen::Vector3d shoot_point_spherical = coordinate::convert::Rectangular2Spherical(
+                                shoot_point_rectangular);
+                        antitop_candidate.yaw = (float) shoot_point_spherical(0, 0);
+                        antitop_candidate.pitch = (float) shoot_point_spherical(0, 0);
+                    } else {
                         shoot_point_rectangular = coordinate::transform::WorldToCamera(
                                 armor_machine_->target_->TranslationVectorWorld(),
                                 coordinate::transform::EulerAngleToRotationMatrix(battlefield.YawPitchRoll()),
@@ -735,9 +736,10 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, AimModes mode, do
                                 Eigen::Matrix3d::Identity()
                         );
 
-                        Eigen::Vector3d shoot_point_spherical = coordinate::convert::Rectangular2Spherical(shoot_point_rectangular);
-                        antitop_candidate.yaw = (float) shoot_point_spherical(0,0);
-                        antitop_candidate.pitch = (float) shoot_point_spherical(0,0);
+                        Eigen::Vector3d shoot_point_spherical = coordinate::convert::Rectangular2Spherical(
+                                shoot_point_rectangular);
+                        antitop_candidate.yaw = (float) shoot_point_spherical(0, 0);
+                        antitop_candidate.pitch = (float) shoot_point_spherical(0, 0);
                     }
 
                     antitop_candidate.long_distance = long_distance_;
@@ -832,8 +834,9 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, AimModes mode, do
         }
     }
 
-    antitop_ = antitop_detector_.Is_Top(target_.armor->ID() == armor_machine_->target_->ID(), anticlockwise_, state_bits_.switch_armor, battlefield.TimeStamp());
-    LOG(INFO)<<"top_period "<< antitop_detector_.GetTopPeriod();
+    antitop_ = antitop_detector_.Is_Top(target_.armor->ID() == armor_machine_->target_->ID(), anticlockwise_,
+                                        state_bits_.switch_armor, battlefield.TimeStamp());
+    LOG(INFO) << "top_period " << antitop_detector_.GetTopPeriod();
     target_.armor = armor_machine_->target_;
     target_locked_ = true;
     armor_num_last_ = armor_num;

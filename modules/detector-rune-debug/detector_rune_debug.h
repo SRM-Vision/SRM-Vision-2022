@@ -9,7 +9,7 @@
 
 #include <glog/logging.h>
 #include "lang-feature-extension/attr_reader.h"
-#include "lang-feature-extension/disable_constructor.h"
+#include "lang-feature-extension/disable_constructors.h"
 #include "debug-tools/trackbar.h"
 
 class RuneDetectorDebug : NO_COPY, NO_MOVE {

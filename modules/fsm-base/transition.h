@@ -22,17 +22,17 @@ namespace fsm {
     typedef std::shared_ptr<ITransition> ITransitionSharedPtr;
 
     typedef std::function<
-    void(MachineBase
-    &,
-    [[maybe_unused]] const StateSharedPtr &from_state,
-            ITransitionSharedPtr,
-            EventSharedPtr,
-    [[maybe_unused]]
-    const StateSharedPtr &to_state
-    )>
-    TransitionFireType;
+            void(MachineBase
+                 &,
+                 [[maybe_unused]] const StateSharedPtr &from_state,
+                 ITransitionSharedPtr,
+                 EventSharedPtr,
+                 [[maybe_unused]]
+                 const StateSharedPtr &to_state
+            )>
+            TransitionFireType;
 
-    typedef std::function<void(MachineBase & , ITransitionSharedPtr, EventSharedPtr)> ActionFireType;
+    typedef std::function<void(MachineBase &, ITransitionSharedPtr, EventSharedPtr)> ActionFireType;
 
     class Transition : public ITransition,
                        public std::enable_shared_from_this<Transition> {

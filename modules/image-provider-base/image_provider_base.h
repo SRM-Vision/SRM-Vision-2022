@@ -9,7 +9,7 @@
 #define IMAGE_PROVIDER_BASE_H_
 
 #include "lang-feature-extension/attr_reader.h"
-#include "lang-feature-extension/disable_constructor.h"
+#include "lang-feature-extension/disable_constructors.h"
 #include "data-structure/frame.h"
 
 /**

@@ -5,10 +5,10 @@
  * \details Use constructor disabling tag as one of parent classes.
  */
 
-#ifndef DISABLE_CONSTRUCTOR_H_
-#define DISABLE_CONSTRUCTOR_H_
+#ifndef DISABLE_CONSTRUCTORS_H_
+#define DISABLE_CONSTRUCTORS_H_
 
-namespace disable_constructor {
+namespace disable_constructors {
     class DisableMoveConstructor {
     public:
         DisableMoveConstructor() = default;
@@ -41,7 +41,7 @@ namespace disable_constructor {
  *   };
  * \endcode
  */
-#define NO_COPY public disable_constructor::DisableCopyConstructor
+#define NO_COPY public disable_constructors::DisableCopyConstructor
 
 /**
  * \brief Move constructor disabler.
@@ -52,6 +52,6 @@ namespace disable_constructor {
  *   };
  * \endcode
  */
-#define NO_MOVE public disable_constructor::DisableMoveConstructor
+#define NO_MOVE public disable_constructors::DisableMoveConstructor
 
-#endif  // DISABLE_CONSTRUCTOR_H_
+#endif  // DISABLE_CONSTRUCTORS_H_

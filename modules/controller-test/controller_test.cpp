@@ -62,7 +62,7 @@ void TestController::Run() {
 }
 
 void TestController::Test() {
-    ArmorPredictor armor_predictor(Entity::Colors::kBlue, true,"sentry");
+    ArmorPredictor armor_predictor(Entity::Colors::kBlue, true, "sentry");
 
     sleep(2);
 
@@ -104,7 +104,8 @@ void TestController::Test() {
             }
             Eigen::Matrix3d camera_matrix;
             cv::cv2eigen(image_provider_->IntrinsicMatrix(), camera_matrix);
-            auto point = camera_matrix * armor_predictor.TranslationVectorCamPredict() / armor_predictor.TranslationVectorCamPredict()(2, 0);
+            auto point = camera_matrix * armor_predictor.TranslationVectorCamPredict() /
+                         armor_predictor.TranslationVectorCamPredict()(2, 0);
             cv::Point2d point_cv = {point[0], point[1]};
             debug::Painter::Instance().DrawPoint(point_cv, cv::Scalar(0, 0, 255), 1, 10);
             debug::Painter::Instance().ShowImage("ARMOR DETECT");

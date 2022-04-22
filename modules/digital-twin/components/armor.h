@@ -37,7 +37,7 @@ public:
     Armor(const bbox_t &box,
           const cv::Mat &intrinsic_mat,
           const cv::Mat &distortion_mat,
-          const std::array<float,3> yaw_pitch_roll) :
+          const std::array<float, 3> yaw_pitch_roll) :
             Component(Colors(box.color), kArmor),
             id_(box.id),
             confidence_(box.confidence) {

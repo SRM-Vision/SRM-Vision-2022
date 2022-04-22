@@ -10,7 +10,7 @@
 
 #include <gflags/gflags.h>
 #include "lang-feature-extension/attr_reader.h"
-#include "lang-feature-extension/disable_constructor.h"
+#include "lang-feature-extension/disable_constructors.h"
 
 /**
  * \brief Global command line argument parser.
@@ -31,7 +31,7 @@ public:
 
     ATTR_READER_REF(controller_type_, ControllerType)
 
-    ATTR_READER(with_ekf_,WithEKF)
+    ATTR_READER(with_ekf_, WithEKF)
 
     CmdlineArgParser() :
             run_with_camera_(false),

@@ -8,7 +8,7 @@
 #define BUFFER_H_
 
 #include <mutex>
-#include "lang-feature-extension/disable_constructor.h"
+#include "lang-feature-extension/disable_constructors.h"
 
 /**
  * \brief Circular buffer with mutex.

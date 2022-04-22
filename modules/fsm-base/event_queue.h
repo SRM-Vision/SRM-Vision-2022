@@ -8,7 +8,7 @@
 #include <chrono>
 #include "lang-feature-extension/self_tag.h"
 #include "lang-feature-extension/attr_reader.h"
-#include "lang-feature-extension/disable_constructor.h"
+#include "lang-feature-extension/disable_constructors.h"
 
 namespace fsm {
     template<class T>

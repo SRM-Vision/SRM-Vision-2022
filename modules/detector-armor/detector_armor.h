@@ -10,7 +10,7 @@
 #include <opencv2/core.hpp>
 #include <NvInfer.h>
 #include "data-structure/bbox_t.h"
-#include "lang-feature-extension/disable_constructor.h"
+#include "lang-feature-extension/disable_constructors.h"
 
 /// \brief Armor detector based on TensorRT.
 class ArmorDetector : NO_COPY, NO_MOVE {

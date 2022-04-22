@@ -21,7 +21,7 @@
 class ArmorPredictor;
 
 /// divided by how many armor there is and whether opening antitop mode.
-enum class ArmorEventType{
+enum class ArmorEventType {
     kOne,
     kTwoWithoutAntiTop,
     kTwoWithAntiTop
@@ -33,17 +33,17 @@ public:
     // underlying_type means the hidden type of enum type, such as int.
 
     ArmorEvent(ArmorEventType type, const fsm::MachineBaseSharedPtr &machine)
-        : fsm::EventTemplate<ArmorEventType>(type,machine){
+            : fsm::EventTemplate<ArmorEventType>(type, machine) {
     }
 
-    std::ostream &ToStream(std::ostream &str) const override{
-        return str<<"ArmorEvent | "<<static_cast<underlying_type>(type_);
+    std::ostream &ToStream(std::ostream &str) const override {
+        return str << "ArmorEvent | " << static_cast<underlying_type>(type_);
     }
 
-    [[nodiscard]] std::string ToString() const override{
+    [[nodiscard]] std::string ToString() const override {
         std::ostringstream os;
         os << "ArmorEvent | " << static_cast<underlying_type>(type_);
-        std::string str=os.str();
+        std::string str = os.str();
         os.str("");
         return str;
     }
@@ -52,11 +52,12 @@ public:
 class ArmorMachine : public fsm::StateMachine {
 public:
     friend class ArmorPredictor;
+
     friend class fsm::State;
 
     typedef std::unordered_map<Entity::Colors, std::unordered_map<Robot::RobotTypes, std::shared_ptr<Robot>>> RobotMap;
 
-    struct StateBits{
+    struct StateBits {
         int target_selected;      ///< Where a target is selected.
         bool same_target;         ///< Target to shoot is same as the one on last time.
         bool same_id;             ///< Target is not the same but has same id.
@@ -84,8 +85,8 @@ public:
 
 private:
     std::shared_ptr<Armor> target_; ///< Target selected in this round.
-    bool exist_enemy_,exist_grey_;
-    bool is_transiting=true; /// if machine is transiting.
+    bool exist_enemy_, exist_grey_;
+    bool is_transiting = true; /// if machine is transiting.
 
     const RobotMap *robots_;
 

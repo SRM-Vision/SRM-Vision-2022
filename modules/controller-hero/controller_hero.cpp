@@ -39,7 +39,7 @@ bool HeroController::Initialize() {
 
     }
 
-    if(coordinate::InitializeMatrix("../config/infantry/matrix-init.yaml"))
+    if (coordinate::InitializeMatrix("../config/infantry/matrix-init.yaml"))
         LOG(INFO) << "Camera initialize successfully!";
     else
         LOG(ERROR) << "Camera initialize unsuccessfully!";
@@ -49,7 +49,7 @@ bool HeroController::Initialize() {
 }
 
 void HeroController::Run() {
-    ArmorPredictor armor_predictor(Entity::Colors::kBlue, true,"hero");
+    ArmorPredictor armor_predictor(Entity::Colors::kBlue, true, "hero");
     sleep(2);
 
     while (!exit_signal_) {
@@ -62,10 +62,11 @@ void HeroController::Run() {
             receive_packet_ = ReceivePacket(serial_receive_packet);
 
             DLOG(WARNING) << "mode: " << receive_packet_.mode << " bullet speed: " << receive_packet_.bullet_speed
-                       << " armor kind: " << receive_packet_.armor_kind << " color: " << receive_packet_.color
-                       << " prior_enemy: " << receive_packet_.prior_enemy;
+                          << " armor kind: " << receive_packet_.armor_kind << " color: " << receive_packet_.color
+                          << " prior_enemy: " << receive_packet_.prior_enemy;
             DLOG(WARNING) << "yaw, pitch, roll: "
-                       << receive_packet_.yaw_pitch_roll[0] << " | " << receive_packet_.yaw_pitch_roll[1] << " | " << receive_packet_.yaw_pitch_roll[2];
+                          << receive_packet_.yaw_pitch_roll[0] << " | " << receive_packet_.yaw_pitch_roll[1] << " | "
+                          << receive_packet_.yaw_pitch_roll[2];
         }
 
         // Choose mode
@@ -80,9 +81,10 @@ void HeroController::Run() {
                                        armors_);
 
             // If run with serial
-            if(CmdlineArgParser::Instance().RunWithSerial()) {
+            if (CmdlineArgParser::Instance().RunWithSerial()) {
                 armor_predictor.color_ = receive_packet_.color; // color == 23 -> blue; color == 33 -> red
-                send_packet_ = SendPacket(armor_predictor.Run(battlefield_, receive_packet_.mode,receive_packet_.bullet_speed));
+                send_packet_ = SendPacket(
+                        armor_predictor.Run(battlefield_, receive_packet_.mode, receive_packet_.bullet_speed));
             } else
                 send_packet_ = SendPacket(armor_predictor.Run(battlefield_, AimModes::kNormal));
 
@@ -102,7 +104,8 @@ void HeroController::Run() {
             // Coordinate change
             Eigen::Matrix3d camera_matrix;
             cv::cv2eigen(image_provider_->IntrinsicMatrix(), camera_matrix);
-            auto point = camera_matrix * armor_predictor.TranslationVectorCamPredict() / armor_predictor.TranslationVectorCamPredict()(2, 0);
+            auto point = camera_matrix * armor_predictor.TranslationVectorCamPredict() /
+                         armor_predictor.TranslationVectorCamPredict()(2, 0);
             cv::Point2d point_cv = {point[0], point[1]};
             debug::Painter::Instance().DrawPoint(point_cv, cv::Scalar(0, 0, 255), 1, 10);
             debug::Painter::Instance().ShowImage("ARMOR DETECT");
@@ -111,13 +114,13 @@ void HeroController::Run() {
 
         if (key == 'q')
             break;
-        else if(key == 's')
+        else if (key == 's')
             ArmorPredictorDebug::Instance().Save();
 
-        if(CmdlineArgParser::Instance().RunWithSerial())
-        {
+        if (CmdlineArgParser::Instance().RunWithSerial()) {
             float coefficient1, coefficient2; // TODO today
-            send_packet_.pitch = coefficient1 * receive_packet_.bullet_speed + coefficient2 * static_cast<float>(send_packet_.distance_mode);
+            send_packet_.pitch = coefficient1 * receive_packet_.bullet_speed +
+                                 coefficient2 * static_cast<float>(send_packet_.distance_mode);
             serial_->SendData(send_packet_, std::chrono::milliseconds(5));
         }
 

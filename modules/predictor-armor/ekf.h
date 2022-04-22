@@ -31,7 +31,7 @@ public:
 
     ExtendedKalmanFilter()
             : x_estimate_(VectorX::Zero()),
-              status_cov_(MatrixXX::Identity()){
+              status_cov_(MatrixXX::Identity()) {
         predict_cov_ << 0.01, 0, 0, 0, 0,
                 0, 100, 0, 0, 0,
                 0, 0, 0.01, 0, 0,
@@ -46,7 +46,7 @@ public:
 
     template<typename Func>
     VectorX Predict(Func &&func) {
-        auto &track=ArmorPredictorDebug::Instance();
+        auto &track = ArmorPredictorDebug::Instance();
         AlterPredictcovMeasurecov(ArmorPredictorDebug::Instance().PredictedXZYNoise(),
                                   ArmorPredictorDebug::Instance().PredictedXZYSpeedNoise(),
                                   ArmorPredictorDebug::Instance().MeasureXYNoise(),
@@ -93,15 +93,15 @@ public:
         return x_estimate_;
     }
 
-    void AlterPredictcovMeasurecov(double p_xyz_noise,double p_xy_speed_noise,double m_xy_noise,double m_z_nosie){
+    void AlterPredictcovMeasurecov(double p_xyz_noise, double p_xy_speed_noise, double m_xy_noise, double m_z_nosie) {
         predict_cov_ << p_xyz_noise, 0, 0, 0, 0,
-                        0, p_xy_speed_noise, 0, 0, 0,
-                        0, 0, p_xyz_noise, 0, 0,
-                        0, 0, 0, p_xy_speed_noise, 0,
-                        0, 0, 0, 0, p_xyz_noise;
+                0, p_xy_speed_noise, 0, 0, 0,
+                0, 0, p_xyz_noise, 0, 0,
+                0, 0, 0, p_xy_speed_noise, 0,
+                0, 0, 0, 0, p_xyz_noise;
         measure_cov_ << m_xy_noise, 0, 0,
-                        0, m_xy_noise, 0,
-                        0, 0, m_z_nosie;
+                0, m_xy_noise, 0,
+                0, 0, m_z_nosie;
     }
 
     VectorX x_estimate_;       ///< Estimated status var. [Xe]

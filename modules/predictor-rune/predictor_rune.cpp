@@ -36,7 +36,7 @@ bool RunePredictor::Initialize(const std::string &config_path, bool debug) {
         config["AMPLITUDE"] >> amplitude_;
         config["PALSTANCE"] >> palstance_;
         config["PHASE"] >> phase_;
-    } catch (const std::exception &){
+    } catch (const std::exception &) {
         LOG(ERROR) << "Failed to load config of rune predictor.";
     }
     b_ = 2.090 - amplitude_;
@@ -50,16 +50,16 @@ bool RunePredictor::Initialize(const std::string &config_path, bool debug) {
 SendPacket RunePredictor::Run(const PowerRune &power_rune, AimModes mode) {
     rune_ = power_rune;
 
-    if (mode == kBigRune){
+    if (mode == kBigRune) {
         LOG(INFO) << "Now Run Mode : Big Rune!";
         current_fan_palstance_ = CalAngularVelocity();
         CalCurrentFanAngle();                  // Using armor_rotated_point
-        CalPredictAngle(mode);                 // Calculate function parameters first, preparing 1000 frames;Then integral.
+        CalPredictAngle(
+                mode);                 // Calculate function parameters first, preparing 1000 frames;Then integral.
         CalPredictPoint();                     // Calculate the predict_target_point
         CalYawPitchDelay();
         FanChanged();
-    }
-    else{
+    } else {
         LOG(INFO) << "Now Run Mode : Small Rune!";
         palstance_ = 1.04717;
         CalPredictAngle(mode);
@@ -81,11 +81,10 @@ bool RunePredictor::FanChanged() {
     }
     double delta_angle = std::abs(current_fan_angle_ - last_fan_current_angle_);
     last_fan_current_angle_ = current_fan_angle_;
-    if (delta_angle > 60 && delta_angle < 350){
+    if (delta_angle > 60 && delta_angle < 350) {
         LOG(INFO) << "Fan changed now! ";
         return true;
-    }
-    else
+    } else
         return false;
 }
 
@@ -201,7 +200,8 @@ void RunePredictor::CalFunctionParameters() {
                 ceres::Solver::Summary summary;
                 ceres::Solve(options, &problem, &summary);
                 std::cout << summary.BriefReport() << "\n";
-                std::cout << "Inference A = " << amplitude_ << " Omega = " << palstance_ << " phase = " << phase_ << std::endl;
+                std::cout << "Inference A = " << amplitude_ << " Omega = " << palstance_ << " phase = " << phase_
+                          << std::endl;
             }
             is_okay_to_fit_ = false;
             is_need_to_fit_ = false;
@@ -213,7 +213,7 @@ void RunePredictor::CalFunctionParameters() {
 * @Brief: calculate rotated angle
 */
 void RunePredictor::CalPredictAngle(AimModes mode) {
-    if (mode == kBigRune){
+    if (mode == kBigRune) {
         if (is_need_to_fit_) {
             CalFunctionParameters();
             rotated_angle_ = 0;
@@ -222,19 +222,19 @@ void RunePredictor::CalPredictAngle(AimModes mode) {
         } else {
             double delay_time = 7.0 / 28.5;
             rotated_radian_ = CalRadIntegralFromSpeed(current_time_ + delay_time)
-                                                           - CalRadIntegralFromSpeed(current_time_);
+                              - CalRadIntegralFromSpeed(current_time_);
             rotated_angle_ = rotated_radian_ * 180 / CV_PI;
 
             CalCurrentFanAngle();
             predicted_angle_ = (-1) * rune_.Clockwise() * (current_fan_angle_ + rotated_angle_);
         }
-    }else{
+    } else {
         double delay_time = 7.0 / 28.5;  // The offset of bullet
-        current_time_ = double( std::chrono::duration_cast<std::chrono::milliseconds>
-                              (std::chrono::system_clock::now().time_since_epoch()).count());
+        current_time_ = double(std::chrono::duration_cast<std::chrono::milliseconds>
+                                       (std::chrono::system_clock::now().time_since_epoch()).count());
         current_time_ /= 1000;   // ms -> s
         rotated_radian_ = (-1.0) * rune_.Clockwise() *
-                (palstance_ * (current_time_ + delay_time) - palstance_ * (current_time_));
+                          (palstance_ * (current_time_ + delay_time) - palstance_ * (current_time_));
         rotated_angle_ = rotated_radian_ * 180 / CV_PI;
 
         CalCurrentFanAngle();

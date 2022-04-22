@@ -31,13 +31,13 @@ public:
     PowerRune() : Facility(), clockwise_(0) {}
 
     [[maybe_unused]] PowerRune(Colors color,
-              int clockwise,
-              cv::Point2f rtp_vec,
-              cv::Point2f rtg_vec,
-              cv::Point2f center_r,
-              cv::Point2f armor_center_p,
-              cv::Point2f fan_center_g,
-              cv::Point3f send_yaw_pitch_delay) :
+                               int clockwise,
+                               cv::Point2f rtp_vec,
+                               cv::Point2f rtg_vec,
+                               cv::Point2f center_r,
+                               cv::Point2f armor_center_p,
+                               cv::Point2f fan_center_g,
+                               cv::Point3f send_yaw_pitch_delay) :
             Facility(color, 0, kPowerRune),
             clockwise_(clockwise),
             rtp_vec_(std::move(rtp_vec)),

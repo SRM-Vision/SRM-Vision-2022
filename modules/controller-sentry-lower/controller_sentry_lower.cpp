@@ -32,7 +32,7 @@ bool SentryLowerController::Initialize() {
         }
     }
 
-    if(coordinate::InitializeMatrix("../config/sentry/matrix-init.yaml"))
+    if (coordinate::InitializeMatrix("../config/sentry/matrix-init.yaml"))
         LOG(INFO) << "Camera initialize successfully!";
     else
         LOG(ERROR) << "Camera initialize unsuccessfully!";
@@ -42,7 +42,7 @@ bool SentryLowerController::Initialize() {
 }
 
 void SentryLowerController::Run() {
-    ArmorPredictor armor_predictor(Entity::Colors::kBlue, true,"sentry");
+    ArmorPredictor armor_predictor(Entity::Colors::kBlue, true, "sentry");
     sleep(2);
 
     while (!exit_signal_) {
@@ -60,10 +60,11 @@ void SentryLowerController::Run() {
         battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.yaw_pitch_roll,
                                    armors_);
 
-        if(CmdlineArgParser::Instance().RunWithSerial()) {
+        if (CmdlineArgParser::Instance().RunWithSerial()) {
             armor_predictor.color_ = receive_packet_.color;
-            send_packet_ = SendPacket(armor_predictor.Run(battlefield_, AimModes::kAutoAntiTop,receive_packet_.bullet_speed));
-        }else
+            send_packet_ = SendPacket(
+                    armor_predictor.Run(battlefield_, AimModes::kAutoAntiTop, receive_packet_.bullet_speed));
+        } else
             send_packet_ = SendPacket(armor_predictor.Run(battlefield_, AimModes::kNormal));
         auto img = frame_.image.clone();
         debug::Painter::Instance().UpdateImage(frame_.image);
@@ -79,7 +80,8 @@ void SentryLowerController::Run() {
 
         Eigen::Matrix3d camera_matrix;
         cv::cv2eigen(image_provider_->IntrinsicMatrix(), camera_matrix);
-        auto point = camera_matrix * armor_predictor.TranslationVectorCamPredict() / armor_predictor.TranslationVectorCamPredict()(2, 0);
+        auto point = camera_matrix * armor_predictor.TranslationVectorCamPredict() /
+                     armor_predictor.TranslationVectorCamPredict()(2, 0);
         cv::Point2d point_cv = {point[0], point[1]};
         debug::Painter::Instance().DrawPoint(point_cv, cv::Scalar(0, 0, 255), 1, 10);
         debug::Painter::Instance().ShowImage("ARMOR DETECT");
@@ -89,14 +91,14 @@ void SentryLowerController::Run() {
             break;
         else if (key == 's')
             ArmorPredictorDebug::Instance().Save();
-        if(CmdlineArgParser::Instance().RunWithSerial())
+        if (CmdlineArgParser::Instance().RunWithSerial())
             serial_->SendData(send_packet_, std::chrono::milliseconds(5));
 
         boxes_.clear();
         armors_.clear();
         auto duration = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now()
                                                                               - time);
-        DLOG(INFO) << "FPS: " << 1000000.0/duration.count();
+        DLOG(INFO) << "FPS: " << 1000000.0 / duration.count();
     }
 
     if (CmdlineArgParser::Instance().RunWithGimbal())

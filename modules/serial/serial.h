@@ -12,7 +12,7 @@
 #include <thread>
 #include <glog/logging.h>
 #include "packet.h"
-#include "lang-feature-extension/disable_constructor.h"
+#include "lang-feature-extension/disable_constructors.h"
 
 /// \brief Serial manager class.
 class Serial : NO_COPY, NO_MOVE {

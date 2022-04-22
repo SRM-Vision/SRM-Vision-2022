@@ -29,12 +29,12 @@ namespace coordinate {
     static RotationMatrix camera_to_imu_rotation_matrix(rm_cam_to_imu_data);
     static TranslationMatrix camera_to_imu_translation_matrix(tm_cam_to_imu_data);
 
-    bool InitializeMatrix(const std::string& path);
+    bool InitializeMatrix(const std::string &path);
 }
 
 namespace coordinate::transform {
     [[maybe_unused]] inline RotationMatrix
-    EulerAngleToRotationMatrix(const std::array<float,3> e_yaw_pitch_roll) {
+    EulerAngleToRotationMatrix(const std::array<float, 3> e_yaw_pitch_roll) {
         // Prefix "e_" here means "Euler angle".
 
         // Prefix "r_" here means "rotation".

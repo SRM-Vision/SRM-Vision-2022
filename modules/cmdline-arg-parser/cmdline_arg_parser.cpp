@@ -19,7 +19,7 @@ DEFINE_int32(mode_chooser, 0, "controller running mode chooser");
 DEFINE_bool(rune, false, "run with rune, must under infantry controller");
 DEFINE_bool(debug_image, false, "in debug mode show image");
 DEFINE_bool(debug_trackbar, true, "in debug use trackbar");
-DEFINE_bool(ekf,true,"use ekf");
+DEFINE_bool(ekf, true, "use ekf");
 
 void CmdlineArgParser::Parse(int argc, char **argv) {
     gflags::ParseCommandLineFlags(&argc, &argv, true);

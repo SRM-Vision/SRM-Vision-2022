@@ -12,7 +12,7 @@
 #include "digital-twin/entity.h"
 
 /// \brief Packet of auto aiming mode.
-enum AimModes{
+enum AimModes {
     kNormal = 10,
     kAntiTop = 20,
     kSmallRune = 30,
@@ -32,7 +32,7 @@ struct ReceivePacket {
     int prior_enemy;
     Entity::Colors color;
     float bullet_speed;
-    std::array<float,3> yaw_pitch_roll;
+    std::array<float, 3> yaw_pitch_roll;
 
     ReceivePacket() :
             mode(kNormal),
@@ -40,7 +40,7 @@ struct ReceivePacket {
             prior_enemy(0),
             color(Entity::Colors::kBlue),
             bullet_speed(0),
-            yaw_pitch_roll{0,0,0} {}
+            yaw_pitch_roll{0, 0, 0} {}
 
     explicit ReceivePacket(const SerialReceivePacket &serial_receive_packet) :
             mode(static_cast<AimModes>(serial_receive_packet.mode)),
@@ -48,10 +48,10 @@ struct ReceivePacket {
             prior_enemy(serial_receive_packet.prior_enemy),
             color(Entity::Colors::kBlue),
             bullet_speed(serial_receive_packet.bullet_speed),
-            yaw_pitch_roll{serial_receive_packet.yaw,serial_receive_packet.pitch,serial_receive_packet.roll} {
-        if(serial_receive_packet.color == 23)
+            yaw_pitch_roll{serial_receive_packet.yaw, serial_receive_packet.pitch, serial_receive_packet.roll} {
+        if (serial_receive_packet.color == 23)
             color = Entity::Colors::kRed;
-        else if(serial_receive_packet.color == 13)
+        else if (serial_receive_packet.color == 13)
             color = Entity::Colors::kBlue;
     }
 };

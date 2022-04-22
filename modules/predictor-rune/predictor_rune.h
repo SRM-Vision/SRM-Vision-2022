@@ -113,7 +113,7 @@ private:
 
     /// Formula parameter
     double amplitude_;
-    double palstance_ ;
+    double palstance_;
     double phase_;
     double b_;
 };

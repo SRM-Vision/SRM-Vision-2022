@@ -49,12 +49,12 @@ bool InfantryController::Initialize() {
     else
         LOG(ERROR) << "Rune detector initialize unsuccessfully!";
     if (rune_predictor_.Initialize("../config/infantry/rune-predictor-param.yaml"),
-                                  CmdlineArgParser::Instance().DebugUseTrackbar())
+            CmdlineArgParser::Instance().DebugUseTrackbar())
         LOG(INFO) << "Rune predictor initialize successfully!";
     else
         LOG(ERROR) << "Rune predictor initialize unsuccessfully!";
 
-    if(coordinate::InitializeMatrix("../config/infantry/matrix-init.yaml"))
+    if (coordinate::InitializeMatrix("../config/infantry/matrix-init.yaml"))
         LOG(INFO) << "Camera initialize successfully!";
     else
         LOG(ERROR) << "Camera initialize unsuccessfully!";
@@ -64,7 +64,7 @@ bool InfantryController::Initialize() {
 }
 
 void InfantryController::Run() {
-    ArmorPredictor armor_predictor(Entity::Colors::kBlue, true,"infantry");
+    ArmorPredictor armor_predictor(Entity::Colors::kBlue, true, "infantry");
 
     sleep(2);
 
@@ -94,10 +94,11 @@ void InfantryController::Run() {
             battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.yaw_pitch_roll,
                                        armors_);
             /// TODO mode switch
-            if(CmdlineArgParser::Instance().RunWithSerial()) {
+            if (CmdlineArgParser::Instance().RunWithSerial()) {
                 armor_predictor.color_ = receive_packet_.color;
-                send_packet_ = SendPacket(armor_predictor.Run(battlefield_, receive_packet_.mode, receive_packet_.bullet_speed));
-            }else
+                send_packet_ = SendPacket(
+                        armor_predictor.Run(battlefield_, receive_packet_.mode, receive_packet_.bullet_speed));
+            } else
                 send_packet_ = SendPacket(armor_predictor.Run(battlefield_, AimModes::kAntiTop));
             auto img = frame_.image.clone();
             debug::Painter::Instance().UpdateImage(frame_.image);
@@ -113,7 +114,7 @@ void InfantryController::Run() {
             Eigen::Matrix3d camera_matrix;
             cv::cv2eigen(image_provider_->IntrinsicMatrix(), camera_matrix);
             auto point = camera_matrix * armor_predictor.TranslationVectorCamPredict()
-                    / armor_predictor.TranslationVectorCamPredict()(2, 0);
+                         / armor_predictor.TranslationVectorCamPredict()(2, 0);
             cv::Point2d point_cv = {point[0], point[1]};
             debug::Painter::Instance().DrawPoint(point_cv, cv::Scalar(0, 0, 255), 1, 10);
             debug::Painter::Instance().ShowImage("ARMOR DETECT");
@@ -122,17 +123,17 @@ void InfantryController::Run() {
         auto key = cv::waitKey(1) & 0xff;
         if (key == 'q')
             break;
-        else if(key == 's')
+        else if (key == 's')
             ArmorPredictorDebug::Instance().Save();
 
-        if(CmdlineArgParser::Instance().RunWithSerial()) {
+        if (CmdlineArgParser::Instance().RunWithSerial()) {
             serial_->SendData(send_packet_, std::chrono::milliseconds(5));
         }
         boxes_.clear();
         armors_.clear();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now()
-                - time);
-        DLOG(INFO) << "FPS: " << 1000.0/duration.count();
+                                                                              - time);
+        DLOG(INFO) << "FPS: " << 1000.0 / duration.count();
     }
 
 

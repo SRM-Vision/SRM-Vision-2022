@@ -13,14 +13,13 @@ void ArmorPredictorDebug::Initialize(const std::string &config_path, bool debug_
     try {
         config_["P_XYZ_NOISE"] >> p_xyz_noise_;
         config_["P_XY_SPEED_NOISE"] >> p_xy_speed_noise_;
-        config_["M_XY_NOISE"] >> m_xy_noise_ ;
-        config_["M_Z_NOISE"] >> m_z_noise_ ;
+        config_["M_XY_NOISE"] >> m_xy_noise_;
+        config_["M_Z_NOISE"] >> m_z_noise_;
     } catch (std::exception &) {
         LOG(ERROR) << "Failed to load config of ekf.";
     }
     config_.release();
-    if(debug_use_trackbar)
-    {
+    if (debug_use_trackbar) {
         debug::Trackbar<double>::Instance().AddTrackbar("p_xyz_noise:",
                                                         trackbar_windows_name_,
                                                         p_xyz_noise_,
@@ -43,7 +42,8 @@ void ArmorPredictorDebug::Initialize(const std::string &config_path, bool debug_
         debug::Trackbar<double>::Instance().AddTrackbar("delta_pitch",
                                                         trackbar_windows_name_,
                                                         delta_pitch_,
-                                                        kDelta_pitch);    }
+                                                        kDelta_pitch);
+    }
 }
 
 void ArmorPredictorDebug::Save() {
@@ -58,10 +58,10 @@ void ArmorPredictorDebug::Save() {
 
     // Write config data.
     try {
-        config_ << "P_XYZ_NOISE" <<  p_xyz_noise_;
+        config_ << "P_XYZ_NOISE" << p_xyz_noise_;
         config_ << "P_XY_SPEED_NOISE" << p_xy_speed_noise_;
         config_ << "M_XY_NOISE" << m_xy_noise_;
-        config_ << "M_Z_NOISE" <<  m_z_noise_;
+        config_ << "M_Z_NOISE" << m_z_noise_;
     } catch (std::exception &) {
         LOG(ERROR) << "Failed to update config of ekf.";
         return;

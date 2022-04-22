@@ -8,7 +8,7 @@
 #ifndef CONTROLLER_BASE_H_
 #define CONTROLLER_BASE_H_
 
-#include "lang-feature-extension/disable_constructor.h"
+#include "lang-feature-extension/disable_constructors.h"
 #include "data-structure/communication.h"
 #include "digital-twin/battlefield.h"
 #include "serial/serial.h"
