@@ -341,7 +341,7 @@ private:
     ArmorMachine::StateBits state_bits_;
     Eigen::Vector3d translation_vector_cam_predict_;
     std::vector<Node> antitop_candidates_;
-    AntitopDetector antitop_detector_;
+    AntiTopDetector antitop_detector_;
     fsm::MachineSetSharedPtr machine_set_;
     std::shared_ptr<ArmorMachine> armor_machine_;
     Eigen::Vector4d setoff0;

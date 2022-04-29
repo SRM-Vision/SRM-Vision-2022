@@ -834,8 +834,8 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, AimModes mode, do
         }
     }
 
-    antitop_ = antitop_detector_.Is_Top(target_.armor->ID() == armor_machine_->target_->ID(), anticlockwise_,
-                                        state_bits_.switch_armor, battlefield.TimeStamp());
+    antitop_ = antitop_detector_.IsTop(target_.armor->ID() == armor_machine_->target_->ID(), anticlockwise_,
+                                       state_bits_.switch_armor, battlefield.TimeStamp());
     LOG(INFO) << "top_period " << antitop_detector_.GetTopPeriod();
     target_.armor = armor_machine_->target_;
     target_locked_ = true;

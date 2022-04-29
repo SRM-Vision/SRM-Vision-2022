@@ -47,7 +47,7 @@ public:
     template<typename Func>
     VectorX Predict(Func &&func) {
         auto &track = ArmorPredictorDebug::Instance();
-        AlterPredictcovMeasurecov(ArmorPredictorDebug::Instance().PredictedXZYNoise(),
+        AlterPredictCovMeasureCov(ArmorPredictorDebug::Instance().PredictedXZYNoise(),
                                   ArmorPredictorDebug::Instance().PredictedXZYSpeedNoise(),
                                   ArmorPredictorDebug::Instance().MeasureXYNoise(),
                                   ArmorPredictorDebug::Instance().MeasureZNoise());
@@ -93,7 +93,7 @@ public:
         return x_estimate_;
     }
 
-    void AlterPredictcovMeasurecov(double p_xyz_noise, double p_xy_speed_noise, double m_xy_noise, double m_z_nosie) {
+    void AlterPredictCovMeasureCov(double p_xyz_noise, double p_xy_speed_noise, double m_xy_noise, double m_z_nosie) {
         predict_cov_ << p_xyz_noise, 0, 0, 0, 0,
                 0, p_xy_speed_noise, 0, 0, 0,
                 0, 0, p_xyz_noise, 0, 0,
@@ -115,8 +115,9 @@ public:
     VectorY y_predict_;        ///< Predicted measuring var. [Yp]
 };
 
-//template<unsigned int N_x, unsigned int N_y> Eigen::Matrix<double, N_x, N_x>
-//        ExtendedKalmanFilter<N_x,N_y>::predict_cov_ = Eigen::Matrix<double, N_x, N_x>::Identity();
-//template<unsigned int N_x, unsigned int N_y> Eigen::Matrix<double, N_y, N_y>
-//        ExtendedKalmanFilter<N_x,N_y>::measure_cov_ = Eigen::Matrix<double, N_y, N_y>::Identity();
+// template<unsigned int N_x, unsigned int N_y> Eigen::Matrix<double, N_x, N_x>
+//         ExtendedKalmanFilter<N_x,N_y>::predict_cov_ = Eigen::Matrix<double, N_x, N_x>::Identity();
+// template<unsigned int N_x, unsigned int N_y> Eigen::Matrix<double, N_y, N_y>
+//         ExtendedKalmanFilter<N_x,N_y>::measure_cov_ = Eigen::Matrix<double, N_y, N_y>::Identity();
+
 #endif  // EKF_H_
