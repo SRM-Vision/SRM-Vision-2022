@@ -1,5 +1,5 @@
-#ifndef _ANTITOP_DETECTOR__PREDICTOR_ARMOR_H_
-#define _ANTITOP_DETECTOR__PREDICTOR_ARMOR_H_
+#ifndef ANTITOP_DETECTOR_H_
+#define ANTITOP_DETECTOR_H_
 
 #include <iostream>
 #include "lang-feature-extension/attr_reader.h"
@@ -120,8 +120,7 @@ private:
     double lasting_time_once[4]{};
     double time_record{};
 
-
     int switch_times_{};
 };
 
-#endif //_ANTITOP_DETECTOR__PREDICTOR_ARMOR_H_
+#endif  // ANTITOP_DETECTOR_H_

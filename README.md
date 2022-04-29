@@ -12,7 +12,7 @@ To build this project, all of these libraries should be pre-installed:
 
 1. G++ compiler 8.x with binary `g++-8` available.
 2. [CUDA](https://developer.nvidia.com/cuda-toolkit) 11.x, [cuDNN](https://developer.nvidia.com/cudnn)
-   and [TensorRT](https://developer.nvidia.com/tensorrt) 7.x.
+   and [TensorRT](https://developer.nvidia.com/tensorrt) 7+.
 3. [OpenCV](https://opencv.org/) 4.5.x.
 4. [Ceres Solver](http://ceres-solver.org/) 2.x.
 5. [FMT Library](https://github.com/fmtlib/fmt) 8.x.
