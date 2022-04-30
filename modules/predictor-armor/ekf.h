@@ -33,24 +33,27 @@ public:
             : x_estimate_(VectorX::Zero()),
               status_cov_(MatrixXX::Identity()) {
         predict_cov_ << 0.01, 0, 0, 0, 0,
-                0, 100, 0, 0, 0,
-                0, 0, 0.01, 0, 0,
-                0, 0, 0, 100, 0,
-                0, 0, 0, 0, 0.01;
+                        0, 100, 0, 0, 0,
+                        0, 0, 0.01, 0, 0,
+                        0, 0, 0, 100, 0,
+                        0, 0, 0, 0, 0.01;
         measure_cov_ << 1, 0, 0,
-                0, 1, 0,
-                0, 0, 800;
+                        0, 1, 0,
+                        0, 0, 800;
     }
 
-    inline void Initialize(const VectorX &x = VectorX::Zero()) { x_estimate_ = x; }
-
-    template<typename Func>
-    VectorX Predict(Func &&func) {
-        auto &track = ArmorPredictorDebug::Instance();
+    inline void Initialize(const VectorX &x = VectorX::Zero()) {
         AlterPredictCovMeasureCov(ArmorPredictorDebug::Instance().PredictedXZYNoise(),
                                   ArmorPredictorDebug::Instance().PredictedXZYSpeedNoise(),
                                   ArmorPredictorDebug::Instance().MeasureXYNoise(),
                                   ArmorPredictorDebug::Instance().MeasureZNoise());
+        x_estimate_ = x;
+    }
+
+    template<typename Func>
+    VectorX Predict(Func &&func) {
+
+
         ceres::Jet<double, N_x> x_estimated_auto_jet[N_x];
         for (auto i = 0; i < N_x; ++i) {
             x_estimated_auto_jet[i].a = x_estimate_[i];
@@ -60,10 +63,8 @@ public:
         func(x_estimated_auto_jet, x_predict_auto_jet);
         for (auto i = 0; i < N_x; ++i) {
             x_predict_[i] = x_predict_auto_jet[i].a;
-            predict_jacobi_.block(i, 0, 1, N_x) =
-                    x_predict_auto_jet[i].v.transpose();
+            predict_jacobi_.block(i, 0, 1, N_x) = x_predict_auto_jet[i].v.transpose();
         }
-        ArmorPredictorDebug a;
         status_cov_ = predict_jacobi_ * status_cov_ * predict_jacobi_.transpose() + predict_cov_;
         return x_predict_;
     }
@@ -93,15 +94,15 @@ public:
         return x_estimate_;
     }
 
-    void AlterPredictCovMeasureCov(double p_xyz_noise, double p_xy_speed_noise, double m_xy_noise, double m_z_nosie) {
+    void AlterPredictCovMeasureCov(double p_xyz_noise, double p_xy_speed_noise, double m_xy_noise, double m_z_noise) {
         predict_cov_ << p_xyz_noise, 0, 0, 0, 0,
-                0, p_xy_speed_noise, 0, 0, 0,
-                0, 0, p_xyz_noise, 0, 0,
-                0, 0, 0, p_xy_speed_noise, 0,
-                0, 0, 0, 0, p_xyz_noise;
+                        0, p_xy_speed_noise, 0, 0, 0,
+                        0, 0, p_xyz_noise, 0, 0,
+                        0, 0, 0, p_xy_speed_noise, 0,
+                        0, 0, 0, 0, p_xyz_noise;
         measure_cov_ << m_xy_noise, 0, 0,
-                0, m_xy_noise, 0,
-                0, 0, m_z_nosie;
+                        0, m_xy_noise, 0,
+                        0, 0, m_z_noise;
     }
 
     VectorX x_estimate_;       ///< Estimated status var. [Xe]
@@ -115,9 +116,8 @@ public:
     VectorY y_predict_;        ///< Predicted measuring var. [Yp]
 };
 
-// template<unsigned int N_x, unsigned int N_y> Eigen::Matrix<double, N_x, N_x>
-//         ExtendedKalmanFilter<N_x,N_y>::predict_cov_ = Eigen::Matrix<double, N_x, N_x>::Identity();
-// template<unsigned int N_x, unsigned int N_y> Eigen::Matrix<double, N_y, N_y>
-//         ExtendedKalmanFilter<N_x,N_y>::measure_cov_ = Eigen::Matrix<double, N_y, N_y>::Identity();
-
+//template<unsigned int N_x, unsigned int N_y> Eigen::Matrix<double, N_x, N_x>
+//        ExtendedKalmanFilter<N_x,N_y>::predict_cov_ = Eigen::Matrix<double, N_x, N_x>::Identity();
+//template<unsigned int N_x, unsigned int N_y> Eigen::Matrix<double, N_y, N_y>
+//        ExtendedKalmanFilter<N_x,N_y>::measure_cov_ = Eigen::Matrix<double, N_y, N_y>::Identity();
 #endif  // EKF_H_

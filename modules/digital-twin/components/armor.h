@@ -166,8 +166,25 @@ public:
         return algorithm::PolygonArea<4>(corners_);
     }
 
-private:
-    unsigned int id_;
+    Armor& operator=(const Armor& armor){
+        if(this == &armor) return SELF;
+        id_ = armor.id_;
+        for(int i = 0; i < 4; ++i)
+            corners_[i] = armor.corners_[i];
+        center_ = armor.center_;
+        rotation_vector_cam_ = armor.rotation_vector_cam_;
+        translation_vector_cam_ = armor.translation_vector_cam_;
+        rotation_vector_world_ = armor.rotation_vector_world_;
+        translation_vector_world_ = armor.translation_vector_world_;
+
+        distance_ = armor.distance_;
+        confidence_ = armor.distance_;
+        return SELF;
+    }
+
+
+protected:
+    unsigned int id_{};
 
     cv::Point2f corners_[4];
     cv::Point2f center_;
@@ -178,8 +195,8 @@ private:
     coordinate::RotationVector rotation_vector_world_;
     coordinate::TranslationVector translation_vector_world_;
 
-    float distance_;
-    float confidence_;
+    float distance_{};
+    float confidence_{};
 };
 
 #endif  // ARMOR_H_

@@ -3,7 +3,7 @@
 #include "cmdline-arg-parser/cmdline_arg_parser.h"
 #include "image-provider-base/image_provider_factory.h"
 #include "controller-base/controller_factory.h"
-#include "predictor-armor/predictor_armor.h"
+#include "predictor-armor/predictor_armor_renew.h"
 #include "detector-rune/detector_rune.h"
 #include "predictor-rune/predictor_rune.h"
 #include "controller_infantry.h"
@@ -64,7 +64,7 @@ bool InfantryController::Initialize() {
 }
 
 void InfantryController::Run() {
-    ArmorPredictor armor_predictor(Entity::Colors::kBlue, true, "infantry");
+    PredictorArmorRenew armor_predictor(Entity::Colors::kBlue,"infantry");
 
     sleep(2);
 
@@ -72,8 +72,8 @@ void InfantryController::Run() {
         auto time = std::chrono::steady_clock::now();
         if (!image_provider_->GetFrame(frame_))
             break;
-        cv::flip(frame_.image, frame_.image, 0);
-        cv::flip(frame_.image, frame_.image, 1);
+//        cv::flip(frame_.image, frame_.image, 0);
+//        cv::flip(frame_.image, frame_.image, 1);
         debug::Painter::Instance().UpdateImage(frame_.image);
 
         if (CmdlineArgParser::Instance().RunWithGimbal()) {
@@ -95,11 +95,11 @@ void InfantryController::Run() {
                                        armors_);
             /// TODO mode switch
             if (CmdlineArgParser::Instance().RunWithSerial()) {
-                armor_predictor.color_ = receive_packet_.color;
-                send_packet_ = SendPacket(
-                        armor_predictor.Run(battlefield_, receive_packet_.mode, receive_packet_.bullet_speed));
+                armor_predictor.SetColor(receive_packet_.color);
+                send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size ,
+                                                   receive_packet_.mode, receive_packet_.bullet_speed);
             } else
-                send_packet_ = SendPacket(armor_predictor.Run(battlefield_, AimModes::kAntiTop));
+                send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size,AimModes::kAntiTop);
             auto img = frame_.image.clone();
             debug::Painter::Instance().UpdateImage(frame_.image);
             for (const auto &box: boxes_) {
@@ -111,12 +111,10 @@ void InfantryController::Run() {
                 debug::Painter::Instance().DrawText(std::to_string(box.id), box.points[0], 255, 2);
                 debug::Painter::Instance().DrawPoint(armors_.front().Center(), cv::Scalar(100, 255, 100));
             }
-            Eigen::Matrix3d camera_matrix;
-            cv::cv2eigen(image_provider_->IntrinsicMatrix(), camera_matrix);
-            auto point = camera_matrix * armor_predictor.TranslationVectorCamPredict()
-                         / armor_predictor.TranslationVectorCamPredict()(2, 0);
-            cv::Point2d point_cv = {point[0], point[1]};
-            debug::Painter::Instance().DrawPoint(point_cv, cv::Scalar(0, 0, 255), 1, 10);
+            debug::Painter::Instance().DrawPoint(armor_predictor.ShootPointInPic(image_provider_->IntrinsicMatrix(),
+                                                                                 frame_.image.size),
+                                                 cv::Scalar(0, 0, 255), 1, 10);
+//            armor_predictor.AllShootPoint(image_provider_->IntrinsicMatrix());
             debug::Painter::Instance().ShowImage("ARMOR DETECT");
         }
 
@@ -133,9 +131,8 @@ void InfantryController::Run() {
         armors_.clear();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now()
                                                                               - time);
-        DLOG(INFO) << "FPS: " << 1000.0 / duration.count();
+        DLOG(INFO) << "FPS: " << 1000.0 / double(duration.count());
     }
-
 
     // exit.
     if (CmdlineArgParser::Instance().RunWithGimbal())

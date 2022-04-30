@@ -15,7 +15,7 @@ public:
 
     void Initialize(const std::string &config_path, bool debug_use_trackbar = true);
 
-    [[maybe_unused]] void Save();
+    void Save();
 
 private:
     const std::string trackbar_windows_name_ = "Armor Predictor Debug";

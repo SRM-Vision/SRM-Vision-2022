@@ -83,6 +83,13 @@ namespace coordinate::transform {
                   const RotationMatrix &rm_cam_to_imu) {
         return (rm_cam_to_imu * rm_imu_to_world) * tv_world - tm_cam_to_imu;
     }
+
+    inline cv::Point2f CameraToPicture(const cv::Mat& intrinsic_matrix,const Eigen::Vector3d& predict_camera_vector){
+        Eigen::Matrix3d camera_matrix;
+        cv::cv2eigen(intrinsic_matrix, camera_matrix);
+        auto point = camera_matrix * predict_camera_vector / predict_camera_vector(2, 0);
+        return {float(point[0]), float(point[1])};
+    }
 }
 
 namespace coordinate::convert {

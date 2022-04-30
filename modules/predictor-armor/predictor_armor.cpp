@@ -526,6 +526,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, AimModes mode, do
         Eigen::Matrix<double, 5, 1> x_predict = target_.ekf.Predict(predict);
         Eigen::Matrix<double, 5, 1> x_estimate = target_.ekf.Update(measure, y_real);
 
+        /// add ballistic delay
         auto delta_t_predict = armor_machine_->target_->TranslationVectorWorld().norm() / bullet_speed + shoot_delay;
         predict.delta_t = delta_t_predict;
         predict(x_estimate.data(), x_predict.data());
