@@ -5,8 +5,8 @@
 
 bool coordinate::InitializeMatrix(const std::string &path) {
     cv::FileStorage r_and_t_matrix_param_config;
-    try { r_and_t_matrix_param_config.open(path, cv::FileStorage::READ); }
-    catch (const std::exception &) {
+    r_and_t_matrix_param_config.open(path, cv::FileStorage::READ);
+    if (!r_and_t_matrix_param_config.isOpened()) {
         LOG(ERROR) << "Failed to open rotation and translation matrix initialization file " << path << ".";
         return false;
     }

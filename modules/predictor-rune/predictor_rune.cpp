@@ -26,19 +26,16 @@ bool RunePredictor::Initialize(const std::string &config_path, bool debug) {
     cv::FileStorage config;
 
     // Open config file.
-    try {
-        config.open(config_path, cv::FileStorage::READ);
-    } catch (const std::exception &) {
+    config.open(config_path, cv::FileStorage::READ);
+    if (!config.isOpened()) {
         LOG(ERROR) << "Failed to open rune detector config file " << config_path << ".";
+        return false;
     }
 
-    try {
-        config["AMPLITUDE"] >> amplitude_;
-        config["PALSTANCE"] >> palstance_;
-        config["PHASE"] >> phase_;
-    } catch (const std::exception &) {
-        LOG(ERROR) << "Failed to load config of rune predictor.";
-    }
+    config["AMPLITUDE"] >> amplitude_;
+    config["PALSTANCE"] >> palstance_;
+    config["PHASE"] >> phase_;
+
     b_ = 2.090 - amplitude_;
     is_okay_to_fit_ = false;
     is_need_to_fit_ = false;

@@ -11,24 +11,19 @@ const float kSwitchArmorAreaProportion = 1.1f;  ///< Minimal area of armor to sw
 bool ArmorPredictor::Initialize(const std::string &car_name) {
     car_name_ = car_name;
     cv::FileStorage config_;
-    try {
-        config_.open("../config/" + car_name_ + "/setoff-param.yaml", cv::FileStorage::READ);
-    } catch (const std::exception &) {
+    config_.open("../config/" + car_name_ + "/setoff-param.yaml", cv::FileStorage::READ);
+    if (!config_.isOpened()) {
         LOG(ERROR) << "Failed to open ekf setoff file ";
     }
     // Read config data.
-    try {
-        config_["A0"] >> setoff0[0];
-        config_["B0"] >> setoff0[1];
-        config_["C0"] >> setoff0[2];
-        config_["D0"] >> setoff0[3];
-        config_["A1"] >> setoff1[0];
-        config_["B1"] >> setoff1[1];
-        config_["C1"] >> setoff1[2];
-        config_["D1"] >> setoff1[3];
-    } catch (std::exception &) {
-        LOG(ERROR) << "Failed to load config of setoff.";
-    }
+    config_["A0"] >> setoff0[0];
+    config_["B0"] >> setoff0[1];
+    config_["C0"] >> setoff0[2];
+    config_["D0"] >> setoff0[3];
+    config_["A1"] >> setoff1[0];
+    config_["B1"] >> setoff1[1];
+    config_["C1"] >> setoff1[2];
+    config_["D1"] >> setoff1[3];
     ArmorPredictorDebug::Instance().Initialize("../config/" + car_name_ + "/ekf-param.yaml",
                                                CmdlineArgParser::Instance().DebugUseTrackbar());
     for (auto i = 0; i < Robot::RobotTypes::SIZE; ++i)

@@ -21,8 +21,8 @@ ImageProviderVideo::~ImageProviderVideo() {
 bool ImageProviderVideo::Initialize(const std::string &file_path) {
     // Load initialization configuration file.
     cv::FileStorage video_init_config;
-    try { video_init_config.open(file_path, cv::FileStorage::READ); }
-    catch (const std::exception &) {
+    video_init_config.open(file_path, cv::FileStorage::READ);
+    if (!video_init_config.isOpened()) {
         LOG(ERROR) << "Failed to open camera initialization file " << file_path << ".";
         return false;
     }
@@ -35,8 +35,8 @@ bool ImageProviderVideo::Initialize(const std::string &file_path) {
         return false;
     }
     cv::FileStorage all_cams_config;
-    try { all_cams_config.open(all_cams_config_file, cv::FileStorage::READ); }
-    catch (const std::exception &) {
+    all_cams_config.open(all_cams_config_file, cv::FileStorage::READ);
+    if (!all_cams_config.isOpened()) {
         LOG(ERROR) << "Failed to open all cameras' config file " << all_cams_config_file << ".";
         return false;
     }
@@ -49,8 +49,8 @@ bool ImageProviderVideo::Initialize(const std::string &file_path) {
         return false;
     }
     cv::FileStorage all_lens_config;
-    try { all_lens_config.open(all_lens_config_file, cv::FileStorage::READ); }
-    catch (const std::exception &) {
+    all_lens_config.open(all_lens_config_file, cv::FileStorage::READ);
+    if (!all_lens_config.isOpened()) {
         LOG(ERROR) << "Failed to open all lens' config file " << all_lens_config_file << ".";
         return false;
     }
@@ -76,8 +76,8 @@ bool ImageProviderVideo::Initialize(const std::string &file_path) {
         distortion_matrix_.release();
         return false;
     }
-    try { video_.open(video_file); }
-    catch (const std::exception &) {
+    video_.open(video_file);
+    if (!video_.isOpened()) {
         LOG(ERROR) << "Failed to open video file " << video_file << ".";
         intrinsic_matrix_.release();
         distortion_matrix_.release();
