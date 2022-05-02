@@ -96,7 +96,6 @@ public:
             predict_world_vector_ = armor.TranslationVectorWorld();
             new_speed << 0, 0;
         }
-
         UpdateShootPointAndPredictCam(yaw_pitch_roll);
         Update(armor);
         // if acceleration is higher than threshold, fire.

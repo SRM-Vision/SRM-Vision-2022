@@ -43,17 +43,18 @@ public:
     }
 
     inline void Initialize(const VectorX &x = VectorX::Zero()) {
-        AlterPredictCovMeasureCov(ArmorPredictorDebug::Instance().PredictedXZYNoise(),
-                                  ArmorPredictorDebug::Instance().PredictedXZYSpeedNoise(),
-                                  ArmorPredictorDebug::Instance().MeasureXYNoise(),
-                                  ArmorPredictorDebug::Instance().MeasureZNoise());
         x_estimate_ = x;
     }
 
     template<typename Func>
     VectorX Predict(Func &&func) {
-
-
+        AlterPredictCovMeasureCov(ArmorPredictorDebug::Instance().PredictedXZNoise(),
+                                  ArmorPredictorDebug::Instance().PredictedYNoise(),
+                                  ArmorPredictorDebug::Instance().PredictedXSpeedNoise(),
+                                  ArmorPredictorDebug::Instance().PredictedYSpeedNoise(),
+                                  ArmorPredictorDebug::Instance().MeasureXNoise(),
+                                  ArmorPredictorDebug::Instance().MeasureYNoise(),
+                                  ArmorPredictorDebug::Instance().MeasureZNoise());
         ceres::Jet<double, N_x> x_estimated_auto_jet[N_x];
         for (auto i = 0; i < N_x; ++i) {
             x_estimated_auto_jet[i].a = x_estimate_[i];
@@ -94,14 +95,16 @@ public:
         return x_estimate_;
     }
 
-    void AlterPredictCovMeasureCov(double p_xyz_noise, double p_xy_speed_noise, double m_xy_noise, double m_z_noise) {
-        predict_cov_ << p_xyz_noise, 0, 0, 0, 0,
-                        0, p_xy_speed_noise, 0, 0, 0,
-                        0, 0, p_xyz_noise, 0, 0,
-                        0, 0, 0, p_xy_speed_noise, 0,
-                        0, 0, 0, 0, p_xyz_noise;
-        measure_cov_ << m_xy_noise, 0, 0,
-                        0, m_xy_noise, 0,
+    void
+    AlterPredictCovMeasureCov(double p_xz_noise, double p_y_noise, double p_x_speed_noise, double p_y_speed_noise,
+                              double m_x_noise, double m_y_noise, double m_z_noise) {
+        predict_cov_ << p_xz_noise, 0, 0, 0, 0,
+                        0, p_x_speed_noise, 0, 0, 0,
+                        0, 0, p_y_noise, 0, 0,
+                        0, 0, 0, p_y_speed_noise, 0,
+                        0, 0, 0, 0, p_xz_noise;
+        measure_cov_ << m_x_noise, 0, 0,
+                        0, m_y_noise, 0,
                         0, 0, m_z_noise;
     }
 

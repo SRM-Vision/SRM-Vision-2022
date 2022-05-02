@@ -68,7 +68,7 @@ TriggerDelay	0
 TriggerSelector	FrameBurstStart
 TriggerCacheEnable	0
 ExposureMode	Timed
-ExposureTime	2313
+ExposureTime	1000
 ExposureAuto	Off
 AutoExposureTimeLowerLimit	40
 AutoExposureTimeUpperLimit	2313
@@ -131,7 +131,7 @@ CounterSelector	Counter0
 CounterSelector	Counter0
 CounterValue	1
 CounterSelector	Counter0
-Gain	15.0062
+Gain	0
 GainAuto	Off
 AutoGainLowerLimit	0
 AutoGainUpperLimit	15.0062

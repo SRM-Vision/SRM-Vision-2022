@@ -23,11 +23,17 @@ private:
     std::string config_path_;
 
 public:
-    ATTR_READER(p_xyz_noise_, PredictedXZYNoise)
+    ATTR_READER(p_xz_noise_, PredictedXZNoise)
 
-    ATTR_READER(p_xy_speed_noise_, PredictedXZYSpeedNoise)
+    ATTR_READER(p_y_noise_, PredictedYNoise)
 
-    ATTR_READER(m_xy_noise_, MeasureXYNoise)
+    ATTR_READER(p_x_speed_noise_, PredictedXSpeedNoise)
+
+    ATTR_READER(p_y_speed_noise_,PredictedYSpeedNoise)
+
+    ATTR_READER(m_x_noise_, MeasureXNoise)
+
+    ATTR_READER(m_y_noise_, MeasureYNoise)
 
     ATTR_READER(m_z_noise_, MeasureZNoise)
 
@@ -35,15 +41,21 @@ public:
 
 
 private:
-    const double kMax_p_xyz_noise = 0.1;
-    const double kMax_p_xy_speed_noise = 500;
-    const double kMax_m_xy_noise = 10;
+    const double kMax_p_xz_noise = 0.1;
+    const double kMax_p_y_noise = 0.1;
+    const double kMax_p_x_speed_noise = 500;
+    const double kMax_p_y_speed_noise = 500;
+    const double kMax_m_x_noise = 10;
+    const double kMax_m_y_noise = 10;
     const int kMax_m_z_noise = 1000;
     const double kDelta_pitch = 1;
 
-    double p_xyz_noise_ = 0.01;
-    double p_xy_speed_noise_ = 100;
-    double m_xy_noise_ = 1;
+    double p_xz_noise_ = 0.01;
+    double p_y_noise_ = 0.01;
+    double p_x_speed_noise_ = 100;
+    double p_y_speed_noise_ = 100;
+    double m_x_noise_ = 1;
+    double m_y_noise_ = 1;
     double m_z_noise_ = 800;
     double delta_pitch_ = 0.0;
 };
