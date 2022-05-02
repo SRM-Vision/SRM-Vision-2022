@@ -249,8 +249,8 @@ void predictor::rune::RunePredictor::PredictAngle(AimModes aim_mode) {
 
 void predictor::rune::RunePredictor::PredictPoint() {
     auto radius = algorithm::SqrtFloat(
-            (rune_.RtpVec().x - rune_.CenterR().x) * (rune_.RtpVec().x - rune_.CenterR().x)
-            + (rune_.RtpVec().y - rune_.CenterR().y) * (rune_.RtpVec().y - rune_.CenterR().y));
+            rune_.RtpVec().x * rune_.RtpVec().x
+            + rune_.RtpVec().y * rune_.RtpVec().y);
     auto predicted_rad = static_cast<float>(CV_2PI - predicted_angle_ * 180 / CV_PI);
     predicted_point_ = rune_.CenterR() +
                        cv::Point2f(std::cos(predicted_rad) * radius,
