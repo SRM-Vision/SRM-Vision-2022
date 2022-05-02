@@ -1,8 +1,8 @@
 #include <unistd.h>
 #include <opencv2/imgproc.hpp>
 #include <MvCameraControl.h>
-#include "camera-base/camera_factory.h"
-#include "camera_hik.h"
+#include "camera-base/camera-factory.h"
+#include "camera-hik.h"
 
 /**
  * \warning Camera registry will be initialized before the program entering the main function!

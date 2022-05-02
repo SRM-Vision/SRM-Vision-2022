@@ -1,6 +1,6 @@
 #include <opencv2/videoio.hpp>
-#include "image-provider-base/image_provider_factory.h"
-#include "image_provider_video.h"
+#include "image-provider-base/image-provider-factory.h"
+#include "image-provider-video.h"
 
 /**
  * \warning Image provider registry will be initialized before the program entering the main function!

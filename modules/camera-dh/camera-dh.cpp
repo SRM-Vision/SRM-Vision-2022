@@ -2,8 +2,8 @@
 #include <opencv2/imgproc.hpp>
 #include <GxIAPI.h>
 #include <DxImageProc.h>
-#include "camera-base/camera_factory.h"
-#include "camera_dh.h"
+#include "camera-base/camera-factory.h"
+#include "camera-dh.h"
 
 uint16_t DHCamera::camera_count_ = 0;
 

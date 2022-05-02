@@ -3,7 +3,7 @@
 #include <debug-tools/painter.h>
 #include <predictor-armor/predictor_armor.h>
 #include "cmdline-arg-parser/cmdline_arg_parser.h"
-#include "image-provider-base/image_provider_factory.h"
+#include "image-provider-base/image-provider-factory.h"
 #include "controller_hero.h"
 #include "predictor-outpost/predictor-outpost.h"
 

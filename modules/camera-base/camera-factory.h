@@ -9,7 +9,7 @@
 #define CAMERA_FACTORY_H_
 
 #include <glog/logging.h>
-#include "camera_base.h"
+#include "camera-base.h"
 
 /**
  * \brief Base class of camera registry.

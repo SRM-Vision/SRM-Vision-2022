@@ -9,7 +9,7 @@
 #define IMAGE_PROVIDER_FACTORY_H_
 
 #include <glog/logging.h>
-#include "image_provider_base.h"
+#include "image-provider-base.h"
 
 /// \brief A macro to create an image provider of specified type name. For details, turn to class ImageProviderFactory.
 #define CREATE_IMAGE_PROVIDER(ip_type_name)  \

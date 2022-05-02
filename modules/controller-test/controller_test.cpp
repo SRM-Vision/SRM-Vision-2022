@@ -1,7 +1,7 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 #include "cmdline-arg-parser/cmdline_arg_parser.h"
-#include "image-provider-base/image_provider_factory.h"
+#include "image-provider-base/image-provider-factory.h"
 #include "controller-base/controller_factory.h"
 #include "predictor-armor/predictor_armor.h"
 #include "detector-rune/detector_rune.h"

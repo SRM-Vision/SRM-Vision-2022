@@ -1,6 +1,6 @@
-#include "camera-base/camera_factory.h"
-#include "image-provider-base/image_provider_factory.h"
-#include "image_provider_camera.h"
+#include "camera-base/camera-factory.h"
+#include "image-provider-base/image-provider-factory.h"
+#include "image-provider-camera.h"
 
 /**
  * \warning Image provider registry will be initialized before the program entering the main function!

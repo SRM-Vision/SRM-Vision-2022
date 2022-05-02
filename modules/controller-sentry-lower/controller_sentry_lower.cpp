@@ -2,7 +2,7 @@
 #include <opencv2/imgproc.hpp>
 #include <debug-tools/painter.h>
 #include "cmdline-arg-parser/cmdline_arg_parser.h"
-#include "image-provider-base/image_provider_factory.h"
+#include "image-provider-base/image-provider-factory.h"
 #include "controller_sentry_lower.h"
 #include "predictor-armor/predictor_armor.h"
 

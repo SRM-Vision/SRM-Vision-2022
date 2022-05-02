@@ -12,7 +12,7 @@
 #include "data-structure/communication.h"
 #include "digital-twin/battlefield.h"
 #include "serial/serial.h"
-#include "image-provider-base/image_provider_base.h"
+#include "image-provider-base/image-provider-base.h"
 #include "detector-armor/detector_armor.h"
 
 /**
