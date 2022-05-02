@@ -1,6 +1,3 @@
-//
-// Created by xiguang on 2022/3/31.
-//
 #include "math-tools/coordinate.h"
 
 bool coordinate::InitializeMatrix(const std::string &path) {

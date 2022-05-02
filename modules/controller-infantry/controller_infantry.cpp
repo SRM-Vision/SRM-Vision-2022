@@ -5,9 +5,8 @@
 #include "controller-base/controller_factory.h"
 #include "predictor-armor/predictor_armor_renew.h"
 #include "detector-rune/detector_rune.h"
-#include "predictor-rune/predictor_rune.h"
+#include "predictor-rune-new/predictor-rune.h"
 #include "controller_infantry.h"
-#include "chrono"
 
 /**
  * \warning Controller registry will be initialized before the program entering the main function!
@@ -48,7 +47,7 @@ bool InfantryController::Initialize() {
         LOG(INFO) << "Rune detector initialize successfully!";
     else
         LOG(ERROR) << "Rune detector initialize unsuccessfully!";
-    if (rune_predictor_.Initialize("../config/infantry/rune-predictor-param.yaml"),
+    if (rune_predictor_.Initialize("../config/infantry/rune-predictor-param.yaml", true),  // TODO Debug
             CmdlineArgParser::Instance().DebugUseTrackbar())
         LOG(INFO) << "Rune predictor initialize successfully!";
     else
@@ -85,7 +84,7 @@ void InfantryController::Run() {
         if (CmdlineArgParser::Instance().RuneModeRune()) {
             power_rune_ = rune_detector_.Run(frame_);
             send_packet_ = SendPacket(rune_predictor_.Run(power_rune_, kBigRune));
-            debug::Painter::Instance().DrawPoint(rune_predictor_.FinalTargetPoint(),
+            debug::Painter::Instance().DrawPoint(rune_predictor_.PredictedPoint(),
                                                  cv::Scalar(0, 255, 0), 3, 3);
             debug::Painter::Instance().ShowImage("Rune");
         } else {

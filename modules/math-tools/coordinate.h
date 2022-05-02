@@ -23,7 +23,7 @@ namespace coordinate {
     typedef Eigen::Matrix<double, 3, 1> TranslationMatrix;
     typedef Eigen::Matrix3d RotationMatrix;
 
-    // IMU and Camera joint calibration.
+    // IMU and camera joint calibration.
     static double rm_cam_to_imu_data[] = {1, 0, 0, 0, 1, 0, 0, 0, 1};
     static double tm_cam_to_imu_data[] = {0, 0, 0};
     static RotationMatrix camera_to_imu_rotation_matrix(rm_cam_to_imu_data);
@@ -40,8 +40,7 @@ namespace coordinate::transform {
         // Prefix "r_" here means "rotation".
         RotationMatrix r_yaw, r_roll, r_pitch;
 
-        // [Experimental] Use SSE2 or NEON to accelerate sine and cosine.
-#if defined(__x86_64__) | defined(__aarch64__)
+        // SIMD acceleration.
         float r[4] = {e_yaw_pitch_roll[0], e_yaw_pitch_roll[1], e_yaw_pitch_roll[2], float(0)}, sin_r[4], cos_r[4];
         algorithm::SinCosFloatX4(r, sin_r, cos_r);
         r_yaw << cos_r[0], 0, sin_r[0],
@@ -53,18 +52,6 @@ namespace coordinate::transform {
         r_pitch << 1, 0, 0,
                 0, cos_r[2], -sin_r[2],
                 0, sin_r[2], cos_r[2];  // X
-#else
-        r_yaw << cos(e_yaw_pitch_roll[0]), 0, sin(e_yaw_pitch_roll[0]),
-                0, 1, 0,
-                -sin(e_yaw_pitch_roll[0]), 0, cos(e_yaw_pitch_roll[0]);
-        r_roll << cos(e_yaw_pitch_roll[2]), -sin(e_yaw_pitch_roll[2]), 0,
-                sin(e_yaw_pitch_roll[2]), cos(e_yaw_pitch_roll[2]), 0,
-                0, 0, 1;
-        r_pitch << 1, 0, 0,
-                0, cos(e_yaw_pitch_roll[1]), -sin(e_yaw_pitch_roll[1]),
-                0, sin(e_yaw_pitch_roll[1]), cos(e_yaw_pitch_roll[1]);
-#endif
-
         return r_yaw * r_pitch * r_roll;
     }
 

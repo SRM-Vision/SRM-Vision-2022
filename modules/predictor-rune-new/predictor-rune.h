@@ -7,9 +7,9 @@
 #include "digital-twin/facilities/power_rune.h"
 
 namespace predictor::rune {
-    constexpr int kCollectPalstanceDataNum = 335;
-    constexpr int kPreparePalstanceDataNum = 1000;     ///< Amount of data required before fitting.
-    constexpr int kResidualBlockNum = 300;  ///< Amount of data observed in one circle.
+    constexpr int kCollectPalstanceDataNum = 335;   ///< Amount of data collected for fitting.
+    constexpr int kPreparePalstanceDataNum = 1000;  ///< Amount of data required before fitting.
+    constexpr int kResidualBlockNum = 300;          ///< Amount of data observed in one circle.
 
     /// @brief Trigonometric residual (cost) function package for Ceres solver.
     struct TrigonometricResidual {
@@ -52,7 +52,7 @@ namespace predictor::rune {
          * @param integral_time Integrate from t=0 to t=integral_time.
          * @return Rotational angle, in RADIAN, COUNTERCLOCKWISE is positive.
          */
-        double Integral(double integral_time);
+        [[nodiscard]] double Integral(double integral_time) const;
 
         int rotational_direction;  ///< 1 is clockwise, -1 is counterclockwise.
         double a;  ///< Amplitude, or A.
@@ -63,11 +63,24 @@ namespace predictor::rune {
 
     /// @brief Data package for output.
     struct OutputData {
+        /**
+         * @brief Update output data.
+         * @param debug Debug mode switch.
+         * @param [in] rune Input rune data.
+         * @param [in] predicted_angle Predicted angle calculated by predictor.
+         * @param [in] predicted_point Predicted point calculated by predictor.
+         */
+        void Update(bool debug,
+                    const PowerRune &rune,
+                    double predicted_angle,
+                    const cv::Point2f &predicted_point);
+
         float yaw;
         float pitch;
         float delay;
     };
 
+    /// @brief Data and function package for fitting palstance curve.
     struct FittingData {
         FittingData() : outdated(false), ready(false) {}
 
@@ -79,7 +92,8 @@ namespace predictor::rune {
         void Fit(bool debug, RotationalSpeed &rotational_speed);
 
         std::vector<double> palstance;  ///< Speed data for fitting.
-        std::vector<double> time;   ///< Time data for fitting.
+        std::vector<double> time;       ///< Time data for fitting.
+
         bool outdated;
         bool ready;
     };
@@ -100,6 +114,9 @@ namespace predictor::rune {
         bool UpdatePalstance(const PowerRune &rune,
                              FittingData &fitting_data);
 
+        /// @brief Check if the rune predicting mode changed.
+        void CheckMode();
+
         double current_time;  ///< Current time, made double for calculations.
         std::chrono::high_resolution_clock::time_point last_time;
         double current_angle;
@@ -110,10 +127,9 @@ namespace predictor::rune {
 
     class RunePredictor : NO_COPY, NO_MOVE {
     public:
-        RunePredictor() :
-                debug_(false),
-                rotational_speed_(),
-                output_data_() {}
+        ATTR_READER_REF(predicted_point_, PredictedPoint)
+
+        RunePredictor();
 
         ~RunePredictor() = default;
 
@@ -122,13 +138,18 @@ namespace predictor::rune {
         SendPacket Run(const PowerRune &power_rune, AimModes aim_mode);
 
     private:
+        void PredictAngle(AimModes aim_mode);
+
+        void PredictPoint();
+
         bool debug_;
         PowerRune rune_;
-
-        RotationalSpeed rotational_speed_;
-        OutputData output_data_;
-        FittingData fitting_data_;
-
         State state_;
+        RotationalSpeed rotational_speed_;
+        FittingData fitting_data_;
+        OutputData output_data_;
+
+        double predicted_angle_;
+        cv::Point2f predicted_point_;
     };
 }

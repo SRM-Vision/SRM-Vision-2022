@@ -37,7 +37,7 @@ private:
     [[maybe_unused]] static ControllerRegistry<InfantryController> infantry_controller_registry_;
 
     RuneDetector rune_detector_;
-    RunePredictor rune_predictor_;
+    predictor::rune::RunePredictor rune_predictor_;
     PowerRune power_rune_;
 };
 
