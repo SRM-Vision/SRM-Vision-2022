@@ -11,7 +11,7 @@ const unsigned int kMaxGreyCount = 20;
 const double kBestDistanceRatio = 4.0;
 
 ///< Distance threshold to judge whether a target is too far.
-const double kDistanceThreshold = 10;
+const double kDistanceThreshold = 0.5;
 
 void PredictorArmorRenew::Initialize(const std::string &car_name) {
     for (auto i = 0; i < Robot::RobotTypes::SIZE; ++i) {
@@ -22,8 +22,7 @@ void PredictorArmorRenew::Initialize(const std::string &car_name) {
                                                CmdlineArgParser::Instance().DebugUseTrackbar());
 }
 
-SendPacket
-PredictorArmorRenew::Run(const Battlefield &battlefield, const cv::MatSize &size, AimModes mode, double bullet_speed) {
+SendPacket PredictorArmorRenew::Run(const Battlefield &battlefield, const cv::MatSize &size, AimModes mode, double bullet_speed) {
     auto& robots = battlefield.Robots();
 
     // judge whether existing gray or enemy armor.
@@ -66,19 +65,25 @@ PredictorArmorRenew::Run(const Battlefield &battlefield, const cv::MatSize &size
         int num(0); // which armor currently
         for(auto begin = predict_armors_.begin();begin != predict_armors_.end();++num){
             bool found_armor(false);
-            for(auto& robot:preprocessed_robots){
-                for(auto begin2 = robot.second.begin();begin2 != robot.second.end();){
-                    // if found the same armor, predict it.
-                    if(IsSameArmorByDistance(*begin,*begin2,kDistanceThreshold)){
-                        begin->Predict(*begin2,delta_t,bullet_speed,battlefield.YawPitchRoll());
-                        robot.second.erase(begin2); // delete the armor that was used.
-                        found_armor = true;
-                        break;
-                    }else
-                        ++begin2;
-                }
-                if(found_armor) break;
+            auto target(SameArmorByDistance(*begin,preprocessed_robots,kDistanceThreshold));
+            if(target.second != nullptr){
+                begin->Predict(*target.first,delta_t,bullet_speed,battlefield.YawPitchRoll());
+                target.second->erase(target.first);
+                found_armor = true;
             }
+//            for(auto& robot:preprocessed_robots){
+//                for(auto begin2 = robot.second.begin();begin2 != robot.second.end();){
+//                    // if found the same armor, predict it.
+//                    if(IsSameArmorByDistance(*begin,*begin2,kDistanceThreshold)){
+//                        begin->Predict(*begin2,delta_t,bullet_speed,battlefield.YawPitchRoll());
+//                        robot.second.erase(begin2); // delete the armor that was used.
+//                        found_armor = true;
+//                        break;
+//                    }else
+//                        ++begin2;
+//                }
+//                if(found_armor) break;
+//            }
             // if not found, delete it
             if(!found_armor) {
                 if(target_ > num)   // When delete armor, the position of target will change.
@@ -174,6 +179,25 @@ PredictorArmorRenew::ReviseRobots(const PredictorArmorRenew::RobotMap &robots, b
         }
     }
     return preprocessing_robots;
+}
+
+std::pair<std::vector<Armor>::iterator, std::vector<Armor> *> PredictorArmorRenew::SameArmorByDistance(const Armor &target,
+                                                                                                       std::unordered_map<Robot::RobotTypes, std::vector<Armor>> &robots,
+                                                                                                       double threshold) {
+    std::vector<Armor> *armors_point(nullptr);
+    std::vector<Armor>::iterator target_iter;
+    auto min_distance(DBL_MAX);
+    for(auto &armors:robots){
+        for(auto begin(armors.second.begin());begin < armors.second.end();++begin){
+            auto distance = (target.TranslationVectorWorld() - begin->TranslationVectorWorld()).norm();
+            if(distance < threshold && distance < min_distance){
+                armors_point = &armors.second;
+                target_iter = begin;
+                min_distance = distance;
+            }
+        }
+    }
+    return {target_iter,armors_point};
 }
 
 

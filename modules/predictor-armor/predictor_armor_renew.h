@@ -79,8 +79,14 @@ private:
     static inline bool IsSameArmorByDistance(const Armor &armor_1,
                                              const Armor &armor_2,
                                              double threshold) {
-        return cv::norm(armor_2.Center() - armor_1.Center()) < threshold;
+        auto dis = (armor_2.TranslationVectorWorld() - armor_1.TranslationVectorWorld()).norm();
+        DLOG(INFO) << "DISTANCE: " << dis;
+        return dis < threshold;
     }   /// TODO make it more rigorous
+
+    static inline std::pair<std::vector<Armor>::iterator, std::vector<Armor> *>SameArmorByDistance(const Armor &target,
+                                                                                            std::unordered_map<Robot::RobotTypes, std::vector<Armor>> &robots,
+                                                                                            double threshold);
 
 };
 

@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/stat.h>
+#include <chrono>
 #include "serial.h"
 
 /// \brief Automatically acquire UART device connected to the system.
@@ -71,8 +72,18 @@ bool Serial::Send() {
         LOG(ERROR) << "Failed to send data to serial port " << serial_port_ << ".";
         return false;
     } else {
+        static auto time = std::chrono::steady_clock::now();
+        static int sent_num(0);
+        ++sent_num;
+        auto duration = time - std::chrono::steady_clock::now();
+        if(duration > std::chrono::seconds(1)){
+            DLOG(INFO) << "Sent speed: " << sent_num / double(duration.count()) / 1e-9 << " t/s.";
+            time = std::chrono::steady_clock::now();
+            sent_num = 0;
+        }
         DLOG(INFO) << "Sent " << sizeof(SerialSendPacket) << " bytes of data to serial port " << serial_port_;
         DLOG(INFO) << "Data: " << send_data_;
+
         return true;
     }
 }

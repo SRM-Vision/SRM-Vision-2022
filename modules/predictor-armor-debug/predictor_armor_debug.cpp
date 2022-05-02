@@ -9,26 +9,44 @@ void ArmorPredictorDebug::Initialize(const std::string &config_path, bool debug_
         LOG(ERROR) << "Failed to open ekf config file " << config_path_ << ".";
     }
     // Read config data.
-    config_["P_XYZ_NOISE"] >> p_xyz_noise_;
-    config_["P_XY_SPEED_NOISE"] >> p_xy_speed_noise_;
-    config_["M_XY_NOISE"] >> m_xy_noise_;
+    config_["P_XZ_NOISE"] >> p_xz_noise_;
+    config_["P_Y_NOISE"] >> p_y_noise_;
+    config_["P_X_SPEED_NOISE"] >> p_x_speed_noise_;
+    config_["P_Y_SPEED_NOISE"] >> p_y_speed_noise_;
+    config_["M_X_NOISE"] >> m_x_noise_;
+    config_["M_Y_NOISE"] >> m_y_noise_;
     config_["M_Z_NOISE"] >> m_z_noise_;
     config_.release();
     if (debug_use_trackbar) {
-        debug::Trackbar<double>::Instance().AddTrackbar("p_xyz_noise:",
+        debug::Trackbar<double>::Instance().AddTrackbar("p_xz_noise:",
                                                         trackbar_windows_name_,
-                                                        p_xyz_noise_,
-                                                        kMax_p_xyz_noise);
+                                                        p_xz_noise_,
+                                                        kMax_p_xz_noise);
 
-        debug::Trackbar<double>::Instance().AddTrackbar("p_xy_speed_noise:",
+        debug::Trackbar<double>::Instance().AddTrackbar("p_y_noise:",
                                                         trackbar_windows_name_,
-                                                        p_xy_speed_noise_,
-                                                        kMax_p_xy_speed_noise);
+                                                        p_y_noise_,
+                                                        kMax_p_y_noise);
 
-        debug::Trackbar<double>::Instance().AddTrackbar("m_xy_noise:",
+        debug::Trackbar<double>::Instance().AddTrackbar("p_x_speed_noise:",
                                                         trackbar_windows_name_,
-                                                        m_xy_noise_,
-                                                        kMax_m_xy_noise);
+                                                        p_x_speed_noise_,
+                                                        kMax_p_x_speed_noise);
+
+        debug::Trackbar<double>::Instance().AddTrackbar("p_y_speed_noise:",
+                                                        trackbar_windows_name_,
+                                                        p_y_speed_noise_,
+                                                        kMax_p_y_speed_noise);
+
+        debug::Trackbar<double>::Instance().AddTrackbar("m_x_noise:",
+                                                        trackbar_windows_name_,
+                                                        m_x_noise_,
+                                                        kMax_m_x_noise);
+
+        debug::Trackbar<double>::Instance().AddTrackbar("m_y_noise:",
+                                                        trackbar_windows_name_,
+                                                        m_y_noise_,
+                                                        kMax_m_y_noise);
 
         debug::Trackbar<double>::Instance().AddTrackbar("m_z_noise:",
                                                         trackbar_windows_name_,
@@ -50,9 +68,12 @@ void ArmorPredictorDebug::Save() {
     }
 
     // Write config data.
-    config_ << "P_XYZ_NOISE" << p_xyz_noise_;
-    config_ << "P_XY_SPEED_NOISE" << p_xy_speed_noise_;
-    config_ << "M_XY_NOISE" << m_xy_noise_;
+    config_ << "P_XZ_NOISE" << p_xz_noise_;
+    config_ << "P_Y_NOISE" << p_y_noise_;
+    config_ << "P_X_SPEED_NOISE" << p_x_speed_noise_;
+    config_ << "P_Y_SPEED_NOISE" << p_y_speed_noise_;
+    config_ << "M_X_NOISE" << m_x_noise_;
+    config_ << "M_Y_NOISE" << m_y_noise_;
     config_ << "M_Z_NOISE" << m_z_noise_;
     config_.release();
     LOG(INFO) << "Config of ekf is updated.";
