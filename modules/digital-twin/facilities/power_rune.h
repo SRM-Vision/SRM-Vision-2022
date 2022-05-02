@@ -40,12 +40,12 @@ public:
                                cv::Point3f send_yaw_pitch_delay) :
             Facility(color, 0, kPowerRune),
             clockwise_(clockwise),
-            rtp_vec_(std::move(rtp_vec)),
-            rtg_vec_(std::move(rtg_vec)),
-            center_r_(std::move(center_r)),
-            armor_center_p_(std::move(armor_center_p)),
-            fan_center_g_(std::move(fan_center_g)),
-            send_yaw_pitch_delay_(std::move(send_yaw_pitch_delay)) {}
+            rtp_vec_(rtp_vec),
+            rtg_vec_(rtg_vec),
+            center_r_(center_r),
+            armor_center_p_(armor_center_p),
+            fan_center_g_(fan_center_g),
+            send_yaw_pitch_delay_(send_yaw_pitch_delay) {}
 
 private:
     int clockwise_;

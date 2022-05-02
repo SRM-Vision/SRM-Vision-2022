@@ -48,8 +48,7 @@ public:
      * \return Whether data packet is successfully sent.
      */
     template<typename Rep, typename Period>
-    [[maybe_unused]] inline bool
-    SendData(SerialSendPacket &data, const std::chrono::duration<Rep, Period> &duration) {
+    [[maybe_unused]] bool SendData(SerialSendPacket &data, const std::chrono::duration<Rep, Period> &duration) {
         if (!communication_flag_)
             return false;
 
@@ -72,8 +71,7 @@ public:
      * \return Whether data packet is successfully read.
      */
     template<typename Rep, typename Period>
-    [[maybe_unused]] inline bool
-    GetData(SerialReceivePacket &data, const std::chrono::duration<Rep, Period> &duration) {
+    [[maybe_unused]] bool GetData(SerialReceivePacket &data, const std::chrono::duration<Rep, Period> &duration) {
         if (!communication_flag_)
             return false;
 
@@ -115,7 +113,7 @@ private:
     SerialSendPacket send_data_{};        ///< Sent data packet.
     SerialReceivePacket receive_data_{};  ///< Read data packet.
 
-    bool communication_flag_;      ///< Flag to control daemon thread.
+    bool communication_flag_;  ///< Flag to control daemon thread.
 };
 
 #endif  // SERIAL_H_
