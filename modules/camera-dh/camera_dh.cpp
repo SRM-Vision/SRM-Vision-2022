@@ -128,15 +128,12 @@ bool DHCamera::CloseCamera() {
     daemon_thread_id_ = 0;
     stop_daemon_thread_flag_ = false;
 
-    // device_ must be nullptr next, so minus 1.
-    --camera_count_;
-
     // Close device.
     GX_STATUS status_code = GXCloseDevice(device_);
+    device_ = nullptr;
+    --camera_count_;
     if (status_code != GX_STATUS_SUCCESS) {
         LOG(ERROR) << GetErrorInfo(status_code);
-
-        device_ = nullptr;
 
         if (!camera_count_) {
             status_code = GXCloseLib();
@@ -146,8 +143,6 @@ bool DHCamera::CloseCamera() {
 
         return false;
     }
-
-    device_ = nullptr;
 
     // Close libraries.
     if (!camera_count_) {

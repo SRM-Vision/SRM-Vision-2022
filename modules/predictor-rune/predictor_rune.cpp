@@ -146,7 +146,7 @@ void RunePredictor::CalCurrentFanAngle() {
 * @Brief: calculate rad integral from speed
 */
 double RunePredictor::CalRadIntegralFromSpeed(const double &integral_time) {
-    const double c = 0;
+    constexpr double c = 0;
     return (-1.0) * rune_.Clockwise() *
            (-amplitude_ / palstance_ * cos(palstance_ * integral_time + phase_) + b_ * integral_time + c);
 }
