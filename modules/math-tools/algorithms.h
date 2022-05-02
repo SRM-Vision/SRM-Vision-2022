@@ -3,7 +3,25 @@
 
 #include <cmath>
 #include <opencv2/core/types.hpp>
-#include "hardware_acceleration.h"
+
+#if defined(__x86_64__)
+
+#include <emmintrin.h>  // SSE 2.
+
+#endif
+
+#if defined(__aarch64__)
+
+#include "sse2neon/sse2neon.h"  // Translate SSE to NEON.
+
+#endif
+
+#if defined(__x86_64__) | defined(__aarch64__)
+#define USE_SSE2
+
+#include "sse-math/sse_math_extension.h"
+
+#endif
 
 namespace algorithm {
 
@@ -53,6 +71,20 @@ namespace algorithm {
     }
 
     /**
+     * \brief Calculate sine value.
+     * \param [in] x Input x.
+     * \return Output sin(x).
+     */
+    [[maybe_unused]] inline float SinFloat(float x) {
+#if defined(__x86_64__) | defined(__aarch64__)
+        v4sf x_v4sf = {x}, s_v4sf = sin_ps(x_v4sf);
+        return *(float *) &s_v4sf;
+#else
+        return std::sin(x);
+#endif
+    }
+
+    /**
      * \brief Calculate cosine for 4 floats at the same time.
      * \param [in,out] x Input 4 floats and will be output.
      */
@@ -67,6 +99,20 @@ namespace algorithm {
 #else
         for (auto i = 0; i < 4; i++)
             x[i] = std::cos(x[i]);
+#endif
+    }
+
+    /**
+     * \brief Calculate cosine value.
+     * \param [in] x Input x.
+     * \return Output cos(x).
+     */
+    [[maybe_unused]] inline float CosFloat(float x) {
+#if defined(__x86_64__) | defined(__aarch64__)
+        v4sf x_v4sf = {x}, c_v4sf = cos_ps(x_v4sf);
+        return *(float *) &c_v4sf;
+#else
+        return std::cos(x);
 #endif
     }
 
@@ -225,7 +271,7 @@ namespace algorithm {
      * \return Angle of two vectors, in DEGREE.
      */
     inline float VectorAngle(const cv::Point2f &vector_a, const cv::Point2f &vector_b) {
-        static const float rad_to_deg = 180.0 / CV_PI;
+        constexpr float rad_to_deg = 180.0 / CV_PI;
         return std::acos(float(vector_a.dot(vector_b))
                          * RsqrtFloat(vector_a.x * vector_a.x + vector_a.y * vector_a.y)
                          * RsqrtFloat(vector_b.x * vector_b.x + vector_b.y * vector_b.y))

@@ -17,7 +17,7 @@ void predictor::rune::OutputData::Update(bool debug,
                                          double predicted_angle,
                                          const cv::Point2f &predicted_point,
                                          cv::Point2f &fixed_point) {
-    if (rune.ArmorCenterP() == cv::Point2f(0, 0))  // 如果没有识别到装甲板，则不计算预测
+    if (rune.ArmorCenterP() == cv::Point2f(0, 0))
     {
         if (debug)
             DLOG(INFO) << "Rune Predictor receive zeros detection result.";
@@ -255,6 +255,6 @@ void predictor::rune::RunePredictor::PredictPoint() {
             + rune_.RtpVec().y * rune_.RtpVec().y);
     auto predicted_rad = static_cast<float>(CV_2PI - predicted_angle_ * 180 / CV_PI);
     predicted_point_ = rune_.CenterR() +
-                       cv::Point2f(std::cos(predicted_rad) * radius,
-                                   std::sin(predicted_rad) * radius);
+                       cv::Point2f(algorithm::CosFloat(predicted_rad) * radius,
+                                   algorithm::SinFloat(predicted_rad) * radius);
 }

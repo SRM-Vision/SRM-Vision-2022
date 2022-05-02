@@ -18,6 +18,10 @@ namespace disable_constructors {
         DisableMoveConstructor(DisableMoveConstructor &&) = delete;
 
         DisableMoveConstructor &operator=(DisableMoveConstructor &&) = delete;
+
+        DisableMoveConstructor(const DisableMoveConstructor &) = default;
+
+        DisableMoveConstructor &operator=(const DisableMoveConstructor &) = default;
     };
 
     class DisableCopyConstructor {
@@ -29,6 +33,10 @@ namespace disable_constructors {
         DisableCopyConstructor(const DisableCopyConstructor &) = delete;
 
         DisableCopyConstructor &operator=(const DisableCopyConstructor &) = delete;
+
+        DisableCopyConstructor(DisableCopyConstructor &&) = default;
+
+        DisableCopyConstructor &operator=(DisableCopyConstructor &&) = default;
     };
 }
 

@@ -1,3 +1,9 @@
+/**
+ * Rune predictor definition header.
+ * @author LIYunzhe1408, trantuan-20048607, LemonadeJJ
+ * @date 2022.5.2
+ */
+
 #ifndef PREDICTOR_RUNE_H_
 #define PREDICTOR_RUNE_H_
 
@@ -128,6 +134,8 @@ namespace predictor::rune {
 
     class RunePredictor : NO_COPY, NO_MOVE {
     public:
+        ATTR_READER(predicted_angle_, PredictedAngle)
+
         ATTR_READER_REF(predicted_point_, PredictedPoint)
 
         ATTR_READER_REF(fixed_point_, FixedPoint)

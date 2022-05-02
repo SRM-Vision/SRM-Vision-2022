@@ -13,6 +13,7 @@
 
 /// \brief Packet of auto aiming mode.
 enum AimModes {
+    // TODO Classify, convert to binary.
     kNormal = 10,
     kAntiTop = 20,
     kSmallRune = 30,
