@@ -5,7 +5,7 @@
 #include "controller-base/controller_factory.h"
 #include "predictor-armor/predictor_armor_renew.h"
 #include "detector-rune/detector_rune.h"
-#include "predictor-rune-new/predictor-rune.h"
+#include "predictor-rune/predictor-rune.h"
 #include "controller_infantry.h"
 
 /**

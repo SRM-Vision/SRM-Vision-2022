@@ -4,8 +4,8 @@
  * \date 2022.3.31
  */
 
-#ifndef PREDICTOR_RUNE_H_
-#define PREDICTOR_RUNE_H_
+#ifndef PREDICTOR_RUNE_H_BAK_
+#define PREDICTOR_RUNE_H_BAK_
 
 #include <ceres/ceres.h>
 #include "data-structure/buffer.h"
@@ -118,4 +118,4 @@ private:
     double b_;
 };
 
-#endif  // PREDICTOR_RUNE_H_
+#endif  // PREDICTOR_RUNE_H_BAK_

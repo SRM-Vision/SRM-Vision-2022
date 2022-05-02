@@ -1,8 +1,7 @@
-#pragma once
+#ifndef PREDICTOR_RUNE_H_
+#define PREDICTOR_RUNE_H_
 
-#include <ceres/ceres.h>
-#include "data-structure/buffer.h"
-#include "data-structure/frame.h"
+#include "lang-feature-extension/disable_constructors.h"
 #include "data-structure/communication.h"
 #include "digital-twin/facilities/power_rune.h"
 
@@ -69,11 +68,13 @@ namespace predictor::rune {
          * @param [in] rune Input rune data.
          * @param [in] predicted_angle Predicted angle calculated by predictor.
          * @param [in] predicted_point Predicted point calculated by predictor.
+         * @param [out] fixed_point Fixed predicted point considering shooting delay.
          */
         void Update(bool debug,
                     const PowerRune &rune,
                     double predicted_angle,
-                    const cv::Point2f &predicted_point);
+                    const cv::Point2f &predicted_point,
+                    cv::Point2f &fixed_point);
 
         float yaw;
         float pitch;
@@ -129,6 +130,8 @@ namespace predictor::rune {
     public:
         ATTR_READER_REF(predicted_point_, PredictedPoint)
 
+        ATTR_READER_REF(fixed_point_, FixedPoint)
+
         RunePredictor();
 
         ~RunePredictor() = default;
@@ -151,5 +154,10 @@ namespace predictor::rune {
 
         double predicted_angle_;
         cv::Point2f predicted_point_;
+        cv::Point2f fixed_point_;
     };
 }
+
+using RunePredictor = predictor::rune::RunePredictor;
+
+#endif  // PREDICTOR_RUNE_H_

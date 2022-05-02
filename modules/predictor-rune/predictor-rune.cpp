@@ -1,4 +1,5 @@
 #include "predictor-rune.h"
+#include <ceres/ceres.h>
 
 predictor::rune::RunePredictor::RunePredictor() :
         debug_(false),
@@ -14,7 +15,8 @@ double predictor::rune::RotationalSpeed::Integral(double integral_time) const {
 void predictor::rune::OutputData::Update(bool debug,
                                          const PowerRune &rune,
                                          double predicted_angle,
-                                         const cv::Point2f &predicted_point) {
+                                         const cv::Point2f &predicted_point,
+                                         cv::Point2f &fixed_point) {
     if (rune.ArmorCenterP() == cv::Point2f(0, 0))  // 如果没有识别到装甲板，则不计算预测
     {
         if (debug)
@@ -55,13 +57,13 @@ void predictor::rune::OutputData::Update(bool debug,
         delta_v += 25;
     }
 
-    auto final_point = predicted_point + cv::Point2f(delta_u, -delta_v - 15);
+    fixed_point = predicted_point + cv::Point2f(delta_u, -delta_v - 15);
 
     // Use SIMD atan2 for 4x floats.
-    // auto yaw_data_pixel = float(std::atan2(final_point.x - rune.ImageCenter().x, 1350));
-    // auto pitch_data_pixel = float(std::atan2(-rune.ImageCenter().y + final_point.y, 1350));
+    // auto yaw_data_pixel = float(std::atan2(fixed_point.x - rune.ImageCenter().x, 1350));
+    // auto pitch_data_pixel = float(std::atan2(-rune.ImageCenter().y + fixed_point.y, 1350));
     float x[4] = {1350, 1350, 1, 1},
-            y[4] = {final_point.x - rune.ImageCenter().x, -rune.ImageCenter().y + final_point.y, 1, 1},
+            y[4] = {fixed_point.x - rune.ImageCenter().x, -rune.ImageCenter().y + fixed_point.y, 1, 1},
             z[4] = {0};
     algorithm::Atan2FloatX4(y, x, z);
     yaw = z[0], pitch = z[1];
@@ -201,14 +203,14 @@ SendPacket predictor::rune::RunePredictor::Run(const PowerRune &power_rune, AimM
         state_.UpdateAngle(rune_.RtpVec());
         PredictAngle(aim_mode);
         PredictPoint();
-        output_data_.Update(debug_, rune_, predicted_angle_, predicted_point_);
+        output_data_.Update(debug_, rune_, predicted_angle_, predicted_point_, fixed_point_);
         state_.CheckMode();
     } else {
         LOG(INFO) << "Rune predictor mode: small.";
         rotational_speed_.w = 1.04717;
         PredictAngle(aim_mode);
         PredictPoint();
-        output_data_.Update(debug_, rune_, predicted_angle_, predicted_point_);
+        output_data_.Update(debug_, rune_, predicted_angle_, predicted_point_, fixed_point_);
         state_.CheckMode();
     }
 

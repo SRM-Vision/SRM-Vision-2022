@@ -5,7 +5,7 @@
 #include "controller-base/controller_factory.h"
 #include "predictor-armor/predictor_armor.h"
 #include "detector-rune/detector_rune.h"
-#include "predictor-rune/predictor_rune.h"
+#include "predictor-rune/predictor-rune.h"
 #include "controller_test.h"
 
 /**
@@ -81,7 +81,7 @@ void TestController::Test() {
         if (receive_packet_.mode == kSmallRune || receive_packet_.mode == kBigRune) {
             power_rune_ = rune_detector_.Run(frame_);
             send_packet_ = SendPacket(rune_predictor_.Run(power_rune_, receive_packet_.mode));
-            debug::Painter::Instance().DrawPoint(rune_predictor_.FinalTargetPoint(),
+            debug::Painter::Instance().DrawPoint(rune_predictor_.PredictedPoint(),
                                                  cv::Scalar(0, 255, 0), 3, 3);
             debug::Painter::Instance().ShowImage("Rune");
         } else {

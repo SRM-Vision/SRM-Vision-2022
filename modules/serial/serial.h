@@ -11,8 +11,8 @@
 #include <mutex>
 #include <thread>
 #include <glog/logging.h>
-#include "packet.h"
 #include "lang-feature-extension/disable_constructors.h"
+#include "packet.h"
 
 /// \brief Serial manager class.
 class Serial : NO_COPY, NO_MOVE {

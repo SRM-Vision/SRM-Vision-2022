@@ -1,9 +1,9 @@
+#include "serial.h"
 #include <termios.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <chrono>
-#include "serial.h"
 
 /// \brief Automatically acquire UART device connected to the system.
 inline std::string GetUartDeviceName() {
