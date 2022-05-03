@@ -79,6 +79,7 @@ void HeroController::Run() {
                                        armors_);
 
             outpost_detector_.SetColor(receive_packet_.color);
+
             SendToOutpostPredictor send_to_outpost_predictor = outpost_detector_.Run(battlefield_);
             OutpostPredictor outpost_predictor_(send_to_outpost_predictor);
             outpost_predictor_.Run();

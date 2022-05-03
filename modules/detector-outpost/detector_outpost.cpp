@@ -13,7 +13,7 @@ void SendToOutpostPredictor::UpdateInfo(cv::Point2f going_center, cv::Point2f ce
     is_clockwise = clockwise;
     center_distance = distance;
     bullet_speed  = bulletspeed;
-    shoot_point = shootpoint;
+    shoot_point = std::move(shootpoint);
 }
 
 
@@ -43,6 +43,9 @@ SendToOutpostPredictor OutpostDetector::Run(const Battlefield& battlefield)
     if (a[color_][Robot::kInfantry4] == nullptr)
     {
         DLOG(INFO) << "No outpost armor founded";
+
+        send_to_outpost_predictor.UpdateInfo(going_center_point_, outpost_center_, coming_center_point_,
+                                             clockwise_, center_distance_, battlefield.BulletSpeed(), shoot_point_);
         return send_to_outpost_predictor;
     }
 //    if (a[color_][Facility::kOutpost] == nullptr)
@@ -128,7 +131,7 @@ void OutpostDetector::FindBiggestArmor()
             }
             else
             {
-                LOG(WARNING) << "outpost center founded";
+                DLOG(WARNING) << "outpost center founded";
                 if(abs(outpost_center_.y - armor.Center().y) > kVertical_threshold_)
                     outdated_ = true;
             }
@@ -137,7 +140,7 @@ void OutpostDetector::FindBiggestArmor()
 
 void OutpostDetector::DecideComingGoing()
 {
-    LOG(INFO) << "nums of armor" << detected_armors_in_this_frame_.size();
+//    DLOG(INFO) << "nums of armor" << detected_armors_in_this_frame_.size();
     if(detected_armors_in_this_frame_.size() == 1)
     {
         if(clockwise_ == 1)
