@@ -4,7 +4,7 @@
 #include "cmdline-arg-parser/cmdline_arg_parser.h"
 #include "image-provider-base/image-provider-factory.h"
 #include "controller_sentry_lower.h"
-#include "predictor-armor/predictor_armor.h"
+#include "predictor-armor/predictor_armor_renew.h"
 
 [[maybe_unused]] ControllerRegistry<SentryLowerController>
         SentryLowerController::sentry_lower_controller_registry_("sentry_lower");
@@ -42,7 +42,7 @@ bool SentryLowerController::Initialize() {
 }
 
 void SentryLowerController::Run() {
-    ArmorPredictor armor_predictor(Entity::Colors::kBlue, true, "sentry");
+    PredictorArmorRenew armor_predictor(Entity::Colors::kBlue,  "sentry");
     sleep(2);
 
     while (!exit_signal_) {
@@ -61,11 +61,10 @@ void SentryLowerController::Run() {
                                    armors_);
 
         if (CmdlineArgParser::Instance().RunWithSerial()) {
-            armor_predictor.color_ = receive_packet_.color;
-            send_packet_ = SendPacket(
-                    armor_predictor.Run(battlefield_, AimModes::kAutoAntiTop, receive_packet_.bullet_speed));
+            armor_predictor.SetColor(receive_packet_.color);
+            send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size);
         } else
-            send_packet_ = SendPacket(armor_predictor.Run(battlefield_, AimModes::kNormal));
+            send_packet_ = SendPacket(armor_predictor.Run(battlefield_, frame_.image.size,AimModes::kAntiTop));
         auto img = frame_.image.clone();
         debug::Painter::Instance().UpdateImage(frame_.image);
         for (const auto &box: boxes_) {
@@ -78,12 +77,9 @@ void SentryLowerController::Run() {
             debug::Painter::Instance().DrawPoint(armors_.front().Center(), cv::Scalar(100, 255, 100));
         }
 
-        Eigen::Matrix3d camera_matrix;
-        cv::cv2eigen(image_provider_->IntrinsicMatrix(), camera_matrix);
-        auto point = camera_matrix * armor_predictor.TranslationVectorCamPredict() /
-                     armor_predictor.TranslationVectorCamPredict()(2, 0);
-        cv::Point2d point_cv = {point[0], point[1]};
-        debug::Painter::Instance().DrawPoint(point_cv, cv::Scalar(0, 0, 255), 1, 10);
+        debug::Painter::Instance().DrawPoint(armor_predictor.ShootPointInPic(image_provider_->IntrinsicMatrix(),
+                                                                             frame_.image.size),
+                                             cv::Scalar(0, 0, 255), 1, 10);
         debug::Painter::Instance().ShowImage("ARMOR DETECT");
 
         auto key = cv::waitKey(1) & 0xff;

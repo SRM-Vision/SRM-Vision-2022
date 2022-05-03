@@ -13,7 +13,7 @@ public:
         return _;
     }
 
-    void Initialize(const std::string &config_path, bool debug_use_trackbar = true);
+    bool Initialize(const std::string &config_path, bool debug_use_trackbar = true);
 
     void Save();
 

@@ -1,14 +1,26 @@
 #include "predictor_armor_debug.h"
 
-void ArmorPredictorDebug::Initialize(const std::string &config_path, bool debug_use_trackbar) {
+bool ArmorPredictorDebug::Initialize(const std::string &config_path, bool debug_use_trackbar) {
 
     config_path_ = config_path;
     // Open config file.
     config_.open(config_path_, cv::FileStorage::READ);
     if (!config_.isOpened()) {
         LOG(ERROR) << "Failed to open ekf config file " << config_path_ << ".";
+        return false;
     }
     // Read config data.
+    if(     config_["P_XZ_NOISE"].empty()||
+            config_["P_Y_NOISE"].empty()||
+            config_["P_X_SPEED_NOISE"].empty()||
+            config_["P_Y_SPEED_NOISE"].empty()||
+            config_["M_X_NOISE"].empty()||
+            config_["M_Y_NOISE"].empty()||
+            config_["M_Z_NOISE"].empty()){
+        LOG(ERROR) << "Failed to read data form ekf config file" << config_path_ << ".";
+        return false;
+    }
+
     config_["P_XZ_NOISE"] >> p_xz_noise_;
     config_["P_Y_NOISE"] >> p_y_noise_;
     config_["P_X_SPEED_NOISE"] >> p_x_speed_noise_;
@@ -17,6 +29,7 @@ void ArmorPredictorDebug::Initialize(const std::string &config_path, bool debug_
     config_["M_Y_NOISE"] >> m_y_noise_;
     config_["M_Z_NOISE"] >> m_z_noise_;
     config_.release();
+
     if (debug_use_trackbar) {
         debug::Trackbar<double>::Instance().AddTrackbar("p_xz_noise:",
                                                         trackbar_windows_name_,
@@ -57,6 +70,7 @@ void ArmorPredictorDebug::Initialize(const std::string &config_path, bool debug_
                                                         delta_pitch_,
                                                         kDelta_pitch);
     }
+    return true;
 }
 
 void ArmorPredictorDebug::Save() {
