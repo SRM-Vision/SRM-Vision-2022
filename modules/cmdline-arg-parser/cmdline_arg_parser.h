@@ -27,6 +27,8 @@ public:
 
     ATTR_READER(run_mode_rune_, RuneModeRune)
 
+    ATTR_READER(run_mode_outpost_, RunModeOutpost)
+
     ATTR_READER(debug_use_trackbar_, DebugUseTrackbar)
 
     ATTR_READER_REF(controller_type_, ControllerType)
@@ -38,6 +40,7 @@ public:
             run_with_gimbal_(false),
             run_with_serial_(false),
             run_mode_rune_(false),
+            run_mode_outpost_(false),
             mode_chooser_(0),
             debug_show_image_(false),
             debug_use_trackbar_(false) {}
@@ -59,6 +62,7 @@ private:
     bool debug_show_image_;
     bool debug_use_trackbar_;
     bool run_mode_rune_;       ///< secondly controller mode.
+    bool run_mode_outpost_;
     bool with_ekf_;
 };
 

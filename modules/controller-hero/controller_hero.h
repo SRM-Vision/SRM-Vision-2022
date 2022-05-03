@@ -7,9 +7,6 @@
 
 #ifndef CONTROLLER_HERO_H_
 #define CONTROLLER_HERO_H_
-
-#include "controller-base/controller_factory.h"
-
 class [[maybe_unused]] HeroController final : public Controller {
 public:
     bool Initialize() final;
@@ -19,6 +16,10 @@ public:
 private:
     /// Own registry in controller factory.
     [[maybe_unused]] static ControllerRegistry<HeroController> hero_controller_registry_;
+
+
+    OutpostDetector outpost_detector_;
+    Outpost outpost_;
 };
 
 #endif  // CONTROLLER_HERO_H_

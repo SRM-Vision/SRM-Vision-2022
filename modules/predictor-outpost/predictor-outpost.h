@@ -1,67 +1,51 @@
 /**
  * Outpost predictor definition header.
  * \author LIYunzhe1408
- * \date 2022.3.14
+ * \date 2022.5.2
  */
 #ifndef PREDICTOR_OUTPOST_H_
 #define PREDICTOR_OUTPOST_H_
-
+#include "data-structure/buffer.h"
 #include "data-structure/communication.h"
-#include "digital-twin/battlefield.h"
-#include "digital-twin/components/armor.h"
-#include "math-tools/algorithms.h"
-#include "digital-twin/facility.h"
+#include "digital-twin/facilities/outpost.h"
+#include "detector-outpost/detector_outpost.h"
 
-class OutpostPredictor {
+#include <utility>
+
+struct OutputData {
+    void Update(const coordinate::TranslationVector& shoot_point);
+
+    float yaw;
+    float pitch;
+    float delay;
+    int fire;
+};
+
+class OutpostPredictor
+{
 public:
-    ATTR_READER_REF(predict_shoot_center_, TranslationVectorCamPredict);
-
-    OutpostPredictor();
-
-    SendPacket Run(const Battlefield &battlefield);
-
+    explicit OutpostPredictor(SendToOutpostPredictor send_to_outpost_predictor):
+                                                clockwise_(send_to_outpost_predictor.is_clockwise),
+                                                outpost_center_(std::move(send_to_outpost_predictor.outpost_center)),
+                                                going_center_(std::move(send_to_outpost_predictor.going_center_point)),
+                                                coming_center_(std::move(send_to_outpost_predictor.coming_center_point)),
+                                                center_distance_(send_to_outpost_predictor.center_distance),
+                                                bullet_speed_(send_to_outpost_predictor.bullet_speed),
+                                                shoot_point(send_to_outpost_predictor.shoot_point){}
+    ~OutpostPredictor() = default;
+    SendPacket Run();
 private:
-    std::vector<Armor> TargetArmorFilter(const std::vector<Armor> &potential_target);
+    const double kRotateSpeed_ = 0.4;  ///< round/s
+    const double kCommunicationTime_ = 0.03; ///< m/s
 
-    coordinate::TranslationVector
-    CalculateMovingTargetCenter(const coordinate::TranslationVector &moving_center, int detect_num);
-
-    coordinate::TranslationVector
-    CalculatePredictShootCenter(const coordinate::TranslationVector &target_moving_center, float bullet_speed,
-                                std::array<float, 3> yaw_pitch_roll, float distance);
-
-    void DecideGoingAndComing(const std::vector<Armor> &target);
-
-    // Control and Robot properties
-    const float kControl_delay_ = 1;             // TODO
-    float shoot_delay_ = 0;
-
-    //  Outpost properties
-    Outpost::Colors color_;
-    const Facility::FacilityTypes kType_ = Facility::kOutpost;
-    const double kArmor_included_rad_ = CV_2PI / 3;
-    const float kRotate_angular_speed_ = 0.4 * CV_2PI;
-    int is_clockwise = 0;                        // anti_clockwise = -1, clockwise = 1
-    double clockwise_assist = 0;
-    const int kCollectNum = 10;
-
-
-    // Send
-    SendPacket send_packet;
-
-    // Actual
-    coordinate::TranslationVector target_moving_center_;
-
-    // Run
-    coordinate::TranslationVector predict_shoot_center_;
-
-
-    // Detect 1
-    std::vector<Armor> target_;
-
-    // Detect 2
-    Armor going_armor_;
-    Armor coming_armor_;
+    double bullet_speed_;   ///< m/s
+    int clockwise_;
+    OutputData output_data_{};
+    double center_distance_;
+    cv::Point2f outpost_center_;
+    cv::Point2f going_center_;
+    cv::Point2f coming_center_;
+    coordinate::TranslationVector shoot_point;
 };
 
 #endif  // PREDICTOR_OUTPOST_H_

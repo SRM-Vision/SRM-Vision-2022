@@ -71,8 +71,8 @@ void InfantryController::Run() {
         auto time = std::chrono::steady_clock::now();
         if (!image_provider_->GetFrame(frame_))
             break;
-//        cv::flip(frame_.image, frame_.image, 0);
-//        cv::flip(frame_.image, frame_.image, 1);
+        cv::flip(frame_.image, frame_.image, 0);
+        cv::flip(frame_.image, frame_.image, 1);
         debug::Painter::Instance().UpdateImage(frame_.image);
 
         if (CmdlineArgParser::Instance().RunWithGimbal()) {

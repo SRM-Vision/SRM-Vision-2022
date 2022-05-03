@@ -53,7 +53,7 @@
         robots_.erase(armor.Color());                                                              \
     break;
 
-// TODO Add classification of bottom and top armors.
+// TODO! Add classification of bottom and top armors.
 #define ADD_ARMOR_TO_FACILITY_WITH_HEALTH(_type, _class)                                                          \
     if (facilities_[armor.Color()][_type].get() == nullptr)                                                       \
         facilities_[armor.Color()][_type] = std::make_shared<_class>(armor.Color(), 0);                           \
@@ -85,6 +85,7 @@ Battlefield::Battlefield(uint64_t time_stamp,
 
     /// Store last battlefield data for eliminating shakes.
     static Battlefield last_battlefield_data_;
+    // static Outpost last_outpost_dataflow_[10];
 
     for (auto &armor: armors) {
         switch (armor.ID()) {
@@ -102,6 +103,8 @@ Battlefield::Battlefield(uint64_t time_stamp,
             ADD_ARMOR_TO_INFANTRY(Robot::RobotTypes::kInfantry5, Infantry)
             case 6:
             ADD_ARMOR_TO_FACILITY_WITH_HEALTH(Facility::FacilityTypes::kBase, Base);
+            default:
+            ADD_ARMOR_TO_FACILITY_WITH_HEALTH(Facility::FacilityTypes::kOutpost, Outpost);
         }
     }
 

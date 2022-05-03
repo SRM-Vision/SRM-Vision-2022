@@ -1,12 +1,12 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
-#include <debug-tools/painter.h>
-#include <predictor-armor/predictor_armor.h>
 #include "cmdline-arg-parser/cmdline_arg_parser.h"
 #include "image-provider-base/image-provider-factory.h"
-#include "controller_hero.h"
+#include "controller-base/controller_factory.h"
+#include "predictor-armor/predictor_armor_renew.h"
 #include "predictor-outpost/predictor-outpost.h"
-
+#include "detector-outpost/detector_outpost.h"
+#include "controller_hero.h"
 /**
  * \warning Controller registry will be initialized before the program entering the main function!
  *   This means any error occurring here will not be caught unless you're using debugger.
@@ -38,8 +38,14 @@ bool HeroController::Initialize() {
         }
 
     }
+    if (outpost_detector_.Initialize("../config/hero/outpost-detector-param.yaml"),  // TODO Debug
+            CmdlineArgParser::Instance().DebugUseTrackbar())
+        LOG(INFO) << "Outpost detector initialize successfully!";
+    else
+        LOG(ERROR) << "Outpost detector initialize unsuccessfully!";
 
-    if (coordinate::InitializeMatrix("../config/infantry/matrix-init.yaml"))
+
+    if (coordinate::InitializeMatrix("../config/hero/matrix-init.yaml"))
         LOG(INFO) << "Camera initialize successfully!";
     else
         LOG(ERROR) << "Camera initialize unsuccessfully!";
@@ -49,46 +55,51 @@ bool HeroController::Initialize() {
 }
 
 void HeroController::Run() {
-    ArmorPredictor armor_predictor(Entity::Colors::kBlue, true, "hero");
+    PredictorArmorRenew armor_predictor(Entity::Colors::kBlue,"hero");
+
     sleep(2);
 
     while (!exit_signal_) {
+        auto time = std::chrono::steady_clock::now();
         if (!image_provider_->GetFrame(frame_))
             break;
         debug::Painter::Instance().UpdateImage(frame_.image);
+
         if (CmdlineArgParser::Instance().RunWithGimbal()) {
             SerialReceivePacket serial_receive_packet{};
             serial_->GetData(serial_receive_packet, std::chrono::milliseconds(5));
             receive_packet_ = ReceivePacket(serial_receive_packet);
-
-            DLOG(WARNING) << "mode: " << receive_packet_.mode << " bullet speed: " << receive_packet_.bullet_speed
-                          << " armor kind: " << receive_packet_.armor_kind << " color: " << receive_packet_.color
-                          << " prior_enemy: " << receive_packet_.prior_enemy;
-            DLOG(WARNING) << "yaw, pitch, roll: "
-                          << receive_packet_.yaw_pitch_roll[0] << " | " << receive_packet_.yaw_pitch_roll[1] << " | "
-                          << receive_packet_.yaw_pitch_roll[2];
         }
 
-        // Choose mode
-        if (receive_packet_.mode == 50)          // 50 means Outpost in Receive_packet.AimMode
+        if (CmdlineArgParser::Instance().RunModeOutpost())
         {
-            DLOG(INFO) << receive_packet_.mode;
-            // TODO
-        } else {  //TODO 20 means normal auto_aim
             boxes_ = armor_detector_(frame_.image);
             BboxToArmor();
             battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.yaw_pitch_roll,
                                        armors_);
 
-            // If run with serial
-            if (CmdlineArgParser::Instance().RunWithSerial()) {
-                armor_predictor.color_ = receive_packet_.color; // color == 23 -> blue; color == 33 -> red
-                send_packet_ = SendPacket(
-                        armor_predictor.Run(battlefield_, receive_packet_.mode, receive_packet_.bullet_speed));
-            } else
-                send_packet_ = SendPacket(armor_predictor.Run(battlefield_, AimModes::kNormal));
+            outpost_detector_.SetColor(receive_packet_.color);
+            SendToOutpostPredictor send_to_outpost_predictor = outpost_detector_.Run(battlefield_);
+            OutpostPredictor outpost_predictor_(send_to_outpost_predictor);
+            outpost_predictor_.Run();
 
-            // Draw points
+
+            debug::Painter::Instance().DrawPoint(outpost_detector_.OutpostCenter(), cv::Scalar(100, 255, 100));
+            debug::Painter::Instance().DrawPoint(outpost_detector_.ComingArmorCenter(), cv::Scalar(100, 255, 250));
+            DLOG(INFO) << "center: " << outpost_detector_.OutpostCenter();
+            debug::Painter::Instance().ShowImage("ARMOR DETECT");
+        } else {
+            boxes_ = armor_detector_(frame_.image);
+            BboxToArmor();
+            battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.yaw_pitch_roll,
+                                       armors_);
+            /// TODO mode switch
+            if (CmdlineArgParser::Instance().RunWithSerial()) {
+                armor_predictor.SetColor(receive_packet_.color);
+                send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size ,
+                                                   receive_packet_.mode, receive_packet_.bullet_speed);
+            } else
+                send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size,AimModes::kAntiTop);
             auto img = frame_.image.clone();
             debug::Painter::Instance().UpdateImage(frame_.image);
             for (const auto &box: boxes_) {
@@ -100,34 +111,30 @@ void HeroController::Run() {
                 debug::Painter::Instance().DrawText(std::to_string(box.id), box.points[0], 255, 2);
                 debug::Painter::Instance().DrawPoint(armors_.front().Center(), cv::Scalar(100, 255, 100));
             }
-
-            // Coordinate change
-            Eigen::Matrix3d camera_matrix;
-            cv::cv2eigen(image_provider_->IntrinsicMatrix(), camera_matrix);
-            auto point = camera_matrix * armor_predictor.TranslationVectorCamPredict() /
-                         armor_predictor.TranslationVectorCamPredict()(2, 0);
-            cv::Point2d point_cv = {point[0], point[1]};
-            debug::Painter::Instance().DrawPoint(point_cv, cv::Scalar(0, 0, 255), 1, 10);
+            debug::Painter::Instance().DrawPoint(armor_predictor.ShootPointInPic(image_provider_->IntrinsicMatrix(),
+                                                                                 frame_.image.size),
+                                                 cv::Scalar(0, 0, 255), 1, 10);
+//            armor_predictor.AllShootPoint(image_provider_->IntrinsicMatrix());
             debug::Painter::Instance().ShowImage("ARMOR DETECT");
         }
-        auto key = cv::waitKey(1) & 0xff;
 
+        auto key = cv::waitKey(1) & 0xff;
         if (key == 'q')
             break;
         else if (key == 's')
             ArmorPredictorDebug::Instance().Save();
 
         if (CmdlineArgParser::Instance().RunWithSerial()) {
-            float coefficient1, coefficient2; // TODO today
-            send_packet_.pitch = coefficient1 * receive_packet_.bullet_speed +
-                                 coefficient2 * static_cast<float>(send_packet_.distance_mode);
             serial_->SendData(send_packet_, std::chrono::milliseconds(5));
         }
-
         boxes_.clear();
         armors_.clear();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now()
+                                                                              - time);
+        DLOG(INFO) << "FPS: " << 1000.0 / double(duration.count());
     }
 
+    // exit.
     if (CmdlineArgParser::Instance().RunWithGimbal())
         serial_->StopCommunication();
 

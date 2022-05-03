@@ -1,7 +1,0 @@
-<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="H-C RUNE" type="CMakeRunConfiguration" factoryName="Application" folderName="Controller" PROGRAM_PARAMS="--type=hero --camera --rune" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="srm-vision-2022" TARGET_NAME="srm-vision" CONFIG_NAME="Release" RUN_TARGET_PROJECT_NAME="srm-vision-2022" RUN_TARGET_NAME="srm-vision">
-    <method v="2">
-      <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-    </method>
-  </configuration>
-</component>

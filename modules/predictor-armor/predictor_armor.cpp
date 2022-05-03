@@ -272,7 +272,6 @@ bool ArmorPredictor::Initialize(const std::string &car_name) {
 
 SendPacket ArmorPredictor::Run(const Battlefield &battlefield, AimModes mode, double bullet_speed) {
     auto &robots = battlefield.Robots();
-
     static uint64_t time_stamp = 0;
     double delta_t = double(battlefield.TimeStamp() - time_stamp) * 1e-9;
     time_stamp = battlefield.TimeStamp();

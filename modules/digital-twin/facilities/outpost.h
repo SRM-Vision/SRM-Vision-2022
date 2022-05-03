@@ -12,12 +12,16 @@
 
 class Outpost : public Facility {
 public:
-    Outpost(Colors color,
-            double health) :
+    Outpost(Colors color=Entity::kBlue,
+            double health=500) :
             Facility(color, health, kOutpost) {}
-
-    cv::Point2f center_point;
+    cv::Point2f center_point_;
+    cv::Point2f coming_center_;
+    double distance;
     float shoot_delay;
+    int clockwise = 0; // clockwise is 1, anti-clockwise = -1
+
+//    static Outpost last_outpost_dataflow_[100];
 };
 
 #endif  // OUTPOST_H_
