@@ -112,6 +112,16 @@ namespace coordinate::convert {
                                rectangular(2, 0) * rectangular(2, 0));
         return spherical;
     }
+
+    inline Eigen::Vector3d Spherical2Rectangular(const Eigen::Vector3d &spherical){
+        Eigen::Vector3d rectangular;
+        double length_x_z = spherical(2,0) * cos(spherical(1,0));
+        rectangular(0,0) = length_x_z * sin(spherical(0,0));
+        rectangular(1,0) = spherical(2,0) * sin(spherical(1,0));
+        rectangular(2,0) = length_x_z * cos(spherical(0,0));
+        return rectangular;
+    }
+
 }
 
 #endif  // COORDINATE_H_

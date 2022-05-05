@@ -119,6 +119,7 @@ public:
         if (0 <= distance_ && distance_ < 2) distance_mode = 1;
         if (2 <= distance_ && distance_ < 4) distance_mode = 2;
         if (4 <= distance_ && distance_ < 6) distance_mode = 3;
+        DLOG(INFO) << " distance: " << distance_;
         SendPacket send_packet = {float(yaw), float(pitch - ArmorPredictorDebug::Instance().DeltaPitch()),
                                   delay, distance_mode, fire_,
                                   float(yaw + pitch + distance_mode + delay + fire_ -
