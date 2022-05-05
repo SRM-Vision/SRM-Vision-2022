@@ -117,6 +117,9 @@ SendPacket PredictorArmorRenew::Run(const Battlefield &battlefield, const cv::Ma
             for(int i = 0;i < predict_armors_.size();++i){
                 if(i != target_ && predict_armors_[i].ID() == target_id &&
                         predict_armors_[i].Area() > predict_armors_[target_].Area()){
+                    // Update speed in ekf, to speed up fitting.
+                    predict_armors_[i].UpdateSpeed(predict_armors_[target_].Speed()(0,0),
+                                                   predict_armors_[target_].Speed()(1,0));
                     target_ = i;
                     break;
                 }

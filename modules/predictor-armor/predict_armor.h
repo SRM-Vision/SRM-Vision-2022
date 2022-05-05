@@ -131,6 +131,13 @@ public:
         return coordinate::transform::CameraToPicture(intrinsic_matrix,predict_cam_vector_);
     }
 
+    inline void UpdateSpeed(double x_speed,double y_speed){
+        ekf_.x_estimate_(1,0) = x_speed;
+        ekf_.x_estimate_(3,0) = y_speed;
+    }
+
+    ATTR_READER_REF(predict_speed_,Speed);
+
 private:
     coordinate::TranslationVector predict_world_vector_, predict_cam_vector_, shoot_point_vector_;
     Eigen::Vector2d predict_speed_;   /// x_v,y_v ; norm() = (x_v^2 + y_v^2)^(1/2)

@@ -76,6 +76,7 @@ bool Serial::Send() {
         static int sent_num(0);
         ++sent_num;
         auto duration = time - std::chrono::steady_clock::now();
+        DLOG(INFO) << " duration: " << double(duration.count())/1e-9;
         if(duration > std::chrono::seconds(1)){
             DLOG(INFO) << "Sent speed: " << sent_num / double(duration.count()) / 1e-9 << " t/s.";
             time = std::chrono::steady_clock::now();
