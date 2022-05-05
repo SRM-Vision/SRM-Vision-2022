@@ -71,8 +71,8 @@ void InfantryController::Run() {
         auto time = std::chrono::steady_clock::now();
         if (!image_provider_->GetFrame(frame_))
             break;
-        cv::flip(frame_.image, frame_.image, 0);
-        cv::flip(frame_.image, frame_.image, 1);
+//        cv::flip(frame_.image, frame_.image, 0);
+//        cv::flip(frame_.image, frame_.image, 1);
         debug::Painter::Instance().UpdateImage(frame_.image);
 
         if (CmdlineArgParser::Instance().RunWithGimbal()) {
@@ -97,6 +97,7 @@ void InfantryController::Run() {
                 armor_predictor.SetColor(receive_packet_.color);
                 send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size ,
                                                    receive_packet_.mode, receive_packet_.bullet_speed);
+                DLOG(INFO) << "DJKSSGJSFAVJH" << send_packet_;
             } else
                 send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size,AimModes::kAntiTop);
             auto img = frame_.image.clone();
