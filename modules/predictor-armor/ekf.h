@@ -95,8 +95,7 @@ public:
         return x_estimate_;
     }
 
-    void
-    AlterPredictCovMeasureCov(double p_xz_noise, double p_y_noise, double p_x_speed_noise, double p_y_speed_noise,
+    void AlterPredictCovMeasureCov(double p_xz_noise, double p_y_noise, double p_x_speed_noise, double p_y_speed_noise,
                               double m_x_noise, double m_y_noise, double m_z_noise) {
         predict_cov_ << p_xz_noise, 0, 0, 0, 0,
                         0, p_x_speed_noise, 0, 0, 0,
