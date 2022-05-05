@@ -91,6 +91,10 @@ public:
             predict.delta_t = delta_t_predict;
             predict(x_estimate.data(), x_predict.data());
             predict_world_vector_ << x_predict(0, 0), x_predict(2, 0), x_predict(4, 0);
+            // try to not predict pitch.
+            auto predict_world_spherical_vector = coordinate::convert::Rectangular2Spherical(predict_world_vector_);
+            predict_world_spherical_vector[1] = y_real[1];  // not predict pitch
+            predict_world_vector_ = coordinate::convert::Spherical2Rectangular(predict_world_spherical_vector);
             new_speed << x_predict(1,0), x_predict(3,0);
         }else {
             predict_world_vector_ = armor.TranslationVectorWorld();
@@ -145,7 +149,7 @@ private:
 
     ExtendedKalmanFilter<5,3> ekf_;
 
-    int fire_; /// to judge whether to fire.
+    int fire_; /// to judge whether fire.
 
     /// Update a new armor
     inline void Update(const Armor& armor){
