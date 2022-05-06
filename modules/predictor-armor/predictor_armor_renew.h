@@ -52,7 +52,10 @@ public:
 
     // used to setoff
     double GetTargetDistance(){
-        return predict_armors_[target_].Distance();
+        if(target_ != -1)
+            return predict_armors_[target_].Distance();
+        else
+            return 0;
     }
 
     void Initialize(const std::string& car_name);

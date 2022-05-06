@@ -17,7 +17,13 @@ void SendToOutpostPredictor::UpdateInfo(cv::Point2f going_center, cv::Point2f ce
 }
 
 
-OutpostDetector::OutpostDetector():outpost_center_(320, 240), max_area_(0.0), last_armor_x_(0.0){}
+OutpostDetector::OutpostDetector():
+                                    outpost_center_(320, 240), max_area_(0.0),
+                                    last_armor_x_(0.0),
+                                    going_center_point_(0.0, 0.0),
+                                    coming_center_point_(0.0, 0.0),
+                                    shoot_point_(0,0,0),
+                                    center_distance_(0){}
 
 bool OutpostDetector::Initialize(const std::string &config_path) {
 //    cv::FileStorage config;
@@ -48,14 +54,14 @@ SendToOutpostPredictor OutpostDetector::Run(const Battlefield& battlefield)
                                              clockwise_, center_distance_, battlefield.BulletSpeed(), shoot_point_);
         return send_to_outpost_predictor;
     }
-//    if (a[color_][Facility::kOutpost] == nullptr)
+//    if (facility[color_][Facility::kOutpost] == nullptr)
 //    {
 //        DLOG(INFO) << "No outpost armor founded";
-//        return;
+//        return send_to_outpost_predictor;
 //    }
 
     detected_armors_in_this_frame_ = a[color_][Robot::kInfantry4]->Armors();
-//    detected_armors_in_this_frame_ = a[color_][Facility::kOutpost]->BottomArmors();
+//    detected_armors_in_this_frame_ = facility[color_][Facility::kOutpost]->BottomArmors();
 
 
 
@@ -114,8 +120,7 @@ void OutpostDetector::FindBiggestArmor()
     }
 
     auto current_time_chrono = std::chrono::high_resolution_clock::now();
-    double time_gap = (static_cast<std::chrono::duration<double, std::milli>>(
-            current_time_chrono - start_time_)).count();
+    double time_gap = (static_cast<std::chrono::duration<double, std::milli>>(current_time_chrono - start_time_)).count();
 
     DLOG(INFO) << "time_gap: " << time_gap/1000;
 
@@ -127,13 +132,17 @@ void OutpostDetector::FindBiggestArmor()
             {
                 outpost_center_ = armor.Center();
                 center_distance_ = armor.Distance();
-                shoot_point_ = armor.TranslationVectorWorld();
+                shoot_point_ = armor.TranslationVectorCam();
             }
             else
             {
-                DLOG(WARNING) << "outpost center founded";
                 if(abs(outpost_center_.y - armor.Center().y) > kVertical_threshold_)
+                {
+                    DLOG(WARNING) << "outpost center error too much, finding again";
                     outdated_ = true;
+                }
+                else
+                    DLOG(WARNING) << "outpost center founded";
             }
         }
 }

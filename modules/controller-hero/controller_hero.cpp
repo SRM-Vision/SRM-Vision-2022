@@ -6,7 +6,8 @@
 #include "predictor-armor/predictor_armor_renew.h"
 #include "predictor-outpost/predictor-outpost.h"
 #include "detector-outpost/detector_outpost.h"
-#include "compensator/compensator.h"
+#include "predictor-outpost/predictor-outpost.h"
+//#include "compensator/compensator.h"
 #include "controller_hero.h"
 /**
  * \warning Controller registry will be initialized before the program entering the main function!
@@ -45,10 +46,10 @@ bool HeroController::Initialize() {
     else
         LOG(ERROR) << "Outpost detector initialize unsuccessfully!";
 
-    if(Compensator::Instance().Initialize("hero"))
-        LOG(INFO) << "Setoff initialize successfully!";
-    else
-        LOG(ERROR) << "Setoff initialize unsuccessfully!";
+//    if(Compensator::Instance().Initialize("hero"))
+//        LOG(INFO) << "Setoff initialize successfully!";
+//    else
+//        LOG(ERROR) << "Setoff initialize unsuccessfully!";
 
     if (coordinate::InitializeMatrix("../config/hero/matrix-init.yaml"))
         LOG(INFO) << "Camera initialize successfully!";
@@ -63,11 +64,13 @@ void HeroController::Run() {
     PredictorArmorRenew armor_predictor(Entity::Colors::kBlue,"hero");
 
     sleep(2);
-
     while (!exit_signal_) {
         auto time = std::chrono::steady_clock::now();
-        if (!image_provider_->GetFrame(frame_))
+        if (!image_provider_->GetFrame(frame_)){
+            DLOG(INFO) << "dafawihufafuahfuiah";
             break;
+        }
+
         debug::Painter::Instance().UpdateImage(frame_.image);
 
         if (CmdlineArgParser::Instance().RunWithGimbal()) {
@@ -79,21 +82,35 @@ void HeroController::Run() {
         if (CmdlineArgParser::Instance().RunModeOutpost())
         {
             boxes_ = armor_detector_(frame_.image);
+
+            DLOG(INFO) << "1";
             BboxToArmor();
+
+            DLOG(INFO) << "2";
             battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.yaw_pitch_roll,
                                        armors_);
 
+            DLOG(INFO) << "3";
             outpost_detector_.SetColor(receive_packet_.color);
 
+            DLOG(INFO) << "4";
             SendToOutpostPredictor send_to_outpost_predictor = outpost_detector_.Run(battlefield_);
-            OutpostPredictor outpost_predictor_(send_to_outpost_predictor);
+
+            DLOG(INFO) << "5";
+            outpost_predictor_.GetFromDetector(send_to_outpost_predictor);
+
+            DLOG(INFO) << "6";
             outpost_predictor_.Run();
 
+            DLOG(INFO) << "7";
 
             debug::Painter::Instance().DrawPoint(outpost_detector_.OutpostCenter(), cv::Scalar(100, 255, 100));
             debug::Painter::Instance().DrawPoint(outpost_detector_.ComingArmorCenter(), cv::Scalar(100, 255, 250));
+            DLOG(INFO) << "8";
             DLOG(INFO) << "center: " << outpost_detector_.OutpostCenter();
             debug::Painter::Instance().ShowImage("ARMOR DETECT");
+
+            DLOG(INFO) << "9";
         } else {
             boxes_ = armor_detector_(frame_.image);
             BboxToArmor();
@@ -106,7 +123,7 @@ void HeroController::Run() {
                                                    receive_packet_.mode, receive_packet_.bullet_speed);
             } else
                 send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size,AimModes::kAntiTop);
-            Compensator::Instance().Setoff(send_packet_.pitch,receive_packet_.bullet_speed,armor_predictor.GetTargetDistance());
+//            Compensator::Instance().Setoff(send_packet_.pitch,receive_packet_.bullet_speed,armor_predictor.GetTargetDistance());
             auto img = frame_.image.clone();
             debug::Painter::Instance().UpdateImage(frame_.image);
             for (const auto &box: boxes_) {
@@ -139,6 +156,8 @@ void HeroController::Run() {
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now()
                                                                               - time);
         DLOG(INFO) << "FPS: " << 1000.0 / double(duration.count());
+//        cv::waitKey(0);
+
     }
 
     // exit.
