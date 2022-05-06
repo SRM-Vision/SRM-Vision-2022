@@ -15,15 +15,7 @@ bool ArmorPredictor::Initialize(const std::string &car_name) {
     if (!config_.isOpened()) {
         LOG(ERROR) << "Failed to open ekf setoff file ";
     }
-    // Read config data.
-    config_["A0"] >> setoff0[0];
-    config_["B0"] >> setoff0[1];
-    config_["C0"] >> setoff0[2];
-    config_["D0"] >> setoff0[3];
-    config_["A1"] >> setoff1[0];
-    config_["B1"] >> setoff1[1];
-    config_["C1"] >> setoff1[2];
-    config_["D1"] >> setoff1[3];
+
     ArmorPredictorDebug::Instance().Initialize("../config/" + car_name_ + "/ekf-param.yaml",
                                                CmdlineArgParser::Instance().DebugUseTrackbar());
     for (auto i = 0; i < Robot::RobotTypes::SIZE; ++i)
@@ -836,6 +828,5 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, AimModes mode, do
     target_locked_ = true;
     armor_num_last_ = armor_num;
     ClearStateBits();
-    Setoff(car_name_, bullet_speed);
     return target_.GenerateSendPacket(fire_);
 }

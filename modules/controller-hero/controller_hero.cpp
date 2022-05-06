@@ -6,6 +6,7 @@
 #include "predictor-armor/predictor_armor_renew.h"
 #include "predictor-outpost/predictor-outpost.h"
 #include "detector-outpost/detector_outpost.h"
+#include "compensator/compensator.h"
 #include "controller_hero.h"
 /**
  * \warning Controller registry will be initialized before the program entering the main function!
@@ -44,6 +45,10 @@ bool HeroController::Initialize() {
     else
         LOG(ERROR) << "Outpost detector initialize unsuccessfully!";
 
+    if(Compensator::Instance().Initialize("hero"))
+        LOG(INFO) << "Setoff initialize successfully!";
+    else
+        LOG(ERROR) << "Setoff initialize unsuccessfully!";
 
     if (coordinate::InitializeMatrix("../config/hero/matrix-init.yaml"))
         LOG(INFO) << "Camera initialize successfully!";
@@ -101,6 +106,7 @@ void HeroController::Run() {
                                                    receive_packet_.mode, receive_packet_.bullet_speed);
             } else
                 send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size,AimModes::kAntiTop);
+            Compensator::Instance().Setoff(send_packet_.pitch,receive_packet_.bullet_speed,armor_predictor.GetTargetDistance());
             auto img = frame_.image.clone();
             debug::Painter::Instance().UpdateImage(frame_.image);
             for (const auto &box: boxes_) {

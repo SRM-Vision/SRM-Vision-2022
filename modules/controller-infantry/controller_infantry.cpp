@@ -7,6 +7,7 @@
 #include "detector-rune/detector_rune.h"
 #include "predictor-rune/predictor-rune.h"
 #include "controller_infantry.h"
+#include "compensator/compensator.h"
 
 /**
  * \warning Controller registry will be initialized before the program entering the main function!
@@ -52,6 +53,11 @@ bool InfantryController::Initialize() {
         LOG(INFO) << "Rune predictor initialize successfully!";
     else
         LOG(ERROR) << "Rune predictor initialize unsuccessfully!";
+
+    if(Compensator::Instance().Initialize("infantry"))
+        LOG(INFO) << "Setoff initialize successfully!";
+    else
+        LOG(ERROR) << "Setoff initialize unsuccessfully!";
 
     if (coordinate::InitializeMatrix("../config/infantry/matrix-init.yaml"))
         LOG(INFO) << "Camera initialize successfully!";
@@ -100,6 +106,7 @@ void InfantryController::Run() {
                 DLOG(INFO) << "DJKSSGJSFAVJH" << send_packet_;
             } else
                 send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size,AimModes::kAntiTop);
+            Compensator::Instance().Setoff(send_packet_.pitch,receive_packet_.bullet_speed,armor_predictor.GetTargetDistance());
             auto img = frame_.image.clone();
             debug::Painter::Instance().UpdateImage(frame_.image);
             for (const auto &box: boxes_) {

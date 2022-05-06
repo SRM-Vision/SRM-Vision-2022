@@ -50,6 +50,11 @@ public:
         }
     }
 
+    // used to setoff
+    double GetTargetDistance(){
+        return predict_armors_[target_].Distance();
+    }
+
     void Initialize(const std::string& car_name);
 
     SendPacket Run(const Battlefield &battlefield, const cv::MatSize &size,AimModes mode = kNormal, double bullet_speed = 15);

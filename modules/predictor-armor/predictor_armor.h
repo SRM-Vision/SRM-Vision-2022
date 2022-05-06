@@ -305,23 +305,6 @@ private:
         return {armor.Center().x - w / 2, armor.Center().y - h / 2, w * coefficient, h * coefficient};
     }
 
-
-    /**
-     * \brief Setoff bullet pathway.
-     */
-    void Setoff(const std::string &car_name, double bullet_speed) {
-        if (car_name == "sentry") {
-            double plane_distance = setoff0[0] * target_.armor->Distance() - setoff0[1];
-            double delta_pitch = 0.01 * plane_distance + 0.003;
-            target_.pitch += delta_pitch;
-        } else if (car_name == "hero") {
-
-        } else if (car_name == "infantry") {
-
-        }
-    }
-
-
     [[maybe_unused]] uint8_t flag_;    ///< Predictor flags.
     std::unordered_map<Robot::RobotTypes, unsigned int>
             grey_count_;  ///< Frame counts of lasting time of grey armors.
@@ -344,8 +327,6 @@ private:
     AntiTopDetector antitop_detector_;
     fsm::MachineSetSharedPtr machine_set_;
     std::shared_ptr<ArmorMachine> armor_machine_;
-    Eigen::Vector4d setoff0;
-    Eigen::Vector4d setoff1;
 };
 
 #endif  // PREDICTOR_ARMOR_H_

@@ -1,21 +1,23 @@
+//
+// Created by lzy on 2022/5/6.
+//
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 #include <debug-tools/painter.h>
 #include "cmdline-arg-parser/cmdline_arg_parser.h"
 #include "image-provider-base/image-provider-factory.h"
-#include "controller_sentry_lower.h"
+#include "controller_sentry_higher.h"
 #include "predictor-armor/predictor_armor_renew.h"
 #include "compensator/compensator.h"
+[[maybe_unused]] ControllerRegistry<SentryHigherController>
+        SentryHigherController::sentry_higher_controller_registry_("sentry_higher");
 
-[[maybe_unused]] ControllerRegistry<SentryLowerController>
-        SentryLowerController::sentry_lower_controller_registry_("sentry_lower");
-
-bool SentryLowerController::Initialize() {
+bool SentryHigherController::Initialize() {
     // Use reset here to allocate memory for an abstract class.
     image_provider_.reset(CREATE_IMAGE_PROVIDER(CmdlineArgParser::Instance().RunWithCamera() ? "camera" : "video"));
     if (!image_provider_->Initialize(
             CmdlineArgParser::Instance().RunWithCamera() ?
-            "../config/sentry_lower/camera-init.yaml" : "../config/sentry_lower/video-init.yaml")) {
+            "../config/sentry_higher/camera-init.yaml" : "../config/sentry_higher/video-init.yaml")) {
         LOG(ERROR) << "Failed to initialize image provider.";
         // Till now the camera may be open, it's necessary to reset image_provider_ manually to release camera.
         image_provider_.reset();
@@ -32,22 +34,22 @@ bool SentryLowerController::Initialize() {
             return false;
         }
     }
-    if(Compensator::Instance().Initialize("sentry_lower"))
+    if(Compensator::Instance().Initialize("sentry_higher"))
         LOG(INFO) << "Setoff initialize successfully!";
     else
         LOG(ERROR) << "Setoff initialize unsuccessfully!";
 
-    if (coordinate::InitializeMatrix("../config/sentry_lower/matrix-init.yaml"))
+    if (coordinate::InitializeMatrix("../config/sentry_higher/matrix-init.yaml"))
         LOG(INFO) << "Camera initialize successfully!";
     else
         LOG(ERROR) << "Camera initialize unsuccessfully!";
 
-    LOG(INFO) << "Lower sentry_lower controller is ready.";
+    LOG(INFO) << "Higher sentry_higher controller is ready.";
     return true;
 }
 
-void SentryLowerController::Run() {
-    PredictorArmorRenew armor_predictor(Entity::Colors::kBlue,  "sentry_lower");
+void SentryHigherController::Run() {
+    PredictorArmorRenew armor_predictor(Entity::Colors::kBlue,  "sentry_higher");
     sleep(2);
 
     while (!exit_signal_) {
