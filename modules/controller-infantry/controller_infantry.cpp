@@ -8,6 +8,7 @@
 #include "predictor-rune/predictor-rune.h"
 #include "controller_infantry.h"
 #include "compensator/compensator.h"
+#include "digital-twin/entity.h"
 
 /**
  * \warning Controller registry will be initialized before the program entering the main function!
@@ -40,6 +41,7 @@ bool InfantryController::Initialize() {
         }
     }
 
+
     // rune initialize program.
     Frame init_frame;
     image_provider_->GetFrame(init_frame);
@@ -48,11 +50,18 @@ bool InfantryController::Initialize() {
         LOG(INFO) << "Rune detector initialize successfully!";
     else
         LOG(ERROR) << "Rune detector initialize unsuccessfully!";
-    if (rune_predictor_.Initialize("../config/infantry/rune-predictor-param.yaml", true),  // TODO Debug
-            CmdlineArgParser::Instance().DebugUseTrackbar())
+    rune_predictor_.Initialize("../config/infantry/rune-predictor-param.yaml", true);
+    if ( CmdlineArgParser::Instance().DebugUseTrackbar() )// TODO Debug
+    {
+        painter_ = debug::Painter::Instance();
         LOG(INFO) << "Rune predictor initialize successfully!";
+    }
     else
+    {
+        painter_ = debug::NoPainter::Instance();
         LOG(ERROR) << "Rune predictor initialize unsuccessfully!";
+    }
+
 
     if(Compensator::Instance().Initialize("infantry"))
         LOG(INFO) << "Setoff initialize successfully!";
@@ -69,17 +78,18 @@ bool InfantryController::Initialize() {
 }
 
 void InfantryController::Run() {
-    PredictorArmorRenew armor_predictor(Entity::Colors::kBlue,"infantry");
-
     sleep(2);
 
     while (!exit_signal_) {
-        auto time = std::chrono::steady_clock::now();
+
         if (!image_provider_->GetFrame(frame_))
             break;
+        auto time = std::chrono::steady_clock::now();
+
 //        cv::flip(frame_.image, frame_.image, 0);
 //        cv::flip(frame_.image, frame_.image, 1);
-        debug::Painter::Instance().UpdateImage(frame_.image);
+
+        painter_->UpdateImage(frame_.image);
 
         if (CmdlineArgParser::Instance().RunWithGimbal()) {
             SerialReceivePacket serial_receive_packet{};
@@ -90,9 +100,9 @@ void InfantryController::Run() {
         if (CmdlineArgParser::Instance().RuneModeRune()) {
             power_rune_ = rune_detector_.Run(frame_);
             send_packet_ = SendPacket(rune_predictor_.Run(power_rune_, kBigRune));
-            debug::Painter::Instance().DrawPoint(rune_predictor_.PredictedPoint(),
+            painter_->DrawPoint(rune_predictor_.PredictedPoint(),
                                                  cv::Scalar(0, 255, 0), 3, 3);
-            debug::Painter::Instance().ShowImage("Rune");
+            painter_->ShowImage("Rune", 1);
         } else {
             boxes_ = armor_detector_(frame_.image);
             BboxToArmor();
@@ -100,45 +110,45 @@ void InfantryController::Run() {
                                        armors_);
             /// TODO mode switch
             if (CmdlineArgParser::Instance().RunWithSerial()) {
-                armor_predictor.SetColor(receive_packet_.color);
-                send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size ,
+                armor_predictor_.SetColor(receive_packet_.color);
+                send_packet_ = armor_predictor_.Run(battlefield_, frame_.image.size ,
                                                    receive_packet_.mode, receive_packet_.bullet_speed);
                 DLOG(INFO) << "DJKSSGJSFAVJH" << send_packet_;
             } else
-                send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size,AimModes::kAntiTop);
-            Compensator::Instance().Setoff(send_packet_.pitch,receive_packet_.bullet_speed,armor_predictor.GetTargetDistance());
-            auto img = frame_.image.clone();
-            debug::Painter::Instance().UpdateImage(frame_.image);
+                send_packet_ = armor_predictor_.Run(battlefield_, frame_.image.size,AimModes::kAntiTop);
+            Compensator::Instance().Setoff(send_packet_.pitch,receive_packet_.bullet_speed,armor_predictor_.GetTargetDistance());
+
+            painter_->UpdateImage(frame_.image);
             for (const auto &box: boxes_) {
-                debug::Painter::Instance().DrawRotatedRectangle(box.points[0],
+                painter_->DrawRotatedRectangle(box.points[0],
                                                                 box.points[1],
                                                                 box.points[2],
                                                                 box.points[3],
                                                                 cv::Scalar(0, 255, 0), 2);
-                debug::Painter::Instance().DrawText(std::to_string(box.id), box.points[0], 255, 2);
-                debug::Painter::Instance().DrawPoint(armors_.front().Center(), cv::Scalar(100, 255, 100));
+                painter_->DrawText(std::to_string(box.id), box.points[0], 255, 2);
+                painter_->DrawPoint(armors_.front().Center(), cv::Scalar(100, 255, 100), 2, 2);
             }
-            debug::Painter::Instance().DrawPoint(armor_predictor.ShootPointInPic(image_provider_->IntrinsicMatrix(),
+            painter_->DrawPoint(armor_predictor_.ShootPointInPic(image_provider_->IntrinsicMatrix(),
                                                                                  frame_.image.size),
                                                  cv::Scalar(0, 0, 255), 1, 10);
 //            armor_predictor.AllShootPoint(image_provider_->IntrinsicMatrix());
-            debug::Painter::Instance().ShowImage("ARMOR DETECT");
+            painter_->ShowImage("ARMOR DETECT", 1);
         }
 
-        auto key = cv::waitKey(1) & 0xff;
-        if (key == 'q')
-            break;
-        else if (key == 's')
-            ArmorPredictorDebug::Instance().Save();
+//        auto key = cv::waitKey(1) & 0xff;
+//        if (key == 'q')
+//            break;
+//        else if (key == 's')
+//            ArmorPredictorDebug::Instance().Save();
 
         if (CmdlineArgParser::Instance().RunWithSerial()) {
             serial_->SendData(send_packet_, std::chrono::milliseconds(5));
         }
         boxes_.clear();
         armors_.clear();
-        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now()
+        auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now()
                                                                               - time);
-        DLOG(INFO) << "FPS: " << 1000.0 / double(duration.count());
+        DLOG(INFO) << "all computation cost ms: " << double(duration.count())/1e6;
     }
 
     // exit.

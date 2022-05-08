@@ -70,7 +70,7 @@ void TestController::Test() {
         if (!image_provider_->GetFrame(frame_))
             break;
         cv::waitKey(1);
-        debug::Painter::Instance().UpdateImage(frame_.image);
+        debug::Painter::Instance()->UpdateImage(frame_.image);
 
         if (CmdlineArgParser::Instance().RunWithGimbal()) {
             SerialReceivePacket serial_receive_packet{};
@@ -81,9 +81,9 @@ void TestController::Test() {
         if (receive_packet_.mode == kSmallRune || receive_packet_.mode == kBigRune) {
             power_rune_ = rune_detector_.Run(frame_);
             send_packet_ = SendPacket(rune_predictor_.Run(power_rune_, receive_packet_.mode));
-            debug::Painter::Instance().DrawPoint(rune_predictor_.PredictedPoint(),
+            debug::Painter::Instance()->DrawPoint(rune_predictor_.PredictedPoint(),
                                                  cv::Scalar(0, 255, 0), 3, 3);
-            debug::Painter::Instance().ShowImage("Rune");
+            debug::Painter::Instance()->ShowImage("Rune", 1);
         } else {
             boxes_ = armor_detector_(frame_.image);
             BboxToArmor();
@@ -92,23 +92,23 @@ void TestController::Test() {
             /// TODO mode switch
             send_packet_ = SendPacket(armor_predictor.Run(battlefield_, AimModes::kNormal));
             auto img = frame_.image.clone();
-            debug::Painter::Instance().UpdateImage(frame_.image);
+            debug::Painter::Instance()->UpdateImage(frame_.image);
             for (const auto &box: boxes_) {
-                debug::Painter::Instance().DrawRotatedRectangle(box.points[0],
+                debug::Painter::Instance()->DrawRotatedRectangle(box.points[0],
                                                                 box.points[1],
                                                                 box.points[2],
                                                                 box.points[3],
                                                                 cv::Scalar(0, 255, 0), 2);
-                debug::Painter::Instance().DrawText(std::to_string(box.id), box.points[0], 255, 2);
-                debug::Painter::Instance().DrawPoint(armors_.front().Center(), cv::Scalar(100, 255, 100));
+                debug::Painter::Instance()->DrawText(std::to_string(box.id), box.points[0], 255, 2);
+                debug::Painter::Instance()->DrawPoint(armors_.front().Center(), cv::Scalar(100, 255, 100), 2, 2);
             }
             Eigen::Matrix3d camera_matrix;
             cv::cv2eigen(image_provider_->IntrinsicMatrix(), camera_matrix);
             auto point = camera_matrix * armor_predictor.TranslationVectorCamPredict() /
                          armor_predictor.TranslationVectorCamPredict()(2, 0);
             cv::Point2d point_cv = {point[0], point[1]};
-            debug::Painter::Instance().DrawPoint(point_cv, cv::Scalar(0, 0, 255), 1, 10);
-            debug::Painter::Instance().ShowImage("ARMOR DETECT");
+            debug::Painter::Instance()->DrawPoint(point_cv, cv::Scalar(0, 0, 255), 1, 10);
+            debug::Painter::Instance()->ShowImage("ARMOR DETECT", 1);
         }
 
         if ((cv::waitKey(1) & 0xff) == 'q')

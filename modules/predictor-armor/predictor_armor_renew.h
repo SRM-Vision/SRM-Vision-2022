@@ -22,7 +22,9 @@ public:
     typedef std::unordered_map<Entity::Colors, std::unordered_map<Robot::RobotTypes, std::shared_ptr<Robot>>> RobotMap;
 
     PredictorArmorRenew() = delete;
-    PredictorArmorRenew(Entity::Colors enemy_color,const std::string& car_name):enemy_color_(enemy_color),target_(-1){
+    explicit PredictorArmorRenew(Entity::Colors enemy_color=Entity::Colors::kBlue, const std::string& car_name="infantry")
+        : enemy_color_(enemy_color),
+        target_(-1){
         Initialize(car_name);
     }
 
@@ -45,7 +47,7 @@ public:
 
     void AllShootPoint(const cv::Mat& intrinsic_matrix){
         for(auto& armor:predict_armors_){
-            debug::Painter::Instance().DrawPoint(armor.ShootPointInPic(intrinsic_matrix),
+            debug::Painter::Instance()->DrawPoint(armor.ShootPointInPic(intrinsic_matrix),
                                             cv::Scalar(0, 0, 255), 1, 10);
         }
     }

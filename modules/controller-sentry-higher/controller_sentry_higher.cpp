@@ -74,21 +74,21 @@ void SentryHigherController::Run() {
             send_packet_ = SendPacket(armor_predictor.Run(battlefield_, frame_.image.size,AimModes::kAntiTop));
         Compensator::Instance().Setoff(send_packet_.pitch,receive_packet_.bullet_speed,armor_predictor.GetTargetDistance());
         auto img = frame_.image.clone();
-        debug::Painter::Instance().UpdateImage(frame_.image);
+        debug::Painter::Instance()->UpdateImage(frame_.image);
         for (const auto &box: boxes_) {
-            debug::Painter::Instance().DrawRotatedRectangle(box.points[0],
+            debug::Painter::Instance()->DrawRotatedRectangle(box.points[0],
                                                             box.points[1],
                                                             box.points[2],
                                                             box.points[3],
                                                             cv::Scalar(0, 255, 0), 2);
-            debug::Painter::Instance().DrawText(std::to_string(box.id), box.points[0], 255, 2);
-            debug::Painter::Instance().DrawPoint(armors_.front().Center(), cv::Scalar(100, 255, 100));
+            debug::Painter::Instance()->DrawText(std::to_string(box.id), box.points[0], 255, 2);
+            debug::Painter::Instance()->DrawPoint(armors_.front().Center(), cv::Scalar(100, 255, 100), 2, 2);
         }
 
-        debug::Painter::Instance().DrawPoint(armor_predictor.ShootPointInPic(image_provider_->IntrinsicMatrix(),
+        debug::Painter::Instance()->DrawPoint(armor_predictor.ShootPointInPic(image_provider_->IntrinsicMatrix(),
                                                                              frame_.image.size),
                                              cv::Scalar(0, 0, 255), 1, 10);
-        debug::Painter::Instance().ShowImage("ARMOR DETECT");
+        debug::Painter::Instance()->ShowImage("ARMOR DETECT", 1);
 
         auto key = cv::waitKey(1) & 0xff;
         if (key == 'q')

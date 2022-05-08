@@ -39,6 +39,9 @@ private:
     RuneDetector rune_detector_;
     RunePredictor rune_predictor_;
     PowerRune power_rune_;
+
+    PredictorArmorRenew armor_predictor_{Entity::Colors::kBlue, "infantry"};
+    debug::IPainter* painter_;
 };
 
 #endif  // CONTROLLER_INFANTRY_H_
