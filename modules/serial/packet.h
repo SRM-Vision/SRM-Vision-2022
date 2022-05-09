@@ -35,6 +35,10 @@ struct SerialSendPacket {
     float delay;
     int distance_mode;  // maybe only used in sentry
     int fire;
+    short point1_x, point1_y;
+    short point2_x, point2_y;
+    short point3_x, point3_y;
+    short point4_x, point4_y;
     float check_sum;
 };
 
