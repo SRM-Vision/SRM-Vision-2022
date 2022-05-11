@@ -124,10 +124,19 @@ public:
         if (2 <= distance_ && distance_ < 4) distance_mode = 2;
         if (4 <= distance_ && distance_ < 6) distance_mode = 3;
         DLOG(INFO) << " distance: " << distance_;
+//        cv::Mat3d camera_mat = {859.7363,   0,  0,
+//                                -0.7875,    862.3096,0,
+//                                950.8627,   567.8418,1};
+//        auto show_point = coordinate::transform::CameraToPicture(camera_mat, translation_vector_cam_);
+//        auto point1_x = short(show_point.x);
+//        auto point1_y = short(show_point.y);
         SendPacket send_packet = {float(yaw), float(pitch - ArmorPredictorDebug::Instance().DeltaPitch()),
                                   delay, distance_mode, fire_,
-                                  float(yaw + pitch + distance_mode + delay + fire_ -
-                                        ArmorPredictorDebug::Instance().DeltaPitch())};
+                                  0,0,
+                                  0,0,
+                                  0,0,
+                                  0,0,
+                                  float(yaw + pitch + distance_mode + delay + fire_ - ArmorPredictorDebug::Instance().DeltaPitch())};
         return send_packet;
     }
 

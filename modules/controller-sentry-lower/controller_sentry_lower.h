@@ -26,6 +26,7 @@ private:
 
     /// Own registry in controller factory.
     [[maybe_unused]] static ControllerRegistry<SentryLowerController> sentry_lower_controller_registry_;
+    debug::IPainter* painter_;
 };
 
 #endif  // CONTROLLER_SENTRY_LOWER_H_

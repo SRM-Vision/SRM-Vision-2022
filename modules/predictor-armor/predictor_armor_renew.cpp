@@ -143,6 +143,9 @@ SendPacket PredictorArmorRenew::Run(const Battlefield &battlefield, const cv::Ma
     if(!target_locked)
         return {0, 0, 0, 0, 0};
 
+
+
+
     return predict_armors_[target_].GenerateSendPacket();
 }
 

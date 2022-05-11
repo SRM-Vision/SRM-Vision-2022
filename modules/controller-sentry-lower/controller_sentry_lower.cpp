@@ -22,6 +22,11 @@ bool SentryLowerController::Initialize() {
         return false;
     }
 
+    if(CmdlineArgParser::Instance().DebugUseTrackbar())
+        painter_ = debug::Painter::Instance();
+    else
+        painter_ = debug::NoPainter::Instance();
+
     if (CmdlineArgParser::Instance().RunWithGimbal()) {
         serial_ = std::make_unique<Serial>();
         if (!serial_->StartCommunication()) {
@@ -64,35 +69,36 @@ void SentryLowerController::Run() {
         BboxToArmor();
         battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.yaw_pitch_roll,
                                    armors_);
-
         if (CmdlineArgParser::Instance().RunWithSerial()) {
             armor_predictor.SetColor(receive_packet_.color);
             send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size);
         } else
             send_packet_ = SendPacket(armor_predictor.Run(battlefield_, frame_.image.size,AimModes::kAntiTop));
-        Compensator::Instance().Setoff(send_packet_.pitch,receive_packet_.bullet_speed,armor_predictor.GetTargetDistance());
         auto img = frame_.image.clone();
-        debug::Painter::Instance()->UpdateImage(frame_.image);
+        painter_->UpdateImage(frame_.image);
         for (const auto &box: boxes_) {
-            debug::Painter::Instance()->DrawRotatedRectangle(box.points[0],
+            painter_->DrawRotatedRectangle(box.points[0],
                                                             box.points[1],
                                                             box.points[2],
                                                             box.points[3],
                                                             cv::Scalar(0, 255, 0), 2);
-            debug::Painter::Instance()->DrawText(std::to_string(box.id), box.points[0], 255, 2);
-            debug::Painter::Instance()->DrawPoint(armors_.front().Center(), cv::Scalar(100, 255, 100), 2, 2);
+            painter_->DrawText(std::to_string(box.id), box.points[0], 255, 2);
+            painter_->DrawPoint(armors_.front().Center(), cv::Scalar(100, 255, 100), 2, 2);
         }
 
-        debug::Painter::Instance()->DrawPoint(armor_predictor.ShootPointInPic(image_provider_->IntrinsicMatrix(),
+        painter_->DrawPoint(armor_predictor.ShootPointInPic(image_provider_->IntrinsicMatrix(),
                                                                              frame_.image.size),
                                              cv::Scalar(0, 0, 255), 1, 10);
-        debug::Painter::Instance()->ShowImage("ARMOR DETECT", 1);
+        painter_->ShowImage("ARMOR DETECT", 1);
 
         auto key = cv::waitKey(1) & 0xff;
         if (key == 'q')
             break;
         else if (key == 's')
             ArmorPredictorDebug::Instance().Save();
+
+        Compensator::Instance().Setoff(send_packet_.pitch,receive_packet_.bullet_speed,armor_predictor.GetTargetDistance());
+
         if (CmdlineArgParser::Instance().RunWithSerial())
             serial_->SendData(send_packet_, std::chrono::milliseconds(5));
 

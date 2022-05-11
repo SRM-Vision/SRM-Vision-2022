@@ -1,5 +1,6 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
+#include <compensator/compensator.h>
 #include "cmdline-arg-parser/cmdline_arg_parser.h"
 #include "image-provider-base/image-provider-factory.h"
 #include "controller-base/controller_factory.h"
@@ -7,7 +8,6 @@
 #include "predictor-outpost/predictor-outpost.h"
 #include "detector-outpost/detector_outpost.h"
 #include "predictor-outpost/predictor-outpost.h"
-//#include "compensator/compensator.h"
 #include "controller_hero.h"
 /**
  * \warning Controller registry will be initialized before the program entering the main function!
@@ -46,10 +46,10 @@ bool HeroController::Initialize() {
     else
         LOG(ERROR) << "Outpost detector initialize unsuccessfully!";
 
-//    if(Compensator::Instance().Initialize("hero"))
-//        LOG(INFO) << "Setoff initialize successfully!";
-//    else
-//        LOG(ERROR) << "Setoff initialize unsuccessfully!";
+    if(Compensator::Instance().Initialize("hero"))
+        LOG(INFO) << "Setoff initialize successfully!";
+    else
+        LOG(ERROR) << "Setoff initialize unsuccessfully!";
 
     if (coordinate::InitializeMatrix("../config/hero/matrix-init.yaml"))
         LOG(INFO) << "Camera initialize successfully!";
@@ -123,7 +123,6 @@ void HeroController::Run() {
                                                    receive_packet_.mode, receive_packet_.bullet_speed);
             } else
                 send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size,AimModes::kAntiTop);
-//            Compensator::Instance().Setoff(send_packet_.pitch,receive_packet_.bullet_speed,armor_predictor.GetTargetDistance());
             auto img = frame_.image.clone();
             debug::Painter::Instance()->UpdateImage(frame_.image);
             for (const auto &box: boxes_) {
@@ -148,6 +147,10 @@ void HeroController::Run() {
         else if (key == 's')
             ArmorPredictorDebug::Instance().Save();
 
+        Compensator::Instance().Setoff(send_packet_.pitch,
+                                       receive_packet_.bullet_speed,
+                                       armor_predictor.GetTargetDistance(),
+                                       receive_packet_.mode);
         if (CmdlineArgParser::Instance().RunWithSerial()) {
             serial_->SendData(send_packet_, std::chrono::milliseconds(5));
         }

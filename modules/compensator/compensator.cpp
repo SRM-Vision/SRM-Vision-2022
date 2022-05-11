@@ -28,7 +28,10 @@ bool Compensator::Initialize(std::string robot_name) {
     return true;
 }
 
-void Compensator::Setoff(float &pitch,double bullet_speed, double distance) {
+void Compensator::Setoff(float &pitch,double bullet_speed, double distance,AimModes mode) {
+    //TODO more mode
+    if (pitch == 0 || bullet_speed == 0 || distance == 0)
+        return;
     if (robot_name_ == "sentry_lower") {
         DLOG(INFO) << "before setoff pitch:"<<pitch;
         float plane_distance = setoff0_[0] * distance - setoff0_[1];

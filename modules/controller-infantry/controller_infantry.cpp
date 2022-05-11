@@ -116,7 +116,6 @@ void InfantryController::Run() {
                 DLOG(INFO) << "DJKSSGJSFAVJH" << send_packet_;
             } else
                 send_packet_ = armor_predictor_.Run(battlefield_, frame_.image.size,AimModes::kAntiTop);
-            Compensator::Instance().Setoff(send_packet_.pitch,receive_packet_.bullet_speed,armor_predictor_.GetTargetDistance());
 
             painter_->UpdateImage(frame_.image);
             for (const auto &box: boxes_) {
@@ -140,7 +139,10 @@ void InfantryController::Run() {
 //            break;
 //        else if (key == 's')
 //            ArmorPredictorDebug::Instance().Save();
-
+        Compensator::Instance().Setoff(send_packet_.pitch,
+                                       receive_packet_.bullet_speed,
+                                       armor_predictor_.GetTargetDistance(),
+                                       receive_packet_.mode);
         if (CmdlineArgParser::Instance().RunWithSerial()) {
             serial_->SendData(send_packet_, std::chrono::milliseconds(5));
         }
