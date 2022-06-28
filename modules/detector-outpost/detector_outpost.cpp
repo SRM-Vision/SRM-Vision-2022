@@ -45,7 +45,7 @@ SendToOutpostPredictor OutpostDetector::Run(const Battlefield& battlefield)
 //    auto facility = battlefield.Facilities();
 
 
-
+//  if (a[color_][Facility::kOutpost] == nullptr)
     if (a[color_][Robot::kInfantry4] == nullptr)
     {
         DLOG(INFO) << "No outpost armor founded";
@@ -62,8 +62,6 @@ SendToOutpostPredictor OutpostDetector::Run(const Battlefield& battlefield)
 
     detected_armors_in_this_frame_ = a[color_][Robot::kInfantry4]->Armors();
 //    detected_armors_in_this_frame_ = facility[color_][Facility::kOutpost]->BottomArmors();
-
-
 
     if(clockwise_<= 7 && clockwise_ >= -7 && !is_checked_clockwise)
         IsClockwise();

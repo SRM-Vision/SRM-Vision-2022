@@ -19,7 +19,11 @@ public:
 
 private:
     std::string robot_name_{};
-    Eigen::Vector4f setoff0_{};
-    Eigen::Vector4f setoff1_{};
+    Eigen::Vector4f setoff00_{};
+    Eigen::Vector4f setoff01_{};
+    Eigen::Vector4f setoff10_{};
+    Eigen::Vector4f setoff11_{};
+    Eigen::Vector4f setoff20_{};
+    Eigen::Vector4f setoff21_{};
 };
 #endif //COMPENSATOR_H_

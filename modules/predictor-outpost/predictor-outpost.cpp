@@ -21,7 +21,7 @@ void OutpostPredictor::GetFromDetector(SendToOutpostPredictor send_to_outpost_pr
 SendPacket OutpostPredictor::Run()
 {
     DLOG(INFO) << "Outpost_center_distance: " << center_distance_ << " | " << "bullet_speed: " << bullet_speed_;
-
+    output_data_.fire = 0;
 //    double time_delay = center_distance_ / bullet_speed_ + kCommunicationTime_;
     if (outpost_center_ != cv::Point2f(0.0, 0.0))
     {
@@ -36,5 +36,6 @@ SendPacket OutpostPredictor::Run()
     DLOG(INFO) << "Outpost Send packet: " << output_data_.yaw << " | " << output_data_.pitch - float(delta_pitch_) << " | " << output_data_.fire;
 
     return {output_data_.yaw, output_data_.pitch - float(delta_pitch_), output_data_.delay,
-            0,output_data_.fire, float(output_data_.yaw + output_data_.pitch + 0 + output_data_.delay + output_data_.fire)};
+            0,output_data_.fire, 0,0,0,0,0,0,0,0,
+            float(output_data_.yaw + output_data_.pitch + 0 + output_data_.delay + output_data_.fire)};
 }
