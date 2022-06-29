@@ -41,10 +41,10 @@ public:
 
 
 private:
-    const double kMax_p_xz_noise = 0.1;
-    const double kMax_p_y_noise = 0.1;
-    const double kMax_p_x_speed_noise = 500;
-    const double kMax_p_y_speed_noise = 500;
+    const double kMax_p_xz_noise = 1;
+    const double kMax_p_y_noise = 1;
+    const double kMax_p_x_speed_noise = 1000;
+    const double kMax_p_y_speed_noise = 1000;
     const double kMax_m_x_noise = 10;
     const double kMax_m_y_noise = 10;
     const int kMax_m_z_noise = 1000;
@@ -52,8 +52,8 @@ private:
 
     double p_xz_noise_ = 0.01;
     double p_y_noise_ = 0.01;
-    double p_x_speed_noise_ = 100;
-    double p_y_speed_noise_ = 100;
+    double p_x_speed_noise_ = 10;
+    double p_y_speed_noise_ = 10;
     double m_x_noise_ = 1;
     double m_y_noise_ = 1;
     double m_z_noise_ = 800;

@@ -73,17 +73,17 @@ namespace debug {
             }
 
             parameter_values_.emplace(trackbar_name, var_value);
-            trackbar_values_.emplace(trackbar_name, int(var_value * 1000));
+            trackbar_values_.emplace(trackbar_name, int(var_value * 10000));
 
             cv::createTrackbar(trackbar_name,
                                window_name,
                                &trackbar_values_.at(trackbar_name),
-                               int(max_value * 1000), Callback);
+                               int(max_value * 10000), Callback);
         }
 
         static void Callback(int, void *) {
             for (auto &trackbar_value: trackbar_values_) {
-                parameter_values_.at(trackbar_value.first) = double(trackbar_value.second) / 1000;
+                parameter_values_.at(trackbar_value.first) = double(trackbar_value.second) / 10000;
             }
         }
 

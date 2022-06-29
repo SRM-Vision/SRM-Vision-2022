@@ -10,12 +10,12 @@ bool ArmorPredictorDebug::Initialize(const std::string &config_path, bool debug_
         return false;
     }
     // Read config data.
-    if(     config_["P_XZ_NOISE"].empty()||
-            config_["P_Y_NOISE"].empty()||
-            config_["P_X_SPEED_NOISE"].empty()||
-            config_["P_Y_SPEED_NOISE"].empty()||
-            config_["M_X_NOISE"].empty()||
-            config_["M_Y_NOISE"].empty()||
+    if(     config_["P_XZ_NOISE"].empty() ||
+            config_["P_Y_NOISE"].empty() ||
+            config_["P_X_SPEED_NOISE"].empty() ||
+            config_["P_Y_SPEED_NOISE"].empty() ||
+            config_["M_X_NOISE"].empty() ||
+            config_["M_Y_NOISE"].empty() ||
             config_["M_Z_NOISE"].empty()){
         LOG(ERROR) << "Failed to read data form ekf config file" << config_path_ << ".";
         return false;

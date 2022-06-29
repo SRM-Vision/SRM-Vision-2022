@@ -67,7 +67,6 @@ void HeroController::Run() {
     while (!exit_signal_) {
         auto time = std::chrono::steady_clock::now();
         if (!image_provider_->GetFrame(frame_)){
-            DLOG(INFO) << "dafawihufafuahfuiah";
             break;
         }
 
@@ -79,6 +78,7 @@ void HeroController::Run() {
             receive_packet_ = ReceivePacket(serial_receive_packet);
         }
 
+        // if(receive_packet_.mode == kOutPost)
         if (CmdlineArgParser::Instance().RunModeOutpost())
         {
             boxes_ = armor_detector_(frame_.image);
@@ -111,7 +111,8 @@ void HeroController::Run() {
             debug::Painter::Instance()->ShowImage("ARMOR DETECT", 1);
 
             DLOG(INFO) << "9";
-        } else {
+        }
+        else {
             boxes_ = armor_detector_(frame_.image);
             BboxToArmor();
             battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.yaw_pitch_roll,
