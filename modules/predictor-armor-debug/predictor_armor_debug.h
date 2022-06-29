@@ -37,6 +37,8 @@ public:
 
     ATTR_READER(m_z_noise_, MeasureZNoise)
 
+    ATTR_READER(shoot_delay_, ShootDelay)
+
     ATTR_READER(delta_pitch_, DeltaPitch)
 
 
@@ -48,6 +50,7 @@ private:
     const double kMax_m_x_noise = 10;
     const double kMax_m_y_noise = 10;
     const int kMax_m_z_noise = 1000;
+    const double kMax_shoot_delay = 0.5;
     const double kDelta_pitch = 1;
 
     double p_xz_noise_ = 0.01;
@@ -57,6 +60,7 @@ private:
     double m_x_noise_ = 1;
     double m_y_noise_ = 1;
     double m_z_noise_ = 800;
+    double shoot_delay_ = 0.02;
     double delta_pitch_ = 0.0;
 };
 

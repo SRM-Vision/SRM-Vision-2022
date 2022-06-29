@@ -18,7 +18,7 @@ void PredictorArmorRenew::Initialize(const std::string &car_name) {
         grey_buffers_[Robot::RobotTypes(i)] = 0;
         anti_top_detectors[Robot::RobotTypes(i)] = AntiTopDetectorRenew();
     }
-    ArmorPredictorDebug::Instance().Initialize("../config/" + car_name + "/ekf-param.yaml",
+    ArmorPredictorDebug::Instance().Initialize("../config/" + car_name + "/predict-param.yaml",
                                                CmdlineArgParser::Instance().DebugUseTrackbar());
 }
 
@@ -67,7 +67,7 @@ SendPacket PredictorArmorRenew::Run(const Battlefield &battlefield, const cv::Ma
             bool found_armor(false);
             auto target(SameArmorByDistance(*begin,preprocessed_robots,kDistanceThreshold));
             if(target.second != nullptr){
-                begin->Predict(*target.first,delta_t,bullet_speed,battlefield.YawPitchRoll());
+                begin->Predict(*target.first,delta_t,bullet_speed,battlefield.YawPitchRoll(),ArmorPredictorDebug::Instance().ShootDelay());
                 target.second->erase(target.first);
                 found_armor = true;
             }

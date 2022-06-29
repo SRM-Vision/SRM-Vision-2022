@@ -1,9 +1,10 @@
 %YAML:1.0
 ---
-P_XZ_NOISE: 0.01
+P_XZ_NOISE: 0.01        # ekf_param
 P_Y_NOISE: 0.01
 P_X_SPEED_NOISE: 10
 P_Y_SPEED_NOISE: 10
 M_X_NOISE: 1
 M_Y_NOISE: 1
 M_Z_NOISE: 800
+SHOOT_DELAY: 0.02       # shoot_delay

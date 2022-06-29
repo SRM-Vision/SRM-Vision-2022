@@ -71,7 +71,7 @@ public:
         predict_speed_ << 0, 0;
     }
 
-    void Predict(const Armor& armor,double delta_t,double bullet_speed,const std::array<float, 3>& yaw_pitch_roll){
+    void Predict(const Armor& armor,double delta_t,double bullet_speed,const std::array<float, 3>& yaw_pitch_roll,const double shoot_delay){
         Eigen::Vector2d new_speed;
         if(CmdlineArgParser::Instance().WithEKF()){
             PredictFunction predict;  ///< Predicting function.
@@ -87,7 +87,7 @@ public:
             Eigen::Matrix<double, 5, 1> x_estimate = ekf_.Update(measure, y_real);
 
             /// add ballistic delay
-            auto delta_t_predict = armor.TranslationVectorWorld().norm() / bullet_speed + kShootDelay;
+            auto delta_t_predict = armor.TranslationVectorWorld().norm() / bullet_speed + shoot_delay;
             predict.delta_t = delta_t_predict;
             predict(x_estimate.data(), x_predict.data());
             predict_world_vector_ << x_predict(0, 0), x_predict(2, 0), x_predict(4, 0);

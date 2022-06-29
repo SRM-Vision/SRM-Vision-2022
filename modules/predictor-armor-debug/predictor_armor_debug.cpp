@@ -6,7 +6,7 @@ bool ArmorPredictorDebug::Initialize(const std::string &config_path, bool debug_
     // Open config file.
     config_.open(config_path_, cv::FileStorage::READ);
     if (!config_.isOpened()) {
-        LOG(ERROR) << "Failed to open ekf config file " << config_path_ << ".";
+        LOG(ERROR) << "Failed to open predict config file " << config_path_ << ".";
         return false;
     }
     // Read config data.
@@ -16,8 +16,9 @@ bool ArmorPredictorDebug::Initialize(const std::string &config_path, bool debug_
             config_["P_Y_SPEED_NOISE"].empty() ||
             config_["M_X_NOISE"].empty() ||
             config_["M_Y_NOISE"].empty() ||
-            config_["M_Z_NOISE"].empty()){
-        LOG(ERROR) << "Failed to read data form ekf config file" << config_path_ << ".";
+            config_["M_Z_NOISE"].empty() ||
+            config_["SHOOT_DELAY"].empty()){
+        LOG(ERROR) << "Failed to read data form predict config file" << config_path_ << ".";
         return false;
     }
 
@@ -28,6 +29,7 @@ bool ArmorPredictorDebug::Initialize(const std::string &config_path, bool debug_
     config_["M_X_NOISE"] >> m_x_noise_;
     config_["M_Y_NOISE"] >> m_y_noise_;
     config_["M_Z_NOISE"] >> m_z_noise_;
+    config_["SHOOT_DELAY"] >> shoot_delay_;
     config_.release();
 
     if (debug_use_trackbar) {
@@ -65,6 +67,10 @@ bool ArmorPredictorDebug::Initialize(const std::string &config_path, bool debug_
                                                         trackbar_windows_name_,
                                                         m_z_noise_,
                                                         kMax_m_z_noise);
+        debug::Trackbar<double>::Instance().AddTrackbar("shoot_delay",
+                                                        trackbar_windows_name_,
+                                                        shoot_delay_,
+                                                        kMax_shoot_delay);
         debug::Trackbar<double>::Instance().AddTrackbar("delta_pitch",
                                                         trackbar_windows_name_,
                                                         delta_pitch_,
@@ -89,6 +95,7 @@ void ArmorPredictorDebug::Save() {
     config_ << "M_X_NOISE" << m_x_noise_;
     config_ << "M_Y_NOISE" << m_y_noise_;
     config_ << "M_Z_NOISE" << m_z_noise_;
+    config_ << "SHOOT_DELAY" << shoot_delay_;
     config_.release();
     LOG(INFO) << "Config of ekf is updated.";
 

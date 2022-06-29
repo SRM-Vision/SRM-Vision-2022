@@ -13,10 +13,10 @@ bool ArmorPredictor::Initialize(const std::string &car_name) {
     cv::FileStorage config_;
     config_.open("../config/" + car_name_ + "/setoff-param.yaml", cv::FileStorage::READ);
     if (!config_.isOpened()) {
-        LOG(ERROR) << "Failed to open ekf setoff file ";
+        LOG(ERROR) << "Failed to open setoff file ";
     }
 
-    ArmorPredictorDebug::Instance().Initialize("../config/" + car_name_ + "/ekf-param.yaml",
+    ArmorPredictorDebug::Instance().Initialize("../config/" + car_name_ + "/predict-param.yaml",
                                                CmdlineArgParser::Instance().DebugUseTrackbar());
     for (auto i = 0; i < Robot::RobotTypes::SIZE; ++i)
         grey_count_[Robot::RobotTypes(i)] = 0;
