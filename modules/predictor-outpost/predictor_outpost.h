@@ -30,6 +30,10 @@ public:
                                                         "outpost",
                                                         delta_pitch_,
                                                         1);
+        debug::Trackbar<double>::Instance().AddTrackbar("shoot_distance:",
+                                                        "outpost",
+                                                        advanced_distance,
+                                                        150);
     }
     ~OutpostPredictor() = default;
     void GetFromDetector(SendToOutpostPredictor send_to_outpost_predictor);
@@ -40,6 +44,7 @@ private:
 
     double bullet_speed_ = 0;   ///< m/s
     double delta_pitch_ = 0;
+    double advanced_distance = 100;
     int clockwise_ = 0;
     OutputData output_data_{};
     double center_distance_ = 0;

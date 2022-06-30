@@ -5,9 +5,9 @@
 #include "image-provider-base/image-provider-factory.h"
 #include "controller-base/controller_factory.h"
 #include "predictor-armor/predictor_armor_renew.h"
-#include "predictor-outpost/predictor-outpost.h"
+#include "predictor-outpost/new_predictor_outpost.h"
+#include "predictor-outpost/predictor_outpost.h"
 #include "detector-outpost/detector_outpost.h"
-#include "predictor-outpost/predictor-outpost.h"
 #include "controller_hero.h"
 /**
  * \warning Controller registry will be initialized before the program entering the main function!
@@ -100,12 +100,13 @@ void HeroController::Run() {
             outpost_predictor_.GetFromDetector(send_to_outpost_predictor);
 
             DLOG(INFO) << "6";
-            outpost_predictor_.Run();
+            send_packet_ = outpost_predictor_.Run();
 
             DLOG(INFO) << "7";
-
+            if(send_packet_.fire)
+                debug::Painter::Instance()->DrawText("Frie",{50,50},cv::Scalar(100, 255, 100),2);
             debug::Painter::Instance()->DrawPoint(outpost_detector_.OutpostCenter(), cv::Scalar(100, 255, 100), 2, 2);
-            debug::Painter::Instance()->DrawPoint(outpost_detector_.ComingArmorCenter(), cv::Scalar(100, 255, 250), 2, 2);
+            debug::Painter::Instance()->DrawPoint(outpost_detector_.ComingArmorCenter2D(), cv::Scalar(100, 255, 250), 2, 2);
             DLOG(INFO) << "8";
             DLOG(INFO) << "center: " << outpost_detector_.OutpostCenter();
             debug::Painter::Instance()->ShowImage("ARMOR DETECT", 1);
@@ -142,16 +143,19 @@ void HeroController::Run() {
             debug::Painter::Instance()->ShowImage("ARMOR DETECT", 1);
         }
 
+
         auto key = cv::waitKey(1) & 0xff;
         if (key == 'q')
             break;
         else if (key == 's')
             ArmorPredictorDebug::Instance().Save();
 
+
         Compensator::Instance().Setoff(send_packet_.pitch,
                                        receive_packet_.bullet_speed,
                                        armor_predictor.GetTargetDistance(),
                                        receive_packet_.mode);
+
         if (CmdlineArgParser::Instance().RunWithSerial()) {
             serial_->SendData(send_packet_, std::chrono::milliseconds(5));
         }

@@ -13,12 +13,17 @@
 
 struct SendToOutpostPredictor
 {
-    SendToOutpostPredictor():going_center_point(0,0), outpost_center(0,0), coming_center_point(0,0), is_clockwise(0), center_distance(0), bullet_speed(0){}
-    void UpdateInfo(cv::Point2f going_center, cv::Point2f center,
-                    cv::Point2f coming_center, int clockwise, double distance, float bulletspeed, coordinate::TranslationVector shootpoint);
-    cv::Point2f going_center_point;
+    SendToOutpostPredictor():going_center_point2d(0,0), outpost_center(0,0), coming_center_point2d(0,0),
+                             going_center_point3d(0,0,0), coming_center_point3d(0,0,0),
+                             is_clockwise(0), center_distance(0), bullet_speed(0){}
+    void UpdateInfo(cv::Point2f going_center, cv::Point2f center,cv::Point2f coming_center,
+                    coordinate::TranslationVector going_center_3d, coordinate::TranslationVector coming_center_3d,
+                    int clockwise, double distance, float bulletspeed, coordinate::TranslationVector shootpoint);
+    cv::Point2f going_center_point2d;
+    coordinate::TranslationVector going_center_point3d;
     cv::Point2f outpost_center;
-    cv::Point2f coming_center_point;
+    cv::Point2f coming_center_point2d;
+    coordinate::TranslationVector coming_center_point3d;
     coordinate::TranslationVector shoot_point;
     int is_clockwise;                   // 1 is clockwise, -1 is anti-clockwise
     double center_distance;
@@ -35,9 +40,13 @@ public:
 
     ATTR_READER_REF(outpost_center_, OutpostCenter)
 
-    ATTR_READER_REF(going_center_point_, GoingArmorCenter)
+    ATTR_READER_REF(going_center_point_2D, GoingArmorCenter2D)
 
-    ATTR_READER_REF(coming_center_point_, ComingArmorCenter)
+    ATTR_READER_REF(going_center_point_3D, GoingArmorCenter3D)
+
+    ATTR_READER_REF(coming_center_point_2D, ComingArmorCenter2D)
+
+    ATTR_READER_REF(coming_center_point_3D, ComingArmorCenter3D)
 
     ATTR_READER_REF(center_distance_, OutpostCenterDistance)
 
@@ -62,8 +71,10 @@ private:
 
     // Send to predictor
     coordinate::TranslationVector shoot_point_;
-    cv::Point2f going_center_point_;
-    cv::Point2f coming_center_point_;
+    cv::Point2f going_center_point_2D;
+    coordinate::TranslationVector going_center_point_3D;
+    cv::Point2f coming_center_point_2D;
+    coordinate::TranslationVector coming_center_point_3D;
     int clockwise_ = 0;                   // 1 is clockwise, -1 is anti-clockwise
     double center_distance_;
     cv::Point2f outpost_center_;
