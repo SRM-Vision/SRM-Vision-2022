@@ -9,7 +9,7 @@
 #include "data-structure/communication.h"
 #include "digital-twin/facilities/outpost.h"
 #include "detector-outpost/detector_outpost.h"
-
+#include <cmath>
 #include <utility>
 #include "debug-tools/trackbar.h"
 struct NewOutputData {
@@ -24,7 +24,7 @@ struct NewOutputData {
 class NewOutpostPredictor {
 public:
 
-    explicit NewOutpostPredictor():going_center3d_(0,0,0),coming_center3d_(0,0,0)
+    explicit NewOutpostPredictor():going_center3d_(0,0,0),coming_center3d_(0,0,0),center_3d_(0,0,0)
     {
         debug::Trackbar<double>::Instance().AddTrackbar("outpost pitch:",
                                                         "outpost",
@@ -48,12 +48,17 @@ private:
     int clockwise_ = 0;
     NewOutputData output_data_{};
     double center_distance_ = 0;
-    cv::Point2f outpost_center_ = cv::Point2f (0.0, 0.0);
+    cv::Point2f outpost_center_ = cv::Point2f (0.0, 0.0);   // 图中
+    coordinate::TranslationVector shoot_point_;                     // 相机坐标系下
+    coordinate::TranslationVector center_3d_;                       // 世界坐标系下
+
     cv::Point2f going_center2d_ = cv::Point2f (0.0, 0.0);
-    coordinate::TranslationVector going_center3d_;
+    coordinate::TranslationVector going_center3d_;              // 世界坐标系下
+
     cv::Point2f coming_center2d_ = cv::Point2f (0.0, 0.0);
-    coordinate::TranslationVector coming_center3d_;
-    coordinate::TranslationVector shoot_point;
+    coordinate::TranslationVector coming_center3d_;             // 世界坐标系下
+
+
 };
 
 

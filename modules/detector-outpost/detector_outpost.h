@@ -14,14 +14,15 @@
 struct SendToOutpostPredictor
 {
     SendToOutpostPredictor():going_center_point2d(0,0), outpost_center(0,0), coming_center_point2d(0,0),
-                             going_center_point3d(0,0,0), coming_center_point3d(0,0,0),
+                             going_center_point3d(0,0,0), outpost_center_3d(0,0,0),coming_center_point3d(0,0,0),
                              is_clockwise(0), center_distance(0), bullet_speed(0){}
     void UpdateInfo(cv::Point2f going_center, cv::Point2f center,cv::Point2f coming_center,
-                    coordinate::TranslationVector going_center_3d, coordinate::TranslationVector coming_center_3d,
+                    coordinate::TranslationVector going_center_3d,coordinate::TranslationVector center_3d, coordinate::TranslationVector coming_center_3d,
                     int clockwise, double distance, float bulletspeed, coordinate::TranslationVector shootpoint);
     cv::Point2f going_center_point2d;
     coordinate::TranslationVector going_center_point3d;
     cv::Point2f outpost_center;
+    coordinate::TranslationVector outpost_center_3d;
     cv::Point2f coming_center_point2d;
     coordinate::TranslationVector coming_center_point3d;
     coordinate::TranslationVector shoot_point;
@@ -70,14 +71,16 @@ private:
     double max_area_;
 
     // Send to predictor
-    coordinate::TranslationVector shoot_point_;
+    cv::Point2f outpost_center_;                            // 在图片中的
+    coordinate::TranslationVector shoot_point_;             // 相机坐标下
+    coordinate::TranslationVector center_3D;                // 世界坐标系下
     cv::Point2f going_center_point_2D;
-    coordinate::TranslationVector going_center_point_3D;
+    coordinate::TranslationVector going_center_point_3D;    // 世界坐标系下
     cv::Point2f coming_center_point_2D;
-    coordinate::TranslationVector coming_center_point_3D;
+    coordinate::TranslationVector coming_center_point_3D;   // 世界坐标系下
     int clockwise_ = 0;                   // 1 is clockwise, -1 is anti-clockwise
     double center_distance_;
-    cv::Point2f outpost_center_;
+
 
 };
 

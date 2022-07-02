@@ -5,14 +5,15 @@
 
 #include <utility>
 void SendToOutpostPredictor::UpdateInfo(cv::Point2f going_center_2d, cv::Point2f center, cv::Point2f coming_center_2d,
-                                        coordinate::TranslationVector going_center_3d, coordinate::TranslationVector coming_center_3d,
+                                        coordinate::TranslationVector going_center_3d, coordinate::TranslationVector center_3d,coordinate::TranslationVector coming_center_3d,
                                         int clockwise, double distance, float bulletspeed, coordinate::TranslationVector shootpoint)
 {
     going_center_point2d = std::move(going_center_2d);
     coming_center_point2d = std::move(coming_center_2d);
     going_center_point3d = std::move(going_center_3d);
-    coming_center_point3d = std::move(going_center_3d);
+    coming_center_point3d = std::move(coming_center_3d);
     outpost_center = std::move(center);
+    outpost_center_3d = std::move(center_3d);
     is_clockwise = clockwise;
     center_distance = distance;
     bullet_speed  = bulletspeed;
@@ -56,7 +57,7 @@ SendToOutpostPredictor OutpostDetector::Run(const Battlefield& battlefield)
         DLOG(INFO) << "No outpost armor founded";
 
         send_to_outpost_predictor.UpdateInfo(going_center_point_2D, outpost_center_, coming_center_point_2D,
-                                             going_center_point_3D, coming_center_point_3D,
+                                             going_center_point_3D, center_3D,coming_center_point_3D,
                                              clockwise_, center_distance_, battlefield.BulletSpeed(), shoot_point_);
         return send_to_outpost_predictor;
     }
@@ -76,7 +77,7 @@ SendToOutpostPredictor OutpostDetector::Run(const Battlefield& battlefield)
     FindBiggestArmor();
 
     send_to_outpost_predictor.UpdateInfo(going_center_point_2D, outpost_center_, coming_center_point_2D,
-                                         going_center_point_3D, coming_center_point_3D,
+                                         going_center_point_3D, center_3D,coming_center_point_3D,
                                          clockwise_, center_distance_, battlefield.BulletSpeed(), shoot_point_);
     return send_to_outpost_predictor;
 }
@@ -138,6 +139,8 @@ void OutpostDetector::FindBiggestArmor()
                 outpost_center_ = armor.Center();
                 center_distance_ = armor.Distance();
                 shoot_point_ = armor.TranslationVectorCam();
+                center_3D = armor.TranslationVectorWorld();
+
             }
             else
             {
@@ -162,26 +165,26 @@ void OutpostDetector::DecideComingGoing()
             if(detected_armors_in_this_frame_[0].Center().x <= outpost_center_.x)
             {
                 going_center_point_2D = detected_armors_in_this_frame_[0].Center();
-                going_center_point_3D = detected_armors_in_this_frame_[0].TranslationVectorCam();
+                going_center_point_3D = detected_armors_in_this_frame_[0].TranslationVectorWorld();
                 coming_center_point_2D = cv::Point2f (-1, -1);
                 going_center_point_3D = Eigen::Vector3d (-1,-1,-1);
             }
             if(detected_armors_in_this_frame_[0].Center().x > outpost_center_.x){
                 coming_center_point_2D = detected_armors_in_this_frame_[0].Center();
-                coming_center_point_3D = detected_armors_in_this_frame_[0].TranslationVectorCam();
+                coming_center_point_3D = detected_armors_in_this_frame_[0].TranslationVectorWorld();
             }
         } else if(clockwise_ == -1)
         {
             if(detected_armors_in_this_frame_[0].Center().x >= outpost_center_.x)
             {
                 going_center_point_2D = detected_armors_in_this_frame_[0].Center();
-                going_center_point_3D = detected_armors_in_this_frame_[0].TranslationVectorCam();
+                going_center_point_3D = detected_armors_in_this_frame_[0].TranslationVectorWorld();
                 coming_center_point_2D = cv::Point2f (-1, -1);
                 coming_center_point_3D = Eigen::Vector3d (-1 , -1 , -1);
             }
             if(detected_armors_in_this_frame_[0].Center().x < outpost_center_.x){
                 coming_center_point_2D = detected_armors_in_this_frame_[0].Center();
-                coming_center_point_3D = detected_armors_in_this_frame_[0].TranslationVectorCam();
+                coming_center_point_3D = detected_armors_in_this_frame_[0].TranslationVectorWorld();
             }
         }
     }
@@ -192,30 +195,30 @@ void OutpostDetector::DecideComingGoing()
             if(detected_armors_in_this_frame_[0].Center().x > detected_armors_in_this_frame_[1].Center().x)
             {
                 coming_center_point_2D = detected_armors_in_this_frame_[0].Center();
-                coming_center_point_3D = detected_armors_in_this_frame_[0].TranslationVectorCam();
+                coming_center_point_3D = detected_armors_in_this_frame_[0].TranslationVectorWorld();
                 going_center_point_2D = detected_armors_in_this_frame_[1].Center();
-                going_center_point_3D = detected_armors_in_this_frame_[1].TranslationVectorCam();
+                going_center_point_3D = detected_armors_in_this_frame_[1].TranslationVectorWorld();
             } else
             {
                 coming_center_point_2D = detected_armors_in_this_frame_[1].Center();
-                coming_center_point_3D = detected_armors_in_this_frame_[1].TranslationVectorCam();
+                coming_center_point_3D = detected_armors_in_this_frame_[1].TranslationVectorWorld();
                 going_center_point_2D = detected_armors_in_this_frame_[0].Center();
-                going_center_point_3D = detected_armors_in_this_frame_[0].TranslationVectorCam();
+                going_center_point_3D = detected_armors_in_this_frame_[0].TranslationVectorWorld();
             }
         } else if(clockwise_ == -1)
         {
             if(detected_armors_in_this_frame_[0].Center().x > detected_armors_in_this_frame_[1].Center().x)
             {
                 coming_center_point_2D = detected_armors_in_this_frame_[1].Center();
-                coming_center_point_3D = detected_armors_in_this_frame_[1].TranslationVectorCam();
+                coming_center_point_3D = detected_armors_in_this_frame_[1].TranslationVectorWorld();
                 going_center_point_2D = detected_armors_in_this_frame_[0].Center();
-                going_center_point_3D = detected_armors_in_this_frame_[0].TranslationVectorCam();
+                going_center_point_3D = detected_armors_in_this_frame_[0].TranslationVectorWorld();
             } else
             {
                 coming_center_point_2D = detected_armors_in_this_frame_[0].Center();
-                coming_center_point_3D = detected_armors_in_this_frame_[0].TranslationVectorCam();
+                coming_center_point_3D = detected_armors_in_this_frame_[0].TranslationVectorWorld();
                 going_center_point_2D = detected_armors_in_this_frame_[1].Center();
-                going_center_point_3D = detected_armors_in_this_frame_[1].TranslationVectorCam();
+                going_center_point_3D = detected_armors_in_this_frame_[1].TranslationVectorWorld();
             }
         }
     }

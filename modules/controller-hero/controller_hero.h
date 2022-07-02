@@ -20,8 +20,8 @@ private:
 
     OutpostDetector outpost_detector_;
     Outpost outpost_;
-    OutpostPredictor outpost_predictor_;
-    //NewOutpostPredictor outpost_predictor_;
+    // OutpostPredictor outpost_predictor_;
+    NewOutpostPredictor outpost_predictor_;
 };
 
 #endif  // CONTROLLER_HERO_H_

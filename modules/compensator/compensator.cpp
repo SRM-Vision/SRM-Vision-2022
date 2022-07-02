@@ -38,11 +38,13 @@ void Compensator::Setoff(float &pitch,double bullet_speed, double distance,AimMo
         float delta_pitch = setoff01_[0] * plane_distance + setoff01_[1];
         pitch += delta_pitch;
         DLOG(INFO) << "after setoff pitch: "<<pitch;
-    }else if (robot_name_ == "sentry_higher"){
+    }
+    else if (robot_name_ == "sentry_higher"){
         float plane_distance = 0,delta_pitch =0;
         DLOG(INFO) << "before setoff pitch:"<<pitch;
         DLOG(INFO) << "after setoff pitch: "<<pitch;
-    }else if (robot_name_ == "hero") {
+    }
+    else if (robot_name_ == "hero") {
         float plane_distance = 0,delta_pitch = 0;
         DLOG(INFO) << "before setoff pitch:"<<pitch;
         if ( bullet_speed ==10){
@@ -67,7 +69,8 @@ void Compensator::Setoff(float &pitch,double bullet_speed, double distance,AimMo
         }
         pitch += delta_pitch;
         DLOG(INFO) << "after setoff pitch: "<<pitch;
-    } else if (robot_name_ == "infantry") {
+    }
+    else if (robot_name_[0] == 'i') {   // 首字母是i是步兵
         float plane_distance = 0,delta_pitch = 0;
         DLOG(INFO) << "before setoff pitch:"<<pitch;
         if ( bullet_speed ==15){
