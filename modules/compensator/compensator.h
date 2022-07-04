@@ -19,11 +19,13 @@ public:
 
 private:
     std::string robot_name_{};
-    Eigen::Vector4f setoff00_{};
-    Eigen::Vector4f setoff01_{};
-    Eigen::Vector4f setoff10_{};
-    Eigen::Vector4f setoff11_{};
-    Eigen::Vector4f setoff20_{};
-    Eigen::Vector4f setoff21_{};
+    // setoff后的数字表示弹速等级
+    // 字母d表示用于计算plane_distance，字母p表示用于计算delta_pitch
+    Eigen::Vector4f setoff0d_{};
+    Eigen::Vector4f setoff0p_{};
+    Eigen::Vector4f setoff1d_{};
+    Eigen::Vector4f setoff1p_{};
+    Eigen::Vector4f setoff2d_{};
+    Eigen::Vector4f setoff2p_{};
 };
 #endif //COMPENSATOR_H_
