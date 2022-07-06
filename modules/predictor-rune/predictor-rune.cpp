@@ -1,10 +1,10 @@
 #include "predictor-rune.h"
 #include <ceres/ceres.h>
 
-predictor::rune::RunePredictor::RunePredictor() :
-        debug_(false),
-        rune_(), state_(), rotational_speed_(), fitting_data_(), output_data_(),
-        predicted_angle_(), predicted_point_() {}
+predictor::rune::RunePredictor::RunePredictor() : debug_(false),
+                                                  rune_(), state_(), rotational_speed_(), fitting_data_(),
+                                                  output_data_(),
+                                                  predicted_angle_(), predicted_point_() {}
 
 double predictor::rune::RotationalSpeed::Integral(double integral_time) const {
     constexpr double c = 0;
@@ -17,8 +17,7 @@ void predictor::rune::OutputData::Update(bool debug,
                                          double predicted_angle,
                                          const cv::Point2f &predicted_point,
                                          cv::Point2f &fixed_point) {
-    if (rune.ArmorCenterP() == cv::Point2f(0, 0))
-    {
+    if (rune.ArmorCenterP() == cv::Point2f(0, 0)) {
         if (debug)
             DLOG(INFO) << "Rune Predictor receive zeros detection result.";
         yaw = pitch = delay = 0;
@@ -30,40 +29,40 @@ void predictor::rune::OutputData::Update(bool debug,
     while (predicted_angle < 0) predicted_angle += 360;
     while (predicted_angle > 360) predicted_angle -= 360;
 
-    if (predicted_angle > 150 && predicted_angle < 180) {
-        delta_u -= 20;
+    ///< Ballistic Compensation
+    if (predicted_angle >= 0 && predicted_angle < 45) {
         delta_v += 20;
-    }
-    if (predicted_angle >= 90 && predicted_angle < 180) {
+        delta_u += 0;
+    } else if (predicted_angle < 90) {
+        delta_u += 0;
+        delta_v += 10;
+    } else if (predicted_angle < 135) {
         delta_u += 10;
         delta_v += 10;
-    }
-    if (predicted_angle < 90 && predicted_angle >= 0)
+    } else if (predicted_angle < 180) {
+        delta_u -= 20;
         delta_v += 20;
-    if (predicted_angle >= 180 && predicted_angle < 225) {
+    } else if (predicted_angle < 225) {
+        delta_u -= 10;
+        delta_v += 15;
+    } else if (predicted_angle < 270) {
         delta_u -= 10;
         delta_v += 20;
-    }
-    if (predicted_angle >= 225 && predicted_angle < 270) {
-        delta_u -= 10;
-        delta_v += 20;
-    }
-    if (predicted_angle >= 315 && predicted_angle < 360) {
-        delta_u -= 10;
-        delta_v += 20;
-    }
-    if (predicted_angle >= 270 && predicted_angle < 315) {
+    } else if (predicted_angle < 315) {
         delta_u -= 5;
-        delta_v += 25;
+        delta_v += 15;
+    } else {
+        delta_u -= 10;
+        delta_v += 10;
     }
 
-    fixed_point = predicted_point + cv::Point2f(delta_u, -delta_v - 15);
+    fixed_point = predicted_point + cv::Point2f(delta_u, delta_v);
 
     // Use SIMD atan2 for 4x floats.
     // auto yaw_data_pixel = float(std::atan2(fixed_point.x - rune.ImageCenter().x, 1350));
     // auto pitch_data_pixel = float(std::atan2(-rune.ImageCenter().y + fixed_point.y, 1350));
     float x[4] = {1350, 1350, 1, 1},
-            y[4] = {fixed_point.x - rune.ImageCenter().x, -rune.ImageCenter().y + fixed_point.y, 1, 1},
+            y[4] = {fixed_point.x - rune.ImageCenter().x, fixed_point.y - rune.ImageCenter().y, 1, 1},
             z[4] = {0};
     algorithm::Atan2FloatX4(y, x, z);
     yaw = z[0], pitch = z[1];
@@ -120,7 +119,7 @@ void predictor::rune::FittingData::Fit(bool debug, RotationalSpeed &rotational_s
 
 void predictor::rune::State::UpdateAngle(const cv::Point2f &rtp_vec) {
     // Calculate RADIAN angle.
-    auto rad = algorithm::Atan2Float(-rtp_vec.y, rtp_vec.x);
+    auto rad = algorithm::Atan2Float(rtp_vec.y, rtp_vec.x);
 
     // Make positive radian for quadrant III or IV.
     if (rad < 0)
@@ -142,11 +141,10 @@ bool predictor::rune::State::UpdatePalstance(const PowerRune &rune,
 
     float angle;  ///< Temp angle var in DEGREE.
     auto current_time_chrono = std::chrono::high_resolution_clock::now();
-    current_time = double(
-            std::chrono::duration_cast<std::chrono::milliseconds>(
-                    std::chrono::system_clock::now().time_since_epoch()).count());
-
+    current_time = double(std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::system_clock::now().time_since_epoch()).count());
     current_time *= 1e-3;  // Convert millisecond to second.
+
     // Filter invalid data.
     if (last_rtg_vec != cv::Point2f(0, 0)) {
         angle = algorithm::VectorAngle(last_rtg_vec, rune.RtgVec());  // Calculate angle in DEGREE.
@@ -227,7 +225,8 @@ void predictor::rune::RunePredictor::PredictAngle(AimModes aim_mode) {
             predicted_angle_ = state_.current_angle;
         } else {
             double delay_time = 7.0 / 28.5;
-            auto rotated_radian = rotational_speed_.Integral(state_.current_time + delay_time)
+            double compensate_time = 0.05;
+            auto rotated_radian = rotational_speed_.Integral(state_.current_time + delay_time + compensate_time)
                                   - rotational_speed_.Integral(state_.current_time);
             rotated_angle = rotated_radian * 180 / CV_PI;
 
@@ -236,12 +235,9 @@ void predictor::rune::RunePredictor::PredictAngle(AimModes aim_mode) {
         }
     } else {
         double delay_time = 7.0 / 28.5;  // Bullet offset.
-        state_.current_time = double(std::chrono::duration_cast<std::chrono::milliseconds>
-                                             (std::chrono::system_clock::now().time_since_epoch()).count());
-        state_.current_time *= 1e-3;  // Convert ms to s.
-        auto rotated_radian = (-1.0) * rune_.Clockwise() * (
-                rotational_speed_.w * (state_.current_time + delay_time)
-                - rotational_speed_.w * (state_.current_time));
+        double compensate_time = 0.05;   // Other offset
+
+        auto rotated_radian = (-1.0) * rune_.Clockwise() * rotational_speed_.w * (compensate_time + delay_time);
         rotated_angle = rotated_radian * 180 / CV_PI;
 
         state_.UpdateAngle(rune_.RtpVec());
@@ -250,11 +246,9 @@ void predictor::rune::RunePredictor::PredictAngle(AimModes aim_mode) {
 }
 
 void predictor::rune::RunePredictor::PredictPoint() {
-    auto radius = algorithm::SqrtFloat(
-            rune_.RtpVec().x * rune_.RtpVec().x
-            + rune_.RtpVec().y * rune_.RtpVec().y);
-    auto predicted_rad = static_cast<float>(CV_2PI - predicted_angle_ * 180 / CV_PI);
-    predicted_point_ = rune_.CenterR() +
-                       cv::Point2f(algorithm::CosFloat(predicted_rad) * radius,
-                                   algorithm::SinFloat(predicted_rad) * radius);
+    auto radius = algorithm::SqrtFloat(rune_.RtpVec().x * rune_.RtpVec().x
+                                       + rune_.RtpVec().y * rune_.RtpVec().y);
+    auto predicted_rad = static_cast<float>(predicted_angle_ * CV_PI / 180);
+    predicted_point_ = rune_.CenterR() + cv::Point2f(algorithm::CosFloat(predicted_rad) * radius,
+                                                     algorithm::SinFloat(predicted_rad) * radius);
 }

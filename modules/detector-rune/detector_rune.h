@@ -14,7 +14,7 @@
 
 class RuneDetector : NO_COPY, NO_MOVE {
 public:
-    [[maybe_unused]] explicit RuneDetector(Entity::Colors color = Entity::Colors::kBlue, bool debug = false);
+    [[maybe_unused]] explicit RuneDetector(Entity::Colors color = Entity::Colors::kRed, bool debug = false);
 
     ~RuneDetector() = default;
 
@@ -57,23 +57,25 @@ private:
     bool found_fan_center_g;     ///< Whether fan center G is found.
     bool debug_;                 ///< Debug flag.
 
-    cv::Mat image_;              ///< Initial input image.
+    cv::Mat image_;              ///< Original image.
     cv::Point2f fan_rect_points_[4];
     std::vector<cv::Mat> image_channels_;
     std::vector<std::vector<cv::Point>> fan_contours_;
     std::vector<cv::Vec4i> fan_hierarchies_;
     cv::RotatedRect fan_encircle_rect_;
     cv::RotatedRect armor_encircle_rect_;
-    const cv::Point2f offset_center_r_;
 
     cv::Point3f send_yaw_pitch_delay_;
     cv::Point2f energy_center_r_;
     cv::Point2f armor_center_p_;
+    cv::Point2f r_offset_;
+    cv::Point2f p_offset_;
     cv::Point2f fan_center_g_;
     Entity::Colors color_;
     cv::Point2f rtp_vec_;
     cv::Point2f rtg_vec_;
     int clockwise_;
+    int frame_lost_;
 };
 
 #endif  // DETECTOR_RUNE_H_
