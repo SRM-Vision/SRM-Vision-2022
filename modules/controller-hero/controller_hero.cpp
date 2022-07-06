@@ -67,7 +67,8 @@ void HeroController::Run() {
     while (!exit_signal_) {
         auto time = std::chrono::steady_clock::now();
         if (!image_provider_->GetFrame(frame_)){
-            break;
+            sleep(1);
+            continue;
         }
 
         debug::Painter::Instance()->UpdateImage(frame_.image);
@@ -83,26 +84,19 @@ void HeroController::Run() {
         {
             boxes_ = armor_detector_(frame_.image);
 
-            DLOG(INFO) << "1";
             BboxToArmor();
 
-            DLOG(INFO) << "2";
             battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.yaw_pitch_roll,
                                        armors_);
 
-            DLOG(INFO) << "3";
             outpost_detector_.SetColor(receive_packet_.color);
 
-            DLOG(INFO) << "4";
             SendToOutpostPredictor send_to_outpost_predictor = outpost_detector_.Run(battlefield_);
 
-            DLOG(INFO) << "5";
             outpost_predictor_.GetFromDetector(send_to_outpost_predictor);
 
-            DLOG(INFO) << "6";
             send_packet_ = outpost_predictor_.Run();
 
-            DLOG(INFO) << "7";
             if(send_packet_.fire)
                 debug::Painter::Instance()->DrawText("Frie",{50,50},cv::Scalar(100, 255, 100),2);
             debug::Painter::Instance()->DrawPoint(outpost_detector_.OutpostCenter(), cv::Scalar(100, 255, 100), 2, 2);

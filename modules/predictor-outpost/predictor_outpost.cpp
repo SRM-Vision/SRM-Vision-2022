@@ -27,8 +27,8 @@ SendPacket OutpostPredictor::Run()
     {
         DLOG(INFO) << "outpost_center_" << outpost_center_;
         DLOG(INFO) << "going_center_" << going_center_;
-        double pixel_distance = algorithm::SqrtFloat((coming_center_.x - outpost_center_.x) * (coming_center_.x - outpost_center_.x) +
-                                                     (coming_center_.y - outpost_center_.y) * (coming_center_.y - outpost_center_.y));
+        double pixel_distance = algorithm::SqrtFloat((going_center_.x - outpost_center_.x) * (going_center_.x - outpost_center_.x) +
+                                                     (going_center_.y - outpost_center_.y) * (going_center_.y - outpost_center_.y));
         if(pixel_distance >  advanced_distance && pixel_distance < advanced_distance+10)
             output_data_.fire = 1;
         DLOG(INFO) << "pixel distance" << pixel_distance;
