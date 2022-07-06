@@ -33,6 +33,7 @@ public:
 
     inline void Clear(){
         predict_armors_.clear();
+        target_ = -1;
         for(auto& anti_top_detector:anti_top_detectors)
             anti_top_detector.second = AntiTopDetectorRenew();
         for(auto& buffer:grey_buffers_)  /// pending
@@ -45,7 +46,7 @@ public:
         return {float(size().width / 2.0), float(size().height / 2.0)};
     }
 
-    void AllShootPoint(const cv::Mat& intrinsic_matrix){
+    [[maybe_unused]] void AllShootPoint(const cv::Mat& intrinsic_matrix){
         for(auto& armor:predict_armors_){
             debug::Painter::Instance()->DrawPoint(armor.ShootPointInPic(intrinsic_matrix),
                                             cv::Scalar(0, 0, 255), 1, 10);
@@ -56,8 +57,7 @@ public:
     double GetTargetDistance(){
         if(target_ != -1)
             return predict_armors_[target_].Distance();
-        else
-            return 0;
+        return 0;
     }
 
     void Initialize(const std::string& car_name);

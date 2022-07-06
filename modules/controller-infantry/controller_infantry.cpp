@@ -81,10 +81,10 @@ void InfantryController::Run() {
     sleep(2);
 
     while (!exit_signal_) {
-
+        auto time = std::chrono::steady_clock::now();
         if (!image_provider_->GetFrame(frame_))
             break;
-        auto time = std::chrono::steady_clock::now();
+
 
 //        cv::flip(frame_.image, frame_.image, 0);
 //        cv::flip(frame_.image, frame_.image, 1);
@@ -113,7 +113,6 @@ void InfantryController::Run() {
                 armor_predictor_.SetColor(receive_packet_.color);
                 send_packet_ = armor_predictor_.Run(battlefield_, frame_.image.size ,
                                                    receive_packet_.mode, receive_packet_.bullet_speed);
-                DLOG(INFO) << "DJKSSGJSFAVJH" << send_packet_;
             } else
                 send_packet_ = armor_predictor_.Run(battlefield_, frame_.image.size,AimModes::kAntiTop);
 
@@ -134,11 +133,11 @@ void InfantryController::Run() {
             painter_->ShowImage("ARMOR DETECT", 1);
         }
 
-//        auto key = cv::waitKey(1) & 0xff;
-//        if (key == 'q')
-//            break;
-//        else if (key == 's')
-//            ArmorPredictorDebug::Instance().Save();
+        auto key = cv::waitKey(1) & 0xff;
+        if (key == 'q')
+            break;
+        else if (key == 's')
+            ArmorPredictorDebug::Instance().Save();
         Compensator::Instance().Setoff(send_packet_.pitch,
                                        receive_packet_.bullet_speed,
                                        armor_predictor_.GetTargetDistance(),
@@ -151,6 +150,7 @@ void InfantryController::Run() {
         auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now()
                                                                               - time);
         DLOG(INFO) << "all computation cost ms: " << double(duration.count())/1e6;
+        DLOG(INFO) << " FPS: " << 1e9 / double(duration.count());
     }
 
     // exit.

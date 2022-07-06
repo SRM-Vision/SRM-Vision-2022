@@ -58,7 +58,7 @@ SendPacket PredictorArmorRenew::Run(const Battlefield &battlefield, const cv::Ma
 
     /// Update top information
     for(auto& robot:preprocessed_robots)
-        anti_top_detectors[robot.first].UpdateTop(int(robot.second.size()),battlefield.TimeStamp());
+        anti_top_detectors[robot.first].UpdateTop(int(robot.second.size()), battlefield.TimeStamp());
 
     /// Update EKF
     if(!predict_armors_.empty()){
@@ -142,7 +142,6 @@ SendPacket PredictorArmorRenew::Run(const Battlefield &battlefield, const cv::Ma
 
     if(!target_locked)
         return {0, 0, 0, 0, 0};
-
 
 
 

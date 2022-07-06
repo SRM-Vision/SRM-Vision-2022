@@ -11,7 +11,7 @@ public:
 
     explicit AntiTopDetectorRenew(const uint64_t& timestamp): timestamp_(timestamp){}
 
-    double UpdateTop(const int& new_armor_num,const uint64_t& now_timestamp){
+    void UpdateTop(const int& new_armor_num,const uint64_t& now_timestamp){
         if(new_armor_num == 1 && armor_num_ == 2) {  //  from one armor to one armor is the quartet cycles
             top_period_ = double(now_timestamp - timestamp_) * 4 * 1e-9;
             timestamp_ = now_timestamp;
