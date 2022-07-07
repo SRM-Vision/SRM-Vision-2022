@@ -146,7 +146,7 @@ bool RuneDetector::FindCenterR(cv::Mat &image) {
     new_encircle_rect.points(new_rect_points);
 
     if (debug_)
-        debug::Painter::Instance()->DrawBoundingBox(new_encircle_rect, cv::Scalar_<double>(255, 255, 0), 3);
+        debug::Painter::Instance()->DrawRotatedBox(new_encircle_rect, cv::Scalar_<double>(255, 255, 0), 3);
     cv::Rect R_rect = new_encircle_rect.boundingRect();
     if (possible_center_r.empty()) {
         LOG(WARNING) << "No possible center R points found.";

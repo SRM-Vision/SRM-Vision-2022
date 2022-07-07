@@ -80,6 +80,7 @@ bool InfantryController::Initialize() {
 void InfantryController::Run() {
     sleep(2);
 
+    cv::Rect ROI; // roi of detect armor
     while (!exit_signal_) {
         auto time = std::chrono::steady_clock::now();
         if (!image_provider_->GetFrame(frame_)){
@@ -87,9 +88,11 @@ void InfantryController::Run() {
             continue;
         }
 
-
-//        cv::flip(frame_.image, frame_.image, 0);
-//        cv::flip(frame_.image, frame_.image, 1);
+        // When used camera, need to flip image
+        if(CmdlineArgParser::Instance().RunWithCamera()){
+            cv::flip(frame_.image, frame_.image, 0);
+            cv::flip(frame_.image, frame_.image, 1);
+        }
 
         painter_->UpdateImage(frame_.image);
 
@@ -106,7 +109,7 @@ void InfantryController::Run() {
                                                  cv::Scalar(0, 255, 0), 3, 3);
             painter_->ShowImage("Rune", 1);
         } else {
-            boxes_ = armor_detector_(frame_.image);
+            boxes_ = armor_detector_(frame_.image,ROI);
             BboxToArmor();
             battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.yaw_pitch_roll,
                                        armors_);
@@ -117,8 +120,9 @@ void InfantryController::Run() {
                                                    receive_packet_.mode, receive_packet_.bullet_speed);
             } else
                 send_packet_ = armor_predictor_.Run(battlefield_, frame_.image.size,AimModes::kAntiTop);
-
+            armor_predictor_.GetROI(ROI,frame_.image);
             painter_->UpdateImage(frame_.image);
+            painter_->DrawBoundingBox(ROI,cv::Scalar(0,0,255),2);
             for (const auto &box: boxes_) {
                 painter_->DrawRotatedRectangle(box.points[0],
                                                                 box.points[1],
@@ -131,11 +135,11 @@ void InfantryController::Run() {
             painter_->DrawPoint(armor_predictor_.ShootPointInPic(image_provider_->IntrinsicMatrix(),
                                                                                  frame_.image.size),
                                                  cv::Scalar(0, 0, 255), 1, 10);
-//            armor_predictor.AllShootPoint(image_provider_->IntrinsicMatrix());
+            armor_predictor_.AllShootPoint(image_provider_->IntrinsicMatrix());
             painter_->ShowImage("ARMOR DETECT", 1);
         }
 
-        auto key = cv::waitKey(1) & 0xff;
+        auto key = cv::waitKey(30) & 0xff;
         if (key == 'q')
             break;
         else if (key == 's')

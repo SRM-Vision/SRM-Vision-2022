@@ -66,6 +66,7 @@ void TestController::Test() {
 
     sleep(2);
 
+    cv::Rect ROI; // roi of detect armor
     while (!exit_signal_) {
         if (!image_provider_->GetFrame(frame_))
             break;
@@ -85,7 +86,7 @@ void TestController::Test() {
                                                  cv::Scalar(0, 255, 0), 3, 3);
             debug::Painter::Instance()->ShowImage("Rune", 1);
         } else {
-            boxes_ = armor_detector_(frame_.image);
+            boxes_ = armor_detector_(frame_.image,ROI);
             BboxToArmor();
             battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.yaw_pitch_roll,
                                        armors_);
