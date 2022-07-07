@@ -14,8 +14,8 @@
         rtg_vec_(cv::Point2f(0, 0)),
         energy_center_r_(cv::Point2f(0, 0)),
         armor_center_p_(cv::Point2f(0, 0)),
-        r_offset_(cv::Point2f(0,0)),
-        p_offset_(cv::Point2f(0,0)),
+        r_offset_(cv::Point2f(0, 0)),
+        p_offset_(cv::Point2f(0, 0)),
         fan_center_g_(cv::Point2f(0, 0)),
         send_yaw_pitch_delay_(cv::Point3f(0, 0, 0)) {}
 
@@ -28,7 +28,9 @@ bool RuneDetector::Initialize(const std::string &config_path, const Frame &frame
     return true;
 }
 
-PowerRune RuneDetector::Run(Frame &frame) {
+PowerRune RuneDetector::Run(Entity::Colors color, Frame &frame) {
+    color_ = color;
+    color_ = Entity::kRed;
     image_ = frame.image.clone();
 
     // Split image's channels.
@@ -47,6 +49,7 @@ PowerRune RuneDetector::Run(Frame &frame) {
 
     debug::Painter::Instance()->DrawPoint(armor_center_p_, cv::Scalar(0, 255, 255), 2, 2);
     debug::Painter::Instance()->DrawPoint(energy_center_r_, cv::Scalar(255, 0, 255), 2, 2);
+    // debug::Painter::Instance()->DrawPoint(fan_center_g_, cv::Scalar(255, 255, 0), 2, 2);
     // debug::Painter::Instance()->DrawContours(fan_contours_, cv::Scalar(255, 255, 0), 3, -1, 8);
     cv::waitKey(0);
 
@@ -61,12 +64,25 @@ PowerRune RuneDetector::Run(Frame &frame) {
 }
 
 void RuneDetector::ImageSplit(cv::Mat &image) {
-    cv::split(image, image_channels_);
-    if (Entity::Colors::kRed == color_)
-        cv::subtract(image_channels_.at(2), image_channels_.at(0), image);     // Target is red energy
-    else if (Entity::Colors::kBlue == color_)
-        cv::subtract(image_channels_.at(0), image_channels_.at(2), image);     // Target is blue energy
-    else
+    cv::Mat image_hsv;
+    cv::cvtColor(image, image_hsv, cv::COLOR_BGR2HSV);
+    cv::Scalar lower = cv::Scalar(RuneDetectorDebug::Instance().LowBThresh(),
+                                  RuneDetectorDebug::Instance().LowGThresh(),
+                                  RuneDetectorDebug::Instance().LowRThresh());
+    cv::Scalar upper = cv::Scalar(RuneDetectorDebug::Instance().HighBThresh(),
+                                  RuneDetectorDebug::Instance().HighGThresh(),
+                                  RuneDetectorDebug::Instance().HighRThresh());
+
+    if (Entity::Colors::kBlue == color_) {
+        cv::Mat mask;
+        cv::inRange(image_hsv, lower, upper, mask);
+        cv::bitwise_and(image, image, image, mask);
+    } else if (Entity::Colors::kRed == color_) {
+        cv::Mat mask1, mask2;
+        cv::inRange(image_hsv, lower, upper, mask1);
+        cv::inRange(image_hsv, cv::Scalar(156, 50, 50), cv::Scalar(180, 255, 255), mask2);
+        cv::add(mask1, mask2, image);
+    } else
         LOG(ERROR) << "Input wrong color " << color_ << " of power rune.";
 }
 
@@ -152,7 +168,7 @@ bool RuneDetector::FindCenterR(cv::Mat &image) {
         LOG(WARNING) << "No possible center R points found.";
         return false;
     }
-    
+
     for (const auto &center_r: possible_center_r) {
         if (center_r.inside(R_rect)) {
             found_energy_center_r = true;
@@ -166,7 +182,7 @@ bool RuneDetector::FindCenterR(cv::Mat &image) {
     if (found_energy_center_r)
         return true;
 
-    if (frame_lost_ >= 3){
+    if (frame_lost_ >= 3) {
         LOG(WARNING) << "No center R found.";
         return false;
     } else {
@@ -259,7 +275,7 @@ bool RuneDetector::FindArmorCenterP(cv::Mat &image) {
             }
         }
 
-        if (!found_armor_center_p){
+        if (!found_armor_center_p) {
             if (frame_lost_ >= 3) // More than three continuous frames lost
                 LOG(ERROR) << "No P point found! ";
             else {
@@ -313,7 +329,7 @@ void RuneDetector::FindRotateDirection() {
         cv::Point2f first_rotation = r_to_p_vec[0];
         for (const auto &current_rotation: r_to_p_vec) {
             double cross = first_rotation.cross(
-                    current_rotation);   //Use multiplication cross to judge rotation direction
+                    current_rotation);   // Use multiplication cross to judge rotation direction
             if (cross > 0.0)
                 ++clockwise_;
             else if (cross < 0.0)

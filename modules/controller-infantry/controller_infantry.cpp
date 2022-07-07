@@ -82,9 +82,10 @@ void InfantryController::Run() {
 
     while (!exit_signal_) {
         auto time = std::chrono::steady_clock::now();
-        if (!image_provider_->GetFrame(frame_))
-            break;
-
+        if (!image_provider_->GetFrame(frame_)){
+            sleep(1);
+            continue;
+        }
 
 //        cv::flip(frame_.image, frame_.image, 0);
 //        cv::flip(frame_.image, frame_.image, 1);
@@ -98,8 +99,8 @@ void InfantryController::Run() {
         }
 
         if (CmdlineArgParser::Instance().RuneModeRune()) {
-            power_rune_ = rune_detector_.Run(frame_);
-            send_packet_ = SendPacket(rune_predictor_.Run(power_rune_, kBigRune));
+            power_rune_ = rune_detector_.Run(receive_packet_.color, frame_);
+            send_packet_ = SendPacket(rune_predictor_.Run(power_rune_, receive_packet_.mode, receive_packet_.bullet_speed));
             painter_->DrawPoint(rune_predictor_.PredictedPoint(),
                                                  cv::Scalar(0, 255, 0), 3, 3);
             painter_->ShowImage("Rune", 1);

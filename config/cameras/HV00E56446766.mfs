@@ -51,7 +51,7 @@ FrameSpecInfo	0
 FrameSpecInfoSelector	Timestamp
 AcquisitionMode	Continuous
 AcquisitionBurstFrameCount	1
-AcquisitionFrameRate	404
+AcquisitionFrameRate	2020
 AcquisitionFrameRateEnable	1
 TriggerSelector	FrameBurstStart
 TriggerSelector	FrameBurstStart

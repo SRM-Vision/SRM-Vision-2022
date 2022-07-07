@@ -50,9 +50,21 @@ public:
 
     ATTR_READER(max_bounding_box_wh_ratio_, MaxBoundingBoxWHRatio)
 
+    ATTR_READER(channel_B_low_thresh_, LowBThresh)
+
+    ATTR_READER(channel_G_low_thresh_, LowGThresh)
+
+    ATTR_READER(channel_R_low_thresh_, LowRThresh)
+
+    ATTR_READER(channel_B_high_thresh_, HighBThresh)
+
+    ATTR_READER(channel_G_high_thresh_, HighGThresh)
+
+    ATTR_READER(channel_R_high_thresh_, HighRThresh)
 
 private:
-    const std::string trackbar_window_name_ = "Rune Detector Debug";
+    const std::string trackbar_window_name1_ = "Rune Detector Counter Debug";
+    const std::string trackbar_window_name2_ = "Rune Detector Point Debug";
     cv::FileStorage config_;
     std::string config_path_;
 
@@ -64,6 +76,12 @@ private:
 
     // Trackbar value cache.
     int split_gray_thresh_{};                  ///< Binarization threshold.
+    int channel_B_low_thresh_{};
+    int channel_G_low_thresh_{};
+    int channel_R_low_thresh_{};
+    int channel_B_high_thresh_{};
+    int channel_G_high_thresh_{};
+    int channel_R_high_thresh_{};
     int min_bounding_box_area_{};
     int min_contour_area_{};
     int max_contour_area_{};

@@ -23,7 +23,7 @@ public:
      * \param [in] frame Input frame.
      * \return Output power rune data.
      */
-    PowerRune Run(Frame &frame);
+    PowerRune Run(Entity::Colors color, Frame &frame);
 
     /**
      * \brief Initialize detector.
@@ -59,7 +59,7 @@ private:
 
     cv::Mat image_;              ///< Original image.
     cv::Point2f fan_rect_points_[4];
-    std::vector<cv::Mat> image_channels_;
+
     std::vector<std::vector<cv::Point>> fan_contours_;
     std::vector<cv::Vec4i> fan_hierarchies_;
     cv::RotatedRect fan_encircle_rect_;

@@ -44,12 +44,12 @@ namespace predictor::rune {
 
         double x;  ///< Independent variable.
         double y;  ///< Dependent variable.
-        int rotational_direction;  ///< 1 is clockwise, -1 is counterclockwise.
+        int rotational_direction;  ///< -1 is clockwise, 1 is counterclockwise.
     };
 
     /**
      * @brief Parameters to describe and calculate rotational speed.
-     * @details Rotational speed = a*sin(w*t + p) + b.
+     * @details Rotational speed = a * sin(w * t + p) + b.
      */
     struct RotationalSpeed {
         /**
@@ -59,7 +59,7 @@ namespace predictor::rune {
          */
         [[nodiscard]] double Integral(double integral_time) const;
 
-        int rotational_direction;  ///< 1 is clockwise, -1 is counterclockwise.
+        int rotational_direction;  ///< -1 is clockwise, 1 is counterclockwise.
         double a;  ///< Amplitude, or A.
         double w;  ///< Palstance, or omega.
         double p;  ///< Initial phase, or phi.
@@ -89,7 +89,7 @@ namespace predictor::rune {
 
     /// @brief Data and function package for fitting palstance curve.
     struct FittingData {
-        FittingData() : outdated(false), ready(false) {}
+        FittingData() : outdated(true), ready(false) {}
 
         /**
          * @brief Fit the rotational speed curve.
@@ -101,7 +101,7 @@ namespace predictor::rune {
         std::vector<double> palstance;  ///< Speed data for fitting.
         std::vector<double> time;       ///< Time data for fitting.
 
-        bool outdated;
+        bool outdated;   ///< Whether Fitting Is Error
         bool ready;
     };
 
@@ -110,7 +110,7 @@ namespace predictor::rune {
          * @brief Update current angle of fan, requires new rtp vector.
          * @param [in] rtp_vec Input rtp vec.
          */
-        void UpdateAngle(const cv::Point2f &rtp_vec);
+        void UpdateAngle(const cv::Point2f &rtg_vec);
 
         /**
          * @brief Update current and last palstance.
@@ -146,7 +146,7 @@ namespace predictor::rune {
 
         bool Initialize(const std::string &config_path, bool debug);
 
-        SendPacket Run(const PowerRune &power_rune, AimModes aim_mode);
+        SendPacket Run(const PowerRune &power_rune, AimModes aim_mode, float bullet_speed);
 
     private:
         void PredictAngle(AimModes aim_mode);
@@ -161,6 +161,7 @@ namespace predictor::rune {
         OutputData output_data_;
 
         double predicted_angle_;
+        float bullet_speed_;
         cv::Point2f predicted_point_;
         cv::Point2f fixed_point_;
     };

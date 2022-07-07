@@ -79,8 +79,8 @@ void TestController::Test() {
         }
 
         if (receive_packet_.mode == kSmallRune || receive_packet_.mode == kBigRune) {
-            power_rune_ = rune_detector_.Run(frame_);
-            send_packet_ = SendPacket(rune_predictor_.Run(power_rune_, receive_packet_.mode));
+            power_rune_ = rune_detector_.Run(receive_packet_.color, frame_);
+            send_packet_ = SendPacket(rune_predictor_.Run(power_rune_, receive_packet_.mode, receive_packet_.bullet_speed));
             debug::Painter::Instance()->DrawPoint(rune_predictor_.PredictedPoint(),
                                                  cv::Scalar(0, 255, 0), 3, 3);
             debug::Painter::Instance()->ShowImage("Rune", 1);
