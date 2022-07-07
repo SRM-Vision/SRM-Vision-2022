@@ -34,6 +34,10 @@ public:
                                                         "outpost",
                                                         advanced_distance,
                                                         150);
+        debug::Trackbar<double>::Instance().AddTrackbar("delay_time:",
+                                                        "outpost",
+                                                        delay_time_,
+                                                        1);
     }
     ~OutpostPredictor() = default;
     void GetFromDetector(SendToOutpostPredictor send_to_outpost_predictor);
@@ -52,6 +56,10 @@ private:
     cv::Point2f going_center_ = cv::Point2f (0.0, 0.0);
     cv::Point2f coming_center_ = cv::Point2f (0.0, 0.0);
     coordinate::TranslationVector shoot_point;
+
+    bool ready_ = false;
+    std::chrono::high_resolution_clock::time_point ready_time_{};
+    double delay_time_=0.0;
 };
 
 #endif  // PREDICTOR_OUTPOST_H_

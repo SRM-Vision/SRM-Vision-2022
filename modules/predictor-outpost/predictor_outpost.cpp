@@ -29,8 +29,25 @@ SendPacket OutpostPredictor::Run()
         DLOG(INFO) << "going_center_" << going_center_;
         double pixel_distance = algorithm::SqrtFloat((going_center_.x - outpost_center_.x) * (going_center_.x - outpost_center_.x) +
                                                      (going_center_.y - outpost_center_.y) * (going_center_.y - outpost_center_.y));
-        if(pixel_distance >  advanced_distance && pixel_distance < advanced_distance+10)
-            output_data_.fire = 1;
+//        if(pixel_distance >  advanced_distance && pixel_distance < advanced_distance+10)
+//            output_data_.fire = 1;
+
+        if(pixel_distance >  advanced_distance && pixel_distance < advanced_distance+10){
+            ready_ = true;
+            ready_time_ = std::chrono::high_resolution_clock::now();
+        }
+        if(ready_)
+        {
+            auto current_time_chrono = std::chrono::high_resolution_clock::now();
+            double time_gap = (static_cast<std::chrono::duration<double, std::milli>>(current_time_chrono - ready_time_)).count();
+            if (time_gap/1000 > delay_time_){
+                output_data_.fire = 1;
+                ready_ = false;
+            }
+        }
+
+
+
         DLOG(INFO) << "pixel distance" << pixel_distance;
 //    DLOG(INFO) << "shoot_point: " << shoot_point;
         output_data_.Update(shoot_point);
