@@ -70,8 +70,8 @@ private:
 
     // Maximum trackbar values.
     const int kMaxThresholdTrackbar = 255;
-    const int kMaxRuneAreaTrackbar = 10000;
-    const int kMaxRAreaTrackbar = 5000;
+    const int kMaxRuneAreaTrackbar = 20000;
+    const int kMaxRAreaTrackbar = 10000;
     const int kMaxRatioTrackbar = 1000;
 
     // Trackbar value cache.

@@ -64,9 +64,9 @@ bool InfantryController::Initialize() {
 
 
     if(Compensator::Instance().Initialize("infantry"))
-        LOG(INFO) << "Setoff initialize successfully!";
+        LOG(INFO) << "Set off initialize successfully!";
     else
-        LOG(ERROR) << "Setoff initialize unsuccessfully!";
+        LOG(ERROR) << "Set off initialize unsuccessfully!";
 
     if (coordinate::InitializeMatrix("../config/infantry/matrix-init.yaml"))
         LOG(INFO) << "Camera initialize successfully!";
@@ -106,7 +106,7 @@ void InfantryController::Run() {
             power_rune_ = rune_detector_.Run(receive_packet_.color, frame_);
             send_packet_ = SendPacket(rune_predictor_.Run(power_rune_, receive_packet_.mode, receive_packet_.bullet_speed));
             painter_->DrawPoint(rune_predictor_.PredictedPoint(),
-                                                 cv::Scalar(0, 255, 0), 3, 3);
+                                                 cv::Scalar(0, 255, 255), 3, 3);
             painter_->ShowImage("Rune", 1);
         } else {
             boxes_ = armor_detector_(frame_.image,ROI);
