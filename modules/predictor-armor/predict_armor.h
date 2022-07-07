@@ -167,9 +167,16 @@ public:
         int y = int(cv::min(cv::min(corners_[0].y,corners_[1].y),cv::min(corners_[2].y,corners_[3].y)));
 //        cv::RotatedRect target(corners_[0],corners_[1],corners_[2]);
 //        auto target_right = target.boundingRect();
-        cv::Rect target_right{x,y,width,height};
-        auto zoom_size = cv::Size(target_right.width * kZoomRatio.width,
-                                  target_right.height * kZoomRatio.height);
+
+        auto zoom_size = cv::Size(640, 384);
+        // When the armor is too close, choose the full frame for detection
+        if (height > 350)
+            zoom_size = cv::Size(src_image.cols, src_image.rows);
+        // make sure the full width of the frame is used
+        if (src_image.cols == 640)
+            zoom_size.width = 1280;
+
+        cv::Rect target_right{x, y, 0, 0};
         roi_rect = target_right + zoom_size;
         roi_rect -= cv::Point((zoom_size.width >> 1 ),(zoom_size.height >> 1));
         roi_rect = roi_rect & cv::Rect(0, 0, src_image.cols,src_image.rows);

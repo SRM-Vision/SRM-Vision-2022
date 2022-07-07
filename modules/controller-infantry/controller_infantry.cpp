@@ -139,7 +139,7 @@ void InfantryController::Run() {
             painter_->ShowImage("ARMOR DETECT", 1);
         }
 
-        auto key = cv::waitKey(30) & 0xff;
+        auto key = cv::waitKey(1) & 0xff;
         if (key == 'q')
             break;
         else if (key == 's')
