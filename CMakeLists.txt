@@ -26,15 +26,11 @@ elseif (CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "aarch64")
 endif ()
 
 if (CMAKE_BUILD_TYPE STREQUAL Debug)
-    add_compile_options(
-            -O0
-    )
+    add_compile_options(-O0)
 elseif (CMAKE_BUILD_TYPE STREQUAL Release)
     add_compile_options(
-            -O3
-            -Ofast
-            -flto
-            -march=native
+            # -O3  # for optimization issues
+            -Ofast -march=native -flto
     )
 endif ()
 
