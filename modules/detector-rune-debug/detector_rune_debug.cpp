@@ -117,25 +117,25 @@ void RuneDetectorDebug::Initialize(const std::string &config_path, bool debug_us
         debug::Trackbar<double>::Instance().AddTrackbar("Min armor weight / height ratio (0-1000)",
                                                         trackbar_window_name2_,
                                                         min_armor_wh_ratio_,
-                                                        kMaxRatioTrackbar * 0.001);
+                                                        kMaxRatioTrackbar * 1e-3);
 
         // --- max armor w:h ---
         debug::Trackbar<double>::Instance().AddTrackbar("Max armor weight / height ratio (0-1000)",
                                                         trackbar_window_name2_,
                                                         max_armor_wh_ratio_,
-                                                        kMaxRatioTrackbar * 0.001);
+                                                        kMaxRatioTrackbar * 1e-3);
 
         // --- min R w:h ---
         debug::Trackbar<double>::Instance().AddTrackbar("Min R weight / height ratio (0-1000)",
                                                         trackbar_window_name2_,
                                                         min_bounding_box_wh_ratio_,
-                                                        kMaxRatioTrackbar * 0.001);
+                                                        kMaxRatioTrackbar * 1e-3);
 
         // --- max R w:h ---
         debug::Trackbar<double>::Instance().AddTrackbar("Max R weight / height ratio (0-1000)",
                                                         trackbar_window_name2_,
                                                         max_bounding_box_wh_ratio_,
-                                                        kMaxRatioTrackbar * 0.001);
+                                                        kMaxRatioTrackbar * 1e-3);
     }
 }
 

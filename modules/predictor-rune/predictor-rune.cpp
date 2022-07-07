@@ -9,7 +9,7 @@ predictor::rune::RunePredictor::RunePredictor() : debug_(false),
 SendPacket predictor::rune::RunePredictor::Run(const PowerRune &power_rune, AimModes aim_mode, float bullet_speed) {
     rune_ = power_rune;
     bullet_speed_ = 30;
-    aim_mode = kBigRune;
+    aim_mode = kSmallRune;
     if (aim_mode == kBigRune) {
         LOG(INFO) << "Rune predictor mode: big.";
         state_.UpdatePalstance(rune_, fitting_data_);

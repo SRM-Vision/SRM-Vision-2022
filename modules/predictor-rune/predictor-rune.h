@@ -140,6 +140,9 @@ namespace predictor::rune {
 
         ATTR_READER_REF(fixed_point_, FixedPoint)
 
+        /**
+         * @brief Constructor, initiate some parameters.
+         */
         RunePredictor();
 
         ~RunePredictor() = default;
@@ -149,21 +152,29 @@ namespace predictor::rune {
         SendPacket Run(const PowerRune &power_rune, AimModes aim_mode, float bullet_speed);
 
     private:
+        /**
+         * @brief According to parameters fitted, get predicting angle.
+         * @details If aim_mode is kBigRune, it needs some time to fit.
+         * @param [in] aim_mode Rune mode.
+         */
         void PredictAngle(AimModes aim_mode);
 
+        /**
+         * @brief According to predicted angle, get predict point and it will show on image.
+         */
         void PredictPoint();
 
         bool debug_;
-        PowerRune rune_;
+        PowerRune rune_;    ///< It is initiated by package conveyed by rune detector.
         State state_;
         RotationalSpeed rotational_speed_;
-        FittingData fitting_data_;
-        OutputData output_data_;
+        FittingData fitting_data_;   ///< Data for fit.
+        OutputData output_data_;     ///< Contain yaw, pitch, delay.
 
-        double predicted_angle_;
+        double predicted_angle_;     ///< Predicted angle according to fitted palstance.
         float bullet_speed_;
         cv::Point2f predicted_point_;
-        cv::Point2f fixed_point_;
+        cv::Point2f fixed_point_;    ///< Final point which contains all compensation.
     };
 }
 

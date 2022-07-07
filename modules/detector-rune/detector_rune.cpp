@@ -199,6 +199,11 @@ bool RuneDetector::FindArmorCenterP(cv::Mat &image) {
                      cv::RETR_TREE,
                      cv::CHAIN_APPROX_SIMPLE);
 
+    if(debug_){
+        debug::Painter::Instance()->DrawContours(fan_contours_, cv::Scalar(0, 255, 0), 3, -1, 8);
+        cv::imshow("image", image);
+        cv::waitKey(0);
+    }
     found_armor_center_p = false;
     armor_encircle_rect_ = cv::RotatedRect();
 

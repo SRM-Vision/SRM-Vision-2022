@@ -178,7 +178,7 @@ public:
         translation_vector_world_ = armor.translation_vector_world_;
 
         distance_ = armor.distance_;
-        confidence_ = armor.distance_;
+        confidence_ = armor.confidence_;
         return SELF;
     }
 
