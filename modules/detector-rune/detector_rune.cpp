@@ -289,7 +289,7 @@ bool RuneDetector::FindArmorCenterP(cv::Mat &image) {
 
     // Have not found R, P and G at the same time.
     LOG(WARNING) << "Have not found R, P and G points at the same time!";
-    // Reset center R£¬P£¬G
+    // Reset center Rï¿½ï¿½Pï¿½ï¿½G
     fan_center_g_ = armor_center_p_ = energy_center_r_ = cv::Point2f(0, 0);
     return false;
 }

@@ -47,11 +47,21 @@ SendToOutpostPredictor OutpostDetector::Run(const Battlefield& battlefield)
 {
     SendToOutpostPredictor send_to_outpost_predictor;
     detected_armors_in_this_frame_.clear();
-    auto facility = battlefield.Facilities();
+    auto facilities = battlefield.Facilities();
+    auto robots = battlefield.Robots();
 
 
-    if (facility[color_][Facility::kBase] == nullptr)
-    // if (a[color_][Robot::kInfantry4] == nullptr)
+//    for(auto &robot : robots[color_]){
+//        for( auto &armor:robot.second->Armors())
+//            detected_armors_in_this_frame_.emplace_back(armor);
+//    }
+//    for(auto &facility : facilities[color_]){
+//        for( auto &armor: facility.second->BottomArmors())
+//            detected_armors_in_this_frame_.emplace_back(armor);
+//    }
+
+    //if (facility[color_][Facility::kBase] == nullptr)
+    if (robots[color_][Robot::kInfantry4] == nullptr)
     {
         DLOG(INFO) << "No outpost armor founded";
 
@@ -60,14 +70,10 @@ SendToOutpostPredictor OutpostDetector::Run(const Battlefield& battlefield)
                                              clockwise_, center_distance_, battlefield.BulletSpeed(), shoot_point_);
         return send_to_outpost_predictor;
     }
-//    if (facility[color_][Facility::kOutpost] == nullptr)
-//    {
-//        DLOG(INFO) << "No outpost armor founded";
-//        return send_to_outpost_predictor;
-//    }
 
-    detected_armors_in_this_frame_ = facility[color_][Facility::kBase]->BottomArmors();
-//    detected_armors_in_this_frame_ = facility[color_][Facility::kBase]->BottomArmors();
+
+    // detected_armors_in_this_frame_ = facility[color_][Facility::kBase]->BottomArmors();
+    detected_armors_in_this_frame_ = robots[color_][Robot::kInfantry4]->Armors();
 
     if(clockwise_<= 7 && clockwise_ >= -7 && !is_checked_clockwise)
         IsClockwise();

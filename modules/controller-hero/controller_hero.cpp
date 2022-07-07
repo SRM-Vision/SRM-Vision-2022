@@ -98,7 +98,7 @@ void HeroController::Run() {
             send_packet_ = outpost_predictor_.Run();
 
             if(send_packet_.fire)
-                debug::Painter::Instance()->DrawText("Frie",{50,50},cv::Scalar(100, 255, 100),2);
+                debug::Painter::Instance()->DrawText("Fire",{50,50},cv::Scalar(100, 255, 100),2);
             debug::Painter::Instance()->DrawPoint(outpost_detector_.OutpostCenter(), cv::Scalar(100, 255, 100), 2, 2);
             debug::Painter::Instance()->DrawPoint(outpost_detector_.ComingArmorCenter2D(), cv::Scalar(100, 255, 250), 2, 2);
             DLOG(INFO) << "8";

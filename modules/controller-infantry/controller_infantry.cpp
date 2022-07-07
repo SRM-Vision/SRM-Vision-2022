@@ -82,8 +82,10 @@ void InfantryController::Run() {
 
     while (!exit_signal_) {
         auto time = std::chrono::steady_clock::now();
-        if (!image_provider_->GetFrame(frame_))
-            break;
+        if (!image_provider_->GetFrame(frame_)){
+            sleep(1);
+            continue;
+        }
 
 
 //        cv::flip(frame_.image, frame_.image, 0);
