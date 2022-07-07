@@ -64,6 +64,7 @@ void HeroController::Run() {
     PredictorArmorRenew armor_predictor(Entity::Colors::kBlue,"hero");
 
     sleep(2);
+    cv::Rect ROI; // roi of detect armor
     while (!exit_signal_) {
         auto time = std::chrono::steady_clock::now();
         if (!image_provider_->GetFrame(frame_)){
@@ -82,7 +83,7 @@ void HeroController::Run() {
         // if(receive_packet_.mode == kOutPost)
         if (CmdlineArgParser::Instance().RunModeOutpost())
         {
-            boxes_ = armor_detector_(frame_.image);
+            boxes_ = armor_detector_(frame_.image,ROI);
 
             BboxToArmor();
 
@@ -98,7 +99,7 @@ void HeroController::Run() {
             send_packet_ = outpost_predictor_.Run();
 
             if(send_packet_.fire)
-                debug::Painter::Instance()->DrawText("Frie",{50,50},cv::Scalar(100, 255, 100),2);
+                debug::Painter::Instance()->DrawText("Fire",{50,50},cv::Scalar(100, 255, 100),2);
             debug::Painter::Instance()->DrawPoint(outpost_detector_.OutpostCenter(), cv::Scalar(100, 255, 100), 2, 2);
             debug::Painter::Instance()->DrawPoint(outpost_detector_.ComingArmorCenter2D(), cv::Scalar(100, 255, 250), 2, 2);
             DLOG(INFO) << "8";
@@ -108,7 +109,7 @@ void HeroController::Run() {
             DLOG(INFO) << "9";
         }
         else {
-            boxes_ = armor_detector_(frame_.image);
+            boxes_ = armor_detector_(frame_.image,ROI);
             BboxToArmor();
             battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.yaw_pitch_roll,
                                        armors_);
@@ -119,6 +120,7 @@ void HeroController::Run() {
                                                    receive_packet_.mode, receive_packet_.bullet_speed);
             } else
                 send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size,AimModes::kAntiTop);
+            armor_predictor.GetROI(ROI,frame_.image);
             auto img = frame_.image.clone();
             debug::Painter::Instance()->UpdateImage(frame_.image);
             for (const auto &box: boxes_) {

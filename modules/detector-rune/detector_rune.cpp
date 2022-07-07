@@ -162,7 +162,7 @@ bool RuneDetector::FindCenterR(cv::Mat &image) {
     new_encircle_rect.points(new_rect_points);
 
     if (debug_)
-        debug::Painter::Instance()->DrawBoundingBox(new_encircle_rect, cv::Scalar_<double>(255, 255, 0), 3);
+        debug::Painter::Instance()->DrawRotatedBox(new_encircle_rect, cv::Scalar_<double>(255, 255, 0), 3);
     cv::Rect R_rect = new_encircle_rect.boundingRect();
     if (possible_center_r.empty()) {
         LOG(WARNING) << "No possible center R points found.";
@@ -305,7 +305,7 @@ bool RuneDetector::FindArmorCenterP(cv::Mat &image) {
 
     // Have not found R, P and G at the same time.
     LOG(WARNING) << "Have not found R, P and G points at the same time!";
-    // Reset center R£¬P£¬G
+    // Reset center Rï¿½ï¿½Pï¿½ï¿½G
     fan_center_g_ = armor_center_p_ = energy_center_r_ = cv::Point2f(0, 0);
     return false;
 }

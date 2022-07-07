@@ -153,3 +153,6 @@ docs
 !docs/.keep
 !docs/Doxyfile
 !docs/refman.pdf
+
+### Temporary build directory
+build

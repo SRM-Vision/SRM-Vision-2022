@@ -41,7 +41,7 @@ public:
      * \param [in] image Input image.
      * \return 4-point structures in a vector.
      */
-    std::vector<bbox_t> operator()(const cv::Mat &image) const;
+    std::vector<bbox_t> operator()(const cv::Mat &image, cv::Rect ROI) const;
 
 private:
     void BuildEngineFromONNX(const std::string &);

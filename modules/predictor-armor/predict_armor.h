@@ -12,6 +12,7 @@
 // TODO Calibrate shoot delay and acceleration threshold.
 const double kShootDelay = 0.02;
 const double kFireAccelerationThreshold = 3.0;
+const cv::Size kZoomRatio = {16,5};
 
 /// Predicting function template structure.
 struct PredictFunction {
@@ -155,6 +156,24 @@ public:
     }
 
     ATTR_READER_REF(predict_speed_,Speed);
+
+    void GetROI(cv::Rect &roi_rect, const cv::Mat &src_image)
+    {
+        int width =  abs(corners_[0].x - corners_[1].x) < abs(corners_[1].x - corners_[2].x) ?
+                      int(abs(corners_[1].x - corners_[2].x)) : int(abs(corners_[0].x - corners_[1].x));
+        int height = abs(corners_[0].y - corners_[1].y) < abs(corners_[1].y - corners_[2].y) ?
+                      int(abs(corners_[1].y - corners_[2].y)) : int(abs(corners_[0].y - corners_[1].y));
+        int x = int(cv::min(cv::min(corners_[0].x,corners_[1].x),cv::min(corners_[2].x,corners_[3].x)));
+        int y = int(cv::min(cv::min(corners_[0].y,corners_[1].y),cv::min(corners_[2].y,corners_[3].y)));
+//        cv::RotatedRect target(corners_[0],corners_[1],corners_[2]);
+//        auto target_right = target.boundingRect();
+        cv::Rect target_right{x,y,width,height};
+        auto zoom_size = cv::Size(target_right.width * kZoomRatio.width,
+                                  target_right.height * kZoomRatio.height);
+        roi_rect = target_right + zoom_size;
+        roi_rect -= cv::Point((zoom_size.width >> 1 ),(zoom_size.height >> 1));
+        roi_rect = roi_rect & cv::Rect(0, 0, src_image.cols,src_image.rows);
+    }
 
 private:
     coordinate::TranslationVector predict_world_vector_, predict_cam_vector_, shoot_point_vector_;

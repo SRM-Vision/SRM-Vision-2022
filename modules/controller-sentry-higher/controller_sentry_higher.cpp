@@ -55,17 +55,20 @@ void SentryHigherController::Run() {
     PredictorArmorRenew armor_predictor(Entity::Colors::kBlue,  "sentry_higher");
     sleep(2);
 
+    cv::Rect ROI; // roi of detect armor
     while (!exit_signal_) {
         auto time = std::chrono::steady_clock::now();
-        if (!image_provider_->GetFrame(frame_))
-            break;
+        if (!image_provider_->GetFrame(frame_)){
+            sleep(1);
+            continue;
+        }
 
         if (CmdlineArgParser::Instance().RunWithGimbal()) {
             SerialReceivePacket serial_receive_packet{};
             serial_->GetData(serial_receive_packet, std::chrono::milliseconds(5));
             receive_packet_ = ReceivePacket(serial_receive_packet);
         }
-        boxes_ = armor_detector_(frame_.image);
+        boxes_ = armor_detector_(frame_.image,ROI);
         BboxToArmor();
         battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.yaw_pitch_roll,
                                    armors_);
@@ -75,6 +78,7 @@ void SentryHigherController::Run() {
             send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size);
         } else
             send_packet_ = SendPacket(armor_predictor.Run(battlefield_, frame_.image.size,AimModes::kAntiTop));
+        armor_predictor.GetROI(ROI,frame_.image);
         auto img = frame_.image.clone();
         painter_->UpdateImage(frame_.image);
         for (const auto &box: boxes_) {

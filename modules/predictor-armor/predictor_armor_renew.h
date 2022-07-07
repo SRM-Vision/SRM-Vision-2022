@@ -64,6 +64,14 @@ public:
 
     SendPacket Run(const Battlefield &battlefield, const cv::MatSize &size,AimModes mode = kNormal, double bullet_speed = 15);
 
+    void GetROI(cv::Rect &roi_rect, const cv::Mat &src_image){
+        if(target_ == -1) {
+            roi_rect = {};
+            return;
+        }
+        return predict_armors_[target_].GetROI(roi_rect,src_image);
+    }
+
 private:
     Entity::Colors enemy_color_;  ///< Target's color.
 

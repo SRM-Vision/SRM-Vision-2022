@@ -23,7 +23,9 @@ namespace debug {
 
         virtual void ShowImage(const std::string &window_names, int wait_time) = 0;
 
-        virtual void DrawBoundingBox(const cv::RotatedRect &rect, const cv::Scalar &color, int thickness) = 0;
+        virtual void DrawRotatedBox(const cv::RotatedRect &rect, const cv::Scalar &color, int thickness) = 0;
+
+        virtual void DrawBoundingBox(const cv::Rect &rect, const cv::Scalar &color, int thickness) = 0;
 
         virtual void DrawRotatedRectangle(const cv::Point2f &left_top,
                                           const cv::Point2f &right_top,
@@ -74,13 +76,20 @@ namespace debug {
                 RuneDetectorDebug::Instance().Save();
         }
 
-        inline void DrawBoundingBox(const cv::RotatedRect &rect,
-                                    const cv::Scalar &color,
-                                    int thickness) final {
+        inline void DrawRotatedBox(const cv::RotatedRect &rect,
+                                   const cv::Scalar &color,
+                                   int thickness) final {
             cv::Point2f rect_point[4];
             rect.points(rect_point);
             for (auto i = 0; i < 4; ++i)
                 cv::line(image_, rect_point[i], rect_point[(i + 1) % 4], color, thickness);
+        }
+
+        inline void DrawBoundingBox(const cv::Rect &rect,
+                                   const cv::Scalar &color,
+                                   int thickness) final {
+            cv::Point2f rect_point[4];
+            cv::rectangle(image_,rect.tl(),rect.br(),color,thickness);
         }
 
         inline void DrawRotatedRectangle(const cv::Point2f &left_top,
@@ -139,7 +148,9 @@ namespace debug {
 
         void ShowImage(const std::string &window_names, int wait_time = 1) final {};
 
-        void DrawBoundingBox(const cv::RotatedRect &rect, const cv::Scalar &color, int thickness) final {};
+        void DrawRotatedBox(const cv::RotatedRect &rect, const cv::Scalar &color, int thickness) final {};
+
+        void DrawBoundingBox(const cv::Rect &rect, const cv::Scalar &color, int thickness) final {};
 
         void DrawRotatedRectangle(const cv::Point2f &left_top,
                                   const cv::Point2f &right_top,

@@ -207,13 +207,20 @@ void ArmorDetector::CacheEngine(const std::string &cache_file) {
     engine_buffer->destroy();
 }
 
-std::vector<bbox_t> ArmorDetector::operator()(const cv::Mat &image) const {
+std::vector<bbox_t> ArmorDetector::operator()(const cv::Mat &image, cv::Rect ROI) const {
+    // ROI
+    cv::Mat roi;
+    if(ROI.size() != cv::Size(0,0))
+        roi = image(ROI);
+    else
+        roi = image;
+
     // Pre-process. [bgr2rgb & resize]
     cv::Mat x;
-    float fx = (float) image.cols / 640.f, fy = (float) image.rows / 384.f;
-    cv::cvtColor(image, x, cv::COLOR_BGR2RGB);
+    float fx = (float) roi.cols / 640.f, fy = (float) roi.rows / 384.f;
+    cv::cvtColor(roi, x, cv::COLOR_BGR2RGB);
 
-    if (image.cols != 640 || image.rows != 384)
+    if (roi.cols != 640 || roi.rows != 384)
         cv::resize(x, x, {640, 384});
 
     x.convertTo(x, CV_32F);
@@ -269,6 +276,15 @@ std::vector<bbox_t> ArmorDetector::operator()(const cv::Mat &image) const {
                 continue;
             if (is_overlap(box_buffer, box2_buffer))
                 removed[j] = true;
+        }
+    }
+
+    // ROI reduction
+    if(!ROI.empty()){
+        for(auto &bbox:result){
+            for(auto &point:bbox.points){
+                point += cv::Point2f(ROI.tl());
+            }
         }
     }
 
