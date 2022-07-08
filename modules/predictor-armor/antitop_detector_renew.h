@@ -12,16 +12,19 @@ public:
     explicit AntiTopDetectorRenew(const uint64_t& timestamp): timestamp_(timestamp){}
 
     void UpdateTop(const int& new_armor_num,const uint64_t& now_timestamp){
-        if(new_armor_num != armor_num_) {  //  from one armor to one armor is the quartet cycles
-            top_frequency_ = 1 / (double(now_timestamp - timestamp_) * 4 * 1e-9);
+        auto new_top_period{double(now_timestamp - timestamp_) * 8 * 1e-9};
+        if(new_armor_num != armor_num_) {  //  from one armor to one armor is the quartet cycles. It`s 1/8 period.
+            top_period_ = new_top_period;
             timestamp_ = now_timestamp;
             armor_num_ = new_armor_num;
-            DLOG(INFO) << "top frequency: " << top_frequency_;
+        }else if(new_top_period > top_period_){  // if exceed period and armor num not change.
+            top_period_ = new_top_period;
         }
-        if(top_frequency_ > low_top_period_min_ && top_frequency_ < high_top_period_min_) {
+
+        if(top_period_ < low_top_period_min_ && top_period_ > high_top_period_min_) {
             is_low_top_ = true;
             is_high_top_ = false;
-        }else if(top_frequency_ > high_top_period_min_) {
+        }else if(top_period_ < high_top_period_min_) {
             is_low_top_ = false;
             is_high_top_ = true;
         }else{
@@ -64,22 +67,24 @@ public:
     void Reset(){
         is_high_top_ = is_low_top_ = false;
         clockwise_ = -1;
-        top_frequency_ = 0;
+        top_period_ = 0;
     }
 
     ATTR_READER(is_low_top_, IsLowTop);
     ATTR_READER(is_high_top_, IsHighTop);
     ATTR_READER_REF(clockwise_,Clockwise);
+    ATTR_READER_REF(top_period_, TopPeriod);
 
 private:
-    static constexpr double low_top_period_min_ = 2;   // low speed top must faster than this
-    static constexpr double high_top_period_min_ = 5;   //  high speed top must faster than this
+    static constexpr double low_top_period_min_ = 5;   // low speed top must faster than this
+    static constexpr double high_top_period_min_ = 2.5;   //  high speed top must faster than this
+    [[maybe_unused]] static constexpr double high_top_period_max_ = 0.5;
 
     int clockwise_{-1};    /// -1 mean invalid, 0 mean anticlockwise, 1 mean clockwise. Look from above.
     int armor_num_{0};
     bool is_low_top_{false};
     bool is_high_top_{false};
-    double top_frequency_{0};
+    double top_period_{0};
     uint64_t timestamp_{0};
 };
 
