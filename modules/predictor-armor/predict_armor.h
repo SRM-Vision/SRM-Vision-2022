@@ -12,7 +12,7 @@
 // TODO Calibrate shoot delay and acceleration threshold.
 const double kShootDelay = 0.02;
 const double kFireAccelerationThreshold = 3.0;
-const cv::Size kZoomRatio = {16,5};
+const cv::Size kZoomRatio = {160,50};
 
 /// Predicting function template structure.
 struct PredictFunction {

@@ -29,6 +29,8 @@ void RuneDetectorDebug::Initialize(const std::string &config_path, bool debug_us
         config_["MIN_BOUNDING_BOX_WH_RATIO"] >> min_bounding_box_wh_ratio_;
         config_["MAX_BOUNDING_BOX_WH_RATIO"] >> max_bounding_box_wh_ratio_;
         config_["MAX_ENCIRCLE_R_RECT_WH_DEVIATION"] >> max_encircle_r_rect_wh_deviation_;
+        config_["DELTA_U"] >> delta_u_;
+        config_["DELTA_V"] >> delta_v_;
     } catch (std::exception &) {
         LOG(ERROR) << "Failed to load config of rune detector.";
     }
@@ -78,68 +80,80 @@ void RuneDetectorDebug::Initialize(const std::string &config_path, bool debug_us
                                                      kMaxThresholdTrackbar);
 
         // --- min contour area ---
-        debug::Trackbar<int>::Instance().AddTrackbar("Min contour area (0-6000):",
+        debug::Trackbar<int>::Instance().AddTrackbar("Min contour area (0-20000):",
                                                      trackbar_window_name2_,
                                                      min_contour_area_,
                                                      kMaxRuneAreaTrackbar);
 
         // --- max contour area ---
-        debug::Trackbar<int>::Instance().AddTrackbar("Max contour area (0-6000)",
+        debug::Trackbar<int>::Instance().AddTrackbar("Max contour area (0-20000)",
                                                      trackbar_window_name2_,
                                                      max_contour_area_,
                                                      kMaxRuneAreaTrackbar);
 
         // --- min armor area ---
-        debug::Trackbar<int>::Instance().AddTrackbar("Min armor area (0-6000)",
+        debug::Trackbar<int>::Instance().AddTrackbar("Min armor area (0-20000)",
                                                      trackbar_window_name2_,
                                                      min_armor_area_,
                                                      kMaxRuneAreaTrackbar);
 
         // --- max armor area ---
-        debug::Trackbar<int>::Instance().AddTrackbar("Max armor area (0-6000)",
+        debug::Trackbar<int>::Instance().AddTrackbar("Max armor area (0-20000)",
                                                      trackbar_window_name2_,
                                                      max_armor_area_,
                                                      kMaxRuneAreaTrackbar);
 
         // --- min R area ---
-        debug::Trackbar<int>::Instance().AddTrackbar("Min R area (0-1000)",
+        debug::Trackbar<int>::Instance().AddTrackbar("Min R area (0-10000)",
                                                      trackbar_window_name2_,
                                                      min_r_bounding_box_area_,
                                                      kMaxRAreaTrackbar);
 
         // --- max R area ---
-        debug::Trackbar<int>::Instance().AddTrackbar("Max R area (0-1000)",
+        debug::Trackbar<int>::Instance().AddTrackbar("Max R area (0-10000)",
                                                      trackbar_window_name2_,
                                                      max_r_bounding_box_area_,
                                                      kMaxRAreaTrackbar);
 
         // --- min armor w:h ---
-        debug::Trackbar<double>::Instance().AddTrackbar("Min armor weight / height ratio (0-1000)",
+        debug::Trackbar<double>::Instance().AddTrackbar("Min armor weight / height ratio (0-10000)",
                                                         trackbar_window_name2_,
                                                         min_armor_wh_ratio_,
                                                         kMaxRatioTrackbar * 1e-3);
 
         // --- max armor w:h ---
-        debug::Trackbar<double>::Instance().AddTrackbar("Max armor weight / height ratio (0-1000)",
+        debug::Trackbar<double>::Instance().AddTrackbar("Max armor weight / height ratio (0-10000)",
                                                         trackbar_window_name2_,
                                                         max_armor_wh_ratio_,
                                                         kMaxRatioTrackbar * 1e-3);
 
         // --- min R w:h ---
-        debug::Trackbar<double>::Instance().AddTrackbar("Min R weight / height ratio (0-1000)",
+        debug::Trackbar<double>::Instance().AddTrackbar("Min R weight / height ratio (0-10000)",
                                                         trackbar_window_name2_,
                                                         min_bounding_box_wh_ratio_,
                                                         kMaxRatioTrackbar * 1e-3);
 
         // --- max R w:h ---
-        debug::Trackbar<double>::Instance().AddTrackbar("Max R weight / height ratio (0-1000)",
+        debug::Trackbar<double>::Instance().AddTrackbar("Max R weight / height ratio (0-10000)",
                                                         trackbar_window_name2_,
                                                         max_bounding_box_wh_ratio_,
                                                         kMaxRatioTrackbar * 1e-3);
+
+        // --- delta_u_ ---
+        debug::Trackbar<int>::Instance().AddTrackbar("delta_u (0-50): ",
+                                                     trackbar_window_name1_,
+                                                     delta_u_,
+                                                     kMaxCompensation);
+
+        // --- delta_v_ ---
+        debug::Trackbar<int>::Instance().AddTrackbar("delta_v (0-50): ",
+                                                     trackbar_window_name1_,
+                                                     delta_v_,
+                                                     kMaxCompensation);
     }
 }
 
-[[maybe_unused]] void RuneDetectorDebug::Save() {
+void RuneDetectorDebug::Save() {
     // Open config file.
     try {
         config_.open(config_path_, cv::FileStorage::WRITE);

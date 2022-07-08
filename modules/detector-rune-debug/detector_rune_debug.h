@@ -21,8 +21,8 @@ public:
 
     void Initialize(const std::string &config_path, bool debug_use_trackbar = false);
 
-    /// Save value to yaml
-    [[maybe_unused]] void Save();
+    /// Save Rune Detector parameters to yaml
+    void Save();
 
     ATTR_READER(split_gray_thresh_, SplitGrayThresh)
 
@@ -73,6 +73,7 @@ private:
     const int kMaxRuneAreaTrackbar = 20000;
     const int kMaxRAreaTrackbar = 10000;
     const int kMaxRatioTrackbar = 1000;
+    const int kMaxCompensation = 50;
 
     // Trackbar value cache.
     int split_gray_thresh_{};                  ///< Binarization threshold.
@@ -94,6 +95,8 @@ private:
     double max_armor_wh_ratio_{};             ///< Maximum armor weight / height ratio.
     double min_bounding_box_wh_ratio_{};      ///< Minimum fan rect weight / height ratio.
     double max_bounding_box_wh_ratio_{};      ///< Maximum fan rect weight / height ratio.
+    int delta_u_{};   ///< Horizontal ballistic compensation
+    int delta_v_{};   ///< Vertical ballistic compensation
 };
 
 #endif  // DETECTOR_RUNE_DEBUG_H_
