@@ -140,14 +140,14 @@ void RuneDetectorDebug::Initialize(const std::string &config_path, bool debug_us
                                                         kMaxRatioTrackbar * 1e-3);
 
         // --- delta_u_ ---
-        debug::Trackbar<int>::Instance().AddTrackbar("delta_u (0-50): ",
-                                                     trackbar_window_name1_,
+        debug::Trackbar<int>::Instance().AddTrackbar("delta_u (0-100): ",
+                                                     trackbar_window_name2_,
                                                      delta_u_,
                                                      kMaxCompensation);
 
         // --- delta_v_ ---
-        debug::Trackbar<int>::Instance().AddTrackbar("delta_v (0-50): ",
-                                                     trackbar_window_name1_,
+        debug::Trackbar<int>::Instance().AddTrackbar("delta_v (0-100): ",
+                                                     trackbar_window_name2_,
                                                      delta_v_,
                                                      kMaxCompensation);
     }
@@ -177,6 +177,14 @@ void RuneDetectorDebug::Save() {
         config_ << "MIN_BOUNDING_BOX_WH_RATIO" << min_bounding_box_wh_ratio_;
         config_ << "MAX_BOUNDING_BOX_WH_RATIO" << max_bounding_box_wh_ratio_;
         config_ << "MAX_ENCIRCLE_R_RECT_WH_DEVIATION" << max_encircle_r_rect_wh_deviation_;
+        config_ << "CHANNEL_B_LOW_THRESH" << channel_B_low_thresh_;
+        config_ << "CHANNEL_G_LOW_THRESH" << channel_G_low_thresh_;
+        config_ << "CHANNEL_R_LOW_THRESH" << channel_R_low_thresh_;
+        config_ << "CHANNEL_B_HIGH_THRESH" << channel_B_high_thresh_;
+        config_ << "CHANNEL_G_HIGH_THRESH" << channel_G_high_thresh_;
+        config_ << "CHANNEL_R_HIGH_THRESH" << channel_R_high_thresh_;
+        config_ << "DELTA_U" << delta_u_;
+        config_ << "DELTA_V" << delta_v_;
     } catch (std::exception &) {
         LOG(ERROR) << "Failed to update config of rune detector.";
         return;

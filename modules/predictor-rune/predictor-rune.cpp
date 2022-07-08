@@ -1,15 +1,15 @@
 #include "predictor-rune.h"
 #include <ceres/ceres.h>
+#include <detector-rune-debug/detector_rune_debug.h>
 
 predictor::rune::RunePredictor::RunePredictor() : debug_(false),
                                                   rune_(), state_(), rotational_speed_(), fitting_data_(),
-                                                  output_data_(),bullet_speed_(15),
+                                                  output_data_(), bullet_speed_(15),
                                                   predicted_angle_(), predicted_point_() {}
 
 SendPacket predictor::rune::RunePredictor::Run(const PowerRune &power_rune, AimModes aim_mode, float bullet_speed) {
     rune_ = power_rune;
-    bullet_speed_ = 30;
-    aim_mode = kSmallRune;
+    bullet_speed_ = bullet_speed;
     if (aim_mode == kBigRune) {
         LOG(INFO) << "Rune predictor mode: big.";
         state_.UpdatePalstance(rune_, fitting_data_);
@@ -49,39 +49,40 @@ void predictor::rune::OutputData::Update(bool debug,
     }
 
     DLOG(INFO) << "Predicted angle: " << predicted_angle << ".";
-    float delta_u = 0, delta_v = 0;  ///< Horizontal and vertical ballistic compensation.
+    int delta_u = RuneDetectorDebug::Instance().DeltaU() - 50,
+            delta_v = RuneDetectorDebug::Instance().DeltaV() - 50;  ///< Horizontal and vertical ballistic compensation.
 
     while (predicted_angle < 0) predicted_angle += 360;
     while (predicted_angle > 360) predicted_angle -= 360;
 
-    ///< Ballistic Compensation for every 45 degrees
-    if (predicted_angle >= 0 && predicted_angle < 45) {
-        delta_v += 20;
-        delta_u += 0;
-    } else if (predicted_angle < 90) {
-        delta_u += 0;
-        delta_v += 10;
-    } else if (predicted_angle < 135) {
-        delta_u += 10;
-        delta_v += 10;
-    } else if (predicted_angle < 180) {
-        delta_u -= 20;
-        delta_v += 20;
-    } else if (predicted_angle < 225) {
-        delta_u -= 10;
-        delta_v += 15;
-    } else if (predicted_angle < 270) {
-        delta_u -= 10;
-        delta_v += 20;
-    } else if (predicted_angle < 315) {
-        delta_u -= 5;
-        delta_v += 15;
-    } else {
-        delta_u -= 10;
-        delta_v += 10;
-    }
+//    ///< Ballistic Compensation for every 45 degrees
+//    if (predicted_angle >= 0 && predicted_angle < 45) {
+//        delta_v += 20;
+//        delta_u += 0;
+//    } else if (predicted_angle < 90) {
+//        delta_u += 0;
+//        delta_v += 10;
+//    } else if (predicted_angle < 135) {
+//        delta_u += 10;
+//        delta_v += 10;
+//    } else if (predicted_angle < 180) {
+//        delta_u -= 20;
+//        delta_v += 20;
+//    } else if (predicted_angle < 225) {
+//        delta_u -= 10;
+//        delta_v += 15;
+//    } else if (predicted_angle < 270) {
+//        delta_u -= 10;
+//        delta_v += 20;
+//    } else if (predicted_angle < 315) {
+//        delta_u -= 5;
+//        delta_v += 15;
+//    } else {
+//        delta_u -= 10;
+//        delta_v += 10;
+//    }
 
-    fixed_point = predicted_point + cv::Point2f(delta_u, delta_v);
+    fixed_point = predicted_point + cv::Point2f(static_cast<float>(delta_u), static_cast<float>(delta_v));
 
     // Use SIMD atan2 for 4x floats.
     // auto yaw_data_pixel = float(std::atan2(fixed_point.x - rune.ImageCenter().x, 1350));
@@ -220,9 +221,9 @@ void predictor::rune::RunePredictor::PredictAngle(AimModes aim_mode) {
         if (fitting_data_.outdated) {
             fitting_data_.Fit(debug_, rotational_speed_);
             state_.UpdateAngle(rune_.RtgVec());
-            predicted_angle_ = state_.current_angle; // No Predicting When Fitting.
+            predicted_angle_ = state_.current_angle;   // No Predicting When Fitting.
         } else {
-            double delay_time = 7.0 / bullet_speed_;
+            double delay_time = 7.0 / bullet_speed_;   // Ballistic Time Compensation
             double compensate_time = 0.05;
             auto rotated_radian = rotational_speed_.Integral(state_.current_time + delay_time + compensate_time)
                                   - rotational_speed_.Integral(state_.current_time);
@@ -232,8 +233,8 @@ void predictor::rune::RunePredictor::PredictAngle(AimModes aim_mode) {
             predicted_angle_ = (-1.0) * rune_.Clockwise() * (state_.current_angle + rotated_angle);
         }
     } else {
-        double delay_time = 7.0 / bullet_speed_;  // Bullet offset.
-        double compensate_time = 0.05;   // Other offset
+        double delay_time = 7.0 / bullet_speed_;  // Ballistic Time Compensation.
+        double compensate_time = 0.05;   // Other compensation
 
         auto rotated_radian = (-1.0) * rune_.Clockwise() * rotational_speed_.w * (compensate_time + delay_time);
         rotated_angle = rotated_radian * 180 / CV_PI;
