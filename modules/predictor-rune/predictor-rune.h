@@ -12,9 +12,9 @@
 #include "digital-twin/facilities/power_rune.h"
 
 namespace predictor::rune {
-    constexpr int kCollectPalstanceDataNum = 335;   ///< Amount of data collected for fitting.
-    constexpr int kPreparePalstanceDataNum = 200;  ///< Amount of data required before fitting.
-    constexpr int kResidualBlockNum = 200;          ///< Amount of data observed in one circle.
+    constexpr int kCollectPalstanceDataNum = 250;   ///< Amount of data collected for fitting.
+    constexpr int kPreparePalstanceDataNum = 100;  ///< Amount of data required before fitting.
+    constexpr int kResidualBlockNum = 300;          ///< Amount of data observed in one circle.
 
     /// @brief Trigonometric residual (cost) function package for Ceres solver.
     struct TrigonometricResidual {
@@ -23,8 +23,8 @@ namespace predictor::rune {
          * @param _y Dependent (output) variable.
          * @param _rotational_direction 1 is clockwise, -1 is counterclockwise.
          */
-        TrigonometricResidual(double _x, double _y, int _rotational_direction) :
-                x(_x), y(_y), rotational_direction(_rotational_direction) {}
+        TrigonometricResidual(double _x, double _y) :
+                x(_x), y(_y) {}
 
         /**
          * @brief Calculate trigonometric (cost) residual.
@@ -38,13 +38,13 @@ namespace predictor::rune {
         template<typename T>
         bool operator()(const T *const a, const T *const omega, const T *const phi, T *residual) const {
             // residual[0] = y - (-1.0) * rotational_direction * (a[0] * sin(omega[0] * x + phi[0]) + 2.090 - a[0])
-            residual[0] = y + (a[0] * sin(omega[0] * x + phi[0]) + 2.090 - a[0]) * (double) rotational_direction;
+            residual[0] = y - (a[0] * sin(omega[0] * x + phi[0]) + 2.090 - a[0]);
             return true;
         }
 
         double x;  ///< Independent variable.
         double y;  ///< Dependent variable.
-        int rotational_direction;  ///< -1 is clockwise, 1 is counterclockwise.
+        int rotational_direction;  ///< 1 is clockwise, -1 is counterclockwise.
     };
 
     /**

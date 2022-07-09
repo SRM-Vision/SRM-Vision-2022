@@ -272,9 +272,9 @@ namespace algorithm {
      */
     inline float VectorAngle(const cv::Point2f &vector_a, const cv::Point2f &vector_b) {
         constexpr float rad_to_deg = 180.0 / CV_PI;
-        return std::acos(float(vector_a.dot(vector_b))
+        return std::acos(std::max(-1.f, std::min(1.f, float(vector_a.dot(vector_b))
                          * RsqrtFloat(vector_a.x * vector_a.x + vector_a.y * vector_a.y)
-                         * RsqrtFloat(vector_b.x * vector_b.x + vector_b.y * vector_b.y))
+                         * RsqrtFloat(vector_b.x * vector_b.x + vector_b.y * vector_b.y))))
                * rad_to_deg;
     }
 }
