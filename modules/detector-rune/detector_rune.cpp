@@ -28,7 +28,7 @@ bool RuneDetector::Initialize(const std::string &config_path, const Frame &frame
     return true;
 }
 
-PowerRune RuneDetector::Run(Entity::Colors color, Frame &frame) {
+PowerRune RuneDetector::Run(Entity::Colors color, Frame &frame,  const cv::MatSize &size) {
     color_ = color;
     color_ = Entity::kRed;
     image_ = frame.image.clone();
@@ -62,7 +62,8 @@ PowerRune RuneDetector::Run(Entity::Colors color, Frame &frame) {
             energy_center_r_,
             armor_center_p_,
             fan_center_g_,
-            send_yaw_pitch_delay_};
+            send_yaw_pitch_delay_,
+            cv::Point2f(size().width / 2, size().height / 2)};
 }
 
 void RuneDetector::ImageSplit(cv::Mat &image) {

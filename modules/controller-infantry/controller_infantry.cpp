@@ -103,8 +103,8 @@ void InfantryController::Run() {
         }
 
         if (CmdlineArgParser::Instance().RuneModeRune()) {
-            power_rune_ = rune_detector_.Run(receive_packet_.color, frame_);
-            send_packet_ = SendPacket(rune_predictor_.Run(power_rune_, kSmallRune, receive_packet_.bullet_speed));
+            power_rune_ = rune_detector_.Run(receive_packet_.color, frame_, frame_.image.size);
+            send_packet_ = SendPacket(rune_predictor_.Run(power_rune_, kBigRune, receive_packet_.bullet_speed));
             painter_->DrawPoint(rune_predictor_.PredictedPoint(),
                                                  cv::Scalar(0, 255, 255), 3, 3);
             painter_->ShowImage("Rune", 1);

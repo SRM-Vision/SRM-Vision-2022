@@ -8,6 +8,8 @@
 #ifndef POWER_RUNE_H_
 #define POWER_RUNE_H_
 
+#include <utility>
+
 #include "../facility.h"
 
 class PowerRune : public Facility {
@@ -37,15 +39,17 @@ public:
                                cv::Point2f center_r,
                                cv::Point2f armor_center_p,
                                cv::Point2f fan_center_g,
-                               cv::Point3f send_yaw_pitch_delay) :
+                               cv::Point3f send_yaw_pitch_delay,
+                               cv::Point2f image_center) :
             Facility(color, 0, kPowerRune),
             clockwise_(clockwise),
-            rtp_vec_(rtp_vec),
-            rtg_vec_(rtg_vec),
-            center_r_(center_r),
-            armor_center_p_(armor_center_p),
-            fan_center_g_(fan_center_g),
-            send_yaw_pitch_delay_(send_yaw_pitch_delay) {}
+            rtp_vec_(std::move(rtp_vec)),
+            rtg_vec_(std::move(rtg_vec)),
+            center_r_(std::move(center_r)),
+            armor_center_p_(std::move(armor_center_p)),
+            fan_center_g_(std::move(fan_center_g)),
+            send_yaw_pitch_delay_(std::move(send_yaw_pitch_delay)),
+            image_center_(std::move(image_center)){}
 
 private:
     int clockwise_;

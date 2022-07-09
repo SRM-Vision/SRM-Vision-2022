@@ -23,7 +23,7 @@ public:
      * \param [in] frame Input frame.
      * \return Output power rune data.
      */
-    PowerRune Run(Entity::Colors color, Frame &frame);
+    PowerRune Run(Entity::Colors color, Frame &frame,  const cv::MatSize &size);
 
     /**
      * \brief Initialize detector.
