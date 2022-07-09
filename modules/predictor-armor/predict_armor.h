@@ -92,6 +92,7 @@ public:
             predict.delta_t = delta_t_predict;
             predict(x_estimate.data(), x_predict.data());
             predict_world_vector_ << x_predict(0, 0), x_predict(2, 0), x_predict(4, 0);
+            DLOG(INFO) << "speed:        " << x_predict(1,0) << "   " << x_predict(3,0);
             // try to not predict pitch.
             auto predict_world_spherical_vector = coordinate::convert::Rectangular2Spherical(predict_world_vector_);
             predict_world_spherical_vector[1] = y_real[1];  // not predict pitch
@@ -135,7 +136,7 @@ public:
 //        auto point1_x = short(show_point.x);
 //        auto point1_y = short(show_point.y);
 
-        SendPacket send_packet = {float(yaw), float(pitch - ArmorPredictorDebug::Instance().DeltaPitch()),
+        SendPacket send_packet = {float(yaw - ArmorPredictorDebug::Instance().DeltaYaw()), float(pitch - ArmorPredictorDebug::Instance().DeltaPitch()),
                                   delay, distance_mode, fire_,
                                   0,0,
                                   0,0,

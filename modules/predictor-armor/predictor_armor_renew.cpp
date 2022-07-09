@@ -109,7 +109,7 @@ SendPacket PredictorArmorRenew::Run(const Battlefield &battlefield, const cv::Ma
     if(target_ != -1)
         target_locked = true;
 
-    // AntiTop
+    /// AntiTop
     if(target_locked){
         auto target_id = predict_armors_[target_].ID();
         if(anti_top_detectors[Robot::RobotTypes(target_id)].IsLowTop() ||

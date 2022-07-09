@@ -53,7 +53,7 @@ public:
         }
     }
 
-    // used to setoff
+    /// used to setoff
     double GetTargetDistance(){
         if(target_ != -1)
             return predict_armors_[target_].Distance();
