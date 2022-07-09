@@ -28,27 +28,27 @@ public:
 
     ATTR_READER(min_bounding_box_area_, MinBoundingBoxArea)
 
-    ATTR_READER(min_contour_area_, MinContourArea)
+    ATTR_READER(min_fan_area_, MinFanArea)
 
-    ATTR_READER(max_contour_area_, MaxContourArea)
+    ATTR_READER(max_fan_area_, MaxFanArea)
 
     ATTR_READER(min_armor_area_, MinArmorArea)
 
     ATTR_READER(max_armor_area_, MaxArmorArea)
 
-    ATTR_READER(min_r_bounding_box_area_, MinRBoundingBoxArea)
+    ATTR_READER(min_R_area_, MinRArea)
 
-    ATTR_READER(max_r_bounding_box_area_, MaxRBoundingBoxArea)
+    ATTR_READER(max_R_area_, MaxRArea)
 
-    ATTR_READER(max_encircle_r_rect_wh_deviation_, MaxEncircleRRectWHDeviation)
+    ATTR_READER(max_R_wh_deviation_, MaxRWHDeviation)
 
     ATTR_READER(min_armor_wh_ratio_, MinArmorWHRatio)
 
     ATTR_READER(max_armor_wh_ratio_, MaxArmorWHRatio)
 
-    ATTR_READER(min_bounding_box_wh_ratio_, MinBoundingBoxWHRatio)
+    ATTR_READER(min_fan_wh_ratio_, MinFanWHRatio)
 
-    ATTR_READER(max_bounding_box_wh_ratio_, MaxBoundingBoxWHRatio)
+    ATTR_READER(max_fan_wh_ratio_, MaxFanWHRatio)
 
     ATTR_READER(kernel_size_, KernelSize)
 
@@ -64,6 +64,7 @@ private:
     // Maximum trackbar values.
     const int kMaxThresholdTrackbar = 255;
     const int kMaxRuneAreaTrackbar = 10000;
+    const int kMaxArmorAreaTrackbar = 5000;
     const int kMaxRAreaTrackbar = 2000;
     const int kMaxRatioTrackbar = 1000;
     const int kMaxCompensation = 100;
@@ -71,18 +72,18 @@ private:
     // Trackbar value cache.
     int split_gray_thresh_{};                  ///< Binarization threshold.
     int min_bounding_box_area_{};
-    int min_contour_area_{};
-    int max_contour_area_{};
+    int min_fan_area_{};
+    int max_fan_area_{};
     int min_armor_area_{};
     int max_armor_area_{};
     int kernel_size_{};                        ///< MorphologyEx kernel size
-    int min_r_bounding_box_area_{};
-    int max_r_bounding_box_area_{};
-    int max_encircle_r_rect_wh_deviation_{};  ///< Maximum energy center encircle rect weight - height deviation.
+    int min_R_area_{};
+    int max_R_area_{};
+    int max_R_wh_deviation_{};  ///< Maximum energy center encircle rect weight - height deviation.
     double min_armor_wh_ratio_{};             ///< Minimum armor weight / height ratio.
     double max_armor_wh_ratio_{};             ///< Maximum armor weight / height ratio.
-    double min_bounding_box_wh_ratio_{};      ///< Minimum fan rect weight / height ratio.
-    double max_bounding_box_wh_ratio_{};      ///< Maximum fan rect weight / height ratio.
+    double min_fan_wh_ratio_{};      ///< Minimum fan rect weight / height ratio.
+    double max_fan_wh_ratio_{};      ///< Maximum fan rect weight / height ratio.
     int delta_u_{};   ///< Horizontal ballistic compensation
     int delta_v_{};   ///< Vertical ballistic compensation
 };

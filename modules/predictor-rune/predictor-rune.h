@@ -13,8 +13,8 @@
 
 namespace predictor::rune {
     constexpr int kCollectPalstanceDataNum = 335;   ///< Amount of data collected for fitting.
-    constexpr int kPreparePalstanceDataNum = 1000;  ///< Amount of data required before fitting.
-    constexpr int kResidualBlockNum = 300;          ///< Amount of data observed in one circle.
+    constexpr int kPreparePalstanceDataNum = 200;  ///< Amount of data required before fitting.
+    constexpr int kResidualBlockNum = 200;          ///< Amount of data observed in one circle.
 
     /// @brief Trigonometric residual (cost) function package for Ceres solver.
     struct TrigonometricResidual {

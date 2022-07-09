@@ -42,7 +42,7 @@ PowerRune RuneDetector::Run(Entity::Colors color, Frame &frame) {
     ImageMorphologyEx(image_);
 
     if (debug_) {
-        // debug::Painter::Instance()->DrawContours(fan_contours_, cv::Scalar(0, 255, 255), -1, 3, 8);
+        debug::Painter::Instance()->DrawText("G", fan_center_g_, cv::Scalar(125, 145, 0), 3);
         cv::imshow("Test1", image_);
     }
 
@@ -54,7 +54,7 @@ PowerRune RuneDetector::Run(Entity::Colors color, Frame &frame) {
     debug::Painter::Instance()->DrawPoint(armor_center_p_, cv::Scalar(0, 255, 0), 2, 2);
     debug::Painter::Instance()->DrawText("P", armor_center_p_, cv::Scalar(0, 255, 0), 3);
     debug::Painter::Instance()->DrawText("R", energy_center_r_, cv::Scalar(255, 0, 255), 3);
-    cv::waitKey(0);
+    // cv::waitKey(0);
     return {color_,
             clockwise_,
             rtp_vec_,
@@ -81,9 +81,6 @@ void RuneDetector::ImageMorphologyEx(cv::Mat &image) {
     if (structElementSize == 0)
         return;
 
-//    cv::GaussianBlur(image, image, cv::Size(2 * structElementSize - 1, 2 * structElementSize - 1),
-//                     structElementSize - 1);
-    cv::GaussianBlur(image, image, cv::Size(3, 3), 3);
     cv::Mat element_close = cv::getStructuringElement(cv::MORPH_RECT,
                                                       cv::Size(2 * structElementSize - 1, 2 * structElementSize - 1));
     cv::morphologyEx(image, image, cv::MORPH_CLOSE, element_close);
@@ -100,10 +97,10 @@ bool RuneDetector::FindCenterR(cv::Mat &image) {
     for (auto &fan_contour: fan_contours_) {
         cv::RotatedRect encircle_r_rect = cv::minAreaRect(fan_contour);
         double encircle_rect_area = encircle_r_rect.size.area();
-        if (encircle_rect_area > float(RuneDetectorDebug::Instance().MinRBoundingBoxArea())
-            && encircle_rect_area < float(RuneDetectorDebug::Instance().MaxRBoundingBoxArea())
+        if (encircle_rect_area > float(RuneDetectorDebug::Instance().MinRArea())
+            && encircle_rect_area < float(RuneDetectorDebug::Instance().MaxRArea())
             && std::abs(encircle_r_rect.size.width - encircle_r_rect.size.height) <
-               float(RuneDetectorDebug::Instance().MaxEncircleRRectWHDeviation()))
+               float(RuneDetectorDebug::Instance().MaxRWHDeviation()))
             possible_center_r.emplace_back(encircle_r_rect.center);
     }
 
@@ -154,8 +151,6 @@ bool RuneDetector::FindCenterR(cv::Mat &image) {
     cv::Point2f new_rect_points[4];
     new_encircle_rect.points(new_rect_points);
 
-    if (debug_)
-        debug::Painter::Instance()->DrawRotatedBox(new_encircle_rect, cv::Scalar_<double>(0, 255, 0), 3);
     cv::Rect R_rect = new_encircle_rect.boundingRect();
     if (possible_center_r.empty()) {
         LOG(WARNING) << "No possible center R points found.";
@@ -216,14 +211,14 @@ bool RuneDetector::FindArmorCenterP(cv::Mat &image) {
                                                 static_cast<double>(fan_encircle_rect_.size.width);
 
             // It is not the fan because the profile does not satisfy the aspect ratio.
-            if (!(big_encircle_rect_wh_ratio > RuneDetectorDebug::Instance().MinBoundingBoxWHRatio() &&
-                  big_encircle_rect_wh_ratio < RuneDetectorDebug::Instance().MaxBoundingBoxWHRatio()))
+            if (!(big_encircle_rect_wh_ratio > RuneDetectorDebug::Instance().MinFanWHRatio() &&
+                  big_encircle_rect_wh_ratio < RuneDetectorDebug::Instance().MaxFanWHRatio()))
                 continue;
 
             double contour_area = cv::contourArea(fan_contours_[i]);  ///< Contour area.
             // Continue if contour area satisfies limits.
-            if (contour_area > RuneDetectorDebug::Instance().MinContourArea() &&
-                contour_area < RuneDetectorDebug::Instance().MaxContourArea()) {
+            if (contour_area > RuneDetectorDebug::Instance().MinFanArea() &&
+                contour_area < RuneDetectorDebug::Instance().MaxFanArea()) {
                 // DLOG(INFO) << "contour_area: " << contour_area;
                 // Traverse the sub contour, in case not falling into small cavities.
                 for (int next_son = fan_hierarchies_[i][2]; next_son >= 0; next_son = fan_hierarchies_[next_son][0]) {
@@ -293,7 +288,7 @@ bool RuneDetector::FindArmorCenterP(cv::Mat &image) {
 
 void RuneDetector::FindFanCenterG() {
     // Imaginary center of mass.
-    fan_center_g_ = 0.3 * armor_encircle_rect_.center + 0.4 * energy_center_r_ + 0.3 * fan_encircle_rect_.center;
+    fan_center_g_ = 0.5 * armor_encircle_rect_.center + 0.5 * energy_center_r_;
     found_fan_center_g = true;
 }
 
