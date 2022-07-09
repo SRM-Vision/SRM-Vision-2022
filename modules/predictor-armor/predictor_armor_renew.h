@@ -35,7 +35,7 @@ public:
         predict_armors_.clear();
         target_ = -1;
         for(auto& anti_top_detector:anti_top_detectors)
-            anti_top_detector.second = AntiTopDetectorRenew();
+            anti_top_detector.second.Reset();
         for(auto& buffer:grey_buffers_)  /// pending
             buffer.second = 0;
     }
@@ -106,6 +106,9 @@ private:
                                                                                             std::unordered_map<Robot::RobotTypes, std::vector<Armor>> &robots,
                                                                                             double threshold);
 
+    static std::pair<std::vector<Armor>::iterator, std::vector<Armor> *> SameArmorByPicDis(const Armor &target,
+                                                                                    std::unordered_map<Robot::RobotTypes, std::vector<Armor>> &robots,
+                                                                                    double threshold);
 };
 
 

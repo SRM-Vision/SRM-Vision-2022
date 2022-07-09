@@ -62,6 +62,10 @@ public:
 
     ATTR_READER(channel_R_high_thresh_, HighRThresh)
 
+    ATTR_READER(delta_u_, DeltaU)
+
+    ATTR_READER(delta_v_, DeltaV)
+
 private:
     const std::string trackbar_window_name1_ = "Rune Detector Counter Debug";
     const std::string trackbar_window_name2_ = "Rune Detector Point Debug";
@@ -73,7 +77,7 @@ private:
     const int kMaxRuneAreaTrackbar = 20000;
     const int kMaxRAreaTrackbar = 10000;
     const int kMaxRatioTrackbar = 1000;
-    const int kMaxCompensation = 50;
+    const int kMaxCompensation = 100;
 
     // Trackbar value cache.
     int split_gray_thresh_{};                  ///< Binarization threshold.

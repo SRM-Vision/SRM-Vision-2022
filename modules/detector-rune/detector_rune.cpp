@@ -52,6 +52,7 @@ PowerRune RuneDetector::Run(Entity::Colors color, Frame &frame) {
     // debug::Painter::Instance()->DrawPoint(fan_center_g_, cv::Scalar(255, 255, 0), 2, 2);
     debug::Painter::Instance()->DrawContours(fan_contours_, cv::Scalar(0, 255, 0), 3, -1, 8);
     debug::Painter::Instance()->DrawRotatedBox(armor_encircle_rect_, cv::Scalar(0, 0, 255), 3);
+    // cv::waitKey(0);
 
     return {color_,
             clockwise_,
@@ -88,7 +89,7 @@ void RuneDetector::ImageMorphologyEx(cv::Mat &image) {
     int structElementSize(2);
 
     cv::Mat element_close = cv::getStructuringElement(cv::MORPH_RECT,
-                                                      cv::Size(3 * structElementSize + 1, 3 * structElementSize + 1),
+                                                      cv::Size(2 * structElementSize + 1, 2 * structElementSize + 1),
                                                       cv::Point(structElementSize + 1, structElementSize + 1));
     cv::morphologyEx(image, image, cv::MORPH_CLOSE, element_close);
     cv::Mat element_dilate = cv::getStructuringElement(cv::MORPH_RECT,
@@ -199,7 +200,7 @@ bool RuneDetector::FindArmorCenterP(cv::Mat &image) {
                      cv::RETR_TREE,
                      cv::CHAIN_APPROX_SIMPLE);
 
-    if(debug_){
+    if (debug_) {
         debug::Painter::Instance()->DrawContours(fan_contours_, cv::Scalar(0, 255, 0), 3, -1, 8);
         cv::imshow("image", image);
         cv::waitKey(0);
@@ -324,8 +325,8 @@ void RuneDetector::FindRotateDirection() {
     if (clockwise_ == 0 && static_cast<int>(r_to_p_vec.size()) > 10) {
         cv::Point2f first_rotation = r_to_p_vec[0];
         for (const auto &current_rotation: r_to_p_vec) {
-            double cross = first_rotation.cross(
-                    current_rotation);   // Use multiplication cross to judge rotation direction
+            double cross = first_rotation.cross(current_rotation);
+            DLOG(INFO) << cross << "----------" << first_rotation << "----------" << current_rotation;
             if (cross > 0.0)
                 ++clockwise_;
             else if (cross < 0.0)

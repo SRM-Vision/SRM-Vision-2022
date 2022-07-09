@@ -60,6 +60,7 @@ private:
     std::chrono::high_resolution_clock::time_point start_time_;
 
     std::vector<Armor> detected_armors_in_this_frame_;
+    void Clear();
     void IsClockwise();
     void FindBiggestArmor();
     void DecideComingGoing();
@@ -78,6 +79,7 @@ private:
     coordinate::TranslationVector going_center_point_3D;    // 世界坐标系下
     cv::Point2f coming_center_point_2D;
     coordinate::TranslationVector coming_center_point_3D;   // 世界坐标系下
+    int disappear_buff;
     int clockwise_ = 0;                   // 1 is clockwise, -1 is anti-clockwise
     double center_distance_;
 
