@@ -50,48 +50,32 @@ public:
 
     ATTR_READER(max_bounding_box_wh_ratio_, MaxBoundingBoxWHRatio)
 
-    ATTR_READER(channel_B_low_thresh_, LowBThresh)
-
-    ATTR_READER(channel_G_low_thresh_, LowGThresh)
-
-    ATTR_READER(channel_R_low_thresh_, LowRThresh)
-
-    ATTR_READER(channel_B_high_thresh_, HighBThresh)
-
-    ATTR_READER(channel_G_high_thresh_, HighGThresh)
-
-    ATTR_READER(channel_R_high_thresh_, HighRThresh)
+    ATTR_READER(kernel_size_, KernelSize)
 
     ATTR_READER(delta_u_, DeltaU)
 
     ATTR_READER(delta_v_, DeltaV)
 
 private:
-    const std::string trackbar_window_name1_ = "Rune Detector Counter Debug";
-    const std::string trackbar_window_name2_ = "Rune Detector Point Debug";
+    const std::string trackbar_window_name_ = "Rune Detector Debug";
     cv::FileStorage config_;
     std::string config_path_;
 
     // Maximum trackbar values.
     const int kMaxThresholdTrackbar = 255;
-    const int kMaxRuneAreaTrackbar = 20000;
-    const int kMaxRAreaTrackbar = 10000;
+    const int kMaxRuneAreaTrackbar = 10000;
+    const int kMaxRAreaTrackbar = 2000;
     const int kMaxRatioTrackbar = 1000;
     const int kMaxCompensation = 100;
 
     // Trackbar value cache.
     int split_gray_thresh_{};                  ///< Binarization threshold.
-    int channel_B_low_thresh_{};
-    int channel_G_low_thresh_{};
-    int channel_R_low_thresh_{};
-    int channel_B_high_thresh_{};
-    int channel_G_high_thresh_{};
-    int channel_R_high_thresh_{};
     int min_bounding_box_area_{};
     int min_contour_area_{};
     int max_contour_area_{};
     int min_armor_area_{};
     int max_armor_area_{};
+    int kernel_size_{};                        ///< MorphologyEx kernel size
     int min_r_bounding_box_area_{};
     int max_r_bounding_box_area_{};
     int max_encircle_r_rect_wh_deviation_{};  ///< Maximum energy center encircle rect weight - height deviation.

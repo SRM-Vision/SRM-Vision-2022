@@ -89,10 +89,10 @@ void InfantryController::Run() {
         }
 
         // When used camera, need to flip image
-        if(CmdlineArgParser::Instance().RunWithCamera()){
-            cv::flip(frame_.image, frame_.image, 0);
-            cv::flip(frame_.image, frame_.image, 1);
-        }
+//        if(CmdlineArgParser::Instance().RunWithCamera()){
+//            cv::flip(frame_.image, frame_.image, 0);
+//            cv::flip(frame_.image, frame_.image, 1);
+//        }
 
         painter_->UpdateImage(frame_.image);
 
@@ -104,21 +104,21 @@ void InfantryController::Run() {
 
         if (CmdlineArgParser::Instance().RuneModeRune()) {
             power_rune_ = rune_detector_.Run(receive_packet_.color, frame_);
-            send_packet_ = SendPacket(rune_predictor_.Run(power_rune_, receive_packet_.mode, receive_packet_.bullet_speed));
+            send_packet_ = SendPacket(rune_predictor_.Run(power_rune_, kSmallRune, receive_packet_.bullet_speed));
             painter_->DrawPoint(rune_predictor_.PredictedPoint(),
                                                  cv::Scalar(0, 255, 255), 3, 3);
             painter_->ShowImage("Rune", 1);
         } else {
             boxes_ = armor_detector_(frame_.image,ROI);
-            for(auto &box:boxes_){
-                DLOG(INFO) << "CONFIDENCE: " << box.confidence << " color : " << box.color;
-            }
+//            for(auto &box:boxes_){
+//                DLOG(INFO) << "CONFIDENCE:  " << box.confidence;
+//            }
             BboxToArmor();
             battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.yaw_pitch_roll,
                                        armors_);
             /// TODO mode switch
             if (CmdlineArgParser::Instance().RunWithSerial()) {
-                armor_predictor_.SetColor(Entity::kBlue);
+                armor_predictor_.SetColor(receive_packet_.color);
                 send_packet_ = armor_predictor_.Run(battlefield_, frame_.image.size ,
                                                    receive_packet_.mode, receive_packet_.bullet_speed);
             } else
@@ -138,7 +138,7 @@ void InfantryController::Run() {
             painter_->DrawPoint(armor_predictor_.ShootPointInPic(image_provider_->IntrinsicMatrix(),
                                                                                  frame_.image.size),
                                                  cv::Scalar(0, 0, 255), 1, 10);
-            armor_predictor_.AllShootPoint(image_provider_->IntrinsicMatrix());
+            // armor_predictor_.AllShootPoint(image_provider_->IntrinsicMatrix());
             painter_->ShowImage("ARMOR DETECT", 1);
         }
 

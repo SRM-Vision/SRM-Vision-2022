@@ -59,7 +59,7 @@ namespace predictor::rune {
          */
         [[nodiscard]] double Integral(double integral_time) const;
 
-        int rotational_direction;  ///< -1 is clockwise, 1 is counterclockwise.
+        int rotational_direction;  ///< 1 is clockwise, -1 is counterclockwise.
         double a;  ///< Amplitude, or A.
         double w;  ///< Palstance, or omega.
         double p;  ///< Initial phase, or phi.

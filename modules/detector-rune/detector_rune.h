@@ -14,7 +14,7 @@
 
 class RuneDetector : NO_COPY, NO_MOVE {
 public:
-    [[maybe_unused]] explicit RuneDetector(Entity::Colors color = Entity::Colors::kRed, bool debug = false);
+    [[maybe_unused]] explicit RuneDetector(Entity::Colors color = Entity::Colors::kRed, bool debug = true);
 
     ~RuneDetector() = default;
 
@@ -75,9 +75,11 @@ private:
     bool debug_;                 ///< Debug flag.
 
     cv::Mat image_;                   ///< Original image's duplicate.
+    std::vector<cv::Mat> image_channels_;
     cv::Point2f fan_rect_points_[4];  ///< Four vertices of the enclosing rectangle of a fan
 
     std::vector<std::vector<cv::Point>> fan_contours_;
+
     std::vector<cv::Vec4i> fan_hierarchies_;   ///< Outline of the hierarchy
     cv::RotatedRect fan_encircle_rect_;        ///< Enclosing rectangle of a fan
     cv::RotatedRect armor_encircle_rect_;      ///< Enclosing rectangle of a fan's armor
@@ -91,7 +93,7 @@ private:
     Entity::Colors color_;
     cv::Point2f rtp_vec_;    ///< energy_center_r to armor_center_p, for calculate predicted point
     cv::Point2f rtg_vec_;    ///< energy_center_r to fan_center_g, for calculate angle and palstance
-    int clockwise_;          ///< Rotation direction, 1 for anti-clockwise , -1 for clockwise
+    int clockwise_;          ///< Rotation direction, -1 for anti-clockwise , 1 for clockwise
     int frame_lost_;         ///< Lost frame when detecting
 };
 

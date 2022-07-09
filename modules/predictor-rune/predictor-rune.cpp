@@ -2,7 +2,7 @@
 #include <ceres/ceres.h>
 #include <detector-rune-debug/detector_rune_debug.h>
 
-predictor::rune::RunePredictor::RunePredictor() : debug_(false),
+predictor::rune::RunePredictor::RunePredictor() : debug_(true),
                                                   rune_(), state_(), rotational_speed_(), fitting_data_(),
                                                   output_data_(), bullet_speed_(15),
                                                   predicted_angle_(), predicted_point_() {}
@@ -10,6 +10,7 @@ predictor::rune::RunePredictor::RunePredictor() : debug_(false),
 SendPacket predictor::rune::RunePredictor::Run(const PowerRune &power_rune, AimModes aim_mode, float bullet_speed) {
     rune_ = power_rune;
     bullet_speed_ = bullet_speed;
+    bullet_speed_ = 30;
     if (aim_mode == kBigRune) {
         LOG(INFO) << "Rune predictor mode: big.";
         state_.UpdatePalstance(rune_, fitting_data_);
@@ -191,7 +192,7 @@ void predictor::rune::State::CheckMode() {
         double delta_angle = std::abs(current_angle - last_angle);
         last_angle = current_angle;
         if (delta_angle > 60 && delta_angle < 350)
-            LOG(INFO) << "Rune predictor mode changes now.";
+            LOG(INFO) << "Rune fan changes now.";
     }
 }
 
@@ -236,11 +237,11 @@ void predictor::rune::RunePredictor::PredictAngle(AimModes aim_mode) {
         double delay_time = 7.0 / bullet_speed_;  // Ballistic Time Compensation.
         double compensate_time = 0.05;   // Other compensation
 
-        auto rotated_radian = (-1.0) * rune_.Clockwise() * rotational_speed_.w * (compensate_time + delay_time);
+        auto rotated_radian =rune_.Clockwise() * rotational_speed_.w * (compensate_time + delay_time);
         rotated_angle = rotated_radian * 180 / CV_PI;
 
         state_.UpdateAngle(rune_.RtpVec());
-        predicted_angle_ = (-1.0) * rune_.Clockwise() * (state_.current_angle + rotated_angle);
+        predicted_angle_ =rune_.Clockwise() * (state_.current_angle + rotated_angle);
     }
 }
 
