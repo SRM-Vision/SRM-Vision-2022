@@ -135,7 +135,7 @@ public:
 //        auto point1_x = short(show_point.x);
 //        auto point1_y = short(show_point.y);
 
-        SendPacket send_packet = {float(yaw), float(pitch - ArmorPredictorDebug::Instance().DeltaPitch()),
+        SendPacket send_packet = {float(yaw-ArmorPredictorDebug::Instance().DeltaYaw()), float(pitch - ArmorPredictorDebug::Instance().DeltaPitch()),
                                   delay, distance_mode, fire_,
                                   0,0,
                                   0,0,

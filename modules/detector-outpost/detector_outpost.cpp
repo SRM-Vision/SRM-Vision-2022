@@ -64,14 +64,16 @@ SendToOutpostPredictor OutpostDetector::Run(const Battlefield& battlefield)
     if (robots[color_][Robot::kInfantry4] == nullptr)
     {
         DLOG(INFO) << "No outpost armor founded";
-
+        disappear_buff++;
+        if(disappear_buff>10)
+            Clear();
         send_to_outpost_predictor.UpdateInfo(going_center_point_2D, outpost_center_, coming_center_point_2D,
                                              going_center_point_3D, center_3D,coming_center_point_3D,
                                              clockwise_, center_distance_, battlefield.BulletSpeed(), shoot_point_);
         return send_to_outpost_predictor;
     }
 
-
+    disappear_buff = 0;
     // detected_armors_in_this_frame_ = facility[color_][Facility::kBase]->BottomArmors();
     detected_armors_in_this_frame_ = robots[color_][Robot::kInfantry4]->Armors();
 
@@ -228,3 +230,19 @@ void OutpostDetector::DecideComingGoing()
         }
     }
 }
+
+void OutpostDetector::Clear() {
+    outpost_center_ = {320,240};
+    max_area_  = 0.0;
+    last_armor_x_ = 0.0;
+    going_center_point_2D = {0.0 , 0.0};
+    coming_center_point_2D = {0.0,0.0};
+    going_center_point_3D = {0,0,0};
+    coming_center_point_3D = {0,0,0};
+    shoot_point_ = {0,0,0};
+    center_distance_ = 0;
+    clockwise_ = 0;
+    is_checked_clockwise = false;
+    outdated_ = true;
+}
+
