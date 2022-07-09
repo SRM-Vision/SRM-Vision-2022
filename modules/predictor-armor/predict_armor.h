@@ -12,7 +12,7 @@
 // TODO Calibrate shoot delay and acceleration threshold.
 const double kShootDelay = 0.02;
 const double kFireAccelerationThreshold = 3.0;
-const cv::Size kZoomRatio = {16,8};
+const cv::Size kZoomRatio = {160,50};
 
 /// Predicting function template structure.
 struct PredictFunction {
@@ -92,6 +92,7 @@ public:
             predict.delta_t = delta_t_predict;
             predict(x_estimate.data(), x_predict.data());
             predict_world_vector_ << x_predict(0, 0), x_predict(2, 0), x_predict(4, 0);
+            DLOG(INFO) << "speed:        " << x_predict(1,0) << "   " << x_predict(3,0);
             // try to not predict pitch.
             auto predict_world_spherical_vector = coordinate::convert::Rectangular2Spherical(predict_world_vector_);
             predict_world_spherical_vector[1] = y_real[1];  // not predict pitch
@@ -135,7 +136,7 @@ public:
 //        auto point1_x = short(show_point.x);
 //        auto point1_y = short(show_point.y);
 
-        SendPacket send_packet = {float(yaw), float(pitch - ArmorPredictorDebug::Instance().DeltaPitch()),
+        SendPacket send_packet = {float(yaw - ArmorPredictorDebug::Instance().DeltaYaw()), float(pitch - ArmorPredictorDebug::Instance().DeltaPitch()),
                                   delay, distance_mode, fire_,
                                   0,0,
                                   0,0,
@@ -168,11 +169,10 @@ public:
 //        cv::RotatedRect target(corners_[0],corners_[1],corners_[2]);
 //        auto target_right = target.boundingRect();
         cv::Rect target_right{x,y,width,height};
-        auto zoom_size = cv::Size(int(target_right.width * kZoomRatio.width + 0.5 * src_image.rows),
-                                  int(target_right.height * kZoomRatio.height + 0.1 * src_image.cols));
+        auto zoom_size = cv::Size(target_right.width * kZoomRatio.width,
+                                  target_right.height * kZoomRatio.height);
         roi_rect = target_right + zoom_size;
         roi_rect -= cv::Point((zoom_size.width >> 1 ),(zoom_size.height >> 1));
-        roi_rect -= cv::Point(0,int(roi_rect.height * 0.15));    // move up
         roi_rect = roi_rect & cv::Rect(0, 0, src_image.cols,src_image.rows);
     }
 

@@ -147,10 +147,10 @@ void HeroController::Run() {
             ArmorPredictorDebug::Instance().Save();
 
 
-        Compensator::Instance().Setoff(send_packet_.pitch,
-                                       receive_packet_.bullet_speed,
-                                       armor_predictor.GetTargetDistance(),
-                                       receive_packet_.mode);
+//        Compensator::Instance().Setoff(send_packet_.pitch,
+//                                       receive_packet_.bullet_speed,
+//                                       armor_predictor.GetTargetDistance(),
+//                                       receive_packet_.mode);
 
         if (CmdlineArgParser::Instance().RunWithSerial()) {
             serial_->SendData(send_packet_, std::chrono::milliseconds(5));

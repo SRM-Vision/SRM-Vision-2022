@@ -119,11 +119,12 @@ SendPacket PredictorArmorRenew::Run(const Battlefield &battlefield, const cv::Ma
     if(target_ != -1)
         target_locked = true;
 
-    // AntiTop
+    /// AntiTop
     if(target_locked){
         auto target_id = predict_armors_[target_].ID();
+//        DLOG(INFO) << "TOP PERIOD: " << anti_top_detectors[Robot::RobotTypes(target_id)].TopPeriod();
         if(anti_top_detectors[Robot::RobotTypes(target_id)].IsLowTop() ||
-           anti_top_detectors[Robot::RobotTypes(target_id)].IsHighTop()){   /// TODO need to perfect conditions
+                anti_top_detectors[Robot::RobotTypes(target_id)].IsHighTop()){   /// TODO need to perfect conditions
             for(int i = 0;i < predict_armors_.size();++i){
                 if(i != target_ && predict_armors_[i].ID() == target_id &&
                         anti_top_detectors[Robot::RobotTypes(predict_armors_[target_].ID())].Clockwise() != -1 &&
