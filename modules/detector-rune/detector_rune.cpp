@@ -39,8 +39,12 @@ PowerRune RuneDetector::Run(Entity::Colors color, Frame &frame) {
 
     // Binarize image.
     cv::threshold(image_, image_, RuneDetectorDebug::Instance().SplitGrayThresh(), 255, cv::THRESH_BINARY);
-
     ImageMorphologyEx(image_);
+
+    if (debug_) {
+        // debug::Painter::Instance()->DrawContours(fan_contours_, cv::Scalar(0, 255, 255), -1, 3, 8);
+        cv::imshow("Test1", image_);
+    }
 
     if (0 == clockwise_)
         FindRotateDirection();
@@ -48,12 +52,9 @@ PowerRune RuneDetector::Run(Entity::Colors color, Frame &frame) {
         FindArmorCenterP(image_);
 
     debug::Painter::Instance()->DrawPoint(armor_center_p_, cv::Scalar(0, 255, 0), 2, 2);
-    debug::Painter::Instance()->DrawPoint(energy_center_r_, cv::Scalar(255, 0, 255), 2, 2);
-    // debug::Painter::Instance()->DrawPoint(fan_center_g_, cv::Scalar(255, 255, 0), 2, 2);
-    debug::Painter::Instance()->DrawContours(fan_contours_, cv::Scalar(0, 255, 0), 3, -1, 8);
-    debug::Painter::Instance()->DrawRotatedBox(armor_encircle_rect_, cv::Scalar(0, 0, 255), 3);
-    // cv::waitKey(0);
-
+    debug::Painter::Instance()->DrawText("P", armor_center_p_, cv::Scalar(0, 255, 0), 3);
+    debug::Painter::Instance()->DrawText("R", energy_center_r_, cv::Scalar(255, 0, 255), 3);
+    cv::waitKey(0);
     return {color_,
             clockwise_,
             rtp_vec_,
@@ -65,38 +66,30 @@ PowerRune RuneDetector::Run(Entity::Colors color, Frame &frame) {
 }
 
 void RuneDetector::ImageSplit(cv::Mat &image) {
-    cv::Mat image_hsv;
-    cv::cvtColor(image, image_hsv, cv::COLOR_BGR2HSV);
-    cv::Scalar lower = cv::Scalar(RuneDetectorDebug::Instance().LowBThresh(),
-                                  RuneDetectorDebug::Instance().LowGThresh(),
-                                  RuneDetectorDebug::Instance().LowRThresh());
-    cv::Scalar upper = cv::Scalar(RuneDetectorDebug::Instance().HighBThresh(),
-                                  RuneDetectorDebug::Instance().HighGThresh(),
-                                  RuneDetectorDebug::Instance().HighRThresh());
+    cv::split(image, image_channels_);
 
-    if (Entity::Colors::kRed == color_) {  // Enemy is red.
-        cv::inRange(image_hsv, lower, upper, image);
-    } else if (Entity::Colors::kBlue == color_) {  // Enemy is blue.
-        cv::Mat mask1, mask2;
-        cv::inRange(image_hsv, lower, upper, mask1);
-        cv::inRange(image_hsv, cv::Scalar(156, 50, 50), cv::Scalar(180, 255, 255), mask2);
-        cv::add(mask1, mask2, image);
-    } else
+    if (Entity::Colors::kRed == color_)
+        cv::subtract(image_channels_.at(2), image_channels_.at(0), image);     // Target is red energy
+    else if (Entity::Colors::kBlue == color_)
+        cv::subtract(image_channels_.at(0), image_channels_.at(2), image);     // Target is blue energy
+    else
         LOG(ERROR) << "Input wrong color " << color_ << " of power rune.";
 }
 
 void RuneDetector::ImageMorphologyEx(cv::Mat &image) {
-    int structElementSize(2);
+    int structElementSize = RuneDetectorDebug::Instance().KernelSize();
+    if (structElementSize == 0)
+        return;
 
+//    cv::GaussianBlur(image, image, cv::Size(2 * structElementSize - 1, 2 * structElementSize - 1),
+//                     structElementSize - 1);
+    cv::GaussianBlur(image, image, cv::Size(3, 3), 3);
     cv::Mat element_close = cv::getStructuringElement(cv::MORPH_RECT,
-                                                      cv::Size(2 * structElementSize + 1, 2 * structElementSize + 1),
-                                                      cv::Point(structElementSize + 1, structElementSize + 1));
+                                                      cv::Size(2 * structElementSize - 1, 2 * structElementSize - 1));
     cv::morphologyEx(image, image, cv::MORPH_CLOSE, element_close);
     cv::Mat element_dilate = cv::getStructuringElement(cv::MORPH_RECT,
-                                                       cv::Size(2 * structElementSize + 1, 2 * structElementSize + 1),
-                                                       cv::Point(structElementSize, structElementSize));
+                                                       cv::Size(2 * structElementSize - 1, 2 * structElementSize - 1));
     cv::dilate(image, image, element_dilate);
-    // cv::Canny(image, image, 3, 9, 3);  // Enhance contour
 }
 
 bool RuneDetector::FindCenterR(cv::Mat &image) {
@@ -162,7 +155,7 @@ bool RuneDetector::FindCenterR(cv::Mat &image) {
     new_encircle_rect.points(new_rect_points);
 
     if (debug_)
-        debug::Painter::Instance()->DrawRotatedBox(new_encircle_rect, cv::Scalar_<double>(255, 255, 0), 3);
+        debug::Painter::Instance()->DrawRotatedBox(new_encircle_rect, cv::Scalar_<double>(0, 255, 0), 3);
     cv::Rect R_rect = new_encircle_rect.boundingRect();
     if (possible_center_r.empty()) {
         LOG(WARNING) << "No possible center R points found.";
@@ -200,13 +193,10 @@ bool RuneDetector::FindArmorCenterP(cv::Mat &image) {
                      cv::RETR_TREE,
                      cv::CHAIN_APPROX_SIMPLE);
 
-    if (debug_) {
-        debug::Painter::Instance()->DrawContours(fan_contours_, cv::Scalar(0, 255, 0), 3, -1, 8);
-        cv::imshow("image", image);
-        cv::waitKey(0);
-    }
     found_armor_center_p = false;
-    armor_encircle_rect_ = cv::RotatedRect();
+    if (debug_) {
+        armor_encircle_rect_ = cv::RotatedRect();
+    }
 
     if (!fan_hierarchies_.empty()) {
         // Traverse the contour according to the horizontal relationship.
@@ -218,7 +208,6 @@ bool RuneDetector::FindArmorCenterP(cv::Mat &image) {
             const double &bounding_box_area = fan_encircle_rect_.size.area();
             if (bounding_box_area < RuneDetectorDebug::Instance().MinBoundingBoxArea())
                 continue;
-            // DLOG(INFO) << "Bounding_box_area: " << bounding_box_area;
 
             double big_encircle_rect_wh_ratio = fan_encircle_rect_.size.width < fan_encircle_rect_.size.height ?
                                                 static_cast<double>(fan_encircle_rect_.size.width) /
@@ -230,9 +219,8 @@ bool RuneDetector::FindArmorCenterP(cv::Mat &image) {
             if (!(big_encircle_rect_wh_ratio > RuneDetectorDebug::Instance().MinBoundingBoxWHRatio() &&
                   big_encircle_rect_wh_ratio < RuneDetectorDebug::Instance().MaxBoundingBoxWHRatio()))
                 continue;
-            // DLOG(INFO) << "Encircle_ratio: " << big_encircle_rect_wh_ratio;
-            double contour_area = cv::contourArea(fan_contours_[i]);  ///< Contour area.
 
+            double contour_area = cv::contourArea(fan_contours_[i]);  ///< Contour area.
             // Continue if contour area satisfies limits.
             if (contour_area > RuneDetectorDebug::Instance().MinContourArea() &&
                 contour_area < RuneDetectorDebug::Instance().MaxContourArea()) {
@@ -240,6 +228,9 @@ bool RuneDetector::FindArmorCenterP(cv::Mat &image) {
                 // Traverse the sub contour, in case not falling into small cavities.
                 for (int next_son = fan_hierarchies_[i][2]; next_son >= 0; next_son = fan_hierarchies_[next_son][0]) {
                     armor_encircle_rect_ = cv::minAreaRect(fan_contours_[next_son]);
+                    if (debug_) {
+                        debug::Painter::Instance()->DrawRotatedBox(armor_encircle_rect_, cv::Scalar(0, 0, 255), 3);
+                    }
                     double armor_rect_area = armor_encircle_rect_.size.area();
 
                     double small_encircle_rect_wh_ratio =
@@ -256,10 +247,6 @@ bool RuneDetector::FindArmorCenterP(cv::Mat &image) {
                         && small_encircle_rect_wh_ratio < RuneDetectorDebug::Instance().MaxArmorWHRatio()) {
                         p_offset_ = armor_encircle_rect_.center - armor_center_p_;
                         armor_center_p_ = armor_encircle_rect_.center;
-
-                        if (debug_)
-                            debug::Painter::Instance()->DrawPoint(armor_center_p_, cv::Scalar_<double>(255, 0, 0),
-                                                                  2, 2);
 
                         found_armor_center_p = true;
                         // Have found the fan blade that meets requirements, exit the son_contour loop
@@ -290,9 +277,6 @@ bool RuneDetector::FindArmorCenterP(cv::Mat &image) {
         if (found_energy_center_r) {
             FindFanCenterG();
 
-            if (debug_)
-                debug::Painter::Instance()->DrawLine(fan_center_g_, energy_center_r_, cv::Scalar(255, 255, 0), 2);
-
             rtg_vec_ = fan_center_g_ - energy_center_r_;
         }
 
@@ -309,7 +293,7 @@ bool RuneDetector::FindArmorCenterP(cv::Mat &image) {
 
 void RuneDetector::FindFanCenterG() {
     // Imaginary center of mass.
-    fan_center_g_ = 0.25 * armor_encircle_rect_.center + 0.25 * energy_center_r_ + 0.5 * fan_encircle_rect_.center;
+    fan_center_g_ = 0.3 * armor_encircle_rect_.center + 0.4 * energy_center_r_ + 0.3 * fan_encircle_rect_.center;
     found_fan_center_g = true;
 }
 
@@ -319,23 +303,27 @@ void RuneDetector::FindRotateDirection() {
 
     // When armor centers are found but rotation direction is not decided, armor finding should be done first.
     if (FindArmorCenterP(image_) && clockwise_ == 0)
-        r_to_p_vec.emplace_back(armor_center_p_ - energy_center_r_);
+        r_to_p_vec.emplace_back(fan_center_g_ - energy_center_r_);
+    if (debug_)
+        DLOG(INFO) << energy_center_r_ << "-------" << fan_center_g_;
 
     // No certain rotation direction lasting 10 frames or above.
-    if (clockwise_ == 0 && static_cast<int>(r_to_p_vec.size()) > 10) {
-        cv::Point2f first_rotation = r_to_p_vec[0];
-        for (const auto &current_rotation: r_to_p_vec) {
-            double cross = first_rotation.cross(current_rotation);
-            DLOG(INFO) << cross << "----------" << first_rotation << "----------" << current_rotation;
+    if (clockwise_ == 0 && static_cast<int>(r_to_p_vec.size()) > 20) {
+        cv::Point2f first_rotation = r_to_p_vec[5];  // The fist five frames are invalid
+        for (auto current_rotation = r_to_p_vec.begin() + 6; current_rotation != r_to_p_vec.end(); ++current_rotation) {
+            double cross = first_rotation.cross(cv::Point2f(current_rotation->x, current_rotation->y));
+            if (debug_)
+                DLOG(INFO) << cross << "----------" << first_rotation << "----------"
+                           << cv::Point2f(current_rotation->x, current_rotation->y);
             if (cross > 0.0)
                 ++clockwise_;
             else if (cross < 0.0)
                 --clockwise_;
         }
-        if (clockwise_ > 7) {
+        if (clockwise_ > 8) {
             LOG(INFO) << "Power rune's direction is anti-clockwise.";
             clockwise_ = 1;
-        } else if (clockwise_ < -7) {
+        } else if (clockwise_ < -8) {
             LOG(INFO) << "Power rune's direction is clockwise.";
             clockwise_ = -1;
         } else {
