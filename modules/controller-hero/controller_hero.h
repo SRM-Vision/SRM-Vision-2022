@@ -18,10 +18,10 @@ private:
     [[maybe_unused]] static ControllerRegistry<HeroController> hero_controller_registry_;
 
 
-    OutpostDetector outpost_detector_;
+    OutpostDataDetector outpost_detector_;
     // Outpost outpost_;
-    OutpostPredictor outpost_predictor_;
-    // NewOutpostPredictor outpost_predictor_;
+     OutpostPredictor outpost_predictor_;
+
 };
 
 #endif  // CONTROLLER_HERO_H_

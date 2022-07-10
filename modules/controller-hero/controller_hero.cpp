@@ -5,7 +5,6 @@
 #include "image-provider-base/image-provider-factory.h"
 #include "controller-base/controller_factory.h"
 #include "predictor-armor/predictor_armor_renew.h"
-#include "predictor-outpost/new_predictor_outpost.h"
 #include "predictor-outpost/predictor_outpost.h"
 #include "detector-outpost/detector_outpost.h"
 #include "controller_hero.h"
@@ -64,7 +63,10 @@ void HeroController::Run() {
     PredictorArmorRenew armor_predictor(Entity::Colors::kBlue,"hero");
 
     sleep(2);
-    cv::Rect ROI; // roi of detect armor
+    //cv::Rect ROI{300,200,620,700}; // roi of detect armor
+
+    cv::Rect ROI{}; // roi of detect armor
+
     while (!exit_signal_) {
         auto time = std::chrono::steady_clock::now();
         if (!image_provider_->GetFrame(frame_)){
@@ -72,7 +74,7 @@ void HeroController::Run() {
             continue;
         }
 
-        debug::Painter::Instance()->UpdateImage(frame_.image);
+        // debug::Painter::Instance()->UpdateImage(frame_.image);
 
         if (CmdlineArgParser::Instance().RunWithGimbal()) {
             SerialReceivePacket serial_receive_packet{};
@@ -83,6 +85,8 @@ void HeroController::Run() {
         // if(receive_packet_.mode == kOutPost)
         if (CmdlineArgParser::Instance().RunModeOutpost())
         {
+            debug::Painter::Instance()->UpdateImage(frame_.image);
+
             boxes_ = armor_detector_(frame_.image,ROI);
 
             BboxToArmor();
@@ -92,16 +96,18 @@ void HeroController::Run() {
 
             outpost_detector_.SetColor(receive_packet_.color);
 
-            SendToOutpostPredictor send_to_outpost_predictor = outpost_detector_.Run(battlefield_);
+            send_packet_ = outpost_predictor_.Run(outpost_detector_.Run(battlefield_), 16);
 
-            outpost_predictor_.GetFromDetector(send_to_outpost_predictor);
+            outpost_predictor_.GetROI(ROI,frame_.image);
+            debug::Painter::Instance()->DrawBoundingBox(ROI,cv::Scalar(0,0,255),2);
 
-            send_packet_ = outpost_predictor_.Run();
-
+            if(outpost_detector_.Spining())
+                debug::Painter::Instance()->DrawText("Spining",{50,50},cv::Scalar(100, 255, 100),2);
             if(send_packet_.fire)
                 debug::Painter::Instance()->DrawText("Fire",{50,50},cv::Scalar(100, 255, 100),2);
             debug::Painter::Instance()->DrawPoint(outpost_detector_.OutpostCenter(), cv::Scalar(100, 255, 100), 2, 2);
-            debug::Painter::Instance()->DrawPoint(outpost_detector_.ComingArmorCenter2D(), cv::Scalar(100, 255, 250), 2, 2);
+            // debug::Painter::Instance()->DrawPoint(outpost_detector_.ComingArmorCenter2D(), cv::Scalar(100, 255, 250), 2, 2);
+            debug::Painter::Instance()->DrawBoundingBox(ROI,cv::Scalar(0,0,255),2);
             DLOG(INFO) << "8";
             DLOG(INFO) << "center: " << outpost_detector_.OutpostCenter();
             debug::Painter::Instance()->ShowImage("ARMOR DETECT", 1);
@@ -120,9 +126,14 @@ void HeroController::Run() {
                                                    receive_packet_.mode, receive_packet_.bullet_speed);
             } else
                 send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size,AimModes::kAntiTop);
-            armor_predictor.GetROI(ROI,frame_.image);
+
+            if (receive_packet_.mode != AimModes::kOutPost)
+                send_packet_.fire = 0;
+
+            //armor_predictor.GetROI(ROI,frame_.image);
             auto img = frame_.image.clone();
             debug::Painter::Instance()->UpdateImage(frame_.image);
+
             for (const auto &box: boxes_) {
                 debug::Painter::Instance()->DrawRotatedRectangle(box.points[0],
                                                                 box.points[1],
@@ -136,21 +147,23 @@ void HeroController::Run() {
                                                                                  frame_.image.size),
                                                  cv::Scalar(0, 0, 255), 1, 10);
 //            armor_predictor.AllShootPoint(image_provider_->IntrinsicMatrix());
+            debug::Painter::Instance()->DrawBoundingBox(ROI,cv::Scalar(0,0,255),2);
+
             debug::Painter::Instance()->ShowImage("ARMOR DETECT", 1);
         }
 
 
-        auto key = cv::waitKey(1) & 0xff;
+        auto key = cv::waitKey(5) & 0xff;
         if (key == 'q')
             break;
         else if (key == 's')
             ArmorPredictorDebug::Instance().Save();
 
 
-//        Compensator::Instance().Setoff(send_packet_.pitch,
-//                                       receive_packet_.bullet_speed,
-//                                       armor_predictor.GetTargetDistance(),
-//                                       receive_packet_.mode);
+        Compensator::Instance().Setoff(send_packet_.pitch,
+                                       receive_packet_.bullet_speed,
+                                       armor_predictor.GetTargetDistance(),
+                                       receive_packet_.mode);
 
         if (CmdlineArgParser::Instance().RunWithSerial()) {
             serial_->SendData(send_packet_, std::chrono::milliseconds(5));
