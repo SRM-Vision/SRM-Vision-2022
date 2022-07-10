@@ -96,8 +96,7 @@ SendPacket OutpostPredictor::Run(DetectedData detected_data, float bullet_speed)
 //    auto show_point = coordinate::transform::CameraToPicture(camera_mat, shoot_point);
 //    auto point1_x = short(show_point.x);
 //    auto point1_y = short(show_point.y);
-
-    return {output_data_.yaw, output_data_.pitch - float(delta_pitch_),
+    return {output_data_.yaw - float(0.0085), output_data_.pitch,
             output_data_.delay,0,output_data_.fire,
             0,0,
             0,0,

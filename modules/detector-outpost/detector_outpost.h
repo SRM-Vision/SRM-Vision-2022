@@ -56,7 +56,7 @@ public:
     ATTR_READER_REF(spining_, Spining)
 
 private:
-    const double kVertical_threshold_ = 10;
+    const double kVertical_threshold_ = 15;
     bool is_checked_clockwise = false;
     bool need_init_ = true;
     bool prepared_ = false;

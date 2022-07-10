@@ -9,6 +9,7 @@
 #include "data-structure/communication.h"
 #include "digital-twin/facilities/outpost.h"
 #include "detector-outpost/detector_outpost.h"
+#include "predictor-armor-debug/predictor_armor_debug.h"
 
 #include <utility>
 #define PREDICTOR_OUTPOST_H_

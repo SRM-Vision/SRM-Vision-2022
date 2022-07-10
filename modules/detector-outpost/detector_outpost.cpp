@@ -50,7 +50,7 @@ DetectedData OutpostDataDetector::Run(const Battlefield& battlefield)
     {
         DLOG(INFO) << "No outpost armor founded";
         disappear_buff_++;
-        if(disappear_buff_ > 50)
+        if(disappear_buff_ > 30)
             Clear();
 
         return {detected_armors_in_this_frame_, outpost_center_, center_3D, shoot_point_,
@@ -140,6 +140,7 @@ void OutpostDataDetector::FindBiggestArmor()
                 outpost_corner_[1] = armor.Corners()[1];
                 outpost_corner_[2] = armor.Corners()[2];
                 outpost_corner_[3] = armor.Corners()[3];
+                prepared_ = true;
 
             }
             else
@@ -221,13 +222,17 @@ void OutpostDataDetector::Clear() {
     coming_armor_ = -1;
     going_armor_ = -1;
     shoot_point_ = {0,0,0};
+    for(int i = 0;i<4;i++)
+        outpost_corner_[i] = {0,0};
+
     center_distance_ = 0;
     clockwise_ = 0;
     is_checked_clockwise = false;
     spining_ = false;
     need_init_ = true;
-    times_.clear();
     prepared_ = false;
+    times_.clear();
+
 }
 
 void OutpostDataDetector::IsSpining(const int &new_armor_num, const uint64_t &now_timestamp) {
