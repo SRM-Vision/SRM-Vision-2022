@@ -19,6 +19,10 @@ const double kPicDistanceThreshold = 30;
 ///< Switch target in anti-top When new armor bigger than 0.7 * old armor.
 const double kSwitchByAreaThreshold = 0.7;
 
+const double kSpeedDecayRatioX = 1;
+
+const double kSpeedDecayRatioY = 1;
+
 void PredictorArmorRenew::Initialize(const std::string &car_name) {
     for (auto i = 0; i < Robot::RobotTypes::SIZE; ++i) {
         grey_buffers_[Robot::RobotTypes(i)] = 0;
@@ -38,7 +42,10 @@ SendPacket PredictorArmorRenew::Run(const Battlefield &battlefield, const cv::Ma
     static uint64_t timestamp = 0;
     double delta_t = double(battlefield.TimeStamp() - timestamp) * 1e-9;
     timestamp = battlefield.TimeStamp();
-
+    Robot::RobotTypes target_id{Robot::SIZE};
+    if(target_ != -1){
+        target_id = static_cast<Robot::RobotTypes>(predict_armors_[target_].ID());
+    }
 
     // ================================================
     // Find grey armors.
@@ -75,10 +82,10 @@ SendPacket PredictorArmorRenew::Run(const Battlefield &battlefield, const cv::Ma
         for(auto begin = predict_armors_.begin();begin != predict_armors_.end();++num){
             bool found_armor(false);
 //            auto target(SameArmorByDistance(*begin,preprocessed_robots,kDistanceThreshold));
-            auto target(SameArmorByPicDis(*begin,preprocessed_robots,kPicDistanceThreshold));
-            if(target.second != nullptr){
-                begin->Predict(*target.first,delta_t,bullet_speed,battlefield.YawPitchRoll(),ArmorPredictorDebug::Instance().ShootDelay());
-                target.second->erase(target.first);
+            auto matched_armor(SameArmorByPicDis(*begin, preprocessed_robots, kPicDistanceThreshold));
+            if(matched_armor.second != nullptr){
+                begin->Predict(*matched_armor.first, delta_t, bullet_speed, battlefield.YawPitchRoll(), ArmorPredictorDebug::Instance().ShootDelay());
+                matched_armor.second->erase(matched_armor.first);
                 found_armor = true;
             }
 //            for(auto& robot:preprocessed_robots){
@@ -119,17 +126,46 @@ SendPacket PredictorArmorRenew::Run(const Battlefield &battlefield, const cv::Ma
     if(target_ != -1)
         target_locked = true;
 
+    // update yaw jump state.
+//    if(target_locked){
+//        anti_top_detectors[target_id].UpdateJumpTop(predict_armors_[target_], timestamp, battlefield.YawPitchRoll());
+//    }else{
+//        bool find_another_armor{false};
+//        for(auto &predict_armor:predict_armors_){
+//            if(predict_armor.ID() == int(target_id)) {
+//                anti_top_detectors[target_id].UpdateJumpTop(predict_armor, timestamp, battlefield.YawPitchRoll());
+//                find_another_armor = true;
+//                break;
+//            }
+//        }
+//        if(!find_another_armor){
+//            anti_top_detectors[target_id].Reset();
+//        }
+//    }
+
+    /// Speed Decay
+    for(auto &anti_top_detector:anti_top_detectors){
+        if(anti_top_detector.second.IsLowTop() ||
+           anti_top_detector.second.IsHighTop()){
+            for(auto &predict_armor:predict_armors_){
+                if(predict_armor.ID() == int(anti_top_detector.first))
+                    predict_armor.SpeedDecay(kSpeedDecayRatioX,kSpeedDecayRatioY);
+            }
+        }
+    }
+
     /// AntiTop
     if(target_locked){
-        auto target_id = predict_armors_[target_].ID();
 //        DLOG(INFO) << "TOP PERIOD: " << anti_top_detectors[Robot::RobotTypes(target_id)].TopPeriod();
-        if(anti_top_detectors[Robot::RobotTypes(target_id)].IsLowTop() ||
-                anti_top_detectors[Robot::RobotTypes(target_id)].IsHighTop()){   /// TODO need to perfect conditions
+//        if(anti_top_detectors[target_id].IsLowTop() ||
+//                anti_top_detectors[target_id].IsHighTop()){   /// TODO need to perfect conditions
+        if(anti_top_detectors[target_id].IsTop()){   /// TODO need to perfect conditions
+//            DLOG(INFO) << "TOP 1>>>>";
             for(int i = 0;i < predict_armors_.size();++i){
                 if(i != target_ && predict_armors_[i].ID() == target_id &&
-                        anti_top_detectors[Robot::RobotTypes(predict_armors_[target_].ID())].Clockwise() != -1 &&
+                        anti_top_detectors[target_id].Clockwise() != -1 &&
                         predict_armors_[i].Area() > predict_armors_[target_].Area() * kSwitchByAreaThreshold &&
-                        (anti_top_detectors[Robot::RobotTypes(predict_armors_[target_].ID())].Clockwise() ^
+                        (anti_top_detectors[target_id].Clockwise() ^
                         (predict_armors_[target_].Center().x > predict_armors_[i].Center().x))){
                     // Update speed in ekf, to speed up fitting.
                     predict_armors_[i].UpdateSpeed(predict_armors_[target_].Speed()(0,0),
@@ -138,6 +174,20 @@ SendPacket PredictorArmorRenew::Run(const Battlefield &battlefield, const cv::Ma
                     break;
                 }
             }
+//            DLOG(INFO) << "TOP 1<<<<<";
+        }
+        anti_top_detectors[target_id].UpdateJumpTop(predict_armors_[target_], timestamp, battlefield.YawPitchRoll());
+    }else{
+        bool find_another_armor{false};
+        for(auto &predict_armor:predict_armors_){
+            if(predict_armor.ID() == int(target_id)) {
+                anti_top_detectors[target_id].UpdateJumpTop(predict_armor, timestamp, battlefield.YawPitchRoll());
+                find_another_armor = true;
+                break;
+            }
+        }
+        if(!find_another_armor){
+            anti_top_detectors[target_id].Reset();
         }
     }
 

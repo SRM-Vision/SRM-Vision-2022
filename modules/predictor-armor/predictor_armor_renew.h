@@ -60,6 +60,12 @@ public:
         return 0;
     }
 
+    cv::Point2f TargetCenter(){
+        if(target_ != -1)
+            return predict_armors_[target_].Center();
+        return {-1,-1};
+    }
+
     void Initialize(const std::string& car_name);
 
     SendPacket Run(const Battlefield &battlefield, const cv::MatSize &size,AimModes mode = kNormal, double bullet_speed = 15);

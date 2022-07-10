@@ -28,7 +28,7 @@ bool Compensator::Initialize(std::string robot_name) {
     return true;
 }
 
-void Compensator::Setoff(float &pitch,double bullet_speed, double distance,AimModes mode) {
+void Compensator::SetOff(float &pitch, double bullet_speed, float &check_sum, double distance, AimModes mode) {
     //TODO more mode
     if (pitch == 0 || bullet_speed == 0 || distance == 0)
         return;
@@ -104,6 +104,7 @@ void Compensator::Setoff(float &pitch,double bullet_speed, double distance,AimMo
                           setoff2p_[3];
         }
         pitch -= delta_pitch;
+        check_sum -= delta_pitch;
         DLOG(INFO) << "after setoff pitch: "<<pitch;
     }
 }

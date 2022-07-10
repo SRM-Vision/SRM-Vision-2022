@@ -70,7 +70,8 @@ void HeroController::Run() {
     while (!exit_signal_) {
         auto time = std::chrono::steady_clock::now();
         if (!image_provider_->GetFrame(frame_)){
-            sleep(1);
+            std::this_thread::sleep_for(std::chrono::milliseconds(5));
+            LOG(ERROR) << "wait for image...";
             continue;
         }
 
@@ -160,8 +161,8 @@ void HeroController::Run() {
             ArmorPredictorDebug::Instance().Save();
 
 
-        Compensator::Instance().Setoff(send_packet_.pitch,
-                                       receive_packet_.bullet_speed,
+        Compensator::Instance().SetOff(send_packet_.pitch,
+                                       receive_packet_.bullet_speed, send_packet_.check_sum,
                                        armor_predictor.GetTargetDistance(),
                                        receive_packet_.mode);
 
