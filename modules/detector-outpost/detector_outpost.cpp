@@ -4,34 +4,13 @@
 #include "detector_outpost.h"
 
 #include <utility>
-void SendToOutpostPredictor::UpdateInfo(cv::Point2f going_center_2d, cv::Point2f center, cv::Point2f coming_center_2d,
-                                        coordinate::TranslationVector going_center_3d, coordinate::TranslationVector center_3d,coordinate::TranslationVector coming_center_3d,
-                                        int clockwise, double distance, float bulletspeed, coordinate::TranslationVector shootpoint)
-{
-    going_center_point2d = std::move(going_center_2d);
-    coming_center_point2d = std::move(coming_center_2d);
-    going_center_point3d = std::move(going_center_3d);
-    coming_center_point3d = std::move(coming_center_3d);
-    outpost_center = std::move(center);
-    outpost_center_3d = std::move(center_3d);
-    is_clockwise = clockwise;
-    center_distance = distance;
-    bullet_speed  = bulletspeed;
-    shoot_point = std::move(shootpoint);
-}
-
-
-OutpostDetector::OutpostDetector():
+OutpostDataDetector::OutpostDataDetector():
         outpost_center_(320, 240), max_area_(0.0),
         last_armor_x_(0.0),
-        going_center_point_2D(0.0, 0.0),
-        coming_center_point_2D(0.0, 0.0),
-        going_center_point_3D(0,0,0),
-        coming_center_point_3D(0,0,0),
         shoot_point_(0,0,0),
         center_distance_(0){}
 
-bool OutpostDetector::Initialize(const std::string &config_path) {
+bool OutpostDataDetector::Initialize(const std::string &config_path) {
 //    cv::FileStorage config;
     // Open config file.
 //    config.open(config_path, cv::FileStorage::READ);
@@ -43,53 +22,63 @@ bool OutpostDetector::Initialize(const std::string &config_path) {
 }
 
 
-SendToOutpostPredictor OutpostDetector::Run(const Battlefield& battlefield)
+DetectedData OutpostDataDetector::Run(const Battlefield& battlefield)
 {
-    SendToOutpostPredictor send_to_outpost_predictor;
     detected_armors_in_this_frame_.clear();
     auto facilities = battlefield.Facilities();
     auto robots = battlefield.Robots();
 
-
-//    for(auto &robot : robots[color_]){
-//        for( auto &armor:robot.second->Armors())
-//            detected_armors_in_this_frame_.emplace_back(armor);
-//    }
-//    for(auto &facility : facilities[color_]){
-//        for( auto &armor: facility.second->BottomArmors())
-//            detected_armors_in_this_frame_.emplace_back(armor);
-//    }
-
-    //if (facility[color_][Facility::kBase] == nullptr)
-    if (robots[color_][Robot::kInfantry4] == nullptr)
-    {
-        DLOG(INFO) << "No outpost armor founded";
-        disappear_buff++;
-        if(disappear_buff>10)
-            Clear();
-        send_to_outpost_predictor.UpdateInfo(going_center_point_2D, outpost_center_, coming_center_point_2D,
-                                             going_center_point_3D, center_3D,coming_center_point_3D,
-                                             clockwise_, center_distance_, battlefield.BulletSpeed(), shoot_point_);
-        return send_to_outpost_predictor;
+    // TODO 高度判断
+    for(auto &robot : robots[color_]){
+        for( auto &armor:robot.second->Armors())
+            detected_armors_in_this_frame_.emplace_back(armor);
+    }
+    for(auto &facility : facilities[color_]){
+        for( auto &armor: facility.second->BottomArmors())
+            detected_armors_in_this_frame_.emplace_back(armor);
     }
 
-    disappear_buff = 0;
-    // detected_armors_in_this_frame_ = facility[color_][Facility::kBase]->BottomArmors();
-    detected_armors_in_this_frame_ = robots[color_][Robot::kInfantry4]->Armors();
+    for (const auto &armor: detected_armors_in_this_frame_) {
+        debug::Painter::Instance()->DrawRotatedRectangle(armor.Corners()[0],
+                                                         armor.Corners()[1],
+                                                         armor.Corners()[2],
+                                                         armor.Corners()[3],
+                                                         cv::Scalar(0, 255, 0), 2);
+    }
 
-    if(clockwise_<= 7 && clockwise_ >= -7 && !is_checked_clockwise)
-        IsClockwise();
-    else
-        DecideComingGoing();
-    FindBiggestArmor();
+    if (detected_armors_in_this_frame_.empty())
+    {
+        DLOG(INFO) << "No outpost armor founded";
+        disappear_buff_++;
+        if(disappear_buff_ > 30)
+            Clear();
 
-    send_to_outpost_predictor.UpdateInfo(going_center_point_2D, outpost_center_, coming_center_point_2D,
-                                         going_center_point_3D, center_3D,coming_center_point_3D,
-                                         clockwise_, center_distance_, battlefield.BulletSpeed(), shoot_point_);
-    return send_to_outpost_predictor;
+        return {detected_armors_in_this_frame_, outpost_center_, center_3D, shoot_point_,
+                {0,0},{0,0},
+                {0,0},{0,0},
+                spining_, need_init_ , coming_armor_, going_armor_, clockwise_, center_distance_};
+    }
+
+    disappear_buff_ = 0;
+
+    IsSpining(detected_armors_in_this_frame_.size(), battlefield.TimeStamp());
+
+    if(spining_){
+        if(clockwise_<= 7 && clockwise_ >= -7 && !is_checked_clockwise)
+            IsClockwise();
+        else
+            DecideComingGoing();
+        FindBiggestArmor();
+    }
+
+
+    return  {detected_armors_in_this_frame_, outpost_center_, center_3D, shoot_point_,
+             outpost_corner_[0],outpost_corner_[1],outpost_corner_[2],outpost_corner_[3],
+             spining_,prepared_,coming_armor_, going_armor_, clockwise_, center_distance_};
+
 }
 
-void OutpostDetector::IsClockwise()
+void OutpostDataDetector::IsClockwise()
 {
     LOG(INFO) << "nums of armor" << detected_armors_in_this_frame_.size();
     double this_armor_x;
@@ -123,12 +112,12 @@ void OutpostDetector::IsClockwise()
     }
 }
 
-void OutpostDetector::FindBiggestArmor()
+void OutpostDataDetector::FindBiggestArmor()
 {
-    if(outdated_)
+    if(need_init_)
     {
         start_time_ =  std::chrono::high_resolution_clock::now();
-        outdated_ = false;
+        need_init_ = false;
         return;
     }
 
@@ -147,6 +136,11 @@ void OutpostDetector::FindBiggestArmor()
                 center_distance_ = armor.Distance();
                 shoot_point_ = armor.TranslationVectorCam();
                 center_3D = armor.TranslationVectorWorld();
+                outpost_corner_[0] = armor.Corners()[0];
+                outpost_corner_[1] = armor.Corners()[1];
+                outpost_corner_[2] = armor.Corners()[2];
+                outpost_corner_[3] = armor.Corners()[3];
+                prepared_ = true;
 
             }
             else
@@ -154,44 +148,42 @@ void OutpostDetector::FindBiggestArmor()
                 if(abs(outpost_center_.y - armor.Center().y) > kVertical_threshold_)
                 {
                     DLOG(WARNING) << "outpost center error too much, finding again";
-                    outdated_ = true;
+                    need_init_ = true;
+                    prepared_ = false;
                 }
-                else
+                else{
                     DLOG(WARNING) << "outpost center founded";
+                    prepared_ = true;
+                }
+
             }
         }
 }
 
-void OutpostDetector::DecideComingGoing()
+void OutpostDataDetector::DecideComingGoing()
 {
 //    DLOG(INFO) << "nums of armor" << detected_armors_in_this_frame_.size();
+    going_armor_ = - 1;
+    coming_armor_ = -1;
     if(detected_armors_in_this_frame_.size() == 1)
     {
         if(clockwise_ == 1)
         {
             if(detected_armors_in_this_frame_[0].Center().x <= outpost_center_.x)
             {
-                going_center_point_2D = detected_armors_in_this_frame_[0].Center();
-                going_center_point_3D = detected_armors_in_this_frame_[0].TranslationVectorWorld();
-                coming_center_point_2D = cv::Point2f (-1, -1);
-                going_center_point_3D = Eigen::Vector3d (-1,-1,-1);
+                going_armor_ = 0;
             }
             if(detected_armors_in_this_frame_[0].Center().x > outpost_center_.x){
-                coming_center_point_2D = detected_armors_in_this_frame_[0].Center();
-                coming_center_point_3D = detected_armors_in_this_frame_[0].TranslationVectorWorld();
+                coming_armor_ = 0;
             }
         } else if(clockwise_ == -1)
         {
             if(detected_armors_in_this_frame_[0].Center().x >= outpost_center_.x)
             {
-                going_center_point_2D = detected_armors_in_this_frame_[0].Center();
-                going_center_point_3D = detected_armors_in_this_frame_[0].TranslationVectorWorld();
-                coming_center_point_2D = cv::Point2f (-1, -1);
-                coming_center_point_3D = Eigen::Vector3d (-1 , -1 , -1);
+                going_armor_ = 0;
             }
             if(detected_armors_in_this_frame_[0].Center().x < outpost_center_.x){
-                coming_center_point_2D = detected_armors_in_this_frame_[0].Center();
-                coming_center_point_3D = detected_armors_in_this_frame_[0].TranslationVectorWorld();
+                coming_armor_ = 0;
             }
         }
     }
@@ -201,48 +193,80 @@ void OutpostDetector::DecideComingGoing()
         {
             if(detected_armors_in_this_frame_[0].Center().x > detected_armors_in_this_frame_[1].Center().x)
             {
-                coming_center_point_2D = detected_armors_in_this_frame_[0].Center();
-                coming_center_point_3D = detected_armors_in_this_frame_[0].TranslationVectorWorld();
-                going_center_point_2D = detected_armors_in_this_frame_[1].Center();
-                going_center_point_3D = detected_armors_in_this_frame_[1].TranslationVectorWorld();
+                coming_armor_ = 0;
+                going_armor_ = 1;
             } else
             {
-                coming_center_point_2D = detected_armors_in_this_frame_[1].Center();
-                coming_center_point_3D = detected_armors_in_this_frame_[1].TranslationVectorWorld();
-                going_center_point_2D = detected_armors_in_this_frame_[0].Center();
-                going_center_point_3D = detected_armors_in_this_frame_[0].TranslationVectorWorld();
+                coming_armor_ = 1;
+                going_armor_ = 0;
             }
         } else if(clockwise_ == -1)
         {
             if(detected_armors_in_this_frame_[0].Center().x > detected_armors_in_this_frame_[1].Center().x)
             {
-                coming_center_point_2D = detected_armors_in_this_frame_[1].Center();
-                coming_center_point_3D = detected_armors_in_this_frame_[1].TranslationVectorWorld();
-                going_center_point_2D = detected_armors_in_this_frame_[0].Center();
-                going_center_point_3D = detected_armors_in_this_frame_[0].TranslationVectorWorld();
+                coming_armor_ = 1;
+                going_armor_ = 0;
             } else
             {
-                coming_center_point_2D = detected_armors_in_this_frame_[0].Center();
-                coming_center_point_3D = detected_armors_in_this_frame_[0].TranslationVectorWorld();
-                going_center_point_2D = detected_armors_in_this_frame_[1].Center();
-                going_center_point_3D = detected_armors_in_this_frame_[1].TranslationVectorWorld();
+                coming_armor_ = 0;
+                going_armor_ = 1;
             }
         }
     }
 }
 
-void OutpostDetector::Clear() {
+void OutpostDataDetector::Clear() {
     outpost_center_ = {320,240};
     max_area_  = 0.0;
     last_armor_x_ = 0.0;
-    going_center_point_2D = {0.0 , 0.0};
-    coming_center_point_2D = {0.0,0.0};
-    going_center_point_3D = {0,0,0};
-    coming_center_point_3D = {0,0,0};
+    coming_armor_ = -1;
+    going_armor_ = -1;
     shoot_point_ = {0,0,0};
+    for(int i = 0;i<4;i++)
+        outpost_corner_[i] = {0,0};
+
     center_distance_ = 0;
     clockwise_ = 0;
     is_checked_clockwise = false;
-    outdated_ = true;
+    spining_ = false;
+    need_init_ = true;
+    prepared_ = false;
+    times_.clear();
+
+}
+
+void OutpostDataDetector::IsSpining(const int &new_armor_num, const uint64_t &now_timestamp) {
+    auto new_spining_period{double(now_timestamp - timestamp_) * 1e-9 };
+    double exit_spining_time;
+    if(spining_)    exit_spining_time = 25;
+    else            exit_spining_time = 15;     // 如果在旋转的话，更难退出旋转状态
+    if(new_armor_num == 2){
+        DLOG(INFO)<<"dsda";
+    }
+    if(new_armor_num != armor_num_ && new_spining_period > 0.3) {  //  >1.5为了滤除一部分误识别
+        spining_period_ = new_spining_period;
+        timestamp_ = now_timestamp;
+        armor_num_ = new_armor_num;
+        if(times_.size()<5)
+            times_.emplace_back(spining_period_);
+        else{
+            times_.erase(times_.begin());
+            times_.emplace_back(spining_period_);
+        }
+    }
+    if(new_spining_period > exit_spining_time ){
+        times_.clear();
+    }
+    double sum=0;
+    for(int i = 0;i<times_.size();i++)
+        sum += times_[i];
+
+    if(sum < 15 && times_.size() == 5 )
+        spining_ = true;
+    else
+        spining_ = false;
+
+    DLOG(INFO)<<"sum"<<sum<<"size"<<times_.size();
+
 }
 

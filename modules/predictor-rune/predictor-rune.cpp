@@ -186,10 +186,7 @@ bool predictor::rune::State::UpdatePalstance(const PowerRune &rune, FittingData 
                 current_time_chrono - last_time)).count();
         //TODO limit palstance into 0.2 - 150 degree/s
         current_palstance = angle / time_gap * 1e3;
-        if (current_palstance < 0.2)
-            current_palstance = 0.2;
-        else if (current_palstance > 160)
-            current_palstance = 160;
+        current_palstance = std::min(160.0, std::max(0.2, current_palstance));
         LOG(INFO) << "current palstance: " << current_palstance;
         // Update palstance data.
         fitting_data.palstance.push_back(current_palstance);
@@ -249,17 +246,16 @@ void predictor::rune::RunePredictor::PredictAngle(AimModes aim_mode) {
             rotated_angle = rotated_radian * 180 / CV_PI;
 
             state_.UpdateAngle(rune_.RtgVec());
-            predicted_angle_ = (state_.current_angle + (-1.0) * rune_.Clockwise() * rotated_angle);
+            predicted_angle_ = state_.current_angle - rune_.Clockwise() * rotated_angle;
         }
     } else {
         double delay_time = 7.0 / bullet_speed_;  // Ballistic Time Compensation.
         double compensate_time = 0.05;   // Other compensation
-
         auto rotated_radian = rune_.Clockwise() * rotational_speed_.w * (compensate_time + delay_time);
         rotated_angle = rotated_radian * 180 / CV_PI;
 
         state_.UpdateAngle(rune_.RtpVec());
-        predicted_angle_ = rune_.Clockwise() * (state_.current_angle + rotated_angle);
+        predicted_angle_ = state_.current_angle + rune_.Clockwise() * rotated_angle;
     }
 //    LOG(INFO) << "Predicted angle: " << predicted_angle_ << " , Current angle: " << state_.current_angle;
 }

@@ -12,7 +12,9 @@
 // TODO Calibrate shoot delay and acceleration threshold.
 const double kShootDelay = 0.02;
 const double kFireAccelerationThreshold = 3.0;
-const cv::Size kZoomRatio = {160,50};
+const cv::Size kZoomRatio = {16,8};
+
+class AntiTopDetectorRenew;
 
 /// Predicting function template structure.
 struct PredictFunction {
@@ -136,13 +138,14 @@ public:
 //        auto point1_x = short(show_point.x);
 //        auto point1_y = short(show_point.y);
 
-        SendPacket send_packet = {float(yaw - ArmorPredictorDebug::Instance().DeltaYaw()), float(pitch - ArmorPredictorDebug::Instance().DeltaPitch()),
+        SendPacket send_packet = {float(yaw + ArmorPredictorDebug::Instance().DeltaYaw()), float(pitch - ArmorPredictorDebug::Instance().DeltaPitch()),
                                   delay, distance_mode, fire_,
                                   0,0,
                                   0,0,
                                   0,0,
                                   0,0,
-                                  float(yaw + pitch + distance_mode + delay + fire_ - ArmorPredictorDebug::Instance().DeltaPitch())};
+                                  float(yaw + pitch + distance_mode + delay + fire_ - ArmorPredictorDebug::Instance().DeltaPitch()
+                                                                                      + ArmorPredictorDebug::Instance().DeltaYaw())};
         return send_packet;
     }
 
@@ -161,20 +164,34 @@ public:
     void GetROI(cv::Rect &roi_rect, const cv::Mat &src_image)
     {
         int width =  abs(corners_[0].x - corners_[1].x) < abs(corners_[1].x - corners_[2].x) ?
-                      int(abs(corners_[1].x - corners_[2].x)) : int(abs(corners_[0].x - corners_[1].x));
+                     int(abs(corners_[1].x - corners_[2].x)) : int(abs(corners_[0].x - corners_[1].x));
         int height = abs(corners_[0].y - corners_[1].y) < abs(corners_[1].y - corners_[2].y) ?
-                      int(abs(corners_[1].y - corners_[2].y)) : int(abs(corners_[0].y - corners_[1].y));
+                     int(abs(corners_[1].y - corners_[2].y)) : int(abs(corners_[0].y - corners_[1].y));
         int x = int(cv::min(cv::min(corners_[0].x,corners_[1].x),cv::min(corners_[2].x,corners_[3].x)));
         int y = int(cv::min(cv::min(corners_[0].y,corners_[1].y),cv::min(corners_[2].y,corners_[3].y)));
 //        cv::RotatedRect target(corners_[0],corners_[1],corners_[2]);
 //        auto target_right = target.boundingRect();
         cv::Rect target_right{x,y,width,height};
-        auto zoom_size = cv::Size(target_right.width * kZoomRatio.width,
-                                  target_right.height * kZoomRatio.height);
+        auto zoom_size = cv::Size(int(target_right.width * kZoomRatio.width + 0.5 * src_image.rows),
+                                  int(target_right.height * kZoomRatio.height + 0.1 * src_image.cols));
         roi_rect = target_right + zoom_size;
         roi_rect -= cv::Point((zoom_size.width >> 1 ),(zoom_size.height >> 1));
+        roi_rect -= cv::Point(0,int(roi_rect.height * 0.15));    // move up
         roi_rect = roi_rect & cv::Rect(0, 0, src_image.cols,src_image.rows);
     }
+
+    void SpeedDecay(double decay_ratio_x,double decay_ratio_y){
+        ekf_.x_estimate_(1,0) = ekf_.x_estimate_(1,0) * decay_ratio_x;
+        ekf_.x_estimate_(3,0) = ekf_.x_estimate_(3,0) * decay_ratio_y;
+    }
+
+    ATTR_READER_REF(predict_world_vector_,PredictWorldVector)
+
+    ATTR_READER_REF(predict_cam_vector_,PredictCamVector)
+
+    ATTR_READER_REF(shoot_point_vector_,ShootPointVector)
+
+    friend class AntiTopDetectorRenew;
 
 private:
     coordinate::TranslationVector predict_world_vector_, predict_cam_vector_, shoot_point_vector_;

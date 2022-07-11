@@ -84,15 +84,16 @@ void InfantryController::Run() {
     while (!exit_signal_) {
         auto time = std::chrono::steady_clock::now();
         if (!image_provider_->GetFrame(frame_)){
-            sleep(1);
+            std::this_thread::sleep_for(std::chrono::milliseconds(5));
+            LOG(ERROR) << "wait for image...";
             continue;
         }
 
         // When used camera, need to flip image
-//        if(CmdlineArgParser::Instance().RunWithCamera()){
-//            cv::flip(frame_.image, frame_.image, 0);
-//            cv::flip(frame_.image, frame_.image, 1);
-//        }
+        if(CmdlineArgParser::Instance().RunWithCamera()){
+            cv::flip(frame_.image, frame_.image, 0);
+            cv::flip(frame_.image, frame_.image, 1);
+        }
 
         painter_->UpdateImage(frame_.image);
 
@@ -133,11 +134,11 @@ void InfantryController::Run() {
                                                                 box.points[3],
                                                                 cv::Scalar(0, 255, 0), 2);
                 painter_->DrawText(std::to_string(box.id), box.points[0], 255, 2);
-                painter_->DrawPoint(armors_.front().Center(), cv::Scalar(100, 255, 100), 2, 2);
             }
             painter_->DrawPoint(armor_predictor_.ShootPointInPic(image_provider_->IntrinsicMatrix(),
                                                                                  frame_.image.size),
                                                  cv::Scalar(0, 0, 255), 1, 10);
+            painter_->DrawPoint(armor_predictor_.TargetCenter(), cv::Scalar(100, 255, 100), 2, 2);
             // armor_predictor_.AllShootPoint(image_provider_->IntrinsicMatrix());
             painter_->ShowImage("ARMOR DETECT", 1);
         }
@@ -147,10 +148,10 @@ void InfantryController::Run() {
             break;
         else if (key == 's')
             ArmorPredictorDebug::Instance().Save();
-        Compensator::Instance().Setoff(send_packet_.pitch,
-                                       receive_packet_.bullet_speed,
-                                       armor_predictor_.GetTargetDistance(),
-                                       receive_packet_.mode);
+//        Compensator::Instance().SetOff(send_packet_.pitch,
+//                                       receive_packet_.bullet_speed,send_packet_.check_sum,
+//                                       armor_predictor_.GetTargetDistance(),
+//                                       receive_packet_.mode);
         if (CmdlineArgParser::Instance().RunWithSerial()) {
             serial_->SendData(send_packet_, std::chrono::milliseconds(5));
         }

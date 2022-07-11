@@ -71,7 +71,6 @@ private:
 
     bool found_energy_center_r;  ///< Whether rune center R is found.
     bool found_armor_center_p;   ///< Whether armor center P is found.
-    bool found_fan_center_g;     ///< Whether fan center G is found.
     bool debug_;                 ///< Debug flag.
 
     cv::Mat image_;                   ///< Original image's duplicate.
@@ -87,6 +86,8 @@ private:
     cv::Point3f send_yaw_pitch_delay_;
     cv::Point2f energy_center_r_;
     cv::Point2f armor_center_p_;
+    cv::Point2f last_energy_center_r;
+    float rune_radius_;
     cv::Point2f r_offset_;    ///< Compensate energy_center_r by last frame's point when lost frame.
     cv::Point2f p_offset_;    ///< Compensate armor_center_p by last frame's point when lost frame.
     cv::Point2f fan_center_g_;
@@ -95,6 +96,10 @@ private:
     cv::Point2f rtg_vec_;    ///< energy_center_r to fan_center_g, for calculate angle and palstance
     int clockwise_;          ///< Rotation direction, -1 for anti-clockwise , 1 for clockwise
     int frame_lost_;         ///< Lost frame when detecting
+
+    const float kMaxDeviation = 10;
+    const int kMaxFrameLost = 10;
+    const float kMaxRatio = 0.1;
 };
 
 #endif  // DETECTOR_RUNE_H_

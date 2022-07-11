@@ -8,81 +8,91 @@
 #include "data-structure/buffer.h"
 #include "digital-twin/facilities/outpost.h"
 #include "../digital-twin/battlefield.h"
+#include "debug-tools/painter.h"
 
 #include <utility>
+#include <queue>
 
-struct SendToOutpostPredictor
+struct DetectedData
 {
-    SendToOutpostPredictor():going_center_point2d(0,0), outpost_center(0,0), coming_center_point2d(0,0),
-                             going_center_point3d(0,0,0), outpost_center_3d(0,0,0),coming_center_point3d(0,0,0),
-                             is_clockwise(0), center_distance(0), bullet_speed(0){}
-    void UpdateInfo(cv::Point2f going_center, cv::Point2f center,cv::Point2f coming_center,
-                    coordinate::TranslationVector going_center_3d,coordinate::TranslationVector center_3d, coordinate::TranslationVector coming_center_3d,
-                    int clockwise, double distance, float bulletspeed, coordinate::TranslationVector shootpoint);
-    cv::Point2f going_center_point2d;
-    coordinate::TranslationVector going_center_point3d;
-    cv::Point2f outpost_center;
-    coordinate::TranslationVector outpost_center_3d;
-    cv::Point2f coming_center_point2d;
-    coordinate::TranslationVector coming_center_point3d;
-    coordinate::TranslationVector shoot_point;
-    int is_clockwise;                   // 1 is clockwise, -1 is anti-clockwise
-    double center_distance;
-    float bullet_speed;
+    std::vector<Armor> out_post_armors{};
+
+    cv::Point2f outpost_center{};
+    coordinate::TranslationVector outpost_center_3d{};
+    coordinate::TranslationVector shoot_point{};
+    cv::Point2f corners0;
+    cv::Point2f corners1;
+    cv::Point2f corners2;
+    cv::Point2f corners3;
+
+    bool spining = false;
+    bool perpared = false;
+
+    int going_armor = -1;
+    int coming_armor = -1;
+
+    int is_clockwise{};                   // 1 is clockwise, -1 is anti-clockwise
+    double center_distance{};
 };
-class OutpostDetector : NO_COPY, NO_MOVE
+class OutpostDataDetector : NO_COPY, NO_MOVE
 {
 public:
-    OutpostDetector();
-    void SetColor(const Entity::Colors& outpost_color){color_ = outpost_color;};
+    OutpostDataDetector();
+    void SetColor(const Entity::Colors& outpost_color)  { color_ = outpost_color;   };
     bool Initialize(const std::string &config_path);
-    SendToOutpostPredictor Run(const Battlefield& battlefield);
-    ~OutpostDetector() = default;
+    DetectedData Run(const Battlefield& battlefield);
+    ~OutpostDataDetector() = default;
 
     ATTR_READER_REF(outpost_center_, OutpostCenter)
 
-    ATTR_READER_REF(going_center_point_2D, GoingArmorCenter2D)
+    ATTR_READER_REF(going_armor_, GoingArmor)
 
-    ATTR_READER_REF(going_center_point_3D, GoingArmorCenter3D)
-
-    ATTR_READER_REF(coming_center_point_2D, ComingArmorCenter2D)
-
-    ATTR_READER_REF(coming_center_point_3D, ComingArmorCenter3D)
+    ATTR_READER_REF(coming_armor_, ComingArmor)
 
     ATTR_READER_REF(center_distance_, OutpostCenterDistance)
 
     ATTR_READER_REF(clockwise_, Clockwise)
 
+    ATTR_READER_REF(spining_, Spining)
+
 private:
-    const double kVertical_threshold_ = 3;
+    const double kVertical_threshold_ = 15;
     bool is_checked_clockwise = false;
-    bool outdated_ = true;
+    bool need_init_ = true;
+    bool prepared_ = false;
     std::chrono::high_resolution_clock::time_point start_time_;
 
-    std::vector<Armor> detected_armors_in_this_frame_;
     void Clear();
     void IsClockwise();
     void FindBiggestArmor();
     void DecideComingGoing();
-    Outpost outpost_;
+    void IsSpining(const int& new_armor_num, const uint64_t& now_timestamp);
+
     Entity::Colors color_;
 
     // Past status data
     double last_armor_x_;
     double max_area_;
+    int disappear_buff_;
+    int armor_num_;
+    uint64_t timestamp_;
+    double spining_period_;
+    bool spining_ = false;
+    std::vector<double> times_;
 
     // Send to predictor
+    std::vector<Armor> detected_armors_in_this_frame_{};
+
     cv::Point2f outpost_center_;                            // 在图片中的
+    cv::Point2f outpost_corner_[4]{};
     coordinate::TranslationVector shoot_point_;             // 相机坐标下
     coordinate::TranslationVector center_3D;                // 世界坐标系下
-    cv::Point2f going_center_point_2D;
-    coordinate::TranslationVector going_center_point_3D;    // 世界坐标系下
-    cv::Point2f coming_center_point_2D;
-    coordinate::TranslationVector coming_center_point_3D;   // 世界坐标系下
-    int disappear_buff;
+
+
+    int going_armor_ = -1;
+    int coming_armor_ = -1;
     int clockwise_ = 0;                   // 1 is clockwise, -1 is anti-clockwise
     double center_distance_;
-
 
 };
 
