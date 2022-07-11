@@ -56,7 +56,7 @@ PowerRune RuneDetector::Run(Entity::Colors color, Frame &frame, const cv::MatSiz
     debug::Painter::Instance()->DrawPoint(armor_center_p_, cv::Scalar(0, 255, 0), 2, 2);
     debug::Painter::Instance()->DrawText("P", armor_center_p_, cv::Scalar(0, 255, 0), 3);
     debug::Painter::Instance()->DrawText("R", energy_center_r_, cv::Scalar(255, 0, 255), 3);
-    cv::waitKey(0);
+    // cv::waitKey(0);
     return {color_,
             clockwise_,
             rtp_vec_,
@@ -163,20 +163,20 @@ bool RuneDetector::FindCenterR(cv::Mat &image) {
     for (const auto &center_r: possible_center_r) {
         if (center_r.inside(R_rect)) {
             // Find R point but it may be wrong
-            if (clockwise_ &&
-                (center_r.x - energy_center_r_.x > kMaxDeviation || center_r.y - energy_center_r_.y > kMaxDeviation)) {
+            if (clockwise_ && (std::abs(center_r.x - energy_center_r_.x) > kMaxDeviation
+                               || std::abs(center_r.y - energy_center_r_.y) > kMaxDeviation)) {
+                DLOG(INFO) << "Wrong R Point: " << center_r;
                 cv::Point2f dir_vec = cv::Point2f(center_r.x - energy_center_r_.x, center_r.y - energy_center_r_.y);
                 float vec_length = std::sqrt(dir_vec.x * dir_vec.x + dir_vec.y * dir_vec.y);
+                // Max compensation on the direction vector
                 r_offset_ = kMaxDeviation * cv::Point2f(dir_vec.x / vec_length, dir_vec.y / vec_length);
-                energy_center_r_ = energy_center_r_ / 2 + r_offset_;
+                energy_center_r_ = energy_center_r_ + r_offset_;
             } else {
                 r_offset_ = center_r - energy_center_r_;
                 energy_center_r_ = center_r / 2 + energy_center_r_ / 2;
             }
             found_energy_center_r = true;
             frame_lost_ = 0;
-            // Consider difference between fan center and point R.
-
             last_energy_center_r = energy_center_r_;
         }
     }
@@ -256,8 +256,8 @@ bool RuneDetector::FindArmorCenterP(cv::Mat &image) {
                                                                        3);
                         }
 
-                        rtp_vec_ = armor_encircle_rect_.center - energy_center_r_;
                         // Find P Point but it may be wrong
+                        rtp_vec_ = armor_encircle_rect_.center - energy_center_r_;
                         float vec_length = std::sqrt(rtp_vec_.x * rtp_vec_.x + rtp_vec_.y * rtp_vec_.y);
                         if (clockwise_ && (vec_length > rune_radius_ * (1 + kMaxRatio) ||
                                            vec_length < rune_radius_ * (1 - kMaxRatio))) {
@@ -278,7 +278,6 @@ bool RuneDetector::FindArmorCenterP(cv::Mat &image) {
                     break;
             }
         }
-
         if (!found_armor_center_p) {
             if (frame_lost_ >= kMaxFrameLost) // Continuous frames lost
                 LOG(ERROR) << "No P point found! ";
@@ -303,8 +302,8 @@ bool RuneDetector::FindArmorCenterP(cv::Mat &image) {
     // Reset center R,P,G
     if (!found_energy_center_r)
         energy_center_r_ = last_energy_center_r;
-    if (!found_armor_center_p)
-        armor_center_p_ = cv::Point2f(0, 0);
+//    if (!found_armor_center_p)
+//        armor_center_p_ = cv::Point2f(0, 0);
     return false;
 }
 
@@ -356,3 +355,4 @@ void RuneDetector::FindRotateDirection() {
         }
     }
 }
+
