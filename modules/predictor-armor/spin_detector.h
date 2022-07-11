@@ -75,6 +75,14 @@ public:
 
     [[nodiscard]] bool IsSpin() const{return is_slow_spin_ || is_quick_spin_;}
 
+    void SetMinJumpYawX(double min_jump_yaw_x) {min_jump_yaw_x_ = min_jump_yaw_x;}
+
+    void SetSlowJumpPeriodMax(double slow_jump_period_max){slow_jump_period_max_ = slow_jump_period_max;}
+
+    void SetQuickJumpPeriodMax(double quick_jump_period_max){quick_jump_period_max_ = quick_jump_period_max;}
+
+    void SetQuickJumpPeriodMin(double quick_jump_period_min){quick_jump_period_min_ = quick_jump_period_min;}
+
 private:
 
     double min_jump_yaw_x_{0.05}; // when delta yaw/x bigger than that, consider it`s a jump.
