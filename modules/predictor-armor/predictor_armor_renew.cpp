@@ -26,7 +26,7 @@ const double kSpeedDecayRatioY = 1;
 void PredictorArmorRenew::Initialize(const std::string &car_name) {
     for (auto i = 0; i < Robot::RobotTypes::SIZE; ++i) {
         grey_buffers_[Robot::RobotTypes(i)] = 0;
-        anti_top_detectors[Robot::RobotTypes(i)] = AntiTopDetectorRenew(0);
+//        anti_top_detectors[Robot::RobotTypes(i)] = AntiTopDetectorRenew(0);
     }
     ArmorPredictorDebug::Instance().Initialize("../config/" + car_name + "/predict-param.yaml",
                                                CmdlineArgParser::Instance().DebugUseTrackbar());
@@ -70,12 +70,6 @@ SendPacket PredictorArmorRenew::Run(const Battlefield &battlefield, const cv::Ma
 
     auto preprocessed_robots = ReviseRobots(robots,exist_enemy,exist_grey);   // robots after preprocessing
 
-    /// Update top information
-    for(auto& robot:preprocessed_robots) {
-        anti_top_detectors[robot.first].UpdateTop(int(robot.second.size()), battlefield.TimeStamp());
-        anti_top_detectors[robot.first].UpdateClockwise(robot.second);
-    }
-
     /// Update EKF
     if(!predict_armors_.empty()){
         int num(0); // which armor currently
@@ -88,19 +82,6 @@ SendPacket PredictorArmorRenew::Run(const Battlefield &battlefield, const cv::Ma
                 matched_armor.second->erase(matched_armor.first);
                 found_armor = true;
             }
-//            for(auto& robot:preprocessed_robots){
-//                for(auto begin2 = robot.second.begin();begin2 != robot.second.end();){
-//                    // if found the same armor, predict it.
-//                    if(IsSameArmorByDistance(*begin,*begin2,kDistanceThreshold)){
-//                        begin->Predict(*begin2,delta_t,bullet_speed,battlefield.YawPitchRoll());
-//                        robot.second.erase(begin2); // delete the armor that was used.
-//                        found_armor = true;
-//                        break;
-//                    }else
-//                        ++begin2;
-//                }
-//                if(found_armor) break;
-//            }
             // if not found, delete it
             if(!found_armor) {
                 if(target_ > num)   // When delete armor, the position of target will change.
@@ -126,47 +107,21 @@ SendPacket PredictorArmorRenew::Run(const Battlefield &battlefield, const cv::Ma
     if(target_ != -1)
         target_locked = true;
 
-    // update yaw jump state.
-//    if(target_locked){
-//        anti_top_detectors[target_id].UpdateJumpTop(predict_armors_[target_], timestamp, battlefield.YawPitchRoll());
-//    }else{
-//        bool find_another_armor{false};
-//        for(auto &predict_armor:predict_armors_){
-//            if(predict_armor.ID() == int(target_id)) {
-//                anti_top_detectors[target_id].UpdateJumpTop(predict_armor, timestamp, battlefield.YawPitchRoll());
-//                find_another_armor = true;
-//                break;
-//            }
-//        }
-//        if(!find_another_armor){
-//            anti_top_detectors[target_id].Reset();
-//        }
-//    }
-
     /// Speed Decay
-    for(auto &anti_top_detector:anti_top_detectors){
-        if(anti_top_detector.second.IsLowTop() ||
-           anti_top_detector.second.IsHighTop()){
-            for(auto &predict_armor:predict_armors_){
-                if(predict_armor.ID() == int(anti_top_detector.first))
-                    predict_armor.SpeedDecay(kSpeedDecayRatioX,kSpeedDecayRatioY);
-            }
+    if(spin_detector_.IsSpin()){
+        for(auto &predict_armor:predict_armors_){
+            if(predict_armor.ID() == int(target_id))
+                predict_armor.SpeedDecay(kSpeedDecayRatioX,kSpeedDecayRatioY);
         }
     }
 
     /// AntiTop
     if(target_locked){
-//        DLOG(INFO) << "TOP PERIOD: " << anti_top_detectors[Robot::RobotTypes(target_id)].TopPeriod();
-//        if(anti_top_detectors[target_id].IsLowTop() ||
-//                anti_top_detectors[target_id].IsHighTop()){   /// TODO need to perfect conditions
-        if(anti_top_detectors[target_id].IsTop()){   /// TODO need to perfect conditions
-//            DLOG(INFO) << "TOP 1>>>>";
-            for(int i = 0;i < predict_armors_.size();++i){
-                if(i != target_ && predict_armors_[i].ID() == target_id &&
-                        anti_top_detectors[target_id].Clockwise() != -1 &&
+        if(spin_detector_.IsSpin()){
+            for(int i{0};i < predict_armors_.size();++i){
+                if(i != target_ && predict_armors_[i].ID() == target_id && spin_detector_.Clockwise() != -1 &&
                         predict_armors_[i].Area() > predict_armors_[target_].Area() * kSwitchByAreaThreshold &&
-                        (anti_top_detectors[target_id].Clockwise() ^
-                        (predict_armors_[target_].Center().x > predict_armors_[i].Center().x))){
+                        (spin_detector_.Clockwise() ^ (predict_armors_[target_].Center().x > predict_armors_[i].Center().x))){
                     // Update speed in ekf, to speed up fitting.
                     predict_armors_[i].UpdateSpeed(predict_armors_[target_].Speed()(0,0),
                                                    -predict_armors_[target_].Speed()(1,0));
@@ -174,21 +129,11 @@ SendPacket PredictorArmorRenew::Run(const Battlefield &battlefield, const cv::Ma
                     break;
                 }
             }
-//            DLOG(INFO) << "TOP 1<<<<<";
         }
-        anti_top_detectors[target_id].UpdateJumpTop(predict_armors_[target_], timestamp, battlefield.YawPitchRoll());
-    }else{
-        bool find_another_armor{false};
-        for(auto &predict_armor:predict_armors_){
-            if(predict_armor.ID() == int(target_id)) {
-                anti_top_detectors[target_id].UpdateJumpTop(predict_armor, timestamp, battlefield.YawPitchRoll());
-                find_another_armor = true;
-                break;
-            }
-        }
-        if(!find_another_armor){
-            anti_top_detectors[target_id].Reset();
-        }
+        spin_detector_.Update(predict_armors_[target_], timestamp);
+        if(spin_detector_.IsSpin())
+            predict_armors_[target_].AntiSpin(spin_detector_.JumpPeriod(),spin_detector_.LastJumpPosition(),
+                                          timestamp, spin_detector_.LastJumpTime(), battlefield.YawPitchRoll());
     }
 
     /// Find the armor which is nearest to picture center.

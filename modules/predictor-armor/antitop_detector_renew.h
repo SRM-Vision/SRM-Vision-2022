@@ -52,13 +52,13 @@ public:
 
 
 private:
-    static constexpr double low_top_period_min_ = 5;   // low speed top must faster than this
-    static constexpr double high_top_period_min_ = 2.5;   // high speed top must faster than this
-    [[maybe_unused]] static constexpr double high_top_period_max_ = 0.5;
+    double low_top_period_min_ = 5;   // low speed top must faster than this
+    double high_top_period_min_ = 2.5;   // high speed top must faster than this
+    double high_top_period_max_ = 0.5;
 
-    static constexpr double max_jump_yaw_{0.05};
-    static constexpr double max_jump_period_{0.8};
-    static constexpr double allow_follow_range_{0.6};
+    double max_jump_yaw_{0.05};
+    double max_jump_period_{0.8};
+    double allow_follow_range_{0.6};
 
     int clockwise_{-1};    /// -1 mean invalid, 0 mean anticlockwise, 1 mean clockwise. Look from above.
     int armor_num_{0};
@@ -77,5 +77,7 @@ private:
     uint64_t last_jump_time_{0};
     coordinate::TranslationVector last_jump_position_{0,0,0};
 };
+
+
 
 #endif //ANTITOP_DETECTOR_RENEW_H_
