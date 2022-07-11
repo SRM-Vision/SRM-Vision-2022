@@ -28,7 +28,7 @@ bool Compensator::Initialize(std::string robot_name) {
     return true;
 }
 
-void Compensator::SetOff(float &pitch, float &yaw,double bullet_speed, float &check_sum, double distance, AimModes mode) {
+void Compensator::Offset(float &pitch, float &yaw, double bullet_speed, float &check_sum, double distance, AimModes mode) {
     //TODO more mode
     if (pitch == 0 || bullet_speed == 0 || distance == 0)
         return;

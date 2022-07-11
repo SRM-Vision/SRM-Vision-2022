@@ -46,9 +46,9 @@ bool HeroController::Initialize() {
         LOG(ERROR) << "Outpost detector initialize unsuccessfully!";
 
     if(Compensator::Instance().Initialize("hero"))
-        LOG(INFO) << "SetOff initialize successfully!";
+        LOG(INFO) << "Offset initialize successfully!";
     else
-        LOG(ERROR) << "SetOff initialize unsuccessfully!";
+        LOG(ERROR) << "Offset initialize unsuccessfully!";
 
     if (coordinate::InitializeMatrix("../config/hero/matrix-init.yaml"))
         LOG(INFO) << "Camera initialize successfully!";
@@ -151,7 +151,7 @@ void HeroController::Run() {
             ArmorPredictorDebug::Instance().Save();
 
 
-        Compensator::Instance().SetOff(send_packet_.pitch,send_packet_.yaw,
+        Compensator::Instance().Offset(send_packet_.pitch, send_packet_.yaw,
                                        receive_packet_.bullet_speed, send_packet_.check_sum,
                                        armor_predictor.GetTargetDistance(),
                                        receive_packet_.mode);

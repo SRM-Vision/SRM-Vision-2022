@@ -103,7 +103,8 @@ void SentryLowerController::Run() {
         else if (key == 's')
             ArmorPredictorDebug::Instance().Save();
 
-        Compensator::Instance().SetOff(send_packet_.pitch,send_packet_.yaw, receive_packet_.bullet_speed, send_packet_.check_sum,
+        Compensator::Instance().Offset(send_packet_.pitch, send_packet_.yaw, receive_packet_.bullet_speed,
+                                       send_packet_.check_sum,
                                        armor_predictor.GetTargetDistance());
 
         if (CmdlineArgParser::Instance().RunWithSerial())
