@@ -54,27 +54,27 @@ public:
 
     ATTR_READER_REF(clockwise_, Clockwise)
 
-    ATTR_READER_REF(spining_, Spining)
+    ATTR_READER_REF(spinning_, Spining)
 
 private:
     bool is_checked_clockwise = false;
 
-    static constexpr double max_jump_yaw_{0.05};
+    static constexpr double max_jump_x_{6};
     static constexpr double max_jump_period_1{0.8};
-    static constexpr double max_jump_period_2{1.2};
+    static constexpr double max_jump_period_2{1.5};
 
     void Clear();
     void IsClockwise();
     void FindBiggestArmor();
     void DecideComingGoing();
-    void IsSpining(Armor armor, const uint64_t& now_timestamp);
+    void IsSpinning(Armor armor, const uint64_t& current_time);
 
     Entity::Colors color_;
 
     double jump_period_{0}; // yaw jump period
     int jump_count_{0};
-    double last_yaw_{0};
-    double last_yaw_jump_delta_{0};
+    double last_x_{0};
+    double last_x_jump_delta_{0};
 
 
     // Past status data
@@ -97,7 +97,7 @@ private:
     cv::Point2f outpost_corner_[4]{};
     double center_distance_;
 
-    bool spining_ = false;
+    bool spinning_ = false;
     bool prepared_ = false;
 
     int going_armor_ = -1;

@@ -31,6 +31,7 @@ SendPacket OutpostPredictor::Run(DetectedData detected_data, float bullet_speed)
             roi_corners_[3] = detected_data.out_post_armors[0].Corners()[3];
             DLOG(INFO)<<detected_data.out_post_armors[0].Distance();
             DLOG(INFO)<<detected_data.out_post_armors[0].TranslationVectorWorld().x();
+            debug::Painter::Instance()->DrawPoint(detected_data.out_post_armors[0].Center(),cv::Scalar(0,255,0),5,2);
             output_data_.Update(detected_data.out_post_armors[0].TranslationVectorCam());
 
         }
@@ -47,6 +48,7 @@ SendPacket OutpostPredictor::Run(DetectedData detected_data, float bullet_speed)
             roi_corners_[1] = detected_data.out_post_armors[biggest_id].Corners()[1];
             roi_corners_[2] = detected_data.out_post_armors[biggest_id].Corners()[2];
             roi_corners_[3] = detected_data.out_post_armors[biggest_id].Corners()[3];
+            debug::Painter::Instance()->DrawPoint(detected_data.out_post_armors[0].Center(),cv::Scalar(0,255,0),5,2);
             output_data_.Update(detected_data.out_post_armors[biggest_id].TranslationVectorCam());
         }
     }
@@ -65,7 +67,7 @@ SendPacket OutpostPredictor::Run(DetectedData detected_data, float bullet_speed)
         roi_corners_[2] = detected_data.corners2;
         roi_corners_[3] = detected_data.corners3;
 
-        if(pixel_distance >  advanced_distance && pixel_distance < advanced_distance+10){
+        if(pixel_distance < 10){
             ready_ = true;
             ready_time_ = std::chrono::high_resolution_clock::now();
         }
