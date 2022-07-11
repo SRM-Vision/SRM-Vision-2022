@@ -13,8 +13,8 @@ public:
     /**
      * @brief SPHERICAL mode uses yaw to judge spinning, FLAT mode uses x.
      */
-    enum Mode{FLAT,
-            SPHERICAL,
+    enum Mode{kFlat,
+            kSpherical,
             SIZE};
 
     SpinDetector() = delete;
@@ -27,7 +27,7 @@ public:
      * @param quick_jump_period_max high speed spin must faster than this. The unit is radians or pixels.
      * @param quick_jump_period_min high speed spin must slower than this. The unit is radians or pixels.
      */
-    explicit SpinDetector(Mode mode = Mode::SPHERICAL, double min_jump_yaw_x = 0.05, double slow_jump_period_max = 1.2,
+    explicit SpinDetector(Mode mode = Mode::kSpherical, double min_jump_yaw_x = 0.05, double slow_jump_period_max = 1.2,
                           double quick_jump_period_max = 0.625, double quick_jump_period_min = 0.125): min_jump_yaw_x_(min_jump_yaw_x),
                                                                                               slow_jump_period_max_(slow_jump_period_max),
                                                                                               quick_jump_period_max_(quick_jump_period_max),
@@ -41,7 +41,7 @@ public:
      * @param jump_period_max spin must faster than this. The unit is radians or pixels.
      * @param jump_period_min spin must slower than this. The unit is radians or pixels.
      */
-    explicit SpinDetector(Mode mode = Mode::SPHERICAL, double min_jump_yaw_x = 0.05, double jump_period_max = 1.2, double jump_period_min = 0.125):
+    explicit SpinDetector(double min_jump_yaw_x = 0.05, double jump_period_max = 1.2, double jump_period_min = 0.125, Mode mode = Mode::kSpherical):
             min_jump_yaw_x_(min_jump_yaw_x),
             slow_jump_period_max_(jump_period_max),
             quick_jump_period_max_(jump_period_min),
@@ -83,6 +83,18 @@ public:
 
     void SetQuickJumpPeriodMin(double quick_jump_period_min){quick_jump_period_min_ = quick_jump_period_min;}
 
+    /**
+     * @brief just used for judge whether it is spin.
+     * @param jump_period_max
+     */
+    void SetJumpPeriodMax(double jump_period_max){slow_jump_period_max_ = jump_period_max;}
+
+    /**
+     * @brief just used for judge whether it is spin.
+     * @param jump_period_min
+     */
+    void SetJumpPeriodMin(double jump_period_min){quick_jump_period_min_ = quick_jump_period_max_ = jump_period_min;}
+
 private:
 
     double min_jump_yaw_x_{0.05}; // when delta yaw/x bigger than that, consider it`s a jump.
@@ -104,7 +116,7 @@ private:
 
     int reverse_buffer{0};  // when not jump, direction of yaw/x delta must opposite of jumping direction.
 
-    Mode mode_{SPHERICAL};
+    Mode mode_{kSpherical};
 
 };
 

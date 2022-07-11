@@ -23,7 +23,7 @@ bool SpinDetector::Update(const Armor &armor, const uint64_t current_time) {
     }
 
     double current_yaw_x, yaw_delta;
-    if(mode_ == Mode::SPHERICAL){
+    if(mode_ == Mode::kSpherical){
         current_yaw_x = std::atan2(armor.TranslationVectorWorld()(0, 0),
                                    armor.TranslationVectorWorld()(2,0));
         yaw_delta = algorithm::shortest_angular_distance(last_yaw_x_, current_yaw_x);
