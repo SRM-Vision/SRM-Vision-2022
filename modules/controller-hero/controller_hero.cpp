@@ -70,7 +70,8 @@ void HeroController::Run() {
     while (!exit_signal_) {
         auto time = std::chrono::steady_clock::now();
         if (!image_provider_->GetFrame(frame_)){
-            sleep(1);
+            std::this_thread::sleep_for(std::chrono::milliseconds(5));
+            LOG(ERROR) << "wait for image...";
             continue;
         }
 
