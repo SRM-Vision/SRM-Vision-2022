@@ -71,7 +71,7 @@ namespace coordinate::transform {
         return (rm_cam_to_imu * rm_imu_to_world) * tv_world - tm_cam_to_imu;
     }
 
-    inline cv::Point2f CameraToPicture(const cv::Mat& intrinsic_matrix,const Eigen::Vector3d& predict_camera_vector){
+    inline cv::Point2f CameraToPicture(const cv::Mat &intrinsic_matrix, const Eigen::Vector3d &predict_camera_vector) {
         Eigen::Matrix3d camera_matrix;
         cv::cv2eigen(intrinsic_matrix, camera_matrix);
         auto point = camera_matrix * predict_camera_vector / predict_camera_vector(2, 0);
@@ -113,12 +113,12 @@ namespace coordinate::convert {
         return spherical;
     }
 
-    inline Eigen::Vector3d Spherical2Rectangular(const Eigen::Vector3d &spherical){
+    inline Eigen::Vector3d Spherical2Rectangular(const Eigen::Vector3d &spherical) {
         Eigen::Vector3d rectangular;
-        double length_x_z = spherical(2,0) * cos(spherical(1,0));
-        rectangular(0,0) = length_x_z * sin(spherical(0,0));
-        rectangular(1,0) = spherical(2,0) * sin(spherical(1,0));
-        rectangular(2,0) = length_x_z * cos(spherical(0,0));
+        double length_x_z = spherical(2, 0) * cos(spherical(1, 0));
+        rectangular(0, 0) = length_x_z * sin(spherical(0, 0));
+        rectangular(1, 0) = spherical(2, 0) * sin(spherical(1, 0));
+        rectangular(2, 0) = length_x_z * cos(spherical(0, 0));
         return rectangular;
     }
 

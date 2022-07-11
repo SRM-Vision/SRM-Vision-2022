@@ -26,12 +26,12 @@
 namespace algorithm {
 
     /**
-     * \brief Calculate both sine and cosine for 4 floats at the same time.
-     * \param [in] x Input 4 floats.
-     * \param [out] s Output sine value.
-     * \param [out] c Output cosine value.
+     * @brief Calculate both sine and cosine for 4 floats at the same time.
+     * @param [in] x Input 4 floats.
+     * @param [out] s Output sine value.
+     * @param [out] c Output cosine value.
      */
-    inline void SinCosFloatX4(const float x[4], float s[4], float c[4]) {
+    [[maybe_unused]] inline void SinCosFloatX4(const float x[4], float s[4], float c[4]) {
 #if defined(__x86_64__) | defined(__aarch64__)
         v4sf x_v4sf = {x[0], x[1], x[2], x[3]}, s_v4sf, c_v4sf;
         sincos_ps(x_v4sf, &s_v4sf, &c_v4sf);
@@ -53,8 +53,8 @@ namespace algorithm {
     }
 
     /**
-     * \brief Calculate sine for 4 floats at the same time.
-     * \param [in,out] x Input 4 floats and will be output.
+     * @brief Calculate sine for 4 floats at the same time.
+     * @param [in,out] x Input 4 floats and will be output.
      */
     [[maybe_unused]] inline void SinFloatX4(float x[4]) {
 #if defined(__x86_64__) | defined(__aarch64__)
@@ -71,9 +71,9 @@ namespace algorithm {
     }
 
     /**
-     * \brief Calculate sine value.
-     * \param [in] x Input x.
-     * \return Output sin(x).
+     * @brief Calculate sine value.
+     * @param [in] x Input x.
+     * @return Output sin(x).
      */
     [[maybe_unused]] inline float SinFloat(float x) {
 #if defined(__x86_64__) | defined(__aarch64__)
@@ -85,8 +85,8 @@ namespace algorithm {
     }
 
     /**
-     * \brief Calculate cosine for 4 floats at the same time.
-     * \param [in,out] x Input 4 floats and will be output.
+     * @brief Calculate cosine for 4 floats at the same time.
+     * @param [in,out] x Input 4 floats and will be output.
      */
     [[maybe_unused]] inline void CosFloatX4(float x[4]) {
 #if defined(__x86_64__) | defined(__aarch64__)
@@ -103,9 +103,9 @@ namespace algorithm {
     }
 
     /**
-     * \brief Calculate cosine value.
-     * \param [in] x Input x.
-     * \return Output cos(x).
+     * @brief Calculate cosine value.
+     * @param [in] x Input x.
+     * @return Output cos(x).
      */
     [[maybe_unused]] inline float CosFloat(float x) {
 #if defined(__x86_64__) | defined(__aarch64__)
@@ -117,8 +117,8 @@ namespace algorithm {
     }
 
     /**
-     * \brief Calculate tangent for 4 floats at the same time.
-     * \param [in,out] x Input 4 floats and will be output.
+     * @brief Calculate tangent for 4 floats at the same time.
+     * @param [in,out] x Input 4 floats and will be output.
      */
     [[maybe_unused]] inline void TanFloatX4(float x[4]) {
 #if defined(__x86_64__) | defined(__aarch64__)
@@ -135,8 +135,8 @@ namespace algorithm {
     }
 
     /**
-     * \brief Calculate cotangent for 4 floats at the same time.
-     * \param [in,out] x Input 4 floats and will be output.
+     * @brief Calculate cotangent for 4 floats at the same time.
+     * @param [in,out] x Input 4 floats and will be output.
      */
     [[maybe_unused]] inline void CotFloatX4(float x[4]) {
 #if defined(__x86_64__) | defined(__aarch64__)
@@ -153,8 +153,8 @@ namespace algorithm {
     }
 
     /**
-     * \brief Calculate arc tangent for 4 floats at the same time.
-     * \param [in,out] x Input 4 floats and will be output.
+     * @brief Calculate arc tangent for 4 floats at the same time.
+     * @param [in,out] x Input 4 floats and will be output.
      */
     [[maybe_unused]] inline void AtanFloatX4(float x[4]) {
 #if defined(__x86_64__) | defined(__aarch64__)
@@ -173,10 +173,10 @@ namespace algorithm {
     // ------------------------------------------------
 
     /**
-     * \brief Calculate arc tangent II for 4 floats at the same time.
-     * \param [in] y Input 4 ys.
-     * \param [in] x Input 4 xs.
-     * \param [out] res Output 4 results.
+     * @brief Calculate arc tangent II for 4 floats at the same time.
+     * @param [in] y Input 4 ys.
+     * @param [in] x Input 4 xs.
+     * @param [out] res Output 4 results.
      */
     [[maybe_unused]] inline void Atan2FloatX4(const float y[4], const float x[4], float res[4]) {
 #if defined(__x86_64__) | defined(__aarch64__)
@@ -194,10 +194,10 @@ namespace algorithm {
     }
 
     /**
-     * \brief Calculate arc tangent II for single float at the same time.
-     * \param [in] y Input y.
-     * \param [in] x Input x.
-     * \return atan2(y, x).
+     * @brief Calculate arc tangent II for single float at the same time.
+     * @param [in] y Input y.
+     * @param [in] x Input x.
+     * @return atan2(y, x).
      */
     [[maybe_unused]] inline float Atan2Float(float y, float x) {
 #if defined(__x86_64__) | defined(__aarch64__)
@@ -210,9 +210,9 @@ namespace algorithm {
     // ------------------------------------------------
 
     /**
-     * \brief Calculate area of N-side polygon.
-     * \param [in] points Input vector, should in clockwise order.
-     * \return Area value.
+     * @brief Calculate area of N-side polygon.
+     * @param [in] points Input vector, should in clockwise order.
+     * @return Area value.
      */
     [[maybe_unused]] inline double PolygonArea(const std::vector<cv::Point2f> &points) {
         auto n = points.size();
@@ -227,13 +227,13 @@ namespace algorithm {
     }
 
     /**
-     * \brief Calculate area of N-side polygon.
-     * \tparam N Size of input array.
-     * \param [in] points Input array, should in clockwise order.
-     * \return Area value.
+     * @brief Calculate area of N-side polygon.
+     * @tparam N Size of input array.
+     * @param [in] points Input array, should in clockwise order.
+     * @return Area value.
      */
     template<unsigned int N>
-    double PolygonArea(const cv::Point2f points[N]) {
+    [[maybe_unused]] double PolygonArea(const cv::Point2f points[N]) {
         double area = 0;
         for (auto i = 0; i < N; ++i) {
             auto j = (i + 1) % N;
@@ -254,7 +254,7 @@ namespace algorithm {
 #endif
     }
 
-    inline float RsqrtFloat(float x) {
+    [[maybe_unused]] inline float RsqrtFloat(float x) {
 #if defined(__x86_64__) | defined(__aarch64__)
         return rsqrt_ps(x);
 #else
@@ -265,25 +265,26 @@ namespace algorithm {
     // ------------------------------------------------
 
     /**
-     * \brief Calculate angle between two 2D vectors.
-     * \param [in] vector_a Vector A.
-     * \param [in] vector_b Vector B.
-     * \return Angle of two vectors, in DEGREE.
+     * @brief Calculate angle between two 2D vectors.
+     * @param [in] vector_a Vector A.
+     * @param [in] vector_b Vector B.
+     * @return Angle of two vectors, in DEGREE.
      */
-    inline float VectorAngle(const cv::Point2f &vector_a, const cv::Point2f &vector_b) {
-        constexpr float rad_to_deg = 180.0 / CV_PI;
-        return std::acos(std::max(-1.f, std::min(1.f, float(vector_a.dot(vector_b))
-                         * RsqrtFloat(vector_a.x * vector_a.x + vector_a.y * vector_a.y)
-                         * RsqrtFloat(vector_b.x * vector_b.x + vector_b.y * vector_b.y))))
-               * rad_to_deg;
+    [[maybe_unused]] inline float VectorAngle(const cv::Point2f &vector_a, const cv::Point2f &vector_b) {
+        constexpr float rad2deg = 180.0 / CV_PI;
+        return std::acos(std::max(-1.f, std::min(
+                1.f, float(vector_a.dot(vector_b))
+                     * RsqrtFloat(vector_a.x * vector_a.x + vector_a.y * vector_a.y)
+                     * RsqrtFloat(vector_b.x * vector_b.x + vector_b.y * vector_b.y))))
+               * rad2deg;
     }
 
     /**
      * @brief Change time from nanoseconds to seconds.
-     * @param time timestamp in nanoseconds.
-     * @return time in seconds ind double.
+     * @param time Timestamp in nanoseconds.
+     * @return Time in seconds ind double.
      */
-    inline double TimeFromNsToS(const uint64_t &time){
+    inline double TimeNs2S(const uint64_t &time) {
         return static_cast<double>(time) * 1e-9;
     }
 
@@ -293,14 +294,13 @@ namespace algorithm {
      * @param end finish time (ns)
      * @return duration in seconds.
      */
-    inline double Duration(const uint64_t &start, const uint64_t &end){
+    inline double Duration(const uint64_t &start, const uint64_t &end) {
         return static_cast<double>(end - start) * 1e-9;
     }
 
     /**
-     * \function
-     * \brief shortest_angular_distance
-     *
+     * @brief shortest_angular_distance
+     * @details
      * Given 2 angles, this returns the shortest angular
      * difference.  The inputs and ouputs are of course radians.
      *
@@ -308,10 +308,10 @@ namespace algorithm {
      * would always be -pi <= result <= pi.  Adding the result
      * to "from" will always get you an equivelent angle to "to".
      */
-    inline double shortest_angular_distance(double from, double to){
+    inline double shortest_angular_distance(double from, double to) {
         double angle = to - from;
-        const double result = fmod(angle + M_PI, 2.0*M_PI);
-        if(result <= 0.0) return result + M_PI;
+        const double result = fmod(angle + M_PI, 2.0 * M_PI);
+        if (result <= 0.0) return result + M_PI;
         return result - M_PI;
     }
 }
