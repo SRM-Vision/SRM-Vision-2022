@@ -8,7 +8,6 @@
 #include "predictor-outpost/predictor_outpost.h"
 #include "detector-outpost/detector_outpost.h"
 #include "controller_hero.h"
-#include <chrono>
 /**
  * \warning Controller registry will be initialized before the program entering the main function!
  *   This means any error occurring here will not be caught unless you're using debugger.
@@ -24,7 +23,7 @@ bool HeroController::Initialize() {
             CmdlineArgParser::Instance().RunWithCamera() ?
             "../config/hero/camera-init.yaml" : "../config/hero/video-init.yaml")) {
         LOG(ERROR) << "Failed to initialize image provider.";
-        // Till now the camera may be open, it's necesend_packet_.pitch -= ArmorPredictorDebug::Instance().DeltaPitch();ssary to reset image_provider_ manually to release camera.
+        // Till now the camera may be open, it's necessary to reset image_provider_ manually to release camera.
         image_provider_.reset();
         return false;
     }
@@ -47,9 +46,9 @@ bool HeroController::Initialize() {
         LOG(ERROR) << "Outpost detector initialize unsuccessfully!";
 
     if(Compensator::Instance().Initialize("hero"))
-        LOG(INFO) << "Setoff initialize successfully!";
+        LOG(INFO) << "SetOff initialize successfully!";
     else
-        LOG(ERROR) << "Setoff initialize unsuccessfully!";
+        LOG(ERROR) << "SetOff initialize unsuccessfully!";
 
     if (coordinate::InitializeMatrix("../config/hero/matrix-init.yaml"))
         LOG(INFO) << "Camera initialize successfully!";
@@ -71,11 +70,11 @@ void HeroController::Run() {
     while (!exit_signal_) {
         auto time = std::chrono::steady_clock::now();
         if (!image_provider_->GetFrame(frame_)){
-            sleep(1);
+            std::this_thread::sleep_for(std::chrono::milliseconds(5));
+            LOG(ERROR) << "wait for image...";
             continue;
         }
 
-        // debug::Painter::Instance()->UpdateImage(frame_.image);
 
         if (CmdlineArgParser::Instance().RunWithGimbal()) {
             SerialReceivePacket serial_receive_packet{};
@@ -83,27 +82,26 @@ void HeroController::Run() {
             receive_packet_ = ReceivePacket(serial_receive_packet);
         }
 
+        debug::Painter::Instance()->UpdateImage(frame_.image);
+        boxes_ = armor_detector_(frame_.image,ROI);
+        for(auto &box:boxes_)
+            DLOG(INFO) << "CONFIDENCE:  " << box.confidence;
+        BboxToArmor();
+        battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.yaw_pitch_roll,
+                                   armors_);
         // if(receive_packet_.mode == kOutPost)
         if (CmdlineArgParser::Instance().RunModeOutpost())
         {
-            debug::Painter::Instance()->UpdateImage(frame_.image);
-
-            boxes_ = armor_detector_(frame_.image,ROI);
-
-            BboxToArmor();
-
-            battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.yaw_pitch_roll,
-                                       armors_);
-
             outpost_detector_.SetColor(receive_packet_.color);
 
             send_packet_ = outpost_predictor_.Run(outpost_detector_.Run(battlefield_), 16);
 
             outpost_predictor_.GetROI(ROI,frame_.image);
+
             debug::Painter::Instance()->DrawBoundingBox(ROI,cv::Scalar(0,0,255),2);
 
             if(outpost_detector_.Spining())
-                debug::Painter::Instance()->DrawText("Spining",{50,50},cv::Scalar(100, 255, 100),2);
+                debug::Painter::Instance()->DrawText("Spinning",{50,50},cv::Scalar(100, 255, 100),2);
             if(send_packet_.fire)
                 debug::Painter::Instance()->DrawText("Fire",{50,50},cv::Scalar(100, 255, 100),2);
             debug::Painter::Instance()->DrawPoint(outpost_detector_.OutpostCenter(), cv::Scalar(100, 255, 100), 2, 2);
@@ -116,10 +114,6 @@ void HeroController::Run() {
             DLOG(INFO) << "9";
         }
         else {
-            boxes_ = armor_detector_(frame_.image,ROI);
-            BboxToArmor();
-            battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.yaw_pitch_roll,
-                                       armors_);
             /// TODO mode switch
             if (CmdlineArgParser::Instance().RunWithSerial()) {
                 armor_predictor.SetColor(receive_packet_.color);
@@ -147,7 +141,6 @@ void HeroController::Run() {
             debug::Painter::Instance()->DrawPoint(armor_predictor.ShootPointInPic(image_provider_->IntrinsicMatrix(),
                                                                                  frame_.image.size),
                                                  cv::Scalar(0, 0, 255), 1, 10);
-//            armor_predictor.AllShootPoint(image_provider_->IntrinsicMatrix());
             debug::Painter::Instance()->DrawBoundingBox(ROI,cv::Scalar(0,0,255),2);
 
             debug::Painter::Instance()->ShowImage("ARMOR DETECT", 1);
@@ -161,7 +154,7 @@ void HeroController::Run() {
             ArmorPredictorDebug::Instance().Save();
 
 
-        Compensator::Instance().SetOff(send_packet_.pitch,
+        Compensator::Instance().SetOff(send_packet_.pitch,send_packet_.yaw,
                                        receive_packet_.bullet_speed, send_packet_.check_sum,
                                        armor_predictor.GetTargetDistance(),
                                        receive_packet_.mode);
