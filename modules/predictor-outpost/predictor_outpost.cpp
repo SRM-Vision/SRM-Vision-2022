@@ -1,5 +1,5 @@
 #include "predictor_outpost.h"
-const cv::Size kZoomRatio = {15,24};
+const cv::Size kZoomRatio = {18,22};
 void OutputData::Update(const coordinate::TranslationVector &shoot_point)  //TODO Unsure
 {
     auto shoot_point_spherical = coordinate::convert::Rectangular2Spherical(shoot_point);
@@ -31,6 +31,7 @@ SendPacket OutpostPredictor::Run(DetectedData detected_data, float bullet_speed)
             roi_corners_[3] = detected_data.out_post_armors[0].Corners()[3];
             DLOG(INFO)<<detected_data.out_post_armors[0].Distance();
             DLOG(INFO)<<detected_data.out_post_armors[0].TranslationVectorWorld().x();
+            output_data_.Update(detected_data.out_post_armors[0].TranslationVectorCam());
 
         }
         else{
@@ -46,6 +47,7 @@ SendPacket OutpostPredictor::Run(DetectedData detected_data, float bullet_speed)
             roi_corners_[1] = detected_data.out_post_armors[biggest_id].Corners()[1];
             roi_corners_[2] = detected_data.out_post_armors[biggest_id].Corners()[2];
             roi_corners_[3] = detected_data.out_post_armors[biggest_id].Corners()[3];
+            output_data_.Update(detected_data.out_post_armors[biggest_id].TranslationVectorCam());
         }
     }
     else{

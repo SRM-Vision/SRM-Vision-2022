@@ -15,7 +15,7 @@ public:
         return _;
     }
     bool Initialize(std::string robot_name_);
-    void SetOff(float &pitch, double bullet_speed, float &check_sum, double distance, AimModes mode = AimModes::kNormal);
+    void SetOff(float &pitch, float & yaw,double bullet_speed, float &check_sum, double distance, AimModes mode = AimModes::kNormal);
 
 private:
     std::string robot_name_{};

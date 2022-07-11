@@ -28,7 +28,7 @@ bool Compensator::Initialize(std::string robot_name) {
     return true;
 }
 
-void Compensator::SetOff(float &pitch, double bullet_speed, float &check_sum, double distance, AimModes mode) {
+void Compensator::SetOff(float &pitch, float &yaw,double bullet_speed, float &check_sum, double distance, AimModes mode) {
     //TODO more mode
     if (pitch == 0 || bullet_speed == 0 || distance == 0)
         return;
@@ -45,7 +45,7 @@ void Compensator::SetOff(float &pitch, double bullet_speed, float &check_sum, do
         DLOG(INFO) << "after setoff pitch: "<<pitch;
     }
     else if (robot_name_ == "hero") {
-        float plane_distance = 0,delta_pitch = 0;
+        float plane_distance = 0,delta_pitch = 0,delta_yaw = 0;
         DLOG(INFO) << "before setoff pitch:"<<pitch;
         if ( bullet_speed ==10){
             plane_distance = setoff0d_[0] * distance * distance * distance +
@@ -67,7 +67,10 @@ void Compensator::SetOff(float &pitch, double bullet_speed, float &check_sum, do
                           setoff1p_[2] * plane_distance +
                           setoff1p_[3];
         }
+        delta_yaw = 0.0085;
         pitch -= delta_pitch;
+        yaw -= delta_yaw;
+        check_sum -= (delta_pitch + delta_yaw);
         DLOG(INFO) << "after setoff pitch: "<<pitch;
     }
     else if (robot_name_[0] == 'i') {   // 首字母是i是步兵
