@@ -7,7 +7,6 @@
 #include "predictor-armor/predictor_armor_renew.h"
 #include "predictor-outpost/predictor_outpost.h"
 #include "detector-outpost/detector_outpost.h"
-#include "detector-outpost/outpost_detector.h"
 #include "controller_hero.h"
 /**
  * \warning Controller registry will be initialized before the program entering the main function!
@@ -71,7 +70,8 @@ void HeroController::Run() {
     while (!exit_signal_) {
         auto time = std::chrono::steady_clock::now();
         if (!image_provider_->GetFrame(frame_)){
-            sleep(1);
+            std::this_thread::sleep_for(std::chrono::milliseconds(5));
+            LOG(ERROR) << "wait for image...";
             continue;
         }
 
@@ -95,7 +95,7 @@ void HeroController::Run() {
             battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.yaw_pitch_roll,
                                        armors_);
 
-            outpost_detector_.SetColor(Robot::kBlue);
+            outpost_detector_.SetColor(receive_packet_.color);
 
             send_packet_ = outpost_predictor_.Run(outpost_detector_.Run(battlefield_), 16);
 
@@ -122,7 +122,7 @@ void HeroController::Run() {
                                        armors_);
             /// TODO mode switch
             if (CmdlineArgParser::Instance().RunWithSerial()) {
-                armor_predictor.SetColor(Robot::kRed);
+                armor_predictor.SetColor(receive_packet_.color);
                 send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size ,
                                                    receive_packet_.mode, receive_packet_.bullet_speed);
             } else
@@ -161,14 +161,12 @@ void HeroController::Run() {
             ArmorPredictorDebug::Instance().Save();
 
 
-//        Compensator::Instance().Setoff(send_packet_.pitch,
-//                                       receive_packet_.bullet_speed,
-//                                       armor_predictor.GetTargetDistance(),
-//                                       receive_packet_.mode);
+        Compensator::Instance().SetOff(send_packet_.pitch,
+                                       receive_packet_.bullet_speed, send_packet_.check_sum,
+                                       armor_predictor.GetTargetDistance(),
+                                       receive_packet_.mode);
 
         if (CmdlineArgParser::Instance().RunWithSerial()) {
-            DLOG(INFO)<<"delta_pitch"<<ArmorPredictorDebug::Instance().DeltaPitch();
-            send_packet_.pitch -=ArmorPredictorDebug::Instance().DeltaPitch();
             serial_->SendData(send_packet_, std::chrono::milliseconds(5));
         }
         boxes_.clear();

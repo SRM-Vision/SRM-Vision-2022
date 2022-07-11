@@ -277,6 +277,43 @@ namespace algorithm {
                          * RsqrtFloat(vector_b.x * vector_b.x + vector_b.y * vector_b.y))))
                * rad_to_deg;
     }
+
+    /**
+     * @brief Change time from nanoseconds to seconds.
+     * @param time timestamp in nanoseconds.
+     * @return time in seconds ind double.
+     */
+    inline double TimeFromNsToS(const uint64_t &time){
+        return static_cast<double>(time) * 1e-9;
+    }
+
+    /**
+     * @brief Calculate time from start to end (ns), return the time in seconds.
+     * @param start start time (ns)
+     * @param end finish time (ns)
+     * @return duration in seconds.
+     */
+    inline double Duration(const uint64_t &start, const uint64_t &end){
+        return static_cast<double>(end - start) * 1e-9;
+    }
+
+    /**
+     * \function
+     * \brief shortest_angular_distance
+     *
+     * Given 2 angles, this returns the shortest angular
+     * difference.  The inputs and ouputs are of course radians.
+     *
+     * The result
+     * would always be -pi <= result <= pi.  Adding the result
+     * to "from" will always get you an equivelent angle to "to".
+     */
+    inline double shortest_angular_distance(double from, double to){
+        double angle = to - from;
+        const double result = fmod(angle + M_PI, 2.0*M_PI);
+        if(result <= 0.0) return result + M_PI;
+        return result - M_PI;
+    }
 }
 
 #endif  // ALGORITHMS_H_
