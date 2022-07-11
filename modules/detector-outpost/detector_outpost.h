@@ -9,6 +9,7 @@
 #include "digital-twin/facilities/outpost.h"
 #include "../digital-twin/battlefield.h"
 #include "debug-tools/painter.h"
+#include "predictor-armor/spin_detector.h"
 
 #include <utility>
 #include <queue>
@@ -59,34 +60,21 @@ public:
 private:
     bool is_checked_clockwise = false;
 
-    static constexpr double max_jump_x_{6};
-    static constexpr double max_jump_period_1{0.8};
-    static constexpr double max_jump_period_2{1.5};
-
     void Clear();
     void IsClockwise();
     void FindBiggestArmor();
     void DecideComingGoing();
-    void IsSpinning(Armor armor, const uint64_t& current_time);
 
     Entity::Colors color_;
 
-    double jump_period_{0}; // yaw jump period
-    int jump_count_{0};
-    double last_x_{0};
-    double last_x_jump_delta_{0};
-
+    SpinDetector spin_detector_{50, 1.2,0.8,SpinDetector::kFlat};
 
     // Past status data
     double last_armor_x_;
     double max_area_buff;
     double max_area_;
 
-
-    uint64_t last_jump_time_{0};
-    coordinate::TranslationVector last_jump_position_{0,0,0};
     int disappear_buff_;
-
 
     // Send to predictor
     std::vector<Armor> detected_armors_in_this_frame_{};

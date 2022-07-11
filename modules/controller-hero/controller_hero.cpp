@@ -100,11 +100,8 @@ void HeroController::Run() {
 
             debug::Painter::Instance()->DrawBoundingBox(ROI,cv::Scalar(0,0,255),2);
 
-            if(outpost_detector_.Spining())
-                debug::Painter::Instance()->DrawText("Spinning",{50,50},cv::Scalar(100, 255, 100),2);
             if(send_packet_.fire)
                 debug::Painter::Instance()->DrawText("Fire",{50,50},cv::Scalar(100, 255, 100),2);
-            debug::Painter::Instance()->DrawPoint(outpost_detector_.OutpostCenter(), cv::Scalar(100, 255, 100), 2, 2);
             // debug::Painter::Instance()->DrawPoint(outpost_detector_.ComingArmorCenter2D(), cv::Scalar(100, 255, 250), 2, 2);
             debug::Painter::Instance()->DrawBoundingBox(ROI,cv::Scalar(0,0,255),2);
             DLOG(INFO) << "8";

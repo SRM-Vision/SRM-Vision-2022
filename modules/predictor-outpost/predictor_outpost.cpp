@@ -67,7 +67,7 @@ SendPacket OutpostPredictor::Run(DetectedData detected_data, float bullet_speed)
         roi_corners_[2] = detected_data.corners2;
         roi_corners_[3] = detected_data.corners3;
 
-        if(pixel_distance < 10){
+        if(pixel_distance < 1){
             ready_ = true;
             ready_time_ = std::chrono::high_resolution_clock::now();
         }
@@ -75,13 +75,11 @@ SendPacket OutpostPredictor::Run(DetectedData detected_data, float bullet_speed)
         {
             auto current_time_chrono = std::chrono::high_resolution_clock::now();
             double time_gap = (static_cast<std::chrono::duration<double, std::milli>>(current_time_chrono - ready_time_)).count();
-            if (time_gap/1000 > delay_time_){
+            if (time_gap *1e-3 > delay_time_){
                 output_data_.fire = 1;
                 ready_ = false;
             }
         }
-
-
 
         DLOG(INFO) << "pixel distance" << pixel_distance;
 //    DLOG(INFO) << "shoot_point: " << shoot_point;
