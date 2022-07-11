@@ -7,6 +7,7 @@
 #include "predictor-armor/predictor_armor_renew.h"
 #include "predictor-outpost/predictor_outpost.h"
 #include "detector-outpost/detector_outpost.h"
+#include <chrono>
 #include "controller_hero.h"
 #include <chrono>
 /**
@@ -90,6 +91,10 @@ void HeroController::Run() {
 
             boxes_ = armor_detector_(frame_.image,ROI);
 
+            for(auto &box:boxes_){
+                DLOG(INFO) << "CONFIDENCE:  " << box.confidence;
+            }
+
             BboxToArmor();
 
             battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.yaw_pitch_roll,
@@ -100,6 +105,7 @@ void HeroController::Run() {
             send_packet_ = outpost_predictor_.Run(outpost_detector_.Run(battlefield_), 16);
 
             outpost_predictor_.GetROI(ROI,frame_.image);
+
             debug::Painter::Instance()->DrawBoundingBox(ROI,cv::Scalar(0,0,255),2);
 
             if(outpost_detector_.Spining())
@@ -117,6 +123,9 @@ void HeroController::Run() {
         }
         else {
             boxes_ = armor_detector_(frame_.image,ROI);
+            for(auto &box:boxes_){
+                DLOG(INFO) << "CONFIDENCE:  " << box.confidence;
+            }
             BboxToArmor();
             battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.yaw_pitch_roll,
                                        armors_);

@@ -44,7 +44,10 @@ DetectedData OutpostDataDetector::Run(const Battlefield& battlefield)
                                                          armor.Corners()[2],
                                                          armor.Corners()[3],
                                                          cv::Scalar(0, 255, 0), 2);
+        debug::Painter::Instance()->DrawText(std::to_string(armor.ID()), {200,200}, 255, 2);
+
     }
+
 
     if (detected_armors_in_this_frame_.empty())
     {
@@ -56,12 +59,25 @@ DetectedData OutpostDataDetector::Run(const Battlefield& battlefield)
         return {detected_armors_in_this_frame_, outpost_center_, center_3D, shoot_point_,
                 {0,0},{0,0},
                 {0,0},{0,0},
-                spining_, need_init_ , coming_armor_, going_armor_, clockwise_, center_distance_};
+                spining_, prepared_ , coming_armor_, going_armor_, clockwise_, center_distance_};
     }
 
     disappear_buff_ = 0;
 
-    IsSpining(detected_armors_in_this_frame_.size(), battlefield.TimeStamp());
+    if(detected_armors_in_this_frame_.size() == 1)
+        IsSpining(detected_armors_in_this_frame_[0], battlefield.TimeStamp());
+    else{
+        double biggest_area = 0;
+        int biggest_id = 0;
+        for(int i = 0;i<detected_armors_in_this_frame_.size();i++)
+            if(detected_armors_in_this_frame_[i].Area() > biggest_area){
+                biggest_area = detected_armors_in_this_frame_[i].Area();
+                biggest_id = i;
+            }
+        IsSpining(detected_armors_in_this_frame_[biggest_id], battlefield.TimeStamp());
+    }
+
+
 
     if(spining_){
         if(clockwise_<= 7 && clockwise_ >= -7 && !is_checked_clockwise)
@@ -112,54 +128,25 @@ void OutpostDataDetector::IsClockwise()
     }
 }
 
-void OutpostDataDetector::FindBiggestArmor()
-{
-    if(need_init_)
-    {
-        start_time_ =  std::chrono::high_resolution_clock::now();
-        need_init_ = false;
-        return;
-    }
-
-    auto current_time_chrono = std::chrono::high_resolution_clock::now();
-    double time_gap = (static_cast<std::chrono::duration<double, std::milli>>(current_time_chrono - start_time_)).count();
-
-    DLOG(INFO) << "time_gap: " << time_gap/1000;
-
-    for(auto & armor : detected_armors_in_this_frame_)
-        if(armor.Area() > max_area_)
-        {
-            max_area_ = armor.Area();
-            if(time_gap/1000 < 0.85)
-            {
-                outpost_center_ = armor.Center();
-                center_distance_ = armor.Distance();
-                shoot_point_ = armor.TranslationVectorCam();
-                center_3D = armor.TranslationVectorWorld();
-                outpost_corner_[0] = armor.Corners()[0];
-                outpost_corner_[1] = armor.Corners()[1];
-                outpost_corner_[2] = armor.Corners()[2];
-                outpost_corner_[3] = armor.Corners()[3];
-                prepared_ = true;
-
-            }
-            else
-            {
-                if(abs(outpost_center_.y - armor.Center().y) > kVertical_threshold_)
-                {
-                    DLOG(WARNING) << "outpost center error too much, finding again";
-                    need_init_ = true;
-                    prepared_ = false;
-                }
-                else{
-                    DLOG(WARNING) << "outpost center founded";
-                    prepared_ = true;
-                }
-
-            }
+void OutpostDataDetector::FindBiggestArmor() {
+    double biggest_id;
+    for (int i = 0; i < detected_armors_in_this_frame_.size(); i++)
+        if (detected_armors_in_this_frame_[i].Area() > max_area_) {
+            biggest_id = i;
+            max_area_ = detected_armors_in_this_frame_[i].Area();
+            center_distance_ = detected_armors_in_this_frame_[i].Distance();
+            outpost_center_ = detected_armors_in_this_frame_[i].Center();
+            center_3D = detected_armors_in_this_frame_[i].TranslationVectorWorld();
+            shoot_point_ = detected_armors_in_this_frame_[i].TranslationVectorCam();
+            for(int j = 0;j<4;j++)
+             outpost_corner_[j] = detected_armors_in_this_frame_[i].Corners()[j];
+            prepared_ = true;
         }
+    if((center_3D - detected_armors_in_this_frame_[biggest_id].TranslationVectorWorld()).norm()>0.4){
+        max_area_ = 0;
+        prepared_ = false;
+    }
 }
-
 void OutpostDataDetector::DecideComingGoing()
 {
 //    DLOG(INFO) << "nums of armor" << detected_armors_in_this_frame_.size();
@@ -235,38 +222,43 @@ void OutpostDataDetector::Clear() {
 
 }
 
-void OutpostDataDetector::IsSpining(const int &new_armor_num, const uint64_t &now_timestamp) {
-    auto new_spining_period{double(now_timestamp - timestamp_) * 1e-9 };
-    double exit_spining_time;
-    if(spining_)    exit_spining_time = 25;
-    else            exit_spining_time = 15;     // 如果在旋转的话，更难退出旋转状态
-    if(new_armor_num == 2){
-        DLOG(INFO)<<"dsda";
-    }
-    if(new_armor_num != armor_num_ && new_spining_period > 0.3) {  //  >1.5为了滤除一部分误识别
-        spining_period_ = new_spining_period;
-        timestamp_ = now_timestamp;
-        armor_num_ = new_armor_num;
-        if(times_.size()<5)
-            times_.emplace_back(spining_period_);
-        else{
-            times_.erase(times_.begin());
-            times_.emplace_back(spining_period_);
-        }
-    }
-    if(new_spining_period > exit_spining_time ){
-        times_.clear();
-    }
-    double sum=0;
-    for(int i = 0;i<times_.size();i++)
-        sum += times_[i];
+void OutpostDataDetector::IsSpining(Armor armor, const uint64_t &current_time) {
+    double time_after_jump{algorithm::Duration(last_jump_time_,current_time)};
 
-    if(sum < 15 && times_.size() == 5 )
-        spining_ = true;
-    else
+    DLOG(INFO) << "TIME AFTER JUMP: " << time_after_jump;
+
+    // If it exceeds the maximum period and has not turned, it is not top.
+    if(!spining_&&time_after_jump > max_jump_period_1 ){
         spining_ = false;
+        jump_count_ = 0;
+    }
 
-    DLOG(INFO)<<"sum"<<sum<<"size"<<times_.size();
+    if(spining_&&time_after_jump > max_jump_period_2 ){
+        spining_ = false;
+        jump_count_ = 0;
+    }
+
+    DLOG(INFO) << "JUMP PERIOD: " << jump_period_;
+
+    // When tracking the same armor plate
+    double current_yaw{std::atan2(armor.TranslationVectorWorld()(0,0),
+                                  armor.TranslationVectorWorld()(2,0))};
+    double yaw_delta{algorithm::shortest_angular_distance(last_yaw_, current_yaw)};
+    DLOG(INFO) << "YAW DELTA: " << yaw_delta;
+    // When jump enough
+    if(std::abs(yaw_delta) > max_jump_yaw_){
+        ++jump_count_;
+        if(jump_count_ > 1 && std::signbit(yaw_delta) == std::signbit(last_yaw_jump_delta_)){
+            spining_ = true;
+            jump_period_ = time_after_jump;
+        }
+
+        last_jump_time_ = current_time;
+        last_yaw_jump_delta_ = yaw_delta;
+        last_jump_position_ = armor.TranslationVectorWorld();
+    }
+
+    last_yaw_ = current_yaw;
 
 }
 

@@ -62,11 +62,15 @@ private:
     bool prepared_ = false;
     std::chrono::high_resolution_clock::time_point start_time_;
 
+    static constexpr double max_jump_yaw_{0.05};
+    static constexpr double max_jump_period_1{0.84};
+    static constexpr double max_jump_period_2{1.2};
+
     void Clear();
     void IsClockwise();
     void FindBiggestArmor();
     void DecideComingGoing();
-    void IsSpining(const int& new_armor_num, const uint64_t& now_timestamp);
+    void IsSpining(Armor armor, const uint64_t& now_timestamp);
 
     Entity::Colors color_;
 
@@ -75,10 +79,16 @@ private:
     double max_area_;
     int disappear_buff_;
     int armor_num_;
-    uint64_t timestamp_;
-    double spining_period_;
+    double jump_period_{0}; // yaw jump period
+    int jump_count_{0};
+    double last_yaw_{0};
+    double last_yaw_jump_delta_{0};
+
+    uint64_t last_jump_time_{0};
+    coordinate::TranslationVector last_jump_position_{0,0,0};
     bool spining_ = false;
     std::vector<double> times_;
+    double time_gap;
 
     // Send to predictor
     std::vector<Armor> detected_armors_in_this_frame_{};

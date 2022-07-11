@@ -1,5 +1,5 @@
 #include "predictor_outpost.h"
-const cv::Size kZoomRatio = {15,10};
+const cv::Size kZoomRatio = {15,24};
 void OutputData::Update(const coordinate::TranslationVector &shoot_point)  //TODO Unsure
 {
     auto shoot_point_spherical = coordinate::convert::Rectangular2Spherical(shoot_point);
@@ -14,19 +14,17 @@ SendPacket OutpostPredictor::Run(DetectedData detected_data, float bullet_speed)
     DLOG(INFO)  << "Outpost_center_distance: " << detected_data.center_distance << " | "
                 << "spining:"<<detected_data.spining<<"|";
     output_data_.fire = 0;
+    armor_num = detected_data.out_post_armors.size();
 //    double time_delay = center_distance_ / bullet_speed_ + kCommunicationTime_;
     if(detected_data.out_post_armors.empty()){
-        armor_num = 0;
         return {0,0,0,
                 0,0,
                 0,0,0,0,
                 0,0,0,0,0};
     }
-    armor_num = detected_data.out_post_armors.size();
+
     if(!detected_data.perpared){
         if(detected_data.out_post_armors.size() == 1){
-            output_data_.Update(detected_data.out_post_armors[0].TranslationVectorCam());
-            debug::Painter::Instance()->DrawPoint(detected_data.out_post_armors[0].Center(), cv::Scalar(0, 255, 0), 10, 3);
             roi_corners_[0] = detected_data.out_post_armors[0].Corners()[0];
             roi_corners_[1] = detected_data.out_post_armors[0].Corners()[1];
             roi_corners_[2] = detected_data.out_post_armors[0].Corners()[2];
@@ -44,12 +42,10 @@ SendPacket OutpostPredictor::Run(DetectedData detected_data, float bullet_speed)
                      biggest_id = i;
                 }
             }
-            output_data_.Update(detected_data.out_post_armors[biggest_id].TranslationVectorCam());
-            debug::Painter::Instance()->DrawPoint(detected_data.out_post_armors[biggest_id].Center(), cv::Scalar(0, 255, 0), 10, 3);
-//            roi_corners_[0] = detected_data.out_post_armors[biggest_id].Corners()[0];
-//            roi_corners_[1] = detected_data.out_post_armors[biggest_id].Corners()[1];
-//            roi_corners_[2] = detected_data.out_post_armors[biggest_id].Corners()[2];
-//            roi_corners_[3] = detected_data.out_post_armors[biggest_id].Corners()[3];
+            roi_corners_[0] = detected_data.out_post_armors[biggest_id].Corners()[0];
+            roi_corners_[1] = detected_data.out_post_armors[biggest_id].Corners()[1];
+            roi_corners_[2] = detected_data.out_post_armors[biggest_id].Corners()[2];
+            roi_corners_[3] = detected_data.out_post_armors[biggest_id].Corners()[3];
         }
     }
     else{
