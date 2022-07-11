@@ -240,6 +240,9 @@ void OutpostDataDetector::IsSpining(const int &new_armor_num, const uint64_t &no
     double exit_spining_time;
     if(spining_)    exit_spining_time = 25;
     else            exit_spining_time = 15;     // 如果在旋转的话，更难退出旋转状态
+    if(new_armor_num == 2){
+        DLOG(INFO)<<"dsda";
+    }
     if(new_armor_num != armor_num_ && new_spining_period > 0.3) {  //  >1.5为了滤除一部分误识别
         spining_period_ = new_spining_period;
         timestamp_ = now_timestamp;

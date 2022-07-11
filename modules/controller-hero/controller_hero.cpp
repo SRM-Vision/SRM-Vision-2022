@@ -8,6 +8,7 @@
 #include "predictor-outpost/predictor_outpost.h"
 #include "detector-outpost/detector_outpost.h"
 #include "controller_hero.h"
+#include <chrono>
 /**
  * \warning Controller registry will be initialized before the program entering the main function!
  *   This means any error occurring here will not be caught unless you're using debugger.
@@ -23,7 +24,7 @@ bool HeroController::Initialize() {
             CmdlineArgParser::Instance().RunWithCamera() ?
             "../config/hero/camera-init.yaml" : "../config/hero/video-init.yaml")) {
         LOG(ERROR) << "Failed to initialize image provider.";
-        // Till now the camera may be open, it's necessary to reset image_provider_ manually to release camera.
+        // Till now the camera may be open, it's necesend_packet_.pitch -= ArmorPredictorDebug::Instance().DeltaPitch();ssary to reset image_provider_ manually to release camera.
         image_provider_.reset();
         return false;
     }
@@ -70,8 +71,7 @@ void HeroController::Run() {
     while (!exit_signal_) {
         auto time = std::chrono::steady_clock::now();
         if (!image_provider_->GetFrame(frame_)){
-            std::this_thread::sleep_for(std::chrono::milliseconds(5));
-            LOG(ERROR) << "wait for image...";
+            sleep(1);
             continue;
         }
 
@@ -167,6 +167,8 @@ void HeroController::Run() {
                                        receive_packet_.mode);
 
         if (CmdlineArgParser::Instance().RunWithSerial()) {
+            send_packet_.check_sum = send_packet_.pitch + send_packet_.yaw +send_packet_.delay
+                    + send_packet_.delay +send_packet_.fire +send_packet_.distance_mode;
             serial_->SendData(send_packet_, std::chrono::milliseconds(5));
         }
         boxes_.clear();

@@ -14,6 +14,7 @@
 #include <utility>
 #define PREDICTOR_OUTPOST_H_
 #include "debug-tools/trackbar.h"
+#include "predictor-armor-debug/predictor_armor_debug.h"
 struct OutputData {
     void Update(const coordinate::TranslationVector& shoot_point);
 

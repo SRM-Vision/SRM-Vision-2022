@@ -31,6 +31,8 @@ SendPacket OutpostPredictor::Run(DetectedData detected_data, float bullet_speed)
             roi_corners_[1] = detected_data.out_post_armors[0].Corners()[1];
             roi_corners_[2] = detected_data.out_post_armors[0].Corners()[2];
             roi_corners_[3] = detected_data.out_post_armors[0].Corners()[3];
+            DLOG(INFO)<<detected_data.out_post_armors[0].Distance();
+            DLOG(INFO)<<detected_data.out_post_armors[0].TranslationVectorWorld().x();
 
         }
         else{
@@ -96,7 +98,8 @@ SendPacket OutpostPredictor::Run(DetectedData detected_data, float bullet_speed)
 //    auto show_point = coordinate::transform::CameraToPicture(camera_mat, shoot_point);
 //    auto point1_x = short(show_point.x);
 //    auto point1_y = short(show_point.y);
-    return {output_data_.yaw - float(0.0085), output_data_.pitch,
+
+    return {output_data_.yaw-float(ArmorPredictorDebug::Instance().DeltaYaw()), output_data_.pitch -float(ArmorPredictorDebug::Instance().DeltaPitch()),
             output_data_.delay,0,output_data_.fire,
             0,0,
             0,0,
