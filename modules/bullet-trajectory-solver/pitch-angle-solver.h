@@ -13,7 +13,7 @@ namespace bullet_trajectory_solver {
 
         void UpdateParam(double _target_h, double _target_x);
 
-        double Solve(double theta, double min_error);
+        double Solve(double theta, double min_error, unsigned int max_iter);
 
     private:
         BallisticModel ballistic_model;

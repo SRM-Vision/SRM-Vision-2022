@@ -12,14 +12,17 @@ int main() {
     auto a = BallisticModel();
     a.SetParam(f, 31);
     auto solver = PitchAngleSolver();
-    solver.SetParam(a, 14, 0.37, 0.18, 2.5, 0.11);
+    solver.SetParam(a, 14, 0.37, 0.18, 1, 0.11);
     constexpr double deg2rad = CV_PI / 180;
-    double theta = solver.Solve(-15 * deg2rad, 0.01);
-    LOG(INFO) << "angle: " << theta / deg2rad << " deg.";
-    auto traj_solver = TrajectorySolver();
-    traj_solver.SetParam(a, 0, 4, 14, 0.37, 0.11, theta, 1024);
-    double t;
-    Eigen::Vector2d v, x;
-    if (traj_solver.Solve(0.18, t, v, x))
-        LOG(INFO) << "t: " << t << " v: " << v.norm() << " x: " << x.x();
+    for (double target_x = 2; target_x < 5; target_x += 0.05) {
+        solver.UpdateParam(0.18, target_x);
+        double theta = solver.Solve(-15 * deg2rad, 0.01, 16);
+        LOG(INFO) << "target: " << target_x << " m, angle: " << theta / deg2rad << " deg.";
+        auto traj_solver = TrajectorySolver();
+        traj_solver.SetParam(a, 0, 4, 14, 0.37, 0.11, theta, 1024);
+        double t;
+        Eigen::Vector2d v, x;
+        if (traj_solver.Solve(0.18, t, v, x))
+            LOG(INFO) << "t: " << t << ", v: " << v.norm() << ", x: " << x.x();
+    }
 }
