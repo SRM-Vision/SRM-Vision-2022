@@ -10,6 +10,9 @@
 class SpinDetector {
 public:
 
+    /**
+     * @brief SPHERICAL mode uses yaw to judge spinning, FLAT mode uses x.
+     */
     enum Mode{FLAT,
             SPHERICAL,
             SIZE};
@@ -45,8 +48,17 @@ public:
             quick_jump_period_min_(jump_period_min),
             mode_(mode){}
 
+    /**
+     * @brief Update spinning status.
+     * @param armor current target armor
+     * @param current_time current timestamp
+     * @return updated spinning status
+     */
     bool Update(const Armor &armor, uint64_t current_time);
 
+    /**
+     * @brief When has no armor was detected, reset.
+     */
     void Reset();
 
     ATTR_READER(is_slow_spin_, IsSlowPin)
@@ -82,7 +94,7 @@ private:
     double jump_period_{0}; // yaw/x jump period
     coordinate::TranslationVector last_jump_position_{0,0,0};
 
-    int reverse_buffer{0};
+    int reverse_buffer{0};  // when not jump, direction of yaw/x delta must opposite of jumping direction.
 
     Mode mode_{SPHERICAL};
 
