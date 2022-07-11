@@ -25,10 +25,15 @@ double PitchAngleSolver::Solve(double theta, double min_error, unsigned int max_
     TrajectorySolver solver;
     unsigned int n = 1;
     double theta_higher = CV_PI * 0.25, theta_lower = theta, theta_d, error, t;
+#if NDEBUG
+    solver.SetParam(ballistic_model, 0, 4, start_v, start_h, l, theta_d, 2048);
+#else
+    solver.SetParam(ballistic_model, 0, 4, start_v, start_h, l, theta_d, 1024);
+#endif
     do {
         Eigen::Vector2d x, v;
         theta_d = (theta_higher + theta_lower) * 0.5;
-        solver.SetParam(ballistic_model, 0, 4, start_v, start_h, l, theta_d, 1024);
+        solver.UpdateParam(theta_d);
         if (solver.Solve(target_h, t, v, x)) {
             error = target_x - x.x();
             DLOG(INFO) << "iter: " << n << ", theta: " << theta_d << ", x: " << x.x() << ", error: " << error << ".";

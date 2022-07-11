@@ -23,12 +23,14 @@ namespace bullet_trajectory_solver {
                                        double _l, double _theta,
                                        unsigned int _iter);
 
+        [[maybe_unused]] void UpdateParam(double _theta);
+
         [[maybe_unused]] bool Solve(double target_h, double &t,
                                     Eigen::Vector2d &v, Eigen::Vector2d &x);
 
     private:
         unsigned int iter{};
-        double start_h{}, l{}, theta{};
+        double start_h{}, start_t{}, start_v{}, l{}, theta{};
         RK4Solver<double, Eigen::Vector2d, TrajectoryDifferentialEquation> solver;
     };
 }

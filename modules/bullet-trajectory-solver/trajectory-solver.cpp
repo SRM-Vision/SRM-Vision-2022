@@ -26,6 +26,8 @@ Eigen::Vector2d TrajectoryDifferentialEquation::operator()(double t, Eigen::Vect
     l = _l;
     theta = _theta;
     start_h = _start_h;
+    start_t = _start_t;
+    start_v = _start_v;
     iter = _iter;
 }
 
@@ -50,4 +52,11 @@ Eigen::Vector2d TrajectoryDifferentialEquation::operator()(double t, Eigen::Vect
         }
     }
     return false;
+}
+
+void TrajectorySolver::UpdateParam(double _theta) {
+    solver.t = start_t;
+    solver.y = {start_v * CosFloat(static_cast<float>(_theta)),
+                start_v * SinFloat(static_cast<float>(_theta))};
+    theta = _theta;
 }
