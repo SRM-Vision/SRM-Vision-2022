@@ -8,7 +8,7 @@
 uint16_t DHCamera::camera_count_ = 0;
 
 /**
- * \warning Camera registry will be initialized before the program entering the main function!
+ * @warning Camera registry will be initialized before the program entering the main function!
  *   This means any error occurring here will not be caught unless you're using debugger.
  *   (Thus, do not use this variable in any other place and you should not modify it.)
  */

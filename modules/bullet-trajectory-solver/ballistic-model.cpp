@@ -12,7 +12,7 @@ using namespace bullet_trajectory_solver;
     g = 9.78 * (1 + 0.0052884 * s[0] * s[0] - 0.0000059 * s[1] * s[1]);
 }
 
-Eigen::Vector2d BallisticModel::operator()(const Eigen::Vector2d &v) const {
+[[maybe_unused]] Eigen::Vector2d BallisticModel::operator()(const Eigen::Vector2d &v) const {
     auto acceleration = air_resistance_model(v);
     acceleration[1] -= g;
     return acceleration;

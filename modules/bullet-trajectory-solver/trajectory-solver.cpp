@@ -4,11 +4,11 @@
 using namespace bullet_trajectory_solver;
 using namespace algorithm;
 
-void TrajectoryDifferentialEquation::SetParam(const BallisticModel &model) {
+[[maybe_unused]] void TrajectoryDifferentialEquation::SetParam(const BallisticModel &model) {
     ballistic_model = model;
 }
 
-Eigen::Vector2d TrajectoryDifferentialEquation::operator()(double t, Eigen::Vector2d v) const {
+[[maybe_unused]] Eigen::Vector2d TrajectoryDifferentialEquation::operator()(double t, Eigen::Vector2d v) const {
     return ballistic_model(v);
 }
 
@@ -29,6 +29,13 @@ Eigen::Vector2d TrajectoryDifferentialEquation::operator()(double t, Eigen::Vect
     start_t = _start_t;
     start_v = _start_v;
     iter = _iter;
+}
+
+[[maybe_unused]] void TrajectorySolver::UpdateParam(double _theta) {
+    solver.t = start_t;
+    solver.y = {start_v * CosFloat(static_cast<float>(_theta)),
+                start_v * SinFloat(static_cast<float>(_theta))};
+    theta = _theta;
 }
 
 [[maybe_unused]] bool TrajectorySolver::Solve(
@@ -52,11 +59,4 @@ Eigen::Vector2d TrajectoryDifferentialEquation::operator()(double t, Eigen::Vect
         }
     }
     return false;
-}
-
-void TrajectorySolver::UpdateParam(double _theta) {
-    solver.t = start_t;
-    solver.y = {start_v * CosFloat(static_cast<float>(_theta)),
-                start_v * SinFloat(static_cast<float>(_theta))};
-    theta = _theta;
 }
