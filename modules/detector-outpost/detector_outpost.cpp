@@ -60,12 +60,14 @@ DetectedData OutpostDataDetector::Run(const Battlefield& battlefield)
                 outpost_center_, center_3D, shoot_point_, center_distance_,
                 outpost_corner_[0], outpost_corner_[1],
                 outpost_corner_[2], outpost_corner_[3],
-                spinning_, false , going_armor_, coming_armor_, clockwise_};
+                spinning_, prepared_, going_armor_, coming_armor_, clockwise_};
     }
-
     disappear_buff_ = 0;
-    if(detected_armors_in_this_frame_.size() == 1)
+
+
+    if(detected_armors_in_this_frame_.size() == 1){
         spin_detector_.Update(detected_armors_in_this_frame_[0], battlefield.TimeStamp());
+    }
     else{
         double biggest_area = 0;
         int biggest_id = 0;
@@ -77,6 +79,7 @@ DetectedData OutpostDataDetector::Run(const Battlefield& battlefield)
         spin_detector_.Update(detected_armors_in_this_frame_[biggest_id], battlefield.TimeStamp());
     }
 
+
     if(spin_detector_.IsSpin()){
         if(clockwise_<= 7 && clockwise_ >= -7 && !is_checked_clockwise)
             IsClockwise();
@@ -85,10 +88,10 @@ DetectedData OutpostDataDetector::Run(const Battlefield& battlefield)
         FindBiggestArmor();
     }
 
+
     return  {detected_armors_in_this_frame_, outpost_center_, center_3D, shoot_point_, center_distance_,
              outpost_corner_[0], outpost_corner_[1], outpost_corner_[2], outpost_corner_[3],
              spinning_, prepared_, coming_armor_, going_armor_, clockwise_};
-
 }
 
 void OutpostDataDetector::IsClockwise()

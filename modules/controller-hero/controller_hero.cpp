@@ -122,8 +122,6 @@ void HeroController::Run() {
                 send_packet_.fire = 0;
 
             //armor_predictor.GetROI(ROI,frame_.image);
-            auto img = frame_.image.clone();
-            debug::Painter::Instance()->UpdateImage(frame_.image);
             for (const auto &box: boxes_) {
                 debug::Painter::Instance()->DrawRotatedRectangle(box.points[0],
                                                                 box.points[1],
@@ -140,16 +138,16 @@ void HeroController::Run() {
             debug::Painter::Instance()->ShowImage("ARMOR DETECT", 1);
         }
 
+        Compensator::Instance().Offset(send_packet_.pitch, send_packet_.yaw,
+                                       receive_packet_.bullet_speed, send_packet_.check_sum,
+                                       armor_predictor.GetTargetDistance(),
+                                       receive_packet_.mode);
+
         auto key = cv::waitKey(5) & 0xff;
         if (key == 'q')
             break;
         else if (key == 's')
             ArmorPredictorDebug::Instance().Save();
-
-        Compensator::Instance().Offset(send_packet_.pitch, send_packet_.yaw,
-                                       receive_packet_.bullet_speed, send_packet_.check_sum,
-                                       armor_predictor.GetTargetDistance(),
-                                       receive_packet_.mode);
 
         if (CmdlineArgParser::Instance().RunWithSerial()) {
             CheckSum();

@@ -64,7 +64,7 @@ private:
 
     bool ready_ = false;
     std::chrono::high_resolution_clock::time_point ready_time_{};
-    double delay_time_=0.0;
+    double delay_time_=0.1;
 };
 
 #endif  // PREDICTOR_OUTPOST_H_

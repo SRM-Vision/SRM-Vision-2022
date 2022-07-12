@@ -67,7 +67,7 @@ private:
 
     Entity::Colors color_;
 
-    SpinDetector spin_detector_{50, 1.2,0.8,SpinDetector::kFlat};
+    SpinDetector spin_detector_{10, 1.2,0.8,SpinDetector::kFlat};
 
     // Past status data
     double last_armor_x_;
