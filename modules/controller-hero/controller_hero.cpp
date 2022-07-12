@@ -83,38 +83,37 @@ void HeroController::Run() {
         }
 
         debug::Painter::Instance()->UpdateImage(frame_.image);
+
         boxes_ = armor_detector_(frame_.image,ROI);
         for(auto &box:boxes_)
             DLOG(INFO) << "CONFIDENCE:  " << box.confidence;
-        BboxToArmor();
-        battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.yaw_pitch_roll,
-                                   armors_);
         // if(receive_packet_.mode == kOutPost)
         if (CmdlineArgParser::Instance().RunModeOutpost())
         {
+
+            BboxToArmor(Armor::ArmorSize::kSmall);
+            battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.yaw_pitch_roll,
+                                       armors_);
+
             outpost_detector_.SetColor(receive_packet_.color);
-
             send_packet_ = outpost_predictor_.Run(outpost_detector_.Run(battlefield_), 16);
-
             outpost_predictor_.GetROI(ROI,frame_.image);
-
-            debug::Painter::Instance()->DrawBoundingBox(ROI,cv::Scalar(0,0,255),2);
 
             if(send_packet_.fire)
                 debug::Painter::Instance()->DrawText("Fire",{50,50},cv::Scalar(100, 255, 100),2);
-            // debug::Painter::Instance()->DrawPoint(outpost_detector_.ComingArmorCenter2D(), cv::Scalar(100, 255, 250), 2, 2);
             debug::Painter::Instance()->DrawBoundingBox(ROI,cv::Scalar(0,0,255),2);
-            DLOG(INFO) << "8";
-            DLOG(INFO) << "center: " << outpost_detector_.OutpostCenter();
+            debug::Painter::Instance()->DrawBoundingBox(ROI,cv::Scalar(0,0,255),2);
             debug::Painter::Instance()->ShowImage("ARMOR DETECT", 1);
-
-            DLOG(INFO) << "9";
         }
         else {
             /// TODO mode switch
+            BboxToArmor();
+            battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.yaw_pitch_roll,
+                                       armors_);
+
             if (CmdlineArgParser::Instance().RunWithSerial()) {
                 armor_predictor.SetColor(receive_packet_.color);
-                send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size ,
+                send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size,
                                                    receive_packet_.mode, receive_packet_.bullet_speed);
             } else
                 send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size,AimModes::kAntiTop);
@@ -125,7 +124,6 @@ void HeroController::Run() {
             //armor_predictor.GetROI(ROI,frame_.image);
             auto img = frame_.image.clone();
             debug::Painter::Instance()->UpdateImage(frame_.image);
-
             for (const auto &box: boxes_) {
                 debug::Painter::Instance()->DrawRotatedRectangle(box.points[0],
                                                                 box.points[1],
@@ -139,10 +137,8 @@ void HeroController::Run() {
                                                                                  frame_.image.size),
                                                  cv::Scalar(0, 0, 255), 1, 10);
             debug::Painter::Instance()->DrawBoundingBox(ROI,cv::Scalar(0,0,255),2);
-
             debug::Painter::Instance()->ShowImage("ARMOR DETECT", 1);
         }
-
 
         auto key = cv::waitKey(5) & 0xff;
         if (key == 'q')
@@ -150,24 +146,23 @@ void HeroController::Run() {
         else if (key == 's')
             ArmorPredictorDebug::Instance().Save();
 
-
         Compensator::Instance().Offset(send_packet_.pitch, send_packet_.yaw,
                                        receive_packet_.bullet_speed, send_packet_.check_sum,
                                        armor_predictor.GetTargetDistance(),
                                        receive_packet_.mode);
 
         if (CmdlineArgParser::Instance().RunWithSerial()) {
-            send_packet_.check_sum = send_packet_.pitch + send_packet_.yaw +send_packet_.delay
-                    + send_packet_.delay +send_packet_.fire +send_packet_.distance_mode;
+            CheckSum();
             serial_->SendData(send_packet_, std::chrono::milliseconds(5));
         }
         boxes_.clear();
         armors_.clear();
+
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now()
                                                                               - time);
+
         DLOG(INFO) << "FPS: " << 1000.0 / double(duration.count());
 //        cv::waitKey(0);
-
     }
 
     // exit.

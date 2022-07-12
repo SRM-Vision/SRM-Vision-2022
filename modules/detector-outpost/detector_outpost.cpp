@@ -93,7 +93,7 @@ DetectedData OutpostDataDetector::Run(const Battlefield& battlefield)
 
 void OutpostDataDetector::IsClockwise()
 {
-    LOG(INFO) << "nums of armor" << detected_armors_in_this_frame_.size();
+    DLOG(INFO) << "nums of armor" << detected_armors_in_this_frame_.size();
     double this_armor_x;
     if(detected_armors_in_this_frame_.size() == 1)
         this_armor_x = detected_armors_in_this_frame_[0].Center().x;
@@ -119,7 +119,7 @@ void OutpostDataDetector::IsClockwise()
     }
     else if(clockwise_ < -7)
     {
-        LOG(WARNING)<< "Outpost is anti-Clockwise";
+        DLOG(WARNING)<< "Outpost is anti-Clockwise";
         clockwise_ = -1;
         is_checked_clockwise = true;
     }
