@@ -41,6 +41,8 @@ public:
 
     ATTR_READER(delta_pitch_, DeltaPitch)
 
+    ATTR_READER(delta_yaw_, DeltaYaw)
+
 
 private:
     const double kMax_p_xz_noise = 1;
@@ -52,6 +54,7 @@ private:
     const int kMax_m_z_noise = 1000;
     const double kMax_shoot_delay = 0.5;
     const double kDelta_pitch = 1;
+    const double kDelta_yaw = 0.5;
 
     double p_xz_noise_ = 0.01;
     double p_y_noise_ = 0.01;
@@ -62,6 +65,7 @@ private:
     double m_z_noise_ = 800;
     double shoot_delay_ = 0.02;
     double delta_pitch_ = 0.0;
+    double delta_yaw_ = 0.0;
 };
 
 

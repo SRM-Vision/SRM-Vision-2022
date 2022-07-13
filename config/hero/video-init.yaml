@@ -3,5 +3,5 @@
 ALL_CAMS_CONFIG_FILE: "../config/all-cams-config.yaml"
 ALL_LENS_CONFIG_FILE: "../config/all-lens-config.yaml"
 
-CAMERA: "HV_00F02724098"
-VIDEO: "../assets/armor_blue.avi"
+CAMERA: "HV_00D27551310"
+VIDEO: "../assets/stoprun.avi"

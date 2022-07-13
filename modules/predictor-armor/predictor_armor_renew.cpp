@@ -13,10 +13,20 @@ const double kBestDistanceRatio = 4.0;
 ///< Distance threshold to judge whether a target is too far.
 const double kDistanceThreshold = 0.5;
 
+///< Picture Distance threshold to judge whether a target is too far.
+const double kPicDistanceThreshold = 30;
+
+///< Switch target in anti-top When new armor bigger than 0.7 * old armor.
+const double kSwitchByAreaThreshold = 0.7;
+
+const double kSpeedDecayRatioX = 1;
+
+const double kSpeedDecayRatioY = 1;
+
 void PredictorArmorRenew::Initialize(const std::string &car_name) {
     for (auto i = 0; i < Robot::RobotTypes::SIZE; ++i) {
         grey_buffers_[Robot::RobotTypes(i)] = 0;
-        anti_top_detectors[Robot::RobotTypes(i)] = AntiTopDetectorRenew();
+//        anti_top_detectors[Robot::RobotTypes(i)] = AntiTopDetectorRenew(0);
     }
     ArmorPredictorDebug::Instance().Initialize("../config/" + car_name + "/predict-param.yaml",
                                                CmdlineArgParser::Instance().DebugUseTrackbar());
@@ -32,8 +42,11 @@ SendPacket PredictorArmorRenew::Run(const Battlefield &battlefield, const cv::Ma
     static uint64_t timestamp = 0;
     double delta_t = double(battlefield.TimeStamp() - timestamp) * 1e-9;
     timestamp = battlefield.TimeStamp();
+    Robot::RobotTypes target_id{Robot::SIZE};
+    if(target_ != -1){
+        target_id = static_cast<Robot::RobotTypes>(predict_armors_[target_].ID());
+    }
 
-    // Do nothing if nothing is found.
     // ================================================
     // Find grey armors.
     if (robots.find(Entity::Colors::kGrey) == robots.end())
@@ -41,6 +54,7 @@ SendPacket PredictorArmorRenew::Run(const Battlefield &battlefield, const cv::Ma
     if (robots.find(enemy_color_) == robots.end())
         exist_enemy = false;
 
+    // Do nothing if nothing is found.
     if(!exist_enemy && !exist_grey){
         Clear();
         return {0, 0, 0, 0, 0};
@@ -56,34 +70,18 @@ SendPacket PredictorArmorRenew::Run(const Battlefield &battlefield, const cv::Ma
 
     auto preprocessed_robots = ReviseRobots(robots,exist_enemy,exist_grey);   // robots after preprocessing
 
-    /// Update top information
-    for(auto& robot:preprocessed_robots)
-        anti_top_detectors[robot.first].UpdateTop(int(robot.second.size()), battlefield.TimeStamp());
-
     /// Update EKF
     if(!predict_armors_.empty()){
         int num(0); // which armor currently
         for(auto begin = predict_armors_.begin();begin != predict_armors_.end();++num){
             bool found_armor(false);
-            auto target(SameArmorByDistance(*begin,preprocessed_robots,kDistanceThreshold));
-            if(target.second != nullptr){
-                begin->Predict(*target.first,delta_t,bullet_speed,battlefield.YawPitchRoll(),ArmorPredictorDebug::Instance().ShootDelay());
-                target.second->erase(target.first);
+//            auto target(SameArmorByDistance(*begin,preprocessed_robots,kDistanceThreshold));
+            auto matched_armor(SameArmorByPicDis(*begin, preprocessed_robots, kPicDistanceThreshold));
+            if(matched_armor.second != nullptr){
+                begin->Predict(*matched_armor.first, delta_t, bullet_speed, battlefield.YawPitchRoll(), ArmorPredictorDebug::Instance().ShootDelay());
+                matched_armor.second->erase(matched_armor.first);
                 found_armor = true;
             }
-//            for(auto& robot:preprocessed_robots){
-//                for(auto begin2 = robot.second.begin();begin2 != robot.second.end();){
-//                    // if found the same armor, predict it.
-//                    if(IsSameArmorByDistance(*begin,*begin2,kDistanceThreshold)){
-//                        begin->Predict(*begin2,delta_t,bullet_speed,battlefield.YawPitchRoll());
-//                        robot.second.erase(begin2); // delete the armor that was used.
-//                        found_armor = true;
-//                        break;
-//                    }else
-//                        ++begin2;
-//                }
-//                if(found_armor) break;
-//            }
             // if not found, delete it
             if(!found_armor) {
                 if(target_ > num)   // When delete armor, the position of target will change.
@@ -109,22 +107,33 @@ SendPacket PredictorArmorRenew::Run(const Battlefield &battlefield, const cv::Ma
     if(target_ != -1)
         target_locked = true;
 
-    // AntiTop
+    /// Speed Decay
+    if(spin_detector_.IsSpin()){
+        for(auto &predict_armor:predict_armors_){
+            if(predict_armor.ID() == int(target_id))
+                predict_armor.SpeedDecay(kSpeedDecayRatioX,kSpeedDecayRatioY);
+        }
+    }
+
+    /// AntiTop
     if(target_locked){
-        auto target_id = predict_armors_[target_].ID();
-        if(anti_top_detectors[Robot::RobotTypes(target_id)].IsLowTop() ||
-           anti_top_detectors[Robot::RobotTypes(target_id)].IsHighTop()){   /// TODO need to perfect conditions
-            for(int i = 0;i < predict_armors_.size();++i){
-                if(i != target_ && predict_armors_[i].ID() == target_id &&
-                        predict_armors_[i].Area() > predict_armors_[target_].Area()){
+        if(spin_detector_.IsSpin()){
+            for(int i{0};i < predict_armors_.size();++i){
+                if(i != target_ && predict_armors_[i].ID() == target_id && spin_detector_.Clockwise() != -1 &&
+                        predict_armors_[i].Area() > predict_armors_[target_].Area() * kSwitchByAreaThreshold &&
+                        (spin_detector_.Clockwise() ^ (predict_armors_[target_].Center().x > predict_armors_[i].Center().x))){
                     // Update speed in ekf, to speed up fitting.
                     predict_armors_[i].UpdateSpeed(predict_armors_[target_].Speed()(0,0),
-                                                   predict_armors_[target_].Speed()(1,0));
+                                                   -predict_armors_[target_].Speed()(1,0));
                     target_ = i;
                     break;
                 }
             }
         }
+        spin_detector_.Update(predict_armors_[target_], timestamp);
+        if(spin_detector_.IsSpin())
+            predict_armors_[target_].AntiSpin(spin_detector_.JumpPeriod(),spin_detector_.LastJumpPosition(),
+                                          timestamp, spin_detector_.LastJumpTime(), battlefield.YawPitchRoll());
     }
 
     /// Find the armor which is nearest to picture center.
@@ -143,8 +152,6 @@ SendPacket PredictorArmorRenew::Run(const Battlefield &battlefield, const cv::Ma
     if(!target_locked)
         return {0, 0, 0, 0, 0};
 
-
-
     return predict_armors_[target_].GenerateSendPacket();
 }
 
@@ -162,6 +169,7 @@ PredictorArmorRenew::ReviseRobots(const PredictorArmorRenew::RobotMap &robots, b
                     preprocessing_robots[robot.first].emplace_back(armor);
 
     for(auto& armors:preprocessing_robots) {
+        // DLOG(INFO) << "ARMOR NUM: " << armors.second.size();
         if (armors.second.size() > 2) {
             /// pick out the two armors in one car by distance between two armors and light length.
             auto min_error(DBL_MAX);
@@ -169,8 +177,8 @@ PredictorArmorRenew::ReviseRobots(const PredictorArmorRenew::RobotMap &robots, b
             for (auto begin = armors.second.begin(); begin != armors.second.end(); ++begin) {
                 for (auto begin2 = begin + 1; begin2 != armors.second.end(); ++begin2) {
                     // light length
-                    auto light = cv::min(norm((begin->Corners()[0] - begin->Corners()[1])),
-                                         norm((begin->Corners()[1] - begin->Corners()[2])));
+                    auto light = cv::min(norm(begin->Corners()[0] - begin->Corners()[1]),
+                                         norm(begin->Corners()[1] - begin->Corners()[2]));
                     auto distance = norm(begin->Center() - begin2->Center());   // distance between two armors
                     auto ratio = distance / light;
                     if (cv::abs(ratio - kBestDistanceRatio) < min_error) {
@@ -205,4 +213,22 @@ std::pair<std::vector<Armor>::iterator, std::vector<Armor> *> PredictorArmorRene
     return {target_iter,armors_point};
 }
 
+std::pair<std::vector<Armor>::iterator, std::vector<Armor> *> PredictorArmorRenew::SameArmorByPicDis(const Armor &target,
+                                                                                                       std::unordered_map<Robot::RobotTypes, std::vector<Armor>> &robots,
+                                                                                                       double threshold) {
+    std::vector<Armor> *armors_point(nullptr);
+    std::vector<Armor>::iterator target_iter;
+    auto min_distance(DBL_MAX);
+    for(auto &armors:robots){
+        for(auto begin(armors.second.begin());begin < armors.second.end();++begin){
+            auto distance = norm(target.Center() - begin->Center());
+            if(distance < threshold && distance < min_distance){
+                armors_point = &armors.second;
+                target_iter = begin;
+                min_distance = distance;
+            }
+        }
+    }
+    return {target_iter,armors_point};
+}
 

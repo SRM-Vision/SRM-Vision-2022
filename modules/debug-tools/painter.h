@@ -46,8 +46,8 @@ namespace debug {
 
         virtual void DrawContours(const std::vector<std::vector<cv::Point>> &contours,
                                   const cv::Scalar &color,
-                                  int thickness,
                                   int contourIdx,
+                                  int thickness,
                                   int lineType) = 0;
 
         virtual void DrawText(const std::string &text,
@@ -120,8 +120,8 @@ namespace debug {
 
         inline void DrawContours(const std::vector<std::vector<cv::Point>> &contours,
                                  const cv::Scalar &color,
-                                 int thickness = 3,
                                  int contourIdx = -1,
+                                 int thickness = 3,
                                  int lineType = 8) final {
             cv::drawContours(image_, contours, contourIdx, color, thickness, lineType);
         }
@@ -171,8 +171,8 @@ namespace debug {
 
         void DrawContours(const std::vector<std::vector<cv::Point>> &contours,
                           const cv::Scalar &color,
-                          int thickness = 3,
                           int contourIdx = -1,
+                          int thickness = 3,
                           int lineType = 8) final {};
 
         void DrawText(const std::string &text,

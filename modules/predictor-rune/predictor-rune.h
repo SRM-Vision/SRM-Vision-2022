@@ -12,8 +12,8 @@
 #include "digital-twin/facilities/power_rune.h"
 
 namespace predictor::rune {
-    constexpr int kCollectPalstanceDataNum = 335;   ///< Amount of data collected for fitting.
-    constexpr int kPreparePalstanceDataNum = 1000;  ///< Amount of data required before fitting.
+    constexpr int kCollectPalstanceDataNum = 250;   ///< Amount of data collected for fitting.
+    constexpr int kPreparePalstanceDataNum = 100;  ///< Amount of data required before fitting.
     constexpr int kResidualBlockNum = 300;          ///< Amount of data observed in one circle.
 
     /// @brief Trigonometric residual (cost) function package for Ceres solver.
@@ -23,8 +23,8 @@ namespace predictor::rune {
          * @param _y Dependent (output) variable.
          * @param _rotational_direction 1 is clockwise, -1 is counterclockwise.
          */
-        TrigonometricResidual(double _x, double _y, int _rotational_direction) :
-                x(_x), y(_y), rotational_direction(_rotational_direction) {}
+        TrigonometricResidual(double _x, double _y) :
+                x(_x), y(_y) {}
 
         /**
          * @brief Calculate trigonometric (cost) residual.
@@ -38,7 +38,7 @@ namespace predictor::rune {
         template<typename T>
         bool operator()(const T *const a, const T *const omega, const T *const phi, T *residual) const {
             // residual[0] = y - (-1.0) * rotational_direction * (a[0] * sin(omega[0] * x + phi[0]) + 2.090 - a[0])
-            residual[0] = y + (a[0] * sin(omega[0] * x + phi[0]) + 2.090 - a[0]) * (double) rotational_direction;
+            residual[0] = y - (a[0] * sin(omega[0] * x + phi[0]) + 2.090 - a[0]);
             return true;
         }
 
@@ -49,7 +49,7 @@ namespace predictor::rune {
 
     /**
      * @brief Parameters to describe and calculate rotational speed.
-     * @details Rotational speed = a*sin(w*t + p) + b.
+     * @details Rotational speed = a * sin(w * t + p) + b.
      */
     struct RotationalSpeed {
         /**
@@ -89,7 +89,7 @@ namespace predictor::rune {
 
     /// @brief Data and function package for fitting palstance curve.
     struct FittingData {
-        FittingData() : outdated(false), ready(false) {}
+        FittingData() : outdated(true), ready(false) {}
 
         /**
          * @brief Fit the rotational speed curve.
@@ -101,7 +101,7 @@ namespace predictor::rune {
         std::vector<double> palstance;  ///< Speed data for fitting.
         std::vector<double> time;       ///< Time data for fitting.
 
-        bool outdated;
+        bool outdated;   ///< Whether Fitting Is Error
         bool ready;
     };
 
@@ -110,7 +110,7 @@ namespace predictor::rune {
          * @brief Update current angle of fan, requires new rtp vector.
          * @param [in] rtp_vec Input rtp vec.
          */
-        void UpdateAngle(const cv::Point2f &rtp_vec);
+        void UpdateAngle(const cv::Point2f &rtg_vec);
 
         /**
          * @brief Update current and last palstance.
@@ -140,29 +140,41 @@ namespace predictor::rune {
 
         ATTR_READER_REF(fixed_point_, FixedPoint)
 
+        /**
+         * @brief Constructor, initiate some parameters.
+         */
         RunePredictor();
 
         ~RunePredictor() = default;
 
         bool Initialize(const std::string &config_path, bool debug);
 
-        SendPacket Run(const PowerRune &power_rune, AimModes aim_mode);
+        SendPacket Run(const PowerRune &power_rune, AimModes aim_mode, float bullet_speed);
 
     private:
+        /**
+         * @brief According to parameters fitted, get predicting angle.
+         * @details If aim_mode is kBigRune, it needs some time to fit.
+         * @param [in] aim_mode Rune mode.
+         */
         void PredictAngle(AimModes aim_mode);
 
+        /**
+         * @brief According to predicted angle, get predict point and it will show on image.
+         */
         void PredictPoint();
 
         bool debug_;
-        PowerRune rune_;
+        PowerRune rune_;    ///< It is initiated by package conveyed by rune detector.
         State state_;
         RotationalSpeed rotational_speed_;
-        FittingData fitting_data_;
-        OutputData output_data_;
+        FittingData fitting_data_;   ///< Data for fit.
+        OutputData output_data_;     ///< Contain yaw, pitch, delay.
 
-        double predicted_angle_;
+        double predicted_angle_;     ///< Predicted angle according to fitted palstance.
+        float bullet_speed_;
         cv::Point2f predicted_point_;
-        cv::Point2f fixed_point_;
+        cv::Point2f fixed_point_;    ///< Final point which contains all compensation.
     };
 }
 

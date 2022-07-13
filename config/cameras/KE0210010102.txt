@@ -99,7 +99,7 @@ UserOutputSelector	UserOutput2
 UserOutputValue	0
 UserOutputSelector	UserOutput0
 GainSelector	AnalogAll
-Gain	16
+Gain	0
 GainSelector	AnalogAll
 GainSelector	AnalogAll
 GainAuto	Off

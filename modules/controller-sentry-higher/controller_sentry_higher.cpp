@@ -59,7 +59,8 @@ void SentryHigherController::Run() {
     while (!exit_signal_) {
         auto time = std::chrono::steady_clock::now();
         if (!image_provider_->GetFrame(frame_)){
-            sleep(1);
+            std::this_thread::sleep_for(std::chrono::milliseconds(5));
+            LOG(ERROR) << "wait for image...";
             continue;
         }
 
@@ -102,7 +103,9 @@ void SentryHigherController::Run() {
         else if (key == 's')
             ArmorPredictorDebug::Instance().Save();
 
-        Compensator::Instance().Setoff(send_packet_.pitch,receive_packet_.bullet_speed,armor_predictor.GetTargetDistance());
+        Compensator::Instance().Offset(send_packet_.pitch, send_packet_.yaw, receive_packet_.bullet_speed,
+                                       send_packet_.check_sum,
+                                       armor_predictor.GetTargetDistance());
         if (CmdlineArgParser::Instance().RunWithSerial())
             serial_->SendData(send_packet_, std::chrono::milliseconds(5));
 

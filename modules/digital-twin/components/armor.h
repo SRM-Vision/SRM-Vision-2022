@@ -16,6 +16,12 @@
 
 class Armor : public Component {
 public:
+
+    enum ArmorSize{kBig,
+        kSmall,
+        kAuto,
+        SIZE};
+
     ATTR_READER_REF(corners_, Corners)
 
     ATTR_READER_REF(center_, Center)
@@ -37,7 +43,8 @@ public:
     Armor(const bbox_t &box,
           const cv::Mat &intrinsic_mat,
           const cv::Mat &distortion_mat,
-          const std::array<float, 3> yaw_pitch_roll) :
+          const std::array<float, 3> yaw_pitch_roll,
+          ArmorSize size = ArmorSize::kAuto) :
             Component(Colors(box.color), kArmor),
             id_(box.id),
             confidence_(box.confidence) {
@@ -59,53 +66,72 @@ public:
         cv::Mat rv_cam, tv_cam;
         std::vector<cv::Point2f> image_points(corners_, corners_ + 4);
 
-        switch (id_) {
-            case 0:  // Sentry.
-            case 1:  // Hero.
-            case 6:  // Base.
-                cv::solvePnP(big_armor_pc,
-                             image_points,
-                             intrinsic_mat,
-                             distortion_mat,
-                             rv_cam,
-                             tv_cam);
-                break;
-            case 2:  // Engineer.
-                cv::solvePnP(small_armor_pc,
-                             image_points,
-                             intrinsic_mat,
-                             distortion_mat,
-                             rv_cam,
-                             tv_cam);
-                break;
-            case 3:
-            case 4:
-            case 5:
-                double armor_height_pixel = std::max(
-                        corners_[0].y - corners_[3].y,
-                        corners_[1].y - corners_[2].y
-                ), armor_width_pixel = std::max(
-                        corners_[0].x - corners_[1].x,
-                        corners_[1].x - corners_[2].x
-                );
-                // TODO Value armor_width_pixel / armor_height_pixel depends on camera and lens' chose.
-                //   Further testing is required.
-                if (armor_width_pixel / armor_height_pixel > 1.3) {
+        if(size == ArmorSize::kAuto)
+            switch (id_) {
+                case 0:  // Sentry.
+                case 1:  // Hero.
+                case 6:  // Base.
                     cv::solvePnP(big_armor_pc,
                                  image_points,
                                  intrinsic_mat,
                                  distortion_mat,
                                  rv_cam,
                                  tv_cam);
-                } else {
+                    break;
+                case 2:  // Engineer.
                     cv::solvePnP(small_armor_pc,
                                  image_points,
                                  intrinsic_mat,
                                  distortion_mat,
                                  rv_cam,
                                  tv_cam);
-                }
-                break;
+                    break;
+                case 3:
+                case 4:
+                case 5:
+                    double armor_height_pixel = std::max(
+                            corners_[0].y - corners_[3].y,
+                            corners_[1].y - corners_[2].y
+                    ), armor_width_pixel = std::max(
+                            corners_[0].x - corners_[1].x,
+                            corners_[1].x - corners_[2].x
+                    );
+                    // TODO Value armor_width_pixel / armor_height_pixel depends on camera and lens' chose.
+                    //   Further testing is required.
+                    if (armor_width_pixel / armor_height_pixel > 1.3) {
+                        cv::solvePnP(big_armor_pc,
+                                     image_points,
+                                     intrinsic_mat,
+                                     distortion_mat,
+                                     rv_cam,
+                                     tv_cam);
+                    } else {
+                        cv::solvePnP(small_armor_pc,
+                                     image_points,
+                                     intrinsic_mat,
+                                     distortion_mat,
+                                     rv_cam,
+                                     tv_cam);
+                    }
+                    break;
+            }
+
+        else if(size == ArmorSize::kBig){
+            cv::solvePnP(big_armor_pc,
+                         image_points,
+                         intrinsic_mat,
+                         distortion_mat,
+                         rv_cam,
+                         tv_cam);
+        }
+
+        else {
+            cv::solvePnP(small_armor_pc,
+                         image_points,
+                         intrinsic_mat,
+                         distortion_mat,
+                         rv_cam,
+                         tv_cam);
         }
 
         cv::cv2eigen(rv_cam, rotation_vector_cam_);
@@ -178,7 +204,7 @@ public:
         translation_vector_world_ = armor.translation_vector_world_;
 
         distance_ = armor.distance_;
-        confidence_ = armor.distance_;
+        confidence_ = armor.confidence_;
         return SELF;
     }
 

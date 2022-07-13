@@ -1,8 +1,8 @@
 /**
  * Camera base class header.
- * \author trantuan-20048607
- * \date 2022.1.28
- * \details Include this file only to declare or use pointers of camera.
+ * @author trantuan-20048607
+ * @date 2022.1.28
+ * @details Include this file only to declare or use pointers of camera.
  */
 
 #ifndef CAMERA_BASE_H_
@@ -15,8 +15,8 @@
 #define CAMERA_BUFFER_SIZE 4
 
 /**
- * \brief Camera base class.
- * \note You cannot directly construct objects.  \n
+ * @brief Camera base class.
+ * @note You cannot directly construct objects.  \n
  *   Instead, find camera types in subclass documents,
  *   include camera_factory.h and use
  *   CameraFactory::Instance()::CreateCamera(camera_type_name).
@@ -30,73 +30,73 @@ public:
     virtual ~Camera() = default;
 
     /**
-     * \brief Open a camera.
-     * \param [in] serial_number Serial number of the camera you wanna open.
-     * \param [in] config_file Will load config from this file.
-     * \return Whether the camera is opened.
-     * \note Another try after failures is allowed.
+     * @brief Open a camera.
+     * @param [in] serial_number Serial number of the camera you wanna open.
+     * @param [in] config_file Will load config from this file.
+     * @return Whether the camera is opened.
+     * @note Another try after failures is allowed.
      */
     virtual bool OpenCamera(const std::string &serial_number, const std::string &config_file) = 0;
 
     /**
-     * \brief Close the opened camera.
-     * \return Whether the camera is closed normally.
-     * \attention No matter what is returned, the camera handle will be unreachable.
+     * @brief Close the opened camera.
+     * @return Whether the camera is closed normally.
+     * @attention No matter what is returned, the camera handle will be unreachable.
      */
     virtual bool CloseCamera() = 0;
 
     /**
-     * \brief Get a frame with image and time stamp from internal image buffer.
-     * \param [out] frame Acquired frame will be stored here.
-     * \return Whether buffer is not empty, or if you can successfully get an frame.
+     * @brief Get a frame with image and time stamp from internal image buffer.
+     * @param [out] frame Acquired frame will be stored here.
+     * @return Whether buffer is not empty, or if you can successfully get an frame.
      */
     virtual bool GetFrame(Frame &frame) = 0;
 
     /**
-     * \brief Run the stream.
-     * \return Whether stream is started normally.
-     * \attention This function will return false when stream is already started or camera is not opened.
+     * @brief Run the stream.
+     * @return Whether stream is started normally.
+     * @attention This function will return false when stream is already started or camera is not opened.
      */
     virtual bool StartStream() = 0;
 
     /**
-     * \brief Stop the stream.
-     * \return Whether stream is stopped normally.
-     * \attention This function will return false when stream is not started or camera is not opened.
+     * @brief Stop the stream.
+     * @return Whether stream is stopped normally.
+     * @attention This function will return false when stream is not started or camera is not opened.
      */
     virtual bool StopStream() = 0;
 
     /**
-     * \brief Check if current device is connected.
-     * \return Whether current device is connected.
+     * @brief Check if current device is connected.
+     * @return Whether current device is connected.
      */
     virtual bool IsConnected() = 0;
 
     /**
-     * \brief Import current config to specified file.
-     * \param [in] file_path File path.
-     * \return Whether config file is imported.
+     * @brief Import current config to specified file.
+     * @param [in] file_path File path.
+     * @return Whether config file is imported.
      */
     virtual bool ImportConfigurationFile(const std::string &file_path) = 0;
 
     /**
-     * \brief Export current config to specified file.
-     * \param [in] file_path File path.
-     * \return Whether config file is saved.
+     * @brief Export current config to specified file.
+     * @param [in] file_path File path.
+     * @return Whether config file is saved.
      */
     virtual bool ExportConfigurationFile(const std::string &file_path) = 0;
 
     /**
-     * \brief Set exposure time.
-     * \param exposure_time Exposure time, automatically converted to corresponding data type.
-     * \return Whether exposure time is set.
+     * @brief Set exposure time.
+     * @param exposure_time Exposure time, automatically converted to corresponding data type.
+     * @return Whether exposure time is set.
      */
     [[maybe_unused]] virtual bool SetExposureTime(uint32_t exposure_time) = 0;
 
     /**
-     * \brief Set gain value.
-     * \param gain Gain value, automatically converted to corresponding data type.
-     * \return Whether gain value is set.
+     * @brief Set gain value.
+     * @param gain Gain value, automatically converted to corresponding data type.
+     * @return Whether gain value is set.
      */
     [[maybe_unused]] virtual bool SetGainValue(float gain) = 0;
 

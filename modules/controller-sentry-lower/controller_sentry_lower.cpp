@@ -22,7 +22,7 @@ bool SentryLowerController::Initialize() {
         return false;
     }
 
-    if(CmdlineArgParser::Instance().DebugUseTrackbar())
+    if (CmdlineArgParser::Instance().DebugUseTrackbar())
         painter_ = debug::Painter::Instance();
     else
         painter_ = debug::NoPainter::Instance();
@@ -37,7 +37,7 @@ bool SentryLowerController::Initialize() {
             return false;
         }
     }
-    if(Compensator::Instance().Initialize("sentry_lower"))
+    if (Compensator::Instance().Initialize("sentry_lower"))
         LOG(INFO) << "Setoff initialize successfully!";
     else
         LOG(ERROR) << "Setoff initialize unsuccessfully!";
@@ -52,14 +52,16 @@ bool SentryLowerController::Initialize() {
 }
 
 void SentryLowerController::Run() {
-    PredictorArmorRenew armor_predictor(Entity::Colors::kBlue,  "sentry_lower");
+    PredictorArmorRenew armor_predictor(Entity::Colors::kBlue, "sentry_lower");
     sleep(2);
 
     cv::Rect ROI; // roi of detect armor
     while (!exit_signal_) {
         auto time = std::chrono::steady_clock::now();
-        if (!image_provider_->GetFrame(frame_)){
-            sleep(1);
+        if (!image_provider_->GetFrame(frame_)) {
+            auto key = cv::waitKey(50) & 0xff;
+            if (key == 'q')
+                break;
             continue;
         }
 
@@ -68,7 +70,7 @@ void SentryLowerController::Run() {
             serial_->GetData(serial_receive_packet, std::chrono::milliseconds(5));
             receive_packet_ = ReceivePacket(serial_receive_packet);
         }
-        boxes_ = armor_detector_(frame_.image,ROI);
+        boxes_ = armor_detector_(frame_.image, ROI);
         BboxToArmor();
         battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.yaw_pitch_roll,
                                    armors_);
@@ -76,23 +78,23 @@ void SentryLowerController::Run() {
             armor_predictor.SetColor(receive_packet_.color);
             send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size);
         } else
-            send_packet_ = SendPacket(armor_predictor.Run(battlefield_, frame_.image.size,AimModes::kAntiTop));
-        armor_predictor.GetROI(ROI,frame_.image);
+            send_packet_ = SendPacket(armor_predictor.Run(battlefield_, frame_.image.size, AimModes::kAntiTop));
+        armor_predictor.GetROI(ROI, frame_.image);
         auto img = frame_.image.clone();
         painter_->UpdateImage(frame_.image);
         for (const auto &box: boxes_) {
             painter_->DrawRotatedRectangle(box.points[0],
-                                                            box.points[1],
-                                                            box.points[2],
-                                                            box.points[3],
-                                                            cv::Scalar(0, 255, 0), 2);
+                                           box.points[1],
+                                           box.points[2],
+                                           box.points[3],
+                                           cv::Scalar(0, 255, 0), 2);
             painter_->DrawText(std::to_string(box.id), box.points[0], 255, 2);
             painter_->DrawPoint(armors_.front().Center(), cv::Scalar(100, 255, 100), 2, 2);
         }
 
         painter_->DrawPoint(armor_predictor.ShootPointInPic(image_provider_->IntrinsicMatrix(),
-                                                                             frame_.image.size),
-                                             cv::Scalar(0, 0, 255), 1, 10);
+                                                            frame_.image.size),
+                            cv::Scalar(0, 0, 255), 1, 10);
         painter_->ShowImage("ARMOR DETECT", 1);
 
         auto key = cv::waitKey(1) & 0xff;
@@ -101,7 +103,9 @@ void SentryLowerController::Run() {
         else if (key == 's')
             ArmorPredictorDebug::Instance().Save();
 
-        Compensator::Instance().Setoff(send_packet_.pitch,receive_packet_.bullet_speed,armor_predictor.GetTargetDistance());
+        Compensator::Instance().Offset(send_packet_.pitch, send_packet_.yaw, receive_packet_.bullet_speed,
+                                       send_packet_.check_sum,
+                                       armor_predictor.GetTargetDistance());
 
         if (CmdlineArgParser::Instance().RunWithSerial())
             serial_->SendData(send_packet_, std::chrono::milliseconds(5));

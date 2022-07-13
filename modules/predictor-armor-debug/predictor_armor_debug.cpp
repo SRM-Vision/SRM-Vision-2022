@@ -75,6 +75,11 @@ bool ArmorPredictorDebug::Initialize(const std::string &config_path, bool debug_
                                                         trackbar_windows_name_,
                                                         delta_pitch_,
                                                         kDelta_pitch);
+
+        debug::Trackbar<double>::Instance().AddTrackbar("delta_yaw",
+                                                        trackbar_windows_name_,
+                                                        delta_yaw_,
+                                                        kDelta_yaw);
     }
     return true;
 }
