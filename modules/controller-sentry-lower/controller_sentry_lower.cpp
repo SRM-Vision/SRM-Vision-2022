@@ -59,7 +59,7 @@ void SentryLowerController::Run() {
     while (!exit_signal_) {
         auto time = std::chrono::steady_clock::now();
         if (!image_provider_->GetFrame(frame_)) {
-            auto key = cv::waitKey(50) & 0xff;
+            auto key = cv::waitKey(1) & 0xff;
             if (key == 'q')
                 break;
             continue;
