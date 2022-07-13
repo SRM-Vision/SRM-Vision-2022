@@ -17,12 +17,10 @@ namespace bullet_trajectory_solver {
          * @param _start_h Initial height, m.
          * @param _target_h Target height, m.
          * @param _target_x Horizontal distance from target, m.
-         * @param _l Length of barrel, m.
          */
         [[maybe_unused]] void SetParam(const BallisticModel &model,
-                      double _start_v, double _start_h,
-                      double _target_h, double _target_x,
-                      double _l);
+                                       double _start_v, double _start_h,
+                                       double _target_h, double _target_x);
 
         /**
          * @brief Update target parameters.
@@ -42,8 +40,7 @@ namespace bullet_trajectory_solver {
 
     private:
         BallisticModel ballistic_model;
-        double start_v, start_h,
-                target_h, target_x, l;
+        double start_v, start_h, target_h, target_x;
     };
 }
 

@@ -6,14 +6,12 @@ using namespace bullet_trajectory_solver;
 
 [[maybe_unused]] void PitchAngleSolver::SetParam(const BallisticModel &model,
                                                  double _start_v, double _start_h,
-                                                 double _target_h, double _target_x,
-                                                 double _l) {
+                                                 double _target_h, double _target_x) {
     ballistic_model = model;
     start_v = _start_v;
     start_h = _start_h;
     target_h = _target_h;
     target_x = _target_x;
-    l = _l;
 }
 
 [[maybe_unused]] void PitchAngleSolver::UpdateParam(double _target_h, double _target_x) {
@@ -26,9 +24,9 @@ using namespace bullet_trajectory_solver;
     unsigned int n = 1;
     double theta_higher = CV_PI * 0.25, theta_lower = theta, theta_d, error, t;
 #if NDEBUG
-    solver.SetParam(ballistic_model, 0, 4, start_v, start_h, l, theta_d, 2048);
+    solver.SetParam(ballistic_model, 0, 4, start_v, start_h, theta_d, 2048);
 #else
-    solver.SetParam(ballistic_model, 0, 4, start_v, start_h, l, theta_d, 1024);
+    solver.SetParam(ballistic_model, 0, 4, start_v, start_h, theta_d, 1024);
 #endif
     do {
         Eigen::Vector2d x, v;
