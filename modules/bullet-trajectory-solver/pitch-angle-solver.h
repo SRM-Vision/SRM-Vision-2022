@@ -31,12 +31,13 @@ namespace bullet_trajectory_solver {
 
         /**
          * @brief Solve the pitch angle.
-         * @param theta Initial pitch angle without fixes, RADIUS.
+         * @param min_theta Initial pitch angle without fixes, RADIUS.
+         * @param max_theta Maximal pitch angle, RADIUS.
          * @param max_error Maximal error acceptable, m.
          * @param max_iter Maximal iteration times.
          * @return The fixed ELEVATION angle, RADIUS,
          */
-        [[maybe_unused]] double Solve(double theta, double max_error, unsigned int max_iter);
+        [[maybe_unused]] double Solve(double min_theta, double max_theta, double max_error, unsigned int max_iter);
 
     private:
         BallisticModel ballistic_model;

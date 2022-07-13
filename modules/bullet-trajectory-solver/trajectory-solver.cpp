@@ -48,7 +48,7 @@ using namespace algorithm;
         current_t = solver.t;
         current_x = current_x + solver.y * solver.h;
         if ((target_h - last_h) * (target_h - current_h) < 0) {
-            t = (last_t + current_t) * 0.5;
+            t = current_t;
             v = solver.y;
             x = current_x;
             return true;
