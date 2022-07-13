@@ -37,18 +37,16 @@ using namespace algorithm;
 
 [[maybe_unused]] bool TrajectorySolver::Solve(
         double target_h, double &t, Eigen::Vector2d &v, Eigen::Vector2d &x) {
-    double last_h, last_t, current_h = start_h, current_t = solver.t;
+    double last_h, current_h = start_h;
     Eigen::Vector2d current_x = {0, start_h};
     current_x += solver.y * solver.h;
     for (unsigned int i = 0; i < iter; ++i) {
         solver.Iterate();
         last_h = current_h;
-        last_t = current_t;
         current_h += solver.y.y() * solver.h;
-        current_t = solver.t;
         current_x = current_x + solver.y * solver.h;
         if ((target_h - last_h) * (target_h - current_h) < 0) {
-            t = current_t;
+            t = solver.t;
             v = solver.y;
             x = current_x;
             return true;
