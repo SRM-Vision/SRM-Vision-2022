@@ -13,7 +13,7 @@ public:
     /**
      * @brief SPHERICAL mode uses yaw to judge spinning, FLAT mode uses x.
      */
-    enum Mode{kFlat,
+    enum Mode{kPlane,
             kSpherical,
             SIZE};
 
@@ -117,6 +117,8 @@ private:
     int reverse_buffer{0};  // when not jump, direction of yaw/x delta must opposite of jumping direction.
 
     Mode mode_{kSpherical};
+
+    void UpdateClockwise(double yaw_x_delta);
 
 };
 

@@ -136,6 +136,8 @@ SendPacket PredictorArmorRenew::Run(const Battlefield &battlefield, const cv::Ma
                                           timestamp, spin_detector_.LastJumpTime(), battlefield.YawPitchRoll());
     }
 
+    DLOG(INFO) << "CLOCKWISE: " << spin_detector_.Clockwise();
+
     /// Find the armor which is nearest to picture center.
     if(!target_locked){
         auto min_distance(DBL_MAX);
