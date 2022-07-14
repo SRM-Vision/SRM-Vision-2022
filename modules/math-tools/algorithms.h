@@ -280,39 +280,33 @@ namespace algorithm {
     }
 
     /**
-     * @brief Change time from nanoseconds to seconds.
-     * @param time Timestamp in nanoseconds.
+     * @brief Convert time from nanoseconds to seconds.
+     * @param time Time in nanoseconds.
      * @return Time in seconds ind double.
      */
-    inline double TimeNs2S(const uint64_t &time) {
+    inline double NanoSecondsToSeconds(const uint64_t &time) {
         return static_cast<double>(time) * 1e-9;
     }
 
     /**
      * @brief Calculate time from start to end (ns), return the time in seconds.
-     * @param start start time (ns)
-     * @param end finish time (ns)
-     * @return duration in seconds.
+     * @param start Start time, ns.
+     * @param end End time, ns.
+     * @return Duration in seconds.
      */
-    inline double Duration(const uint64_t &start, const uint64_t &end) {
+    inline double NanoSecondsToSeconds(const uint64_t &start, const uint64_t &end) {
         return static_cast<double>(end - start) * 1e-9;
     }
 
     /**
-     * @brief shortest_angular_distance
-     * @details
-     * Given 2 angles, this returns the shortest angular
-     * difference.  The inputs and ouputs are of course radians.
-     *
-     * The result
-     * would always be -pi <= result <= pi.  Adding the result
-     * to "from" will always get you an equivelent angle to "to".
+     * @brief Calculate the shortest angular distance in [-pi, pi].
+     * @param from Start angle, RAD.
+     * @param to End angle, RAD.
+     * @return The shortest angular distance, RAD.
      */
-    inline double shortest_angular_distance(double from, double to) {
-        double angle = to - from;
-        const double result = fmod(angle + M_PI, 2.0 * M_PI);
-        if (result <= 0.0) return result + M_PI;
-        return result - M_PI;
+    inline double ShortestAngularDistance(double from, double to) {
+        const double result = fmod(to - from + M_PI, 2 * M_PI);
+        return result <= 0 ? result + M_PI : result - M_PI;
     }
 }
 

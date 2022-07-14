@@ -11,7 +11,7 @@ const int kMaxYawReverseSpinBuffer{25};
 const int kMaxXReverseSpinBuffer{40};
 
 bool SpinDetector::Update(const Armor &armor, const uint64_t current_time) {
-    double time_after_last_jump{algorithm::Duration(last_jump_time_, current_time)};
+    double time_after_last_jump{algorithm::NanoSecondsToSeconds(last_jump_time_, current_time)};
 
     DLOG(INFO) << "TIME AFTER JUMP: " << time_after_last_jump;
 
@@ -28,7 +28,7 @@ bool SpinDetector::Update(const Armor &armor, const uint64_t current_time) {
     if(mode_ == Mode::kSpherical){
         current_yaw_x = std::atan2(armor.TranslationVectorWorld()(0, 0),
                                    armor.TranslationVectorWorld()(2,0));
-        yaw_x_delta = algorithm::shortest_angular_distance(last_yaw_x_, current_yaw_x);
+        yaw_x_delta = algorithm::ShortestAngularDistance(last_yaw_x_, current_yaw_x);
     }else{
         current_yaw_x = armor.Center().x;
         yaw_x_delta = current_yaw_x - last_yaw_x_;
