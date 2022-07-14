@@ -8,8 +8,8 @@
 #define DETECTOR_RUNE_DEBUG_H_
 
 #include <glog/logging.h>
-#include "lang-feature-extension/attr_reader.h"
-#include "lang-feature-extension/disable_constructors.h"
+#include "lang-feature-extension/attr-reader.h"
+#include "lang-feature-extension/disable-constructors.h"
 #include "debug-tools/trackbar.h"
 
 class RuneDetectorDebug : NO_COPY, NO_MOVE {

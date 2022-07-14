@@ -9,8 +9,8 @@
 #define CMDLINE_ARG_PARSER_H_
 
 #include <gflags/gflags.h>
-#include "lang-feature-extension/attr_reader.h"
-#include "lang-feature-extension/disable_constructors.h"
+#include "lang-feature-extension/attr-reader.h"
+#include "lang-feature-extension/disable-constructors.h"
 
 /**
  * \brief Global command line argument parser.

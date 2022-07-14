@@ -8,8 +8,8 @@
 #ifndef IMAGE_PROVIDER_BASE_H_
 #define IMAGE_PROVIDER_BASE_H_
 
-#include "lang-feature-extension/attr_reader.h"
-#include "lang-feature-extension/disable_constructors.h"
+#include "lang-feature-extension/attr-reader.h"
+#include "lang-feature-extension/disable-constructors.h"
 #include "data-structure/frame.h"
 
 /**

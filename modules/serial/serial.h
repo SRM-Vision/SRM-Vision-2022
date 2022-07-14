@@ -11,7 +11,7 @@
 #include <mutex>
 #include <thread>
 #include <glog/logging.h>
-#include "lang-feature-extension/disable_constructors.h"
+#include "lang-feature-extension/disable-constructors.h"
 #include "packet.h"
 
 /// \brief Serial manager class.

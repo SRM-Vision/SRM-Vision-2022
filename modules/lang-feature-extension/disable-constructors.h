@@ -1,8 +1,8 @@
 /**
  * A quick tool to disable redundant constructors.
- * \author trantuan-20048607
- * \date 2022.2.18
- * \details Use constructor disabling tag as one of parent classes.
+ * @author trantuan-20048607
+ * @date 2022.2.18
+ * @details Use constructor disabling tag as one of parent classes.
  */
 
 #ifndef DISABLE_CONSTRUCTORS_H_
@@ -41,24 +41,24 @@ namespace disable_constructors {
 }
 
 /**
- * \brief Copy constructor disabler.
- * \details Use this tag like a normal class to inherit:
- * \code{.cpp}
+ * @brief Copy constructor disabler.
+ * @details Use this tag like a normal class to inherit:
+ * @code{.cpp}
  *   class Foo : NO_COPY {
  *     ...
  *   };
- * \endcode
+ * @endcode
  */
 #define NO_COPY public disable_constructors::DisableCopyConstructor
 
 /**
- * \brief Move constructor disabler.
- * \details Use this tag like a normal class to inherit:
- * \code{.cpp}
+ * @brief Move constructor disabler.
+ * @details Use this tag like a normal class to inherit:
+ * @code{.cpp}
  *   class Foo : NO_MOVE {
  *     ...
  *   };
- * \endcode
+ * @endcode
  */
 #define NO_MOVE public disable_constructors::DisableMoveConstructor
 
