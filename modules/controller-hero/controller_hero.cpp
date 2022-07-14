@@ -32,7 +32,7 @@ bool HeroController::Initialize() {
     else
         LOG(ERROR) << "Camera initialize unsuccessfully!";
 
-    if (outpost_predictor_.Initialize("../config/hero/outpost-param.yaml", true))
+    if (outpost_predictor_.Initialize())
         LOG(INFO) << "Outpost predictor initialize successfully!";
     else
         LOG(ERROR) << "Outpost predictor initialize unsuccessfully!";

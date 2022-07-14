@@ -13,7 +13,7 @@
 #include "debug-tools/painter.h"
 #include "predictor-armor/spin_detector.h"
 #include "predictor-armor-debug/predictor_armor_debug.h"
-#include "predictor-outpost-debug/predictor_outpost_debug.h"
+#include "predictor_outpost_debug.h"
 
 
 /**
@@ -31,7 +31,7 @@ public:
      * @param debug Choice debug or not.
      * @return Whether initialized successfully.
      */
-    bool Initialize(const std::string &config_path, bool debug = true);
+    bool Initialize();
 
     /**
      * \Brief Collect armors, get center points and decide auto-shoot signal.

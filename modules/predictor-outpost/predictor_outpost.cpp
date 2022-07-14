@@ -1,8 +1,11 @@
 #include "predictor_outpost.h"
 
 
-bool OutpostPredictor::Initialize(const std::string &config_path, bool debug) {
-    OutpostPredictorDebug::Instance().Initialize(config_path, debug);
+bool OutpostPredictor::Initialize() {
+#if !NDEBUG
+    OutpostPredictorDebug::Instance().addTrackbar();
+#endif
+    return true;
 }
 
 

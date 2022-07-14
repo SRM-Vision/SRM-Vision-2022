@@ -24,16 +24,21 @@ public:
         rune_detector_config_path = "../config/" + controller_type_name +"/rune-detector-param.yaml";
         armor_predictor_config_path = "../config/" + controller_type_name + "/predict-param.yaml";
         rune_predictor_config_path = "../config/" + controller_type_name + "/rune-predictor-param.yaml";
+
         initDetectorRuneParameters();
         initPredictorRuneParameters();
         initPredictorArmorParameters();
+        initPredictorOutpostParameters();
     }
 
 private:
     cv::FileStorage config_;
     friend class ControllerInfantryDebug;
     friend class RuneDetectorDebug;
-private:   // detector rune debug
+    friend class RunePredictorDebug;
+    friend class OutpostPredictorDebug;
+
+private:   ///< detector rune debug
     std::string rune_detector_config_path;
     void initDetectorRuneParameters();
     void saveDetectorRuneParameters();
@@ -55,13 +60,13 @@ private:   // detector rune debug
     int delta_u_;  ///< Horizontal ballistic compensation
     int delta_v_;  ///< Vertical ballistic compensation
 
-private:  // predictor rune debug
+private:  ///< predictor rune debug
     std::string rune_predictor_config_path;
     void initPredictorRuneParameters();
     void savePredictorRuneParameters();
     predictor::rune::RotationalSpeed rotational_speed_;
 
-private:  // predictor armor debug
+private:  ///< predictor armor debug
     std::string armor_predictor_config_path;
     void initPredictorArmorParameters();
     void savePredictorArmorParameters();
@@ -74,6 +79,15 @@ private:  // predictor armor debug
     double m_z_noise_ = 800;
     double shoot_delay_ = 0.02;
 
+private:  ///< predictor outpost debug
+    const std::string outpost_predictor_config_path = "../config/hero/outpost-param.yaml";
+    void initPredictorOutpostParameters();
+    void savePredictorOutpostParameters();
+    double outpost_shoot_delay_ = 0.02;
+    double delta_pitch_up_ = 0.0;
+    double delta_pitch_down_ = 0.0;
+    double delta_yaw_left_ = 0.0;
+    double delta_yaw_right_ = 0.0;
 };
 
 #endif
