@@ -58,12 +58,8 @@ void SentryLowerController::Run() {
     cv::Rect ROI; // roi of detect armor
     while (!exit_signal_) {
         auto time = std::chrono::steady_clock::now();
-        if (!image_provider_->GetFrame(frame_)) {
-            auto key = cv::waitKey(1) & 0xff;
-            if (key == 'q')
-                break;
+        if (!GetImage<false>())
             continue;
-        }
 
         if (CmdlineArgParser::Instance().RunWithGimbal()) {
             SerialReceivePacket serial_receive_packet{};
