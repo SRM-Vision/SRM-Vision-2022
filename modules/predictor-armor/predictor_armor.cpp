@@ -274,7 +274,7 @@ SendPacket ArmorPredictor::GenerateSendPacket() const {
 //        auto point1_x = short(show_point.x);
 //        auto point1_y = short(show_point.y);
 
-    return {float(yaw +0.03), float(pitch - ArmorPredictorDebug::Instance().DeltaPitch()+ ArmorPredictorDebug::Instance().DeltaYaw()),
+    return {float(yaw + ArmorPredictorDebug::Instance().DeltaYaw()), float(pitch - ArmorPredictorDebug::Instance().DeltaPitch()),
             delay, distance_mode, fire_,
             0,0,
             0,0,
@@ -282,26 +282,6 @@ SendPacket ArmorPredictor::GenerateSendPacket() const {
             0,0,
             float(yaw + pitch + distance_mode + delay + fire_ - ArmorPredictorDebug::Instance().DeltaPitch()
                   + ArmorPredictorDebug::Instance().DeltaYaw())};
-}
-
-void ArmorPredictor::GetROI(cv::Rect &roi_rect, const cv::Mat &src_image) {
-    if(!last_target_) {
-        roi_rect = {};
-        return;
-    }
-    int width =  abs(last_target_->Corners()[0].x - last_target_->Corners()[1].x) < abs(last_target_->Corners()[1].x - last_target_->Corners()[2].x) ?
-                 int(abs(last_target_->Corners()[1].x - last_target_->Corners()[2].x)) : int(abs(last_target_->Corners()[0].x - last_target_->Corners()[1].x));
-    int height = abs(last_target_->Corners()[0].y - last_target_->Corners()[1].y) < abs(last_target_->Corners()[1].y - last_target_->Corners()[2].y) ?
-                 int(abs(last_target_->Corners()[1].y - last_target_->Corners()[2].y)) : int(abs(last_target_->Corners()[0].y - last_target_->Corners()[1].y));
-    int x = int(cv::min(cv::min(last_target_->Corners()[0].x,last_target_->Corners()[1].x),cv::min(last_target_->Corners()[2].x,last_target_->Corners()[3].x)));
-    int y = int(cv::min(cv::min(last_target_->Corners()[0].y,last_target_->Corners()[1].y),cv::min(last_target_->Corners()[2].y,last_target_->Corners()[3].y)));
-    cv::Rect target_right{x,y,width,height};
-    auto zoom_size = cv::Size(int(target_right.width * kZoomRatio.width + 0.5 * src_image.rows),
-                              int(target_right.height * kZoomRatio.height + 0.1 * src_image.cols));
-    roi_rect = target_right + zoom_size;
-    roi_rect -= cv::Point((zoom_size.width >> 1 ),(zoom_size.height >> 1));
-    roi_rect -= cv::Point(0, int(roi_rect.height * 0.15));    // move up
-    roi_rect = roi_rect & cv::Rect(0, 0, src_image.cols,src_image.rows);
 }
 
 void ArmorPredictor::Clear() {

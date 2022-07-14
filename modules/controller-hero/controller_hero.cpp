@@ -34,9 +34,8 @@ bool HeroController::Initialize() {
 }
 
 void HeroController::Run() {
-
+    cv::Rect ROI;
     sleep(2);
-    cv::Rect ROI; // roi of detect armor
     ArmorPredictor armor_predictor(Entity::kBlue, "hero");
     while (!exit_signal_) {
         auto time = std::chrono::steady_clock::now();
@@ -46,7 +45,7 @@ void HeroController::Run() {
 
         RunGimbal();
 
-        boxes_ = armor_detector_(frame_.image, ROI);
+        boxes_ = armor_detector_(frame_.image);
 
         if (CmdlineArgParser::Instance().RunModeOutpost() ||
             receive_packet_.mode == AimModes::kOutPost) {

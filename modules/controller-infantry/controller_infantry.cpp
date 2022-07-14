@@ -42,7 +42,6 @@ bool InfantryController::Initialize() {
 
 void InfantryController::Run() {
     sleep(2);
-    cv::Rect ROI;  // Armor ROI rect.
     ArmorPredictor armor_predictor{Entity::kBlue, "infantry"};
     while (!exit_signal_) {
         auto time = std::chrono::steady_clock::now();
@@ -62,7 +61,7 @@ void InfantryController::Run() {
         }
 
         if (!CmdlineArgParser::Instance().RuneModeRune()) {
-            boxes_ = armor_detector_(frame_.image, ROI);
+            boxes_ = armor_detector_(frame_.image);
 
             BboxToArmor();
             battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.yaw_pitch_roll,
@@ -73,21 +72,18 @@ void InfantryController::Run() {
                 send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size, receive_packet_.bullet_speed);
             } else
                 send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size);
-            armor_predictor.GetROI(ROI, frame_.image);
 
             controller_infantry_debug_.DrawAutoAimArmor(frame_.image,
-                                                        ROI,
-                                                        boxes_,
-                                                        &armor_predictor,
-                                                        image_provider_->IntrinsicMatrix(),
-                                                        frame_.image.size,
-                                                        "Infantry Run",
-                                                        1);
+                                                          boxes_,
+                                                          &armor_predictor,
+                                                          image_provider_->IntrinsicMatrix(),
+                                                          frame_.image.size,
+                                                          "Infantry Run",
+                                                          1);
         }
 
-        char key;
-        controller_infantry_debug_.GetKey(key);
-        if (key == 'q')
+
+        if (controller_infantry_debug_.GetKey() == 'q')
             break;
 
         if (CmdlineArgParser::Instance().RunWithSerial()) {
