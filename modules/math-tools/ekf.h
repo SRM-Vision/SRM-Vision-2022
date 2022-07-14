@@ -12,7 +12,7 @@
 #include <ceres/jet.h>
 #include <Eigen/Dense>
 #include "glog/logging.h"
-#include "predictor-armor-debug/predictor_armor_debug.h"
+#include "predictor-armor/predictor_armor_debug.h"
 
 /**
  * \brief Extended kalman filter template.

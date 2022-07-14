@@ -62,9 +62,11 @@ struct MeasureFunction {
     }
 };
 
-void ArmorPredictor::Initialize(const std::string &car_name) {
-    ArmorPredictorDebug::Instance().Initialize("../config/" + car_name + "/predict-param.yaml",
-                                               CmdlineArgParser::Instance().DebugUseTrackbar());
+void ArmorPredictor::Initialize(const std::string &controller_type_name) {
+    ArmorPredictorDebug::Instance().Initialize(controller_type_name);
+#if !NDEBUG
+    ArmorPredictorDebug::Instance().addTrackbar();
+#endif
 }
 
 SendPacket ArmorPredictor::Run(const Battlefield &battlefield, const cv::MatSize &size, double bullet_speed) {

@@ -31,12 +31,26 @@ public:
         initPredictorOutpostParameters();
     }
 
+    void ManulInit(const std::string& controller_type_name)  // should be same as the construct function
+    {
+        rune_detector_config_path = "../config/" + controller_type_name +"/rune-detector-param.yaml";
+        armor_predictor_config_path = "../config/" + controller_type_name + "/predict-param.yaml";
+        rune_predictor_config_path = "../config/" + controller_type_name + "/rune-predictor-param.yaml";
+
+        initDetectorRuneParameters();
+        initPredictorRuneParameters();
+        initPredictorArmorParameters();
+        initPredictorOutpostParameters();
+    }
+
+
 private:
     cv::FileStorage config_;
     friend class ControllerInfantryDebug;
     friend class RuneDetectorDebug;
     friend class RunePredictorDebug;
     friend class OutpostPredictorDebug;
+    friend class ArmorPredictorDebug;
 
 private:   ///< detector rune debug
     std::string rune_detector_config_path;
