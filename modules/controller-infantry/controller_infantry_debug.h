@@ -8,6 +8,8 @@
 #include <iostream>
 #include "parameter-maintain/parameter-maintain.h"
 #include "predictor-armor/predictor_armor.h"
+#include "predictor-rune/predictor_rune_debug.h"
+#include "detector-rune/detector_rune_debug.h"
 #include "debug-tools/controller-debug.h"
 
 class ControllerInfantryDebug{
@@ -47,7 +49,20 @@ public:
         controller_debug_.ShowImage(window_names, wait_time);
     }
 
+    inline void GetKey(char &key)
+    {
+#if !NDEBUG
+        key = cv::waitKey(1) & 0xff;
+        if (key == 's')
+        {
+            ArmorPredictorDebug::Instance().Save();
+            RunePredictorDebug::Instance().Save();
+            RuneDetectorDebug::Instance().Save();
+        }
 
+#endif
+
+    }
 };
 
 #endif //CONTROLLER_INFANTRY_DEBUG_H_

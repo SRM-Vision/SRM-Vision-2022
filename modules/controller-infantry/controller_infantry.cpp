@@ -52,8 +52,9 @@ void InfantryController::Run() {
 
         RunGimbal();
 
-        if (CmdlineArgParser::Instance().RuneModeRune() || receive_packet_.mode == AimModes::kSmallRune ||
-                receive_packet_.mode == AimModes::kBigRune) {
+        if (CmdlineArgParser::Instance().RuneModeRune()
+        || receive_packet_.mode == AimModes::kSmallRune
+        || receive_packet_.mode == AimModes::kBigRune) {
             power_rune_ = rune_detector_.Run(receive_packet_.color, frame_);
             send_packet_ = SendPacket(
                     rune_predictor_.Run(power_rune_, receive_packet_.mode, receive_packet_.bullet_speed));
@@ -84,11 +85,10 @@ void InfantryController::Run() {
                                                         1);
         }
 
-        auto key = cv::waitKey(1) & 0xff;
+        char key;
+        controller_infantry_debug_.GetKey(key);
         if (key == 'q')
             break;
-        else if (key == 's')
-            ArmorPredictorDebug::Instance().Save();
 
         if (CmdlineArgParser::Instance().RunWithSerial()) {
             serial_->SendData(send_packet_, std::chrono::milliseconds(5));
