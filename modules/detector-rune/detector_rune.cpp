@@ -37,7 +37,6 @@ PowerRune RuneDetector::Run(Entity::Colors color, Frame &frame) {
     // FIXME The color from electronic control is unknown.
     color_ = color;
     color_ = Entity::kRed;
-    image_ = frame.image.clone();
 
     if (clockwise_ && found_energy_center_r) {
         int length = int(rune_radius_ * 2);
@@ -45,11 +44,13 @@ PowerRune RuneDetector::Run(Entity::Colors color, Frame &frame) {
         ROI_tl_point_.y = std::max(0, int(energy_center_r_.y) - length);
         cv::Rect ROI_rect = cv::Rect(ROI_tl_point_.x, ROI_tl_point_.y, 2 * length, 2 * length) &
                             cv::Rect(0, 0, frame.image.cols, frame.image.rows);
-        image_ = image_(ROI_rect);  // Use ROI
+
+        image_ = frame.image.clone()(ROI_rect);  // Use ROI
         energy_center_r_ -= cv::Point2f(ROI_tl_point_);  // Update last frame's points according to ROI size.
         armor_center_p_ -= cv::Point2f(ROI_tl_point_);
     } else {
         ROI_tl_point_ = cv::Point2i(0, 0);
+        image_ = frame.image.clone();
     }
 
     if (3 == image_.channels())
