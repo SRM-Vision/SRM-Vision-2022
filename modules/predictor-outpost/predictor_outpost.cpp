@@ -67,7 +67,7 @@ SendPacket OutpostPredictor::Run(Battlefield battlefield, float bullet_speed) {
 
     int biggest_armor = FindBiggestArmor(outpost_.BottomArmors());
 
-    if (time_gap * 1e-3 < 4 && !prepared_) {
+    if (time_gap * 1e-3 < kFindBiggestArmorTime && !prepared_) {
         if (outpost_.BottomArmors()[biggest_armor].Area() > biggest_area_)
             biggest_area_ = outpost_.BottomArmors()[biggest_armor].Area();
         auto shoot_point_spherical = coordinate::convert::Rectangular2Spherical(
@@ -79,12 +79,12 @@ SendPacket OutpostPredictor::Run(Battlefield battlefield, float bullet_speed) {
                 outpost_.BottomArmors()[biggest_armor].TranslationVectorCam());
         send_packet.yaw = shoot_point_spherical(0, 0), send_packet.pitch = shoot_point_spherical(1, 0);
 
-        if (0.93 * biggest_area_ < outpost_.BottomArmors()[biggest_armor].Area()) {
-            buff += 2;
-        } else if (0.90 * biggest_area_ < outpost_.BottomArmors()[biggest_armor].Area()) {
-            ++buff;
-        } else buff = 0;
-        if (buff > 20) {
+        if (kAreaThreshold * biggest_area_ < outpost_.BottomArmors()[biggest_armor].Area()) {
+            aim_buff_ += 2;
+        } else if (kAreaThresholdLow * biggest_area_ < outpost_.BottomArmors()[biggest_armor].Area()) {
+            ++aim_buff_;
+        } else aim_buff_ = 0;
+        if (aim_buff_ > kAimBuff) {
             outpost_.center_point_ = outpost_.BottomArmors()[biggest_armor].Center();
             prepared_ = true;
             start_time_ = std::chrono::high_resolution_clock::now();
@@ -218,5 +218,5 @@ void OutpostPredictor::Clear() {
     prepared_ = false;
     need_init_ = true;
 
-    buff = 0;
+    aim_buff_ = 0;
 }

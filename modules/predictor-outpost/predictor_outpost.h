@@ -55,25 +55,30 @@ private:
      */
     void IsClockwise();
 
+    const double kFindBiggestArmorTime = 4;  ///< during this time try to find the the front of the target.
+    const double kAreaThreshold = 0.93;  ///< when area is biggest than area threshold * biggest armor it is the front of the target.
+    const double kAreaThresholdLow = 0.9;  ///< lower threshold to avoid can't find the front of the target.
+    const double kAimBuff = 20;  ///< to ensure the result.
+
     Outpost outpost_{};
 
-    std::chrono::high_resolution_clock::time_point start_time_;
+    std::chrono::high_resolution_clock::time_point start_time_{};
     std::chrono::high_resolution_clock::time_point ready_time_{};
 
-    Entity::Colors enemy_color_;
-    bool checked_clockwise_ = false;
-    int clockwise_          = 0;       ///< 1 (rotate left) or -1 (rotate right)
+    Entity::Colors enemy_color_{};
+    bool checked_clockwise_{false};
+    int clockwise_{0};  ///< 1 (rotate left) or -1 (rotate right)
 
-    double last_armor_x_{};
+    double last_armor_x_{0};
 
-    bool ready_fire_ = false;
-    bool prepared_ = false;
-    bool need_init_ = true;
+    bool ready_fire_{false};
+    bool prepared_{false};
+    bool need_init_{true};
 
-    double biggest_area_ = 0;
-    double shoot_delay_time_   = 0;
+    double biggest_area_{0};
+    double shoot_delay_time_{0};
 
-    int buff{};
+    int aim_buff_{0};
 };
 
 #endif //PREDICTOR_OUTPOST_H_
