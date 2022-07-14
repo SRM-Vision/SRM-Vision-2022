@@ -20,7 +20,7 @@ public:
 
     /**
      * \brief Run detector once.
-     * \param [in] frame Input frame.
+     * \param [in] frame Input original frame.
      * \return Output power rune data.
      */
     PowerRune Run(Entity::Colors color, Frame &frame);
@@ -39,33 +39,32 @@ private:
     void PreProcess();
 
     /**
-     * \brief Decide rotating Direction.
+     * \brief Decide rotating direction.
      */
     void FindRotateDirection();
 
     /**
-     * \brief Find energy mechanism center.
-     * \param [in] image Incoming image.
+     * \brief Find energy mechanism center R.
      */
     bool FindCenterR();
 
     /**
-     * \brief Find armour center.
-     * \param [in] image Incoming image.
+     * \brief Find armour center P.
      */
     bool FindArmorCenterP();
 
     /**
-     * \brief Find fan barycenter.
+     * \brief Find fan barycenter G.
      */
     void FindFanCenterG();
 
     cv::Mat image_;  ///< Original image's duplicate.
+    cv::Point2i ROI_tl_point_;  ///< Top and left corner of ROI rect.
     bool debug_;  ///< Debug flag.
     Entity::Colors color_;
     std::vector<cv::Mat> image_channels_;
     std::vector<std::vector<cv::Point>> fan_contours_;
-    std::vector<cv::Vec4i> fan_hierarchies_;  ///< Outline of the hierarchy.
+    std::vector<cv::Vec4i> fan_hierarchies_;  ///< Outline's hierarchy.
 
     int clockwise_;  ///< Rotation direction, -1 for anti-clockwise , 1 for clockwise.
     int frame_lost_;  ///< Lost frame when detecting.
@@ -77,11 +76,11 @@ private:
     cv::Point2f energy_center_r_;
     cv::Point2f armor_center_p_;
     cv::Point2f last_energy_center_r;
+    cv::Point2f fan_center_g_;
     cv::Point2f r_offset_;  ///< Compensate energy_center_r by last frame's point when lost frame.
     cv::Point2f p_offset_;  ///< Compensate armor_center_p by last frame's point when lost frame.
-    cv::Point2f fan_center_g_;
-    cv::Point2f rtp_vec_;  ///< Energy_center_r to armor_center_p, for calculate predicted point.
-    cv::Point2f rtg_vec_;  ///< Energy_center_r to fan_center_g, for calculate angle and palstance.
+    cv::Point2f rtp_vec_;  ///< Energy_center_r to armor_center_p, for calculating predicted point.
+    cv::Point2f rtg_vec_;  ///< Energy_center_r to fan_center_g, for calculating angle and palstance.
 
     cv::Point3f send_yaw_pitch_delay_;
 
