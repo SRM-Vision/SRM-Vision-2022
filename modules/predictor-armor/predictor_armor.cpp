@@ -7,9 +7,6 @@
 /// When an armor lasts gray for time below this value, it will be considered as hit.
 const unsigned int kMaxGreyCount = UINT_MAX;
 
-/// Used to judge whether two armors really belong to a car
-const double kBestDistanceRatio = 4.0;
-
 /// Picture Distance threshold to judge whether a target is too far.
 const double kPicDistanceThreshold = 30;
 
@@ -329,10 +326,3 @@ cv::Point2f ArmorPredictor::ShootPointInPic(const cv::Mat &intrinsic_matrix, cv:
         return coordinate::transform::CameraToPicture(intrinsic_matrix,predict_cam_vector_);
     return {float(size().width / 2.0), float(size().height / 2.0)};
 }
-
-
-
-
-
-
-

@@ -52,7 +52,8 @@ void InfantryController::Run() {
 
         RunGimbal();
 
-        if (CmdlineArgParser::Instance().RuneModeRune()) {
+        if (CmdlineArgParser::Instance().RuneModeRune() || receive_packet_.mode == AimModes::kSmallRune ||
+                receive_packet_.mode == AimModes::kBigRune) {
             power_rune_ = rune_detector_.Run(receive_packet_.color, frame_);
             send_packet_ = SendPacket(
                     rune_predictor_.Run(power_rune_, receive_packet_.mode, receive_packet_.bullet_speed));
