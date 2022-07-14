@@ -3,7 +3,6 @@
 #include "cmdline-arg-parser/cmdline_arg_parser.h"
 #include "image-provider-base/image-provider-factory.h"
 #include "controller-base/controller_factory.h"
-#include "predictor-armor/predictor_armor_renew.h"
 #include "detector-rune/detector_rune.h"
 #include "predictor-rune/predictor-rune.h"
 #include "compensator/compensator.h"
@@ -63,7 +62,7 @@ bool InfantryController::Initialize() {
 void InfantryController::Run() {
     sleep(2);
     cv::Rect ROI;  // Armor ROI rect.
-
+    ArmorPredictor armor_predictor{Entity::kBlue, "infantry"};
     while (!exit_signal_) {
         auto time = std::chrono::steady_clock::now();
 
@@ -80,23 +79,18 @@ void InfantryController::Run() {
                                 cv::Scalar(0, 255, 255), 3, 3);
             painter_->ShowImage("Rune", 1);
         } else {
-            auto time = std::chrono::steady_clock::now();
             boxes_ = armor_detector_(frame_.image, ROI);
-
-            auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now()
-                                                                                 - time);
-            DLOG(INFO) << "armor detector computation cost ms: " << double(duration.count()) / 1e6;
 
             BboxToArmor();
             battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.yaw_pitch_roll,
                                        armors_);
             /// TODO mode switch
             if (CmdlineArgParser::Instance().RunWithSerial()) {
-                armor_predictor_.SetColor(receive_packet_.color);
-                send_packet_ = armor_predictor_.Run(battlefield_, frame_.image.size, receive_packet_.bullet_speed);
+                armor_predictor.SetColor(receive_packet_.color);
+                send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size, receive_packet_.bullet_speed);
             } else
-                send_packet_ = armor_predictor_.Run(battlefield_, frame_.image.size, receive_packet_.bullet_speed);
-            armor_predictor_.GetROI(ROI, frame_.image);
+                send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size);
+            armor_predictor.GetROI(ROI, frame_.image);
             painter_->UpdateImage(frame_.image);
             painter_->DrawBoundingBox(ROI, cv::Scalar(0, 0, 255), 2);
             for (const auto &box: boxes_) {
@@ -107,11 +101,9 @@ void InfantryController::Run() {
                                                cv::Scalar(0, 255, 0), 2);
                 painter_->DrawText(std::to_string(box.id), box.points[0], 255, 2);
             }
-            painter_->DrawPoint(armor_predictor_.ShootPointInPic(image_provider_->IntrinsicMatrix(),
-                                                                 frame_.image.size),
+            painter_->DrawPoint(armor_predictor.ShootPointInPic(image_provider_->IntrinsicMatrix(),frame_.image.size),
                                 cv::Scalar(0, 0, 255), 1, 10);
-            painter_->DrawPoint(armor_predictor_.TargetCenter(), cv::Scalar(100, 255, 100), 2, 2);
-            // armor_predictor_.AllShootPoint(image_provider_->IntrinsicMatrix());
+            painter_->DrawPoint(armor_predictor.TargetCenter(), cv::Scalar(100, 255, 100), 2, 2);
             painter_->ShowImage("ARMOR DETECT", 1);
         }
 

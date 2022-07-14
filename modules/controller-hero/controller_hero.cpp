@@ -4,9 +4,9 @@
 #include "cmdline-arg-parser/cmdline_arg_parser.h"
 #include "image-provider-base/image-provider-factory.h"
 #include "controller-base/controller_factory.h"
-#include "predictor-armor/predictor_armor_renew.h"
 #include "predictor-outpost/predictor_outpost.h"
 #include "controller_hero.h"
+#include "predictor-armor/predictor_armor.h"
 //#include "predictor-outpost/outpost_measure.h"
 
 
@@ -42,11 +42,9 @@ bool HeroController::Initialize() {
 }
 
 void HeroController::Run() {
-    PredictorArmorRenew armor_predictor(Entity::Colors::kBlue, "hero");
-
     sleep(2);
     cv::Rect ROI; // roi of detect armor
-
+    ArmorPredictor armor_predictor(Entity::kBlue,"hero");
     while (!exit_signal_) {
         auto time = std::chrono::steady_clock::now();
 
@@ -84,10 +82,9 @@ void HeroController::Run() {
 
             if (CmdlineArgParser::Instance().RunWithSerial()) {
                 armor_predictor.SetColor(receive_packet_.color);
-                send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size,
-                                                   receive_packet_.mode, receive_packet_.bullet_speed);
+                send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size, receive_packet_.bullet_speed);
             } else
-                send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size, AimModes::kAntiTop);
+                send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size);
 
             if (receive_packet_.mode != AimModes::kOutPost)
                 send_packet_.fire = 0;

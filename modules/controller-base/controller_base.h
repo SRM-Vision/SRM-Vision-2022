@@ -14,7 +14,6 @@
 #include "digital-twin/battlefield.h"
 #include "image-provider-base/image-provider-base.h"
 #include "detector-armor/detector_armor.h"
-#include "predictor-armor/predictor_armor.h"
 
 /**
  * \brief Controller base class.
@@ -33,8 +32,7 @@ public:
             serial_(nullptr),
             armor_detector_(),
             send_packet_(),
-            receive_packet_(),
-            armor_predictor_(){
+            receive_packet_(){
         armor_detector_.Initialize("../assets/models/armor_detector_model.onnx");
     }
 
@@ -80,7 +78,6 @@ protected:
     std::vector<bbox_t> boxes_;  ///< Store boxes here to speed up.
     std::vector<Armor> armors_;  ///< Store armors here to speed up.
     Battlefield battlefield_;
-    ArmorPredictor armor_predictor_;
 
     static bool exit_signal_;  ///< Global normal exit signal.
 

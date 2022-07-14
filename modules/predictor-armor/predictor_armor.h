@@ -8,9 +8,9 @@
 #include "data-structure/communication.h"
 #include "cmdline-arg-parser/cmdline_arg_parser.h"
 #include "digital-twin/battlefield.h"
-#include "predict_armor.h"
 #include "debug-tools/painter.h"
 #include "spin_detector.h"
+#include "math-tools/ekf.h"
 
 
 class ArmorPredictor: NO_COPY, NO_MOVE {
@@ -79,8 +79,6 @@ private:
     /// Update a new armor
     inline void Update(const Armor& armor);
 
-    void AntiSpin(double jump_period, const coordinate::TranslationVector &last_jump_position,
-                  uint64_t current_time, uint64_t last_jump_time, const std::array<float, 3> &yaw_pitch_roll);
 };
 
 
