@@ -5,7 +5,7 @@
 #include "math-tools/algorithms.h"
 const int kFindTime = 5;
 const cv::Size kZoomRatio = {18,22};
-SendPacket OutpostPredictorNew::Run(Battlefield battlefield, float bullet_speed) {
+SendPacket OutpostPredictor::Run(Battlefield battlefield, float bullet_speed) {
     outpost_.ClearBottomArmor();
     SendPacket send_packet{0,0,0,
                            0,0,
@@ -39,7 +39,7 @@ SendPacket OutpostPredictorNew::Run(Battlefield battlefield, float bullet_speed)
 
     //
 
-    if(outpost_.BottomArmors().empty() && prepared){
+    if(outpost_.BottomArmors().empty() && prepared_){
         return {0,0,0,
                 10,0,
                 0,0,0,0,
@@ -72,19 +72,17 @@ SendPacket OutpostPredictorNew::Run(Battlefield battlefield, float bullet_speed)
 
     int biggist_armor = FindBiggestArmor(outpost_.BottomArmors());
 
-    if(time_gap*1e-3 < 4 && !prepared){
+    if(time_gap*1e-3 < 4 && !prepared_){
         if(outpost_.BottomArmors()[biggist_armor].Area() < biggest_area_) biggest_area_ = outpost_.BottomArmors()[biggist_armor].Area();
         auto shoot_point_spherical = coordinate::convert::Rectangular2Spherical(outpost_.BottomArmors()[biggist_armor].TranslationVectorCam());
         send_packet.yaw = shoot_point_spherical(0,0),send_packet.pitch = shoot_point_spherical(1,0);
         debug::Painter::Instance()->DrawPoint(outpost_.BottomArmors()[biggist_armor].Center(),cv::Scalar(0, 255, 0), 5,2);
-        UpdateROICorners(outpost_.BottomArmors()[biggist_armor]);
     }
-    else if(!prepared){
+    else if(!prepared_){
         if(outpost_.BottomArmors()[biggist_armor].Area() < biggest_area_) biggest_area_ = outpost_.BottomArmors()[biggist_armor].Area();
         auto shoot_point_spherical = coordinate::convert::Rectangular2Spherical(outpost_.BottomArmors()[biggist_armor].TranslationVectorCam());
         send_packet.yaw = shoot_point_spherical(0,0),send_packet.pitch = shoot_point_spherical(1,0);
         debug::Painter::Instance()->DrawPoint(outpost_.BottomArmors()[biggist_armor].Center(),cv::Scalar(0, 255, 0), 5,2);
-        UpdateROICorners(outpost_.BottomArmors()[biggist_armor]);
         if(0.99 * biggest_area_ < outpost_.BottomArmors()[biggist_armor].Area()){
             buff +=2;
         }else if(0.97 * biggest_area_ < outpost_.BottomArmors()[biggist_armor].Area()){
@@ -92,13 +90,13 @@ SendPacket OutpostPredictorNew::Run(Battlefield battlefield, float bullet_speed)
         }else buff = 0;
         if(buff > 50){
             outpost_.center_point_ = outpost_.BottomArmors()[biggist_armor].Center();
-            prepared = true;
+            prepared_ = true;
             start_time_ =  std::chrono::high_resolution_clock::now();
         }
     }
 
 
-    if(prepared){
+    if(prepared_){
         double time_gap2 = (static_cast<std::chrono::duration<double, std::milli>>(current_time_chrono - start_time_)).count();
         debug::Painter::Instance()->DrawPoint(outpost_.center_point_,cv::Scalar(0, 255, 0), 5,2);
         if( time_gap2 * 1e-3 > 0.1)
@@ -111,7 +109,7 @@ SendPacket OutpostPredictorNew::Run(Battlefield battlefield, float bullet_speed)
         if(ready_fire_){
             auto current_time = std::chrono::high_resolution_clock::now();
             double time_gap = (static_cast<std::chrono::duration<double, std::milli>>(current_time - ready_time_)).count();
-            if (delay_time_< time_gap *1e-3 ){
+            if (shoot_delay_time_ < time_gap * 1e-3 ){
                 send_packet.fire = 1;
                 ready_fire_ = false;
             }
@@ -119,7 +117,7 @@ SendPacket OutpostPredictorNew::Run(Battlefield battlefield, float bullet_speed)
     }
 
 
-    if(!prepared){
+    if(!prepared_){
         send_packet.pitch += 0.11;
         send_packet.yaw += 0.04;
     }
@@ -127,7 +125,7 @@ SendPacket OutpostPredictorNew::Run(Battlefield battlefield, float bullet_speed)
 
 }
 
-int OutpostPredictorNew::FindBiggestArmor(const std::vector<Armor> &armors) {
+int OutpostPredictor::FindBiggestArmor(const std::vector<Armor> &armors) {
     if(armors.size() == 1)
         return  0;
     int biggest_id = 0;
@@ -140,32 +138,7 @@ int OutpostPredictorNew::FindBiggestArmor(const std::vector<Armor> &armors) {
     return biggest_id;
 }
 
-void OutpostPredictorNew::GetROI(cv::Rect &roi_rect, const cv::Mat &src_image) {
-    if(outpost_.BottomArmors().empty())   {
-        ++roi_buff_;
-        if(roi_buff_>30){
-            roi_rect = {};
-            return;
-        }
-    }
-    else roi_buff_ =0;
-    int width =  abs(roi_corners_[0].x - roi_corners_[1].x) < abs(roi_corners_[1].x - roi_corners_[2].x) ?
-                 int(abs(roi_corners_[1].x - roi_corners_[2].x)) : int(abs(roi_corners_[0].x - roi_corners_[1].x));
-    int height = abs(roi_corners_[0].y - roi_corners_[1].y) < abs(roi_corners_[1].y - roi_corners_[2].y) ?
-                 int(abs(roi_corners_[1].y - roi_corners_[2].y)) : int(abs(roi_corners_[0].y - roi_corners_[1].y));
-    int x = int(cv::min(cv::min(roi_corners_[0].x,roi_corners_[1].x),cv::min(roi_corners_[2].x,roi_corners_[3].x)));
-    int y = int(cv::min(cv::min(roi_corners_[0].y,roi_corners_[1].y),cv::min(roi_corners_[2].y,roi_corners_[3].y)));
-//        cv::RotatedRect target(corners_[0],corners_[1],corners_[2]);
-//        auto target_right = target.boundingRect();
-    cv::Rect target_right{x,y,width,height};
-    auto zoom_size = cv::Size(target_right.width * kZoomRatio.width,
-                              target_right.height * kZoomRatio.height);
-    roi_rect = target_right + zoom_size;
-    roi_rect -= cv::Point((zoom_size.width >> 1 ),(zoom_size.height >> 1));
-    roi_rect = roi_rect & cv::Rect(0, 0, src_image.cols,src_image.rows);
-}
-
-void OutpostPredictorNew::DecideComingGoing() {
+void OutpostPredictor::DecideComingGoing() {
     if(outpost_.BottomArmors().size() == 1)
     {
         if(clockwise_ == 1)
@@ -220,7 +193,7 @@ void OutpostPredictorNew::DecideComingGoing() {
     }
 }
 
-void OutpostPredictorNew::IsClockwise() {
+void OutpostPredictor::IsClockwise() {
     LOG(INFO) << "nums of armor" << outpost_.BottomArmors().size();
     double this_armor_x;
     if(outpost_.BottomArmors().size() == 1)
@@ -250,11 +223,5 @@ void OutpostPredictorNew::IsClockwise() {
         LOG(WARNING)<< "Outpost is anti-Clockwise";
         clockwise_ = -1;
         checked_clockwise_ = true;
-    }
-}
-
-void OutpostPredictorNew::UpdateROICorners(const Armor& armor) {
-    for(int i = 0;i<4;i++){
-        roi_corners_[i] = armor.Corners()[i];
     }
 }

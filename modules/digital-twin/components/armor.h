@@ -66,7 +66,7 @@ public:
         cv::Mat rv_cam, tv_cam;
         std::vector<cv::Point2f> image_points(corners_, corners_ + 4);
 
-        if(size == ArmorSize::kAuto)
+        if(size == ArmorSize::kAuto) {
             switch (id_) {
                 case 0:  // Sentry.
                 case 1:  // Hero.
@@ -115,7 +115,7 @@ public:
                     }
                     break;
             }
-
+        }
         else if(size == ArmorSize::kBig){
             cv::solvePnP(big_armor_pc,
                          image_points,
@@ -124,7 +124,6 @@ public:
                          rv_cam,
                          tv_cam);
         }
-
         else {
             cv::solvePnP(small_armor_pc,
                          image_points,

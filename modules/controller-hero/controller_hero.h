@@ -31,7 +31,7 @@ private:
 
 //    OutpostDataDetector outpost_detector_;
 //    OutpostPredictor outpost_predictor_;
-    OutpostPredictorNew outpost_predictor_new_;
+    OutpostPredictor outpost_predictor_new_;
 
 
 };
