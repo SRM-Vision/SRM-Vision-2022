@@ -24,9 +24,8 @@ public:
     cv::Point2f going_center_;
     double distance;
     float shoot_delay;
-    int clockwise = 0; // clockwise is 1, anti-clockwise = -1
+    int clockwise = 0; ///< 向右转逆，向左转顺
 
-//    static Outpost last_outpost_dataflow_[100];
 };
 
 #endif  // OUTPOST_H_
