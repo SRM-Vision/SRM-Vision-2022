@@ -6,7 +6,6 @@
 #define PREDICTOR_OUTPOST_DEBUG_H_
 
 #include <glog/logging.h>
-#include "predictor_outpost_debug.h"
 #include "debug-tools/trackbar.h"
 
 class OutpostPredictorDebug {
