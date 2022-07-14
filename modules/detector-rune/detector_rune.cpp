@@ -33,7 +33,7 @@ bool RuneDetector::Initialize(const std::string &config_path, const Frame &frame
 
 PowerRune RuneDetector::Run(Entity::Colors color, Frame &frame, const cv::MatSize &size) {
     color_ = color;
-    color_ = Entity::kRed;
+    color_ = Entity::kRed;  // FIXME
     image_ = frame.image.clone();
 
     // Split image's channels.

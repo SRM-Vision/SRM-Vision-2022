@@ -7,7 +7,7 @@
 #include "antitop_detector_renew.h"
 
 void AntiTopDetectorRenew::UpdateTop(const int &new_armor_num, const uint64_t &now_timestamp) {
-    auto new_top_period{algorithm::Duration(timestamp_, now_timestamp) * 8};
+    auto new_top_period{algorithm::NanoSecondsToSeconds(timestamp_, now_timestamp) * 8};
     if(new_armor_num != armor_num_) {  //  from one armor to one armor is the quartet cycles. It`s 1/8 period.
         top_period_ = new_top_period;
         timestamp_ = now_timestamp;
@@ -58,7 +58,7 @@ void AntiTopDetectorRenew::UpdateClockwise(const std::vector <Armor> &armors) {
 
 void AntiTopDetectorRenew::UpdateJumpTop(PredictArmor &predict_armor, uint64_t current_time,
                                          const std::array<float, 3> &yaw_pitch_roll) {
-    double time_after_jump{algorithm::Duration(last_jump_time_,current_time)};
+    double time_after_jump{algorithm::NanoSecondsToSeconds(last_jump_time_, current_time)};
 
     DLOG(INFO) << "TIME AFTER JUMP: " << time_after_jump;
 
@@ -73,7 +73,7 @@ void AntiTopDetectorRenew::UpdateJumpTop(PredictArmor &predict_armor, uint64_t c
     // When tracking the same armor plate
     double current_yaw{std::atan2(predict_armor.TranslationVectorWorld()(0,0),
                                   predict_armor.TranslationVectorWorld()(2,0))};
-    double yaw_delta{algorithm::shortest_angular_distance(last_yaw_, current_yaw)};
+    double yaw_delta{algorithm::ShortestAngularDistance(last_yaw_, current_yaw)};
     DLOG(INFO) << "YAW DELTA: " << yaw_delta;
     // When jump enough
     if(std::abs(yaw_delta) > max_jump_yaw_){

@@ -4,9 +4,9 @@
 #include"compensator.h"
 bool Compensator::Initialize(std::string robot_name) {
     cv::FileStorage config_;
-    config_.open("../config/"+robot_name+"/setoff-param.yaml", cv::FileStorage::READ);
+    config_.open("../config/"+robot_name+"/offset-param.yaml", cv::FileStorage::READ);
     if (!config_.isOpened()) {
-        LOG(ERROR) << "Failed to open setoff file ";
+        LOG(ERROR) << "Failed to open offset file ";
         return false;
     }
     if( config_["A0"].empty()||config_["B0"].empty()||config_["C0"].empty()||config_["D0"].empty()||
@@ -15,9 +15,10 @@ bool Compensator::Initialize(std::string robot_name) {
         config_["AA1"].empty()||config_["BB1"].empty()||config_["CC1"].empty()||config_["DD1"].empty()||
         config_["AAA0"].empty()||config_["BBB0"].empty()||config_["CCC0"].empty()||config_["DDD0"].empty()||
         config_["AAA1"].empty()||config_["BBB1"].empty()||config_["CCC1"].empty()||config_["DDD1"].empty()){
-        LOG(ERROR) << "The data in setoff file is wrong";
+        LOG(ERROR) << "The data in offset file is wrong";
         return false;
     }
+
     robot_name_ = robot_name;
     config_["A0"] >> setoff0d_[0];config_["B0"] >> setoff0d_[1];config_["C0"] >> setoff0d_[2];config_["D0"] >> setoff0d_[3];
     config_["A1"] >> setoff0p_[0];config_["B1"] >> setoff0p_[1];config_["C1"] >> setoff0p_[2];config_["D1"] >> setoff0p_[3];

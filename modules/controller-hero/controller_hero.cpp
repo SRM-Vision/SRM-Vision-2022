@@ -39,11 +39,6 @@ bool HeroController::Initialize() {
         }
 
     }
-    if (outpost_detector_.Initialize("../config/hero/outpost-detector-param.yaml"),  // TODO Debug
-            CmdlineArgParser::Instance().DebugUseTrackbar())
-        LOG(INFO) << "Outpost detector initialize successfully!";
-    else
-        LOG(ERROR) << "Outpost detector initialize unsuccessfully!";
 
     if(Compensator::Instance().Initialize("hero"))
         LOG(INFO) << "Offset initialize successfully!";
@@ -95,9 +90,13 @@ void HeroController::Run() {
             battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.yaw_pitch_roll,
                                        armors_);
 
-            outpost_detector_.SetColor(receive_packet_.color);
-            send_packet_ = outpost_predictor_.Run(outpost_detector_.Run(battlefield_), 16);
-            outpost_predictor_.GetROI(ROI,frame_.image);
+//            outpost_detector_.SetColor(receive_packet_.color);
+//            send_packet_ = outpost_predictor_.Run(outpost_detector_.Run(battlefield_), 16);
+//            outpost_predictor_.GetROI(ROI,frame_.image);
+
+            outpost_predictor_new_.SetColor(receive_packet_.color);
+            send_packet_ = outpost_predictor_new_.Run(battlefield_,receive_packet_.bullet_speed);
+            outpost_predictor_new_.GetROI(ROI,frame_.image);
 
             if(send_packet_.fire)
                 debug::Painter::Instance()->DrawText("Fire",{50,50},cv::Scalar(100, 255, 100),2);
@@ -137,11 +136,11 @@ void HeroController::Run() {
             debug::Painter::Instance()->DrawBoundingBox(ROI,cv::Scalar(0,0,255),2);
             debug::Painter::Instance()->ShowImage("ARMOR DETECT", 1);
         }
-
-        Compensator::Instance().Offset(send_packet_.pitch, send_packet_.yaw,
-                                       receive_packet_.bullet_speed, send_packet_.check_sum,
-                                       armor_predictor.GetTargetDistance(),
-                                       receive_packet_.mode);
+//
+//        Compensator::Instance().Offset(send_packet_.pitch, send_packet_.yaw,
+//                                       receive_packet_.bullet_speed, send_packet_.check_sum,
+//                                       armor_predictor.GetTargetDistance(),
+//                                       receive_packet_.mode);
 
         auto key = cv::waitKey(5) & 0xff;
         if (key == 'q')

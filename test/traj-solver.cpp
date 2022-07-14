@@ -1,9 +1,9 @@
 #include <iostream>
 #include <glog/logging.h>
 #include <opencv2/core/cvdef.h>
-#include "bullet-trajectory-solver/pitch-angle-solver.h"
+#include "trajectory-solver/trajectory-solver.h"
 
-using namespace bullet_trajectory_solver;
+using namespace trajectory_solver;
 using namespace std;
 
 int main([[maybe_unused]] int argc, char *argv[]) {

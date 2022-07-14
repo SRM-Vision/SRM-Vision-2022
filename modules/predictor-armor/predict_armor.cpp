@@ -26,7 +26,6 @@ void PredictArmor::Predict(const Armor& armor,double delta_t,double bullet_speed
         MeasureFunction measure;  ///< Measuring function.
         predict.delta_t = delta_t;
 
-
         /// translate measured value to the format of ekf
         Eigen::Matrix<double, 3, 1> y_real;
         coordinate::convert::Rectangular2Spherical(armor.TranslationVectorWorld().data(), y_real.data());
@@ -80,7 +79,7 @@ void PredictArmor::GetROI(cv::Rect &roi_rect, const cv::Mat &src_image) {
 void PredictArmor::AntiSpin(double jump_period, const coordinate::TranslationVector &last_jump_position,
                             uint64_t current_time, uint64_t last_jump_time,
                             const std::array<float, 3> &yaw_pitch_roll) {
-    if(algorithm::Duration(last_jump_time,current_time) / jump_period < kAllowFollowRange){
+    if(algorithm::NanoSecondsToSeconds(last_jump_time, current_time) / jump_period < kAllowFollowRange){
         fire_ = true;
     }else{
         predict_world_vector_ << last_jump_position;

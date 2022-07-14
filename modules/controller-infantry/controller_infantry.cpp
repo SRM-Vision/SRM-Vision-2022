@@ -62,11 +62,10 @@ bool InfantryController::Initialize() {
         LOG(ERROR) << "Rune predictor initialize unsuccessfully!";
     }
 
-
     if(Compensator::Instance().Initialize("infantry"))
-        LOG(INFO) << "Set off initialize successfully!";
+        LOG(INFO) << "Offset initialize successfully!";
     else
-        LOG(ERROR) << "Set off initialize unsuccessfully!";
+        LOG(ERROR) << "Offset  initialize unsuccessfully!";
 
     if (coordinate::InitializeMatrix("../config/infantry/matrix-init.yaml"))
         LOG(INFO) << "Camera initialize successfully!";

@@ -13,13 +13,12 @@
 
 /// \brief Packet of auto aiming mode.
 enum AimModes {
-    // TODO Classify, convert to binary.
     kNormal = 10,
     kAntiTop = 20,
     kSmallRune = 30,
     kBigRune = 40,
     kOutPost = 50,
-    kAutoAntiTop = 1,   //  use for sentry manually
+    kAutoAntiTop = 1,   ///<  use for sentry manually
     SIZE = 6
 };
 
