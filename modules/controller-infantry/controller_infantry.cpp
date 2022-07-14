@@ -7,6 +7,7 @@
 #include "detector-rune/detector_rune.h"
 #include "predictor-rune/predictor-rune.h"
 #include "controller_infantry.h"
+#include "controller_infantry_debug.h"
 #include "compensator/compensator.h"
 #include "digital-twin/entity.h"
 
