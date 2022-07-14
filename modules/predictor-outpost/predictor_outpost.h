@@ -1,70 +1,79 @@
 /**
- * Outpost predictor definition header.
- * \author LIYunzhe1408
- * \date 2022.5.2
+ * Outpost predictor class header.
+ * \author Lzy20020320
+ * \date 2022.7.13
  */
-#ifndef PREDICTOR_OUTPOST_H_
-#define PREDICTOR_OUTPOST_H_
-#include "data-structure/buffer.h"
-#include "data-structure/communication.h"
-#include "digital-twin/facilities/outpost.h"
-#include "detector-outpost/detector_outpost.h"
+
+
+#ifndef PREDICTOR_OUTPOST_NEW_H_
+#define PREDICTOR_OUTPOST_NEW_H_
+
+
+#include <data-structure/communication.h>
+#include "../digital-twin/battlefield.h"
+#include "debug-tools/painter.h"
+#include "predictor-armor/spin_detector.h"
 #include "predictor-armor-debug/predictor_armor_debug.h"
+#include "predictor-outpost-debug/predictor_outpost_debug.h"
 
-#include <utility>
-#define PREDICTOR_OUTPOST_H_
-#include "debug-tools/trackbar.h"
-#include "predictor-armor-debug/predictor_armor_debug.h"
-struct OutputData {
-    void Update(const coordinate::TranslationVector& shoot_point);
-
-    float yaw;
-    float pitch;
-    float delay;
-    int fire;
-};
-
-class OutpostPredictor
-{
+class OutpostPredictor{
 public:
-    explicit OutpostPredictor()
-    {
-        debug::Trackbar<double>::Instance().AddTrackbar("outpost pitch:",
-                                                        "outpost",
-                                                        delta_pitch_,
-                                                        1);
-        debug::Trackbar<double>::Instance().AddTrackbar("shoot_distance:",
-                                                        "outpost",
-                                                        advanced_distance,
-                                                        150);
-        debug::Trackbar<double>::Instance().AddTrackbar("delay_time:",
-                                                        "outpost",
-                                                        delay_time_,
-                                                        1);
-    }
+    OutpostPredictor() = default;
     ~OutpostPredictor() = default;
-    SendPacket Run(DetectedData detected_data, float bullet_speed = 16);
-    void GetROI(cv::Rect &roi_rect, const cv::Mat &src_image);
+
+    SendPacket Run(Battlefield battlefield, float bullet_speed = 16);
+
+    /**
+    * \brief Set the color of outpost.
+    * \param enemy_color Enemy color.
+    */
+    void SetColor(const Entity::Colors &enemy_color) { enemy_color_ = enemy_color; }
+
+    /**
+    * \brief Clear the information in OutpostPredictor.
+    */
+    void Clear();
+
 private:
+    /**
+     * \brief Find the armor with the biggest area.
+     * @param [in] armors. All detected armors.
+     * @return index of the armor with biggest area.
+     */
+    int FindBiggestArmor(const std::vector<Armor> &armors);
 
-    const double kRotateSpeed_ = 0.4;  ///< round/s
-    const double kCommunicationTime_ = 0.03; ///< m/s
+    /**
+     * \Brief Decide the coming/going armor in different rotating cases.
+     * @Details In one or two armors cases, compare 'armor center x' with 'outpost center x' to decide coming/going.
+     */
+    void DecideComingGoing();
 
+    /**
+     * \Brief Judge rotate direction.
+     * @Details Calculate difference value of contiguous armor centers' x.
+     * @Note Variable 'clockwise' is ought to be valued as 1 (rotate left) or -1 (rotate right).
+     */
+    void IsClockwise();
 
-    //ROI
-    cv::Point2f roi_corners_[4]{};
-    int armor_num = 0;
-    int buff = 0;
+    Outpost outpost_{};
 
-
-    //
-    double delta_pitch_ = 0;
-    double advanced_distance = 100;
-    OutputData output_data_{};
-
-    bool ready_ = false;
+    std::chrono::high_resolution_clock::time_point start_time_;
     std::chrono::high_resolution_clock::time_point ready_time_{};
-    double delay_time_=0.1;
+
+    Entity::Colors enemy_color_;
+    bool checked_clockwise_ = false;
+    int clockwise_          = 0;       ///< 1 (rotate left) or -1 (rotate right)
+
+    double last_armor_x_{};
+
+    bool ready_fire_ = false;
+    bool prepared_ = false;
+    bool need_init_ = true;
+
+    double biggest_area_ = 0;
+    double shoot_delay_time_   = 0;
+
+    int buff{};
 };
 
-#endif  // PREDICTOR_OUTPOST_H_
+#endif //PREDICTOR_OUTPOST_H_
