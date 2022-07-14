@@ -7,6 +7,7 @@
 #include "predictor-rune/predictor-rune.h"
 #include "predictor-armor/predictor_armor.h"
 #include "controller_infantry.h"
+#include "controller_infantry_debug.h"
 
 /**
  * \warning Controller registry will be initialized before the program entering the main function!
@@ -22,13 +23,7 @@ bool InfantryController::Initialize() {
         return false;
 
     // Initialize painter.
-    if (CmdlineArgParser::Instance().DebugUseTrackbar()) {
-        painter_ = debug::Painter::Instance();
-        LOG(INFO) << "Running with debug painter.";
-    } else {
-        painter_ = debug::NoPainter::Instance();
-        LOG(INFO) << "Running without debug painter.";
-    }
+    controller_infantry_debug_.Initialize(CmdlineArgParser::Instance().DebugUseTrackbar());
 
     // Initialize Rune module.
     Frame init_frame;
@@ -57,7 +52,6 @@ void InfantryController::Run() {
 
         RunGimbal();
 
-        painter_->UpdateImage(frame_.image);
         if (CmdlineArgParser::Instance().RuneModeRune()) {
             power_rune_ = rune_detector_.Run(receive_packet_.color, frame_);
             send_packet_ = SendPacket(
@@ -78,20 +72,15 @@ void InfantryController::Run() {
             } else
                 send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size);
             armor_predictor.GetROI(ROI, frame_.image);
-            painter_->UpdateImage(frame_.image);
-            painter_->DrawBoundingBox(ROI, cv::Scalar(0, 0, 255), 2);
-            for (const auto &box: boxes_) {
-                painter_->DrawRotatedRectangle(box.points[0],
-                                               box.points[1],
-                                               box.points[2],
-                                               box.points[3],
-                                               cv::Scalar(0, 255, 0), 2);
-                painter_->DrawText(std::to_string(box.id), box.points[0], 255, 2);
-            }
-            painter_->DrawPoint(armor_predictor.ShootPointInPic(image_provider_->IntrinsicMatrix(), frame_.image.size),
-                                cv::Scalar(0, 0, 255), 1, 10);
-            painter_->DrawPoint(armor_predictor.TargetCenter(), cv::Scalar(100, 255, 100), 2, 2);
-            painter_->ShowImage("ARMOR DETECT", 1);
+
+            controller_infantry_debug_.DrawArmorDetection(frame_.image,
+                                                          ROI,
+                                                          boxes_,
+                                                          &armor_predictor,
+                                                          image_provider_->IntrinsicMatrix(),
+                                                          frame_.image.size,
+                                                          "Infantry Run",
+                                                          1);
         }
 
         auto key = cv::waitKey(1) & 0xff;

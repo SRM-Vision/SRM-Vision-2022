@@ -3,11 +3,6 @@
 
 #include <iostream>
 #include <opencv2/opencv.hpp>
-#include "controller-hero/controller_hero_debug.h"
-#include "controller-infantry/controller_infantry_debug.h"
-#include "controller-sentry-lower/controller_sentry_lower_debug.h"
-#include "controller-sentry-higher/controller_sentry_higher_debug.h"
-
 
 // predictor rune needed data structure
 #include <predictor-rune/predictor-rune.h>

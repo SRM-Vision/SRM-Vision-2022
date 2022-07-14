@@ -9,6 +9,8 @@
 #define CONTROLLER_INFANTRY_H_
 
 // Do NOT include anything to avoid being wrongly included.
+#include "controller_infantry_debug.h"
+
 
 class [[maybe_unused]] InfantryController final : public Controller {
 public:
@@ -39,6 +41,8 @@ private:
     RuneDetector rune_detector_;
     RunePredictor rune_predictor_;
     PowerRune power_rune_;
+
+    ControllerInfantryDebug controller_infantry_debug_;
 
     debug::IPainter* painter_;
 };
