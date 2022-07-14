@@ -14,6 +14,7 @@
 #include "predictor-armor/spin_detector.h"
 #include "predictor-armor/predictor_armor_debug.h"
 #include "predictor_outpost_debug.h"
+#include "lang-feature-extension/attr-reader.h"
 
 
 /**
@@ -52,6 +53,9 @@ public:
     */
     void Clear();
 
+    ATTR_READER(outpost_center_, OutpostCenter);
+    ATTR_READER(fire_, Fire);
+
 private:
 
     /**
@@ -81,7 +85,7 @@ private:
     const double kAimBuff = 20;  ///< The num frame number to ensure the result.
 
     Outpost outpost_{};
-
+    cv::Point2f outpost_center_{};
     std::chrono::high_resolution_clock::time_point start_time_{};
     std::chrono::high_resolution_clock::time_point ready_time_{};
 
@@ -94,6 +98,7 @@ private:
     bool ready_fire_{false};
     bool prepared_{false};
     bool need_init_{true};
+    bool fire_{false};
 
     double biggest_area_{0};
     double shoot_delay_time_{0};

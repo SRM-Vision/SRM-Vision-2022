@@ -7,7 +7,7 @@
 
 #ifndef CONTROLLER_HERO_H_
 #define CONTROLLER_HERO_H_
-
+#include "controller_hero_debug.h"
 
 class [[maybe_unused]] HeroController final : public Controller {
 public:
@@ -26,6 +26,8 @@ private:
                                  float(send_packet_.point4_x) + float(send_packet_.point4_y);
     };
     [[maybe_unused]] static ControllerRegistry<HeroController> hero_controller_registry_;
+
+    ControllerHeroDebug controller_hero_debug_;
 
     OutpostPredictor outpost_predictor_;
 //    OutpostMeasure outpost_measure_;

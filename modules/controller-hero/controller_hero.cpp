@@ -22,7 +22,7 @@ bool HeroController::Initialize() {
     // Common initialization.
     if (!Controller::Initialize("hero"))
         return false;
-
+    controller_hero_debug_.Initialize(CmdlineArgParser::Instance().DebugUseTrackbar());
     // Initialize the outpost detector.
     if (outpost_predictor_.Initialize())
         LOG(INFO) << "Outpost predictor initialize successfully!";
@@ -34,6 +34,7 @@ bool HeroController::Initialize() {
 }
 
 void HeroController::Run() {
+
     sleep(2);
     cv::Rect ROI; // roi of detect armor
     ArmorPredictor armor_predictor(Entity::kBlue, "hero");
@@ -45,29 +46,28 @@ void HeroController::Run() {
 
         RunGimbal();
 
-        debug::Painter::Instance()->UpdateImage(frame_.image);
-
         boxes_ = armor_detector_(frame_.image, ROI);
-        for (auto &box: boxes_)
-            DLOG(INFO) << "CONFIDENCE:  " << box.confidence;
-        // if(receive_packet_.mode == kOutPost)
-        if (CmdlineArgParser::Instance().RunModeOutpost()) {
+
+        if (CmdlineArgParser::Instance().RunModeOutpost() ||
+            receive_packet_.mode == AimModes::kOutPost) {
 
             BboxToArmor(Armor::ArmorSize::kSmall);
-            battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.yaw_pitch_roll,
+            battlefield_ = Battlefield(frame_.time_stamp,
+                                       receive_packet_.bullet_speed,
+                                       receive_packet_.yaw_pitch_roll,
                                        armors_);
-            // outpost_measure_.Run(battlefield_,receive_packet_.color,receive_packet_.bullet_speed);
 
             outpost_predictor_.SetColor(receive_packet_.color);
             send_packet_ = outpost_predictor_.Run(battlefield_, receive_packet_.bullet_speed);
-
-            if (send_packet_.fire)
-                debug::Painter::Instance()->DrawText("Fire", {50, 50}, cv::Scalar(100, 255, 100), 2);
-            debug::Painter::Instance()->DrawBoundingBox(ROI, cv::Scalar(0, 0, 255), 2);
-            debug::Painter::Instance()->DrawBoundingBox(ROI, cv::Scalar(0, 0, 255), 2);
-            debug::Painter::Instance()->ShowImage("ARMOR DETECT", 1);
+            controller_hero_debug_.DrawOutpostData(frame_.image,
+                                                   ROI,
+                                                   &outpost_predictor_,
+                                                   image_provider_->IntrinsicMatrix(),
+                                                   frame_.image.size,
+                                                   "Hero Run",
+                                                   1);
         } else {
-            /// TODO mode switch
+
             BboxToArmor();
             battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.yaw_pitch_roll,
                                        armors_);
@@ -78,24 +78,15 @@ void HeroController::Run() {
             } else
                 send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size);
 
-            if (receive_packet_.mode != AimModes::kOutPost)
-                send_packet_.fire = 0;
 
-            //armor_predictor.GetROI(ROI,frame_.image);
-            for (const auto &box: boxes_) {
-                debug::Painter::Instance()->DrawRotatedRectangle(box.points[0],
-                                                                 box.points[1],
-                                                                 box.points[2],
-                                                                 box.points[3],
-                                                                 cv::Scalar(0, 255, 0), 2);
-                debug::Painter::Instance()->DrawText(std::to_string(box.id), box.points[0], 255, 2);
-                debug::Painter::Instance()->DrawPoint(armors_.front().Center(), cv::Scalar(100, 255, 100), 2, 2);
-            }
-            debug::Painter::Instance()->DrawPoint(armor_predictor.ShootPointInPic(image_provider_->IntrinsicMatrix(),
-                                                                                  frame_.image.size),
-                                                  cv::Scalar(0, 0, 255), 1, 10);
-            debug::Painter::Instance()->DrawBoundingBox(ROI, cv::Scalar(0, 0, 255), 2);
-            debug::Painter::Instance()->ShowImage("ARMOR DETECT", 1);
+            controller_hero_debug_.DrawArmorDetection(frame_.image,
+                                                      ROI,
+                                                      boxes_,
+                                                      &armor_predictor,
+                                                      image_provider_->IntrinsicMatrix(),
+                                                      frame_.image.size,
+                                                      "Hero Run",
+                                                      1);
         }
 //
 //        Compensator::Instance().Offset(send_packet_.pitch, send_packet_.yaw,

@@ -58,7 +58,17 @@ public:
         painter_->DrawPoint(armor_predictor->TargetCenter(), cv::Scalar(100, 255, 100), 2, 2);
     }
 
-    inline void ShowImage(const std::string &window_names, const int &wait_time)
+    inline void ShowText(const std::string &text) const
+    {
+        painter_->DrawText(text,{200,200},{0,0,255},2);
+    }
+
+    inline void ShowPoint(const cv::Point2f& point) const
+    {
+        painter_->DrawPoint(point,{0,255,0},5,2);
+    }
+
+    inline void ShowImage(const std::string &window_names, const int &wait_time) const
     {
         painter_->ShowImage(window_names, wait_time);
     }

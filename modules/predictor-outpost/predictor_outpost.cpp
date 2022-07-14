@@ -98,6 +98,7 @@ SendPacket OutpostPredictor::Run(Battlefield battlefield, float bullet_speed) {
             ++aim_buff_;
         } else aim_buff_ = 0;
         if (aim_buff_ > kAimBuff) {
+            outpost_center_ = outpost_.BottomArmors()[biggest_armor].Center();
             outpost_.center_point_ = outpost_.BottomArmors()[biggest_armor].Center();
             prepared_ = true;
             start_time_ = std::chrono::high_resolution_clock::now();
@@ -135,6 +136,7 @@ SendPacket OutpostPredictor::Run(Battlefield battlefield, float bullet_speed) {
         send_packet.pitch += 0.11;
         send_packet.yaw += 0.04;
     }
+    fire_ = send_packet.fire;
     return send_packet;
 
 }
