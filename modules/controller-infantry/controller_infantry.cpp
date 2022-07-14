@@ -82,9 +82,8 @@ void InfantryController::Run() {
                                                           1);
         }
 
-        char key;
-        controller_infantry_debug_.GetKey(key);
-        if (key == 'q')
+
+        if (controller_infantry_debug_.GetKey() == 'q')
             break;
 
         if (CmdlineArgParser::Instance().RunWithSerial()) {
