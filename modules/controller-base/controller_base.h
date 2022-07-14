@@ -43,9 +43,9 @@ public:
     virtual ~Controller() = default;
 
 protected:
-    [[nodiscard]] bool InitializeImageProvider();
+    [[nodiscard]] bool InitializeImageProvider(std::string type);
 
-    [[nodiscard]] bool InitializeGimbal();
+    [[nodiscard]] bool InitializeGimbalSerial();
 
     template<bool flip>
     [[nodiscard]] bool GetImage() {
@@ -66,6 +66,8 @@ protected:
             }
         return true;
     }
+
+    void RunGimbal();
 
     std::unique_ptr<ImageProvider> image_provider_;  ///< Image provider handler.
     Frame frame_;

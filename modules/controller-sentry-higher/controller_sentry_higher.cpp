@@ -11,33 +11,15 @@
         SentryHigherController::sentry_higher_controller_registry_("sentry_higher");
 
 bool SentryHigherController::Initialize() {
-    // Use reset here to allocate memory for an abstract class.
-    image_provider_.reset(CREATE_IMAGE_PROVIDER(CmdlineArgParser::Instance().RunWithCamera() ? "camera" : "video"));
-    if (!image_provider_->Initialize(
-            CmdlineArgParser::Instance().RunWithCamera() ?
-            "../config/sentry_higher/camera-init.yaml" : "../config/sentry_higher/video-init.yaml")) {
-        LOG(ERROR) << "Failed to initialize image provider.";
-        // Till now the camera may be open, it's necessary to reset image_provider_ manually to release camera.
-        image_provider_.reset();
+    if (!InitializeImageProvider("sentry_higher") || !InitializeGimbalSerial())
         return false;
-    }
 
-    if(CmdlineArgParser::Instance().DebugUseTrackbar())
+    if (CmdlineArgParser::Instance().DebugUseTrackbar())
         painter_ = debug::NoPainter::Instance();
     else
         painter_ = debug::NoPainter::Instance();
 
-    if (CmdlineArgParser::Instance().RunWithGimbal()) {
-        serial_ = std::make_unique<Serial>();
-        if (!serial_->StartCommunication()) {
-            LOG(ERROR) << "Failed to start serial communication.";
-            serial_->StopCommunication();
-            // To use std::make_unique will automatically reset serial_ at the next time.
-            // So, there's no need to reset it manually.
-            return false;
-        }
-    }
-    if(Compensator::Instance().Initialize("sentry_higher"))
+    if (Compensator::Instance().Initialize("sentry_higher"))
         LOG(INFO) << "Setoff initialize successfully!";
     else
         LOG(ERROR) << "Setoff initialize unsuccessfully!";
@@ -52,13 +34,13 @@ bool SentryHigherController::Initialize() {
 }
 
 void SentryHigherController::Run() {
-    PredictorArmorRenew armor_predictor(Entity::Colors::kBlue,  "sentry_higher");
+    PredictorArmorRenew armor_predictor(Entity::Colors::kBlue, "sentry_higher");
     sleep(2);
 
     cv::Rect ROI; // roi of detect armor
     while (!exit_signal_) {
         auto time = std::chrono::steady_clock::now();
-        if (!image_provider_->GetFrame(frame_)){
+        if (!image_provider_->GetFrame(frame_)) {
             std::this_thread::sleep_for(std::chrono::milliseconds(5));
             LOG(ERROR) << "wait for image...";
             continue;
@@ -69,7 +51,7 @@ void SentryHigherController::Run() {
             serial_->GetData(serial_receive_packet, std::chrono::milliseconds(5));
             receive_packet_ = ReceivePacket(serial_receive_packet);
         }
-        boxes_ = armor_detector_(frame_.image,ROI);
+        boxes_ = armor_detector_(frame_.image, ROI);
         BboxToArmor();
         battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.yaw_pitch_roll,
                                    armors_);
@@ -78,8 +60,8 @@ void SentryHigherController::Run() {
             armor_predictor.SetColor(receive_packet_.color);
             send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size);
         } else
-            send_packet_ = SendPacket(armor_predictor.Run(battlefield_, frame_.image.size,AimModes::kAntiTop));
-        armor_predictor.GetROI(ROI,frame_.image);
+            send_packet_ = SendPacket(armor_predictor.Run(battlefield_, frame_.image.size, AimModes::kAntiTop));
+        armor_predictor.GetROI(ROI, frame_.image);
         auto img = frame_.image.clone();
         painter_->UpdateImage(frame_.image);
         for (const auto &box: boxes_) {
