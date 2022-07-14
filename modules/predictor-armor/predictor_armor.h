@@ -35,13 +35,13 @@ public:
      * @param size size of frame
      * @return  point of shooting point.
      */
-    cv::Point2f ShootPointInPic(const cv::Mat& intrinsic_matrix,cv::MatSize size);
+    [[nodiscard]] cv::Point2f ShootPointInPic(const cv::Mat& intrinsic_matrix,cv::MatSize size);
 
     /// used to offset
-    double GetTargetDistance();
+    [[nodiscard]] double GetTargetDistance();
 
     /// target center in picture.
-    cv::Point2f TargetCenter();
+    [[nodiscard]] cv::Point2f TargetCenter();
 
     /**
      * @brief Initialized the predictor before using. If enter a car name in constructor, initialization is not necessary.
