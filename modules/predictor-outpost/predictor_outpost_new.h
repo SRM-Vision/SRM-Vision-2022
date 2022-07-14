@@ -1,6 +1,9 @@
-//
-// Created by lzy on 2022/7/13.
-//
+/**
+ * Outpost predictor class header.
+ * \author Lzy20020320
+ * \date 2022.7.13
+ */
+
 
 #ifndef PREDICTOR_OUTPOST_NEW_H_
 #define PREDICTOR_OUTPOST_NEW_H_
@@ -21,18 +24,34 @@ public:
     void SetColor(const Entity::Colors& enemy_color)    {   enemy_color_ = enemy_color;}
 
 private:
+    /**
+     * \brief Find the armor with the biggest area.
+     * @param [in] armors. All detected armors.
+     * @return index of the armor with biggest area.
+     */
     int FindBiggestArmor(const std::vector<Armor> &armors);
+
+    /**
+     * \Brief Decide the coming/going armor in different rotating cases.
+     * @Details In one or two armors cases, compare 'armor center x' with 'outpost center x' to decide coming/going.
+     */
     void DecideComingGoing();
+
+    /**
+     * \Brief Judge rotate direction.
+     * @Details Calculate difference value of contiguous armor centers' x.
+     * @Note Variable 'clockwise' is ought to be valued as 1 (rotate left) or -1 (rotate right).
+     */
     void IsClockwise();
 
     Outpost outpost_{};
 
-    std::chrono::high_resolution_clock::time_point start_time_{};
+    std::chrono::high_resolution_clock::time_point start_time_;
     std::chrono::high_resolution_clock::time_point ready_time_{};
 
-    Entity::Colors enemy_color_{};
-    bool checked_clockwise_{};
-    int clockwise_{};
+    Entity::Colors enemy_color_;
+    bool checked_clockwise_ = false;
+    int clockwise_          = 0;       ///< 向右转逆，向左转顺
 
     double last_armor_x_{};
 
@@ -40,8 +59,8 @@ private:
     bool prepared_ = false;
     bool need_init_ = true;
 
-    double biggest_area_{};
-    double shoot_delay_time_=0.1;
+    double biggest_area_ = 0;
+    double delay_time_   = 0.1;
 
     int buff{};
 };

@@ -1,14 +1,14 @@
 /**
  * Serial packet structure definition header.
- * \author trantuan-20048607
- * \date 2022.2.24
+ * @author trantuan-20048607
+ * @date 2022.2.24
  */
 
 #ifndef PACKET_H_
 #define PACKET_H_
 
-/// \brief Packet format received.
-/// \warning Do NOT use this data type except in Serial class.
+/// @brief Packet format received.
+/// @warning Do NOT use this data type except in Serial class.
 struct SerialReceivePacket {
     int mode;
     int armor_kind;
@@ -27,8 +27,8 @@ inline std::ostream &operator<<(std::ostream &str, const SerialReceivePacket &re
     return str;
 }
 
-/// \brief Packet format received.
-/// \warning Do NOT use this data type except in Serial class.
+/// @brief Packet format received.
+/// @warning Do NOT use this data type except in Serial class.
 struct SerialSendPacket {
     float yaw;
     float pitch;

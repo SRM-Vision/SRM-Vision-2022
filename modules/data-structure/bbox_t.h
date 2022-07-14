@@ -17,18 +17,20 @@ struct alignas(4) bbox_t {
     int id;  ///< 0: sentry, 1-5: cars, 6: base.
 
     inline bool operator==(const bbox_t &bbox) const {
-        return (
-                points[0] == bbox.points[0] && points[1] == bbox.points[1]
-                && points[2] == bbox.points[2] && points[3] == bbox.points[3]
+        return (points[0] == bbox.points[0]
+                && points[1] == bbox.points[1]
+                && points[2] == bbox.points[2]
+                && points[3] == bbox.points[3]
                 && confidence == bbox.confidence
                 && color == bbox.color
                 && id == bbox.id);
     }
 
     inline bool operator!=(const bbox_t &bbox) const {
-        return (
-                points[0] != bbox.points[0] || points[1] != bbox.points[1]
-                || points[2] != bbox.points[2] || points[3] != bbox.points[3]
+        return (points[0] != bbox.points[0]
+                || points[1] != bbox.points[1]
+                || points[2] != bbox.points[2]
+                || points[3] != bbox.points[3]
                 || confidence != bbox.confidence
                 || color != bbox.color
                 || id != bbox.id);

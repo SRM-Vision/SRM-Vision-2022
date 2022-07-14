@@ -7,7 +7,7 @@
 #ifndef PREDICTOR_RUNE_H_
 #define PREDICTOR_RUNE_H_
 
-#include "lang-feature-extension/disable_constructors.h"
+#include "lang-feature-extension/disable-constructors.h"
 #include "data-structure/communication.h"
 #include "digital-twin/facilities/power_rune.h"
 

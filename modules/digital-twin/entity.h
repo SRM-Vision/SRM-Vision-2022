@@ -8,8 +8,8 @@
 #ifndef ENTITY_H_
 #define ENTITY_H_
 
-#include "lang-feature-extension/attr_reader.h"
-#include "lang-feature-extension/self_tag.h"
+#include "lang-feature-extension/attr-reader.h"
+#include "lang-feature-extension/self-tag.h"
 
 class Entity {
 public:

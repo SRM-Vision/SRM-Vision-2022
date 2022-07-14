@@ -1,6 +1,3 @@
-//
-// Created by lzy on 2022/7/13.
-//
 #include "predictor_outpost_new.h"
 #include "math-tools/algorithms.h"
 const int kFindTime = 5;
@@ -16,7 +13,14 @@ SendPacket OutpostPredictor::Run(Battlefield battlefield, float bullet_speed) {
     auto facilities = battlefield.Facilities();
     auto robots = battlefield.Robots();
     cv::Point3f shoot_point_;
-    // TODO 高度判断
+
+
+    // fixme 高度判断
+
+
+    /*
+     * Get all armors.
+     */
     for(auto &robot : robots[enemy_color_]){
         for( auto &armor:robot.second->Armors())
             outpost_.AddBottomArmor(armor);
@@ -25,21 +29,25 @@ SendPacket OutpostPredictor::Run(Battlefield battlefield, float bullet_speed) {
         for( auto &armor: facility.second->BottomArmors())
             outpost_.AddBottomArmor(armor);
     }
-    debug::Painter::Instance()->DrawPoint(outpost_.center_point_,cv::Scalar(0,255,0),5,2);
 
-    for (const auto &armor: outpost_.BottomArmors()) {
-        debug::Painter::Instance()->DrawRotatedRectangle(armor.Corners()[0],
-                                                         armor.Corners()[1],
-                                                         armor.Corners()[2],
-                                                         armor.Corners()[3],
-                                                         cv::Scalar(0, 255, 0), 2);
-        debug::Painter::Instance()->DrawText(std::to_string(armor.ID()), {200,200}, 255, 2);
 
-    }
-
-    //
+    // fixme move to controller-debug
+//    debug::Painter::Instance()->DrawPoint(outpost_.center_point_,cv::Scalar(0,255,0),5,2);
+//    for (const auto &armor: outpost_.BottomArmors()) {
+//        debug::Painter::Instance()->DrawRotatedRectangle(armor.Corners()[0],
+//                                                         armor.Corners()[1],
+//                                                         armor.Corners()[2],
+//                                                         armor.Corners()[3],
+//                                                         cv::Scalar(0, 255, 0), 2);
+//        debug::Painter::Instance()->DrawText(std::to_string(armor.ID()), {200,200}, 255, 2);
+//
+//    }
 
     if(outpost_.BottomArmors().empty() && prepared_){
+    /*
+     * Decide if lock the position of the gimbal.
+     */
+    if(outpost_.BottomArmors().empty() && prepared){
         return {0,0,0,
                 10,0,
                 0,0,0,0,
@@ -51,24 +59,27 @@ SendPacket OutpostPredictor::Run(Battlefield battlefield, float bullet_speed) {
                 0,0,0,0,
                 0,0,0,0,0};
     }
-    //
-    // 记录开始时间
+
+
     if(need_init_)
     {
         start_time_ =  std::chrono::high_resolution_clock::now();
-        need_init_ = false;
+        need_init_  = false;
     }
-    //
 
-    // 判断旋转，找到来去装甲板
+
     if(clockwise_<= 7 && clockwise_ >= -7 && !checked_clockwise_)
         IsClockwise();
     else
         DecideComingGoing();
-    //
+
+
 
     auto current_time_chrono = std::chrono::high_resolution_clock::now();
+    /// time_gap is to record the time period from 'start' to 'now'.
     double time_gap = (static_cast<std::chrono::duration<double, std::milli>>(current_time_chrono - start_time_)).count();
+    /// Get the index of armor with the biggest area in this frame.
+    int biggest_armor = FindBiggestArmor(outpost_.BottomArmors());
 
     int biggist_armor = FindBiggestArmor(outpost_.BottomArmors());
 
@@ -165,6 +176,7 @@ void OutpostPredictor::DecideComingGoing() {
             }
         }
     }
+    /// Two or more armors
     else
     {
         if(clockwise_ == 1)
@@ -211,16 +223,17 @@ void OutpostPredictor::IsClockwise() {
         clockwise_ --;
     else
         LOG(INFO) << "Outpost clockwise something wrong";
-    // 向右转逆，向左转顺
+
+
     if (clockwise_ > 7)
     {
-        LOG(WARNING)<< "Outpost is Clockwise";
+        LOG(INFO) << "Outpost is Clockwise";
         clockwise_ = 1;
         checked_clockwise_ = true;
     }
     else if(clockwise_ < -7)
     {
-        LOG(WARNING)<< "Outpost is anti-Clockwise";
+        LOG(INFO) << "Outpost is anti-Clockwise";
         clockwise_ = -1;
         checked_clockwise_ = true;
     }
