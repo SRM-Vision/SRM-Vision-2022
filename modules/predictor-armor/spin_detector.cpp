@@ -24,6 +24,8 @@ bool SpinDetector::Update(const Armor &armor, const uint64_t current_time) {
         is_quick_spin_ = false;
     }
 
+    DLOG(INFO) << "JUMP PERIOD: " << jump_period_;
+
     double current_yaw_x, yaw_x_delta;
     if(mode_ == Mode::kSpherical){
         current_yaw_x = std::atan2(armor.TranslationVectorWorld()(0, 0),
@@ -34,7 +36,7 @@ bool SpinDetector::Update(const Armor &armor, const uint64_t current_time) {
         yaw_x_delta = current_yaw_x - last_yaw_x_;
     }
 
-    DLOG(INFO) << "current yaw/x delta: " << current_yaw_x;
+    DLOG(INFO) << "CLOCKWISE: " << clockwise_;
 
     if(abs(yaw_x_delta) > min_jump_yaw_x_){
         reverse_buffer = 0;

@@ -14,11 +14,9 @@
 /// \brief Packet of auto aiming mode.
 enum AimModes {
     kNormal = 10,
-    kAntiTop = 20,
     kSmallRune = 30,
     kBigRune = 40,
     kOutPost = 50,
-    kAutoAntiTop = 1,   ///<  use for sentry manually
     SIZE = 6
 };
 

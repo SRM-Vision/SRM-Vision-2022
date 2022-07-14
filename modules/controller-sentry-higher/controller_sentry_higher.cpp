@@ -4,8 +4,8 @@
 #include "cmdline-arg-parser/cmdline_arg_parser.h"
 #include "image-provider-base/image-provider-factory.h"
 #include "controller_sentry_higher.h"
-#include "predictor-armor/predictor_armor_renew.h"
 #include "compensator/compensator.h"
+#include "predictor-armor/predictor_armor.h"
 
 [[maybe_unused]] ControllerRegistry<SentryHigherController>
         SentryHigherController::sentry_higher_controller_registry_("sentry_higher");
@@ -34,7 +34,7 @@ bool SentryHigherController::Initialize() {
 }
 
 void SentryHigherController::Run() {
-    PredictorArmorRenew armor_predictor(Entity::Colors::kBlue, "sentry_higher");
+    ArmorPredictor armor_predictor(Entity::kBlue,"sentry_higher");
     sleep(2);
 
     cv::Rect ROI; // roi of detect armor
@@ -60,7 +60,7 @@ void SentryHigherController::Run() {
             armor_predictor.SetColor(receive_packet_.color);
             send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size);
         } else
-            send_packet_ = SendPacket(armor_predictor.Run(battlefield_, frame_.image.size, AimModes::kAntiTop));
+            send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size);
         armor_predictor.GetROI(ROI, frame_.image);
         auto img = frame_.image.clone();
         painter_->UpdateImage(frame_.image);
