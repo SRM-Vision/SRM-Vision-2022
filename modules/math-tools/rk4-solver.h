@@ -1,3 +1,10 @@
+/**
+ * Classic Runge-Kutta algorithm template class header.
+ * @author trantuan-20048607
+ * @date 2022.7.14
+ * @details Use this tool to solve differential equations.
+ */
+
 #ifndef RK4_SOLVER_H_
 #define RK4_SOLVER_H_
 

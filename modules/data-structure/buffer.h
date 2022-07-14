@@ -8,7 +8,7 @@
 #define BUFFER_H_
 
 #include <mutex>
-#include "lang-feature-extension/disable_constructors.h"
+#include "lang-feature-extension/disable-constructors.h"
 
 /**
  * \brief Circular buffer with mutex.
@@ -20,7 +20,7 @@
 template<typename T, unsigned int size>
 class CircularBuffer : NO_COPY, NO_MOVE {
 private:
-    T data_[size];                           ///< Data array.
+    T data_[size];                              ///< Data array.
     unsigned int head_;                         ///< Head pointer.
     unsigned int tail_;                         ///< Tail pointer.
     std::mutex lock_[size];                     ///< Mutex lock for data.

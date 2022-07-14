@@ -2,7 +2,7 @@
 #define PREDICTOR_ARMOR_DEBUG_H_
 
 #include <glog/logging.h>
-#include "lang-feature-extension/attr_reader.h"
+#include "lang-feature-extension/attr-reader.h"
 #include "predictor_armor_debug.h"
 #include "debug-tools/trackbar.h"
 

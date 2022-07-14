@@ -6,7 +6,7 @@
 #define PREDICTOR_ARMOR_RENEW_H_
 
 #include "data-structure/communication.h"
-#include "lang-feature-extension/disable_constructors.h"
+#include "lang-feature-extension/disable-constructors.h"
 #include "cmdline-arg-parser/cmdline_arg_parser.h"
 #include "digital-twin/battlefield.h"
 #include "predict_armor.h"
