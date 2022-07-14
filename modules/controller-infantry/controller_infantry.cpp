@@ -7,6 +7,7 @@
 #include "detector-rune/detector_rune.h"
 #include "predictor-rune/predictor-rune.h"
 #include "compensator/compensator.h"
+#include "predictor-armor/predictor_armor.h"
 #include "controller_infantry.h"
 #include "controller_infantry_debug.h"
 
@@ -93,10 +94,9 @@ void InfantryController::Run() {
             /// TODO mode switch
             if (CmdlineArgParser::Instance().RunWithSerial()) {
                 armor_predictor_.SetColor(receive_packet_.color);
-                send_packet_ = armor_predictor_.Run(battlefield_, frame_.image.size,
-                                                    receive_packet_.mode, receive_packet_.bullet_speed);
+                send_packet_ = armor_predictor_.Run(battlefield_, frame_.image.size, receive_packet_.bullet_speed);
             } else
-                send_packet_ = armor_predictor_.Run(battlefield_, frame_.image.size, AimModes::kAntiTop);
+                send_packet_ = armor_predictor_.Run(battlefield_, frame_.image.size, receive_packet_.bullet_speed);
             armor_predictor_.GetROI(ROI, frame_.image);
             painter_->UpdateImage(frame_.image);
             painter_->DrawBoundingBox(ROI, cv::Scalar(0, 0, 255), 2);

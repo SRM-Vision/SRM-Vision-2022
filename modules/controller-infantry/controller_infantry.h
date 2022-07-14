@@ -40,7 +40,6 @@ private:
     RunePredictor rune_predictor_;
     PowerRune power_rune_;
 
-    PredictorArmorRenew armor_predictor_{Entity::Colors::kBlue, "infantry"};
     debug::IPainter* painter_;
 };
 

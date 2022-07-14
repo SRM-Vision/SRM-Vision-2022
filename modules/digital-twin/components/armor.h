@@ -207,6 +207,10 @@ public:
         return SELF;
     }
 
+    void SetID(unsigned int id){
+        id_ = id;
+    }
+
 
 protected:
     unsigned int id_{};

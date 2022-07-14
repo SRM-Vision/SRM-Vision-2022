@@ -4,6 +4,52 @@
 
 #include "predict_armor.h"
 
+/// used for anti-spin, allow to follow for fire.
+static double kAllowFollowRange{0.6};
+
+// TODO Calibrate shoot delay and acceleration threshold.
+const double kShootDelay = 0.02;
+const double kFireAccelerationThreshold = 3.0;
+const cv::Size kZoomRatio = {16,8};
+
+/// Predicting function template structure.
+struct PredictFunction {
+    PredictFunction() : delta_t(0) {}
+
+    /**
+     * \brief Uniform linear motion.
+     * \details It's supposed that target is doing uniform linear motion.
+     * \tparam T Data type.
+     * \param [in] x_0 Input original x.
+     * \param [out] x Output predicted x.
+     */
+    template<typename T>
+    void operator()(const T x_0[5], T x[5]) {
+        x[0] = x_0[0] + delta_t * x_0[1];  // 0.1
+        x[1] = x_0[1];  // 100
+        x[2] = x_0[2] + delta_t * x_0[3];  // 0.1
+        x[3] = x_0[3];  // 100
+        x[4] = x_0[4];  // 0.01
+    }
+
+    double delta_t;
+};
+
+/// Measuring function template structure.
+struct MeasureFunction {
+    /**
+     * \brief Collect positioning data and convert it to spherical coordinate.
+     * \tparam T Data type.
+     * \param [in] x Input x data.
+     * \param [out] y Output target position in spherical coordinate system.
+     */
+    template<typename T>
+    void operator()(const T x[5], T y[3]) {
+        T _x[3] = {x[0], x[2], x[4]};
+        coordinate::convert::Rectangular2Spherical<T>(_x, y);
+    }
+};
+
 void PredictArmor::Initialize(const std::array<float, 3> &yaw_pitch_roll) {
     Eigen::Matrix<double, 5, 1> x_real; // used to initialize the ekf
     x_real << translation_vector_world_[0],
