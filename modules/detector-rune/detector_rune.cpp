@@ -284,7 +284,7 @@ bool RuneDetector::FindCenterR() {
                                || std::abs(center_r.y - energy_center_r_.y) > kMaxDeviation)) {
                 DLOG(WARNING) << "Wrong R Point: " << center_r;
                 cv::Point2f dir_vec = cv::Point2f(center_r.x - energy_center_r_.x, center_r.y - energy_center_r_.y);
-                float vec_length = std::hypot(dir_vec.x, dir_vec.y);
+                float vec_length = algorithm::SqrtFloat(dir_vec.x * dir_vec.x + dir_vec.y * dir_vec.y);
                 // Max compensation on the direction vector
                 r_offset_ = kMaxDeviation * cv::Point2f(dir_vec.x / vec_length, dir_vec.y / vec_length);
                 energy_center_r_ += r_offset_;
@@ -335,7 +335,7 @@ void RuneDetector::FindRotateDirection() {
         float radius, final_radius = 0;
         for (auto current_rotation = r_to_p_vec.begin() + 6; current_rotation != r_to_p_vec.end(); ++current_rotation) {
             double cross = first_rotation.cross(cv::Point2f(current_rotation->x, current_rotation->y));
-            radius = std::sqrt(current_rotation->x * current_rotation->x + current_rotation->y * current_rotation->y);
+            radius = algorithm::SqrtFloat(current_rotation->x * current_rotation->x + current_rotation->y * current_rotation->y);
             final_radius +=
                     std::min(rune_radius_ * (1 + kMaxRatio), std::max(rune_radius_ * (1 - kMaxRatio), radius)) / 15;
 
