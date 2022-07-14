@@ -6,7 +6,6 @@
 #include "controller-base/controller_factory.h"
 #include "predictor-armor/predictor_armor_renew.h"
 #include "predictor-outpost/predictor_outpost.h"
-#include "detector-outpost/detector_outpost.h"
 #include "controller_hero.h"
 /**
  * \warning Controller registry will be initialized before the program entering the main function!
@@ -96,7 +95,6 @@ void HeroController::Run() {
 
             outpost_predictor_new_.SetColor(receive_packet_.color);
             send_packet_ = outpost_predictor_new_.Run(battlefield_,receive_packet_.bullet_speed);
-            outpost_predictor_new_.GetROI(ROI,frame_.image);
 
             if(send_packet_.fire)
                 debug::Painter::Instance()->DrawText("Fire",{50,50},cv::Scalar(100, 255, 100),2);
