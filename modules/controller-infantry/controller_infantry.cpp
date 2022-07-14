@@ -62,11 +62,10 @@ bool InfantryController::Initialize() {
         LOG(ERROR) << "Rune predictor initialize unsuccessfully!";
     }
 
-
     if(Compensator::Instance().Initialize("infantry"))
-        LOG(INFO) << "Set off initialize successfully!";
+        LOG(INFO) << "Offset initialize successfully!";
     else
-        LOG(ERROR) << "Set off initialize unsuccessfully!";
+        LOG(ERROR) << "Offset  initialize unsuccessfully!";
 
     if (coordinate::InitializeMatrix("../config/infantry/matrix-init.yaml"))
         LOG(INFO) << "Camera initialize successfully!";
@@ -110,7 +109,13 @@ void InfantryController::Run() {
                                                  cv::Scalar(0, 255, 255), 3, 3);
             painter_->ShowImage("Rune", 1);
         } else {
+            auto time = std::chrono::steady_clock::now();
             boxes_ = armor_detector_(frame_.image,ROI);
+
+            auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now()
+                                                                              - time);
+            DLOG(INFO) << "armor detector computation cost ms: " << double(duration.count())/1e6;
+
 //            for(auto &box:boxes_){
 //                DLOG(INFO) << "CONFIDENCE:  " << box.confidence;
 //            }

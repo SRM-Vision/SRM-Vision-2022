@@ -73,7 +73,7 @@ public:
             roi_rect = {};
             return;
         }
-        return predict_armors_[target_].GetROI(roi_rect,src_image);
+        predict_armors_[target_].GetROI(roi_rect,src_image);
     }
 
 private:
@@ -85,10 +85,8 @@ private:
 
     std::unordered_map<Robot::RobotTypes, int> grey_buffers_;   ///< times of gray armors appearing in succession
 
-//    SpinDetector spin_detector_{SpinDetector::kSpherical, 0.05, 1.2,
-//                                0.625, 0.125};
-
-    SpinDetector spin_detector_{0.05, 1.2,0.125,SpinDetector::kSpherical};
+    SpinDetector spin_detector_{SpinDetector::kSpherical, 0.05, 1.2,
+                                0.625, 0.125};
 
     /// Used to merge grey and enemy armors. but also pick the right pair armors.
     std::unordered_map<Robot::RobotTypes, std::vector<Armor>> ReviseRobots(const RobotMap& robots,bool exist_enemy,

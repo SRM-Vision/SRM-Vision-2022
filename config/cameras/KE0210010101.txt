@@ -99,7 +99,7 @@ UserOutputSelector	UserOutput2
 UserOutputValue	0
 UserOutputSelector	UserOutput0
 GainSelector	AnalogAll
-Gain	17
+Gain	16
 GainSelector	AnalogAll
 GainSelector	AnalogAll
 GainAuto	Off
@@ -107,7 +107,7 @@ GainSelector	AnalogAll
 AutoGainMin	0
 AutoGainMax	16
 BalanceRatioSelector	Red
-BalanceRatio	1.2
+BalanceRatio	1.54297
 BalanceRatioSelector	Green
 BalanceRatio	1
 BalanceRatioSelector	Blue

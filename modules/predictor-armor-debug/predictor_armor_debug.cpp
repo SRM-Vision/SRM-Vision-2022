@@ -1,4 +1,5 @@
 #include "predictor_armor_debug.h"
+#include "cmdline-arg-parser/cmdline_arg_parser.h"
 
 bool ArmorPredictorDebug::Initialize(const std::string &config_path, bool debug_use_trackbar) {
 
@@ -32,7 +33,7 @@ bool ArmorPredictorDebug::Initialize(const std::string &config_path, bool debug_
     config_["SHOOT_DELAY"] >> shoot_delay_;
     config_.release();
 
-    if (debug_use_trackbar) {
+    if (debug_use_trackbar && !CmdlineArgParser::Instance().RuneModeRune()) {
         debug::Trackbar<double>::Instance().AddTrackbar("p_xz_noise:",
                                                         trackbar_windows_name_,
                                                         p_xz_noise_,

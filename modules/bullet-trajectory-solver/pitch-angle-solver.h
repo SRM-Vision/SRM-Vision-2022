@@ -17,12 +17,10 @@ namespace bullet_trajectory_solver {
          * @param _start_h Initial height, m.
          * @param _target_h Target height, m.
          * @param _target_x Horizontal distance from target, m.
-         * @param _l Length of barrel, m.
          */
         [[maybe_unused]] void SetParam(const BallisticModel &model,
-                      double _start_v, double _start_h,
-                      double _target_h, double _target_x,
-                      double _l);
+                                       double _start_v, double _start_h,
+                                       double _target_h, double _target_x);
 
         /**
          * @brief Update target parameters.
@@ -33,17 +31,17 @@ namespace bullet_trajectory_solver {
 
         /**
          * @brief Solve the pitch angle.
-         * @param theta Initial pitch angle without fixes, RADIUS.
+         * @param min_theta Initial pitch angle without fixes, RADIUS.
+         * @param max_theta Maximal pitch angle, RADIUS.
          * @param max_error Maximal error acceptable, m.
          * @param max_iter Maximal iteration times.
          * @return The fixed ELEVATION angle, RADIUS,
          */
-        [[maybe_unused]] double Solve(double theta, double max_error, unsigned int max_iter);
+        [[maybe_unused]] double Solve(double min_theta, double max_theta, double max_error, unsigned int max_iter);
 
     private:
         BallisticModel ballistic_model;
-        double start_v, start_h,
-                target_h, target_x, l;
+        double start_v, start_h, target_h, target_x;
     };
 }
 

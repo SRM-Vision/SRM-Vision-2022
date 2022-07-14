@@ -122,7 +122,7 @@ public:
     void AntiSpin(double jump_period, const coordinate::TranslationVector &last_jump_position,
                   uint64_t current_time, uint64_t last_jump_time, const std::array<float, 3> &yaw_pitch_roll);
 
-    ATTR_READER_REF(predict_speed_,Speed);
+    ATTR_READER_REF(predict_speed_,Speed)
 
     ATTR_READER_REF(predict_world_vector_,PredictWorldVector)
 

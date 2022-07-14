@@ -42,15 +42,13 @@ namespace bullet_trajectory_solver {
          * @param _end_t End time, s, should be big enough to solve the whole trajectory.
          * @param _start_v Initial velocity, 1D, m/s.
          * @param _start_h Initial height, m.
-         * @param _l Length of barrel, m.
          * @param _theta Elevation angle, RADIUS.
          * @param _iter Iteration times.
          */
         [[maybe_unused]] void SetParam(const BallisticModel &model,
                                        double _start_t, double _end_t,
                                        double _start_v, double _start_h,
-                                       double _l, double _theta,
-                                       unsigned int _iter);
+                                       double _theta, unsigned int _iter);
 
         /**
          * @brief Update parameters for solving trajectory.
@@ -71,7 +69,7 @@ namespace bullet_trajectory_solver {
 
     private:
         unsigned int iter{};
-        double start_h{}, start_t{}, start_v{}, l{}, theta{};
+        double start_h{}, start_t{}, start_v{};
         RK4Solver<double, Eigen::Vector2d, TrajectoryDifferentialEquation> solver;
     };
 }

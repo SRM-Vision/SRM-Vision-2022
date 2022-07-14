@@ -26,7 +26,6 @@ void PredictArmor::Predict(const Armor& armor,double delta_t,double bullet_speed
         MeasureFunction measure;  ///< Measuring function.
         predict.delta_t = delta_t;
 
-
         /// translate measured value to the format of ekf
         Eigen::Matrix<double, 3, 1> y_real;
         coordinate::convert::Rectangular2Spherical(armor.TranslationVectorWorld().data(), y_real.data());
