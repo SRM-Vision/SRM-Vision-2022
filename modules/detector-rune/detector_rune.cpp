@@ -33,6 +33,10 @@ PowerRune RuneDetector::Run(Entity::Colors color, Frame &frame, const cv::MatSiz
     color_ = Entity::kRed;  // FIXME
     image_ = frame.image.clone();
 
+#if !NDEBUG
+    RuneDetectorDebug::Instance().addTrackbar();
+#endif
+
     // Split image's channels.
     if (3 == image_.channels())
         ImageSplit(image_);

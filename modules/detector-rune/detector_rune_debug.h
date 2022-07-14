@@ -20,10 +20,7 @@ public:
 
     RuneDetectorDebug() = default;
 
-    void Initialize()
-    {
-
-    }
+    void Initialize() {}
 
     /// Save Rune Detector parameters to yaml
     void Save()
@@ -55,7 +52,7 @@ public:
 
 
 // trackbar sector
-private:
+public:
     void addTrackbar();
 
 private:
