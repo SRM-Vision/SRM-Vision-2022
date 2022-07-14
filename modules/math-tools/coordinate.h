@@ -1,8 +1,8 @@
 /**
  * Coordinate transformer header.
- * \author trantuan-20048607
- * \date 2022.1.30
- * \attention It's recommended to include battlefield.h for complete function.
+ * @author trantuan-20048607
+ * @date 2022.1.30
+ * @attention It's recommended to include battlefield.h for complete function.
  */
 
 #ifndef COORDINATE_H_
@@ -12,9 +12,9 @@
 #include <Eigen/Dense>
 #include <opencv2/core/types.hpp>
 #include <opencv2/core/eigen.hpp>
+#include <glog/logging.h>
 #include <ceres/jet.h>
 #include "algorithms.h"
-#include <glog/logging.h>
 
 namespace coordinate {
     typedef Eigen::Vector3d TranslationVector;
@@ -35,8 +35,6 @@ namespace coordinate {
 namespace coordinate::transform {
     [[maybe_unused]] inline RotationMatrix
     EulerAngleToRotationMatrix(const std::array<float, 3> e_yaw_pitch_roll) {
-        // Prefix "e_" here means "Euler angle".
-
         // Prefix "r_" here means "rotation".
         RotationMatrix r_yaw, r_roll, r_pitch;
 
@@ -75,16 +73,16 @@ namespace coordinate::transform {
         Eigen::Matrix3d camera_matrix;
         cv::cv2eigen(intrinsic_matrix, camera_matrix);
         auto point = camera_matrix * predict_camera_vector / predict_camera_vector(2, 0);
-        return {float(point[0]), float(point[1])};
+        return {static_cast<float>(point[0]), static_cast<float>(point[1])};
     }
 }
 
 namespace coordinate::convert {
     /**
-     * \brief Transform rectangular coordinate to spherical coordinate.
-     * \tparam T Template type.
-     * \param [in] rectangular Point (x, y, z) in rectangular coordinate system.
-     * \param [out] spherical Point (yaw, pitch, distance) in spherical coordinate system.
+     * @brief Transform rectangular coordinate to spherical coordinate.
+     * @tparam T Template type.
+     * @param [in] rectangular Point (x, y, z) in rectangular coordinate system.
+     * @param [out] spherical Point (yaw, pitch, distance) in spherical coordinate system.
      */
     template<typename T>
     inline void Rectangular2Spherical(const T rectangular[3], T spherical[3]) {
@@ -97,9 +95,9 @@ namespace coordinate::convert {
     }
 
     /**
-     * \brief Transform rectangular coordinate to spherical coordinate.
-     * \param rectangular Point (x, y, z) in rectangular coordinate system.
-     * \return Point (yaw, pitch, distance) in spherical coordinate system.
+     * @brief Transform rectangular coordinate to spherical coordinate.
+     * @param rectangular Point (x, y, z) in rectangular coordinate system.
+     * @return Point (yaw, pitch, distance) in spherical coordinate system.
      */
     inline Eigen::Vector3d Rectangular2Spherical(const Eigen::Vector3d &rectangular) {
         Eigen::Vector3d spherical;
@@ -113,6 +111,11 @@ namespace coordinate::convert {
         return spherical;
     }
 
+    /**
+     * @brief Transform spherical coordinate to rectangular coordinate.
+     * @param spherical Point (yaw, pitch, distance) in spherical coordinate system.
+     * @return Point (x, y, z) in rectangular coordinate system.
+     */
     inline Eigen::Vector3d Spherical2Rectangular(const Eigen::Vector3d &spherical) {
         Eigen::Vector3d rectangular;
         double length_x_z = spherical(2, 0) * cos(spherical(1, 0));
@@ -121,7 +124,6 @@ namespace coordinate::convert {
         rectangular(2, 0) = length_x_z * cos(spherical(0, 0));
         return rectangular;
     }
-
 }
 
 #endif  // COORDINATE_H_

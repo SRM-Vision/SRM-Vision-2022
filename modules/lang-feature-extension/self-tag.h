@@ -13,6 +13,6 @@
  * \brief SELF represents for C++ object itself (simply defined as *this),
  *   corresponding "self" in ruby and python.
  */
-#define SELF *this
+#define SELF (*this)
 
 #endif  // SELF_TAG_H_

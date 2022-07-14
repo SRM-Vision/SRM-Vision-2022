@@ -1,8 +1,8 @@
 /**
  * Attribute reader method generator for C++.
- * \author trantuan-20048607
- * \date 2022.1.14
- * \details Introduced from ruby programming language, attribute reader generator is
+ * @author trantuan-20048607
+ * @date 2022.1.14
+ * @details Introduced from ruby programming language, attribute reader generator is
  *   used to quickly generate a function to READ a private attribute in a class.
  */
 
@@ -10,11 +10,11 @@
 #define ATTR_READER_H_
 
 /**
- * \brief Use of ATTR_READER(var_name, func_name) will create a function named func_name
+ * @brief Use of ATTR_READER(var_name, func_name) will create a function named func_name
  *   which only returns var_name,
  *   corresponding "attr_reader" in ruby.
- * \details Use this macro in a class to generate a reader function for a private variable:
- * \code{.cpp}
+ * @details Use this macro in a class to generate a reader function for a private variable:
+ * @code{.cpp}
  *   class Foo() {
  *   public:
  *       ATTR_READER(private_var_, PrivateVar)  // No need to add a semicolon.
@@ -26,17 +26,17 @@
  *       Foo bar;
  *       int private_var = bar.PrivateVar();  // Get the value.
  *   }
- * \endcode
+ * @endcode
  */
 #define ATTR_READER(_var, _func)  \
     inline auto _func() const { return _var; }
 
 /**
- * \brief Use of ATTR_READER_REF(var_name, func_name) will create a function named func_name
+ * @brief Use of ATTR_READER_REF(var_name, func_name) will create a function named func_name
  *   which only returns a read-only reference of var_name,
  *   corresponding "attr_reader" in ruby.
- * \details Use this macro in a class to generate a reader function for a private variable:
- * \code{.cpp}
+ * @details Use this macro in a class to generate a reader function for a private variable:
+ * @code{.cpp}
  *   class Foo() {
  *   public:
  *       Foo() { private_var_.push_back(0); }
@@ -52,7 +52,7 @@
  *           std::cout << i << std::endl;  // Allowed.  => 0
  *       bar.PrivateVar().push_back(0);  // Prohibited. This operation will change the value inside the object bar.
  *   }
- * \endcode
+ * @endcode
  */
 #define ATTR_READER_REF(_var, _func)  \
     inline auto &_func() const { return _var; }
