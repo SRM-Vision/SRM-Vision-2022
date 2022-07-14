@@ -149,7 +149,7 @@ void predictor::rune::State::UpdateAngle(const cv::Point2f &rtg_vec) {
     while (current_angle < 0) current_angle += 360;
     while (current_angle > 360) current_angle -= 360;
     current_angle = 360 - current_angle;
-    LOG(INFO) << "Current angle: " << current_angle;
+    DLOG(INFO) << "Current angle: " << current_angle;
 }
 
 bool predictor::rune::State::UpdatePalstance(const PowerRune &rune, FittingData &fitting_data) {
