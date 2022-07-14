@@ -8,10 +8,7 @@
 #include <iostream>
 #include "parameter-maintain/parameter-maintain.h"
 
-class ControllerInfantryDebug
-{
-private:
-
+class ControllerInfantryDebug {
 
 };
 

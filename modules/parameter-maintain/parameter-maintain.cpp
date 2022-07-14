@@ -4,6 +4,7 @@
 
 #include "parameter-maintain.h"
 #include "glog/logging.h"
+#include "detector-rune/detector_rune_debug.h"
 
 void ParameterMaintain::initDetectorRuneParameters() {
     try {

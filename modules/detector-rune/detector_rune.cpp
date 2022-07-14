@@ -1,4 +1,3 @@
-#include "detector-rune-debug/detector_rune_debug.h"
 #include <opencv2/imgproc.hpp>
 #include "detector_rune.h"
 
@@ -25,8 +24,6 @@ bool RuneDetector::Initialize(const std::string &config_path, const Frame &frame
     energy_center_r_ = fan_center_g_ = armor_center_p_ = last_energy_center_r = cv::Point2f(0, 0);
     clockwise_ = frame_lost_ = 0;
     rune_radius_ = 125;
-
-    RuneDetectorDebug::Instance().Initialize("../config/infantry/rune-detector-param.yaml", debug_use_trackbar);
 
     return true;
 }

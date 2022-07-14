@@ -10,6 +10,8 @@
 #include <string>
 #include <opencv2/highgui.hpp>
 #include <unordered_map>
+#include <detector-rune/detector_rune_debug.h>
+
 
 namespace debug {
     template<typename T>

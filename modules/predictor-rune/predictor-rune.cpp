@@ -1,6 +1,6 @@
 #include "predictor-rune.h"
 #include <ceres/ceres.h>
-#include <detector-rune-debug/detector_rune_debug.h>
+#include "detector-rune/detector_rune_debug.h"
 
 predictor::rune::RunePredictor::RunePredictor() : debug_(true),
                                                   rune_(), state_(), rotational_speed_(), fitting_data_(),
@@ -51,7 +51,7 @@ void predictor::rune::OutputData::Update(bool debug,
         yaw = pitch = delay = 0;
     }
 
-//    DLOG(INFO) << "Predicted angle: " << predicted_angle;
+    DLOG(INFO) << "Predicted angle: " << predicted_angle;
     int delta_u = RuneDetectorDebug::Instance().DeltaU() - 50,
             delta_v = RuneDetectorDebug::Instance().DeltaV() - 50;  ///< Horizontal and vertical ballistic compensation.
 
