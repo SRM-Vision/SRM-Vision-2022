@@ -21,13 +21,6 @@ public:
     OutpostPredictor() = default;
     ~OutpostPredictor() = default;
 
-    /**
-    * \brief Examine 2 armors by distance.
-    * \param armor_1 First armor.
-    * \param armor_2 Second armor.
-    * \param threshold Distance threshold.
-    * \return Whether they're getting close.
-    */
     SendPacket Run(Battlefield battlefield, float bullet_speed = 16);
 
     /**
@@ -69,7 +62,7 @@ private:
 
     Entity::Colors enemy_color_;
     bool checked_clockwise_ = false;
-    int clockwise_          = 0;       ///< 向右转逆，向左转顺
+    int clockwise_          = 0;       ///< 1 (rotate left) or -1 (rotate right)
 
     double last_armor_x_{};
 
