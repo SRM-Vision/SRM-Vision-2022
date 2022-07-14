@@ -22,7 +22,7 @@ class ParameterMaintain : NO_COPY, NO_MOVE
     }
 private:
     cv::FileStorage config_;
-    cv::string controller_type_name_;
+    std::string controller_type_name_;
 private:   // detector rune debug
     const std::string rune_detector_config_path = "../config/" + controller_type_name_ +"/rune-detector-param.yaml";
     void initDetectorRuneParameters();
