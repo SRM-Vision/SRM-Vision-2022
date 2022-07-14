@@ -37,8 +37,9 @@ public:
     Facility() : Unit(), type_(kNone) {}
 
     inline void AddBottomArmor(const Armor &armor) { bottom_armors_.push_back(armor); }
-
     inline void AddTopArmor(const Armor &armor) { top_armors_.push_back(armor); }
+    inline void ClearBottomArmor() { bottom_armors_.clear(); }
+    inline void ClearTopArmor() { top_armors_.clear(); }
 
 protected:
     FacilityTypes type_;

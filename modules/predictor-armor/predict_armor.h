@@ -92,7 +92,7 @@ public:
 //        auto point1_x = short(show_point.x);
 //        auto point1_y = short(show_point.y);
 
-        return {float(yaw + ArmorPredictorDebug::Instance().DeltaYaw()), float(pitch - ArmorPredictorDebug::Instance().DeltaPitch()),
+        return {float(yaw +0.03), float(pitch - ArmorPredictorDebug::Instance().DeltaPitch()+ ArmorPredictorDebug::Instance().DeltaYaw()),
                 delay, distance_mode, fire_,
                 0,0,
                 0,0,
@@ -122,7 +122,7 @@ public:
     void AntiSpin(double jump_period, const coordinate::TranslationVector &last_jump_position,
                   uint64_t current_time, uint64_t last_jump_time, const std::array<float, 3> &yaw_pitch_roll);
 
-    ATTR_READER_REF(predict_speed_,Speed);
+    ATTR_READER_REF(predict_speed_,Speed)
 
     ATTR_READER_REF(predict_world_vector_,PredictWorldVector)
 

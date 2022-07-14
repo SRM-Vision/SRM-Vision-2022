@@ -7,6 +7,10 @@
 
 #ifndef CONTROLLER_HERO_H_
 #define CONTROLLER_HERO_H_
+
+
+#include <predictor-outpost/predictor_outpost_new.h>
+
 class [[maybe_unused]] HeroController final : public Controller {
 public:
     bool Initialize() final;
@@ -25,9 +29,10 @@ private:
     };
     [[maybe_unused]] static ControllerRegistry<HeroController> hero_controller_registry_;
 
-    OutpostDataDetector outpost_detector_;
-    // Outpost outpost_;
-     OutpostPredictor outpost_predictor_;
+//    OutpostDataDetector outpost_detector_;
+//    OutpostPredictor outpost_predictor_;
+    OutpostPredictorNew outpost_predictor_new_;
+
 
 };
 
