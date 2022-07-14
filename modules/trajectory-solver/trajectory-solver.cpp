@@ -20,7 +20,7 @@ using namespace algorithm;
     constexpr float deg2rad = CV_PI / 180;
     float p_deg = static_cast<float>(p) * deg2rad;
     float s[4] = {p_deg, 2 * p_deg};
-    algorithm::SinFloatX4(s);
+    SinFloatX4(s);
     g = 9.78 * (1 + 0.0052884 * s[0] * s[0] - 0.0000059 * s[1] * s[1]);
 }
 

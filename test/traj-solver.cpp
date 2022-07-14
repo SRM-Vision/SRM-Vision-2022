@@ -26,7 +26,7 @@ int main([[maybe_unused]] int argc, char *argv[]) {
         timespec t_1{}, t_2{};
         clock_gettime(CLOCK_REALTIME, &t_1);
         solver.UpdateParam(1.2, target_x);
-        double theta = solver.Solve(-CV_PI / 6, CV_PI / 3, 0.001, 16);
+        double theta = solver.Solve(-CV_PI / 6, CV_PI / 3, 0.01, 16);
         clock_gettime(CLOCK_REALTIME, &t_2);
         LOG(INFO) << "target: " << target_x << " m, angle: " << theta / deg2rad
                   << " deg, cost: " << (t_2.tv_nsec - t_1.tv_nsec) << " ns.";
