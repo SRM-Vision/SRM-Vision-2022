@@ -18,20 +18,23 @@
 /// \note Don't use this class alone. Coordinate, image_provider isn't contained in this file, since it is been welly sealed.
 class ParameterMaintain
 {
-    ParameterMaintain(const std::string& controller_type_name="infantry")
+public:
+    explicit ParameterMaintain(const std::string& controller_type_name)
     {
-        controller_type_name_ = controller_type_name;
+        rune_detector_config_path = "../config/" + controller_type_name +"/rune-detector-param.yaml";
+        armor_predictor_config_path = "../config/" + controller_type_name + "/predict-param.yaml";
+        rune_predictor_config_path = "../config/" + controller_type_name + "/rune-predictor-param.yaml";
         initDetectorRuneParameters();
         initPredictorRuneParameters();
         initPredictorArmorParameters();
     }
+
 private:
     cv::FileStorage config_;
-    std::string controller_type_name_;
     friend class ControllerInfantryDebug;
     friend class RuneDetectorDebug;
 private:   // detector rune debug
-    const std::string rune_detector_config_path = "../config/" + controller_type_name_ +"/rune-detector-param.yaml";
+    std::string rune_detector_config_path;
     void initDetectorRuneParameters();
     void saveDetectorRuneParameters();
     // Trackbar value cache.
@@ -53,13 +56,13 @@ private:   // detector rune debug
     int delta_v_;  ///< Vertical ballistic compensation
 
 private:  // predictor rune debug
-    const std::string rune_predictor_config_path = "../config/" + controller_type_name_ + "/rune-predictor-param.yaml";
+    std::string rune_predictor_config_path;
     void initPredictorRuneParameters();
     void savePredictorRuneParameters();
     predictor::rune::RotationalSpeed rotational_speed_;
 
 private:  // predictor armor debug
-    const std::string armor_predictor_config_path = "../config/" + controller_type_name_ + "/predict-param.yaml";
+    std::string armor_predictor_config_path;
     void initPredictorArmorParameters();
     void savePredictorArmorParameters();
     double p_xz_noise_ = 0.01;

@@ -9,6 +9,7 @@
 void ParameterMaintain::initDetectorRuneParameters() {
     try {
         config_.open(rune_detector_config_path, cv::FileStorage::READ);
+        DLOG(INFO) << rune_detector_config_path ;
     } catch (const std::exception &) {
         DLOG(ERROR) << "Failed to open rune detector config file" << rune_detector_config_path << ".";
     }
@@ -122,4 +123,8 @@ void ParameterMaintain::savePredictorArmorParameters() {
     config_.release();
     LOG(INFO) << "Config of ekf is updated.";
 }
+
+
+
+
 
