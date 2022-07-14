@@ -124,6 +124,37 @@ void ParameterMaintain::savePredictorArmorParameters() {
     LOG(INFO) << "Config of ekf is updated.";
 }
 
+void ParameterMaintain::initPredictorOutpostParameters() {
+    config_.open(outpost_predictor_config_path, cv::FileStorage::READ);
+    if (!config_.isOpened()) {
+        LOG(ERROR) << "Failed to open outpost predict config file " << outpost_predictor_config_path << ".";
+    }
+    config_["SHOOT_DELAY"] >> outpost_shoot_delay_;
+    config_["DELTA_PITCH_UP"] >> delta_pitch_up_;
+    config_["DELTA_PITCH_DOWN"] >> delta_pitch_down_;
+    config_["DELTA_YAW_LEFT"] >> delta_yaw_left_;
+    config_["DELTA_YAW_RIGHT"] >>delta_yaw_right_;
+    config_.release();
+}
+
+void ParameterMaintain::savePredictorOutpostParameters() {
+    config_.open(outpost_predictor_config_path, cv::FileStorage::WRITE);
+    if (!config_.isOpened()) {
+        LOG(ERROR) << "Failed to open outpost predict config file " << outpost_predictor_config_path << ".";
+        return;
+    }
+
+    // Write config data.
+    config_ << "SHOOT_DELAY" << outpost_shoot_delay_;
+    config_ << "DELTA_PITCH_UP" << delta_pitch_up_;
+    config_ << "DELTA_PITCH_DOWN" << delta_pitch_down_;
+    config_ << "DELTA_YAW_LEFT" << delta_yaw_left_;
+    config_ << "DELTA_YAW_RIGHT" << delta_yaw_right_;
+    config_.release();
+
+    LOG(INFO) << "Config of outpost is updated.";
+}
+
 
 
 
