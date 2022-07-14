@@ -274,7 +274,7 @@ SendPacket ArmorPredictor::GenerateSendPacket() const {
 //        auto point1_x = short(show_point.x);
 //        auto point1_y = short(show_point.y);
 
-    return {float(yaw +0.03), float(pitch - ArmorPredictorDebug::Instance().DeltaPitch()+ ArmorPredictorDebug::Instance().DeltaYaw()),
+    return {float(yaw + ArmorPredictorDebug::Instance().DeltaYaw()), float(pitch - ArmorPredictorDebug::Instance().DeltaPitch()),
             delay, distance_mode, fire_,
             0,0,
             0,0,
