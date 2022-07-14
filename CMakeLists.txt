@@ -57,10 +57,6 @@ find_package(OpenCV 4 REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 find_package(fmt REQUIRED)
 
-set(CMAKE_PREFIX_PATH /opt/intel/openvino_2022/runtime/cmake)
-find_package(InferenceEngine REQUIRED)
-include_directories(${InferenceEngine_INCLUDE_DIRS})
-
 include_directories(${MVS_PATH}/include)
 if (CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "x86_64")
     file(GLOB MVS_LIBS ${MVS_PATH}/lib/64/*.so)

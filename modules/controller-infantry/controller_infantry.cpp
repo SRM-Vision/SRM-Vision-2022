@@ -26,8 +26,7 @@ bool InfantryController::Initialize() {
     // Initialize Rune module.
     Frame init_frame;
     image_provider_->GetFrame(init_frame);
-    if (rune_detector_.Initialize("../config/infantry/rune-detector-param.yaml", init_frame,
-                                  CmdlineArgParser::Instance().DebugUseTrackbar()))
+    if (rune_detector_.Initialize("../config/infantry/rune-detector-param.yaml"))
         LOG(INFO) << "Rune detector initialize successfully!";
     else {
         LOG(ERROR) << "Rune detector initialize failed.";
@@ -75,7 +74,7 @@ void InfantryController::Run() {
 
         painter_->UpdateImage(frame_.image);
         if (CmdlineArgParser::Instance().RuneModeRune()) {
-            power_rune_ = rune_detector_.Run(receive_packet_.color, frame_, frame_.image.size);
+            power_rune_ = rune_detector_.Run(receive_packet_.color, frame_);
             send_packet_ = SendPacket(rune_predictor_.Run(power_rune_, kSmallRune, receive_packet_.bullet_speed));
             painter_->DrawPoint(rune_predictor_.PredictedPoint(),
                                 cv::Scalar(0, 255, 255), 3, 3);

@@ -33,6 +33,8 @@ private:
     cv::FileStorage config_;
     friend class ControllerInfantryDebug;
     friend class RuneDetectorDebug;
+    friend class RunePredictorDebug;
+
 private:   // detector rune debug
     std::string rune_detector_config_path;
     void initDetectorRuneParameters();

@@ -1,6 +1,7 @@
 #include "predictor-rune.h"
 #include <ceres/ceres.h>
 #include "detector-rune/detector_rune_debug.h"
+#include "predictor_rune_debug.h"
 
 predictor::rune::RunePredictor::RunePredictor() : debug_(true),
                                                   rune_(), state_(), rotational_speed_(), fitting_data_(),
@@ -193,10 +194,7 @@ bool predictor::rune::RunePredictor::Initialize(const std::string &config_path, 
 
     debug_ = debug;
 
-    config["AMPLITUDE"] >> rotational_speed_.a;
-    config["PALSTANCE"] >> rotational_speed_.w;
-    config["PHASE"] >> rotational_speed_.p;
-    rotational_speed_.b = 2.090 - rotational_speed_.a;
+    rotational_speed_ = RunePredictorDebug::Instance().RotationalSpeed();
 
     return true;
 }
