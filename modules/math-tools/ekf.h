@@ -118,8 +118,4 @@ public:
     VectorY y_predict_;        ///< Predicted measuring var. [Yp]
 };
 
-//template<unsigned int N_x, unsigned int N_y> Eigen::Matrix<double, N_x, N_x>
-//        ExtendedKalmanFilter<N_x,N_y>::predict_cov_ = Eigen::Matrix<double, N_x, N_x>::Identity();
-//template<unsigned int N_x, unsigned int N_y> Eigen::Matrix<double, N_y, N_y>
-//        ExtendedKalmanFilter<N_x,N_y>::measure_cov_ = Eigen::Matrix<double, N_y, N_y>::Identity();
 #endif  // EKF_H_

@@ -19,19 +19,11 @@
         HeroController::hero_controller_registry_("hero");
 
 bool HeroController::Initialize() {
-    if (!InitializeImageProvider("hero") || !InitializeGimbalSerial())
+    // Common initialization.
+    if (!Controller::Initialize("hero"))
         return false;
 
-    if (Compensator::Instance().Initialize("hero"))
-        LOG(INFO) << "Offset initialize successfully!";
-    else
-        LOG(ERROR) << "Offset initialize unsuccessfully!";
-
-    if (coordinate::InitializeMatrix("../config/hero/matrix-init.yaml"))
-        LOG(INFO) << "Camera initialize successfully!";
-    else
-        LOG(ERROR) << "Camera initialize unsuccessfully!";
-
+    // Initialize the outpost detector.
     if (outpost_predictor_.Initialize())
         LOG(INFO) << "Outpost predictor initialize successfully!";
     else
@@ -44,7 +36,7 @@ bool HeroController::Initialize() {
 void HeroController::Run() {
     sleep(2);
     cv::Rect ROI; // roi of detect armor
-    ArmorPredictor armor_predictor(Entity::kBlue,"hero");
+    ArmorPredictor armor_predictor(Entity::kBlue, "hero");
     while (!exit_signal_) {
         auto time = std::chrono::steady_clock::now();
 

@@ -2,7 +2,6 @@
  * Coordinate transformer header.
  * @author trantuan-20048607
  * @date 2022.1.30
- * @attention It's recommended to include battlefield.h for complete function.
  */
 
 #ifndef COORDINATE_H_

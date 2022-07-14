@@ -32,7 +32,7 @@ public:
             serial_(nullptr),
             armor_detector_(),
             send_packet_(),
-            receive_packet_(){
+            receive_packet_() {
         armor_detector_.Initialize("../assets/models/armor_detector_model.onnx");
     }
 
@@ -43,9 +43,7 @@ public:
     virtual ~Controller() = default;
 
 protected:
-    [[nodiscard]] bool InitializeImageProvider(std::string type);
-
-    [[nodiscard]] bool InitializeGimbalSerial();
+    [[nodiscard]] bool Initialize(const std::string &type);
 
     template<bool flip>
     [[nodiscard]] bool GetImage() {

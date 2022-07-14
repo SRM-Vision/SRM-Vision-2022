@@ -5,10 +5,8 @@
 #include "controller-base/controller_factory.h"
 #include "detector-rune/detector_rune.h"
 #include "predictor-rune/predictor-rune.h"
-#include "compensator/compensator.h"
 #include "predictor-armor/predictor_armor.h"
 #include "controller_infantry.h"
-#include "controller_infantry_debug.h"
 
 /**
  * \warning Controller registry will be initialized before the program entering the main function!
@@ -19,8 +17,18 @@
         InfantryController::infantry_controller_registry_("infantry");
 
 bool InfantryController::Initialize() {
-    if (!InitializeImageProvider("infantry") || !InitializeGimbalSerial())
+    // Common initialization.
+    if (!Controller::Initialize("infantry"))
         return false;
+
+    // Initialize painter.
+    if (CmdlineArgParser::Instance().DebugUseTrackbar()) {
+        painter_ = debug::Painter::Instance();
+        LOG(INFO) << "Running with debug painter.";
+    } else {
+        painter_ = debug::NoPainter::Instance();
+        LOG(INFO) << "Running without debug painter.";
+    }
 
     // Initialize Rune module.
     Frame init_frame;
@@ -32,28 +40,6 @@ bool InfantryController::Initialize() {
         return false;
     }
     rune_predictor_.Initialize("../config/infantry/rune-predictor-param.yaml", true);
-    if (CmdlineArgParser::Instance().DebugUseTrackbar())  // TODO Debug
-    {
-        painter_ = debug::Painter::Instance();
-        LOG(INFO) << "Running with debug painter.";
-    } else {
-        painter_ = debug::NoPainter::Instance();
-        LOG(INFO) << "Running without debug painter.";
-    }
-
-    if (Compensator::Instance().Initialize("infantry"))
-        LOG(INFO) << "Offset initialized.";
-    else {
-        LOG(ERROR) << "Offset initialize failed.";
-        return false;
-    }
-
-    if (coordinate::InitializeMatrix("../config/infantry/matrix-init.yaml"))
-        LOG(INFO) << "Camera initialized.";
-    else {
-        LOG(ERROR) << "Camera coordinate matrix initialize failed.";
-        return false;
-    }
 
     LOG(INFO) << "Infantry controller is ready.";
     return true;
@@ -74,7 +60,8 @@ void InfantryController::Run() {
         painter_->UpdateImage(frame_.image);
         if (CmdlineArgParser::Instance().RuneModeRune()) {
             power_rune_ = rune_detector_.Run(receive_packet_.color, frame_);
-            send_packet_ = SendPacket(rune_predictor_.Run(power_rune_, receive_packet_.mode, receive_packet_.bullet_speed));
+            send_packet_ = SendPacket(
+                    rune_predictor_.Run(power_rune_, receive_packet_.mode, receive_packet_.bullet_speed));
             painter_->DrawPoint(rune_predictor_.PredictedPoint(),
                                 cv::Scalar(0, 255, 255), 3, 3);
             painter_->ShowImage("Rune", 1);
@@ -101,7 +88,7 @@ void InfantryController::Run() {
                                                cv::Scalar(0, 255, 0), 2);
                 painter_->DrawText(std::to_string(box.id), box.points[0], 255, 2);
             }
-            painter_->DrawPoint(armor_predictor.ShootPointInPic(image_provider_->IntrinsicMatrix(),frame_.image.size),
+            painter_->DrawPoint(armor_predictor.ShootPointInPic(image_provider_->IntrinsicMatrix(), frame_.image.size),
                                 cv::Scalar(0, 0, 255), 1, 10);
             painter_->DrawPoint(armor_predictor.TargetCenter(), cv::Scalar(100, 255, 100), 2, 2);
             painter_->ShowImage("ARMOR DETECT", 1);

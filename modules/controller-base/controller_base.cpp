@@ -1,9 +1,17 @@
-
 #include "cmdline-arg-parser/cmdline_arg_parser.h"
 #include "image-provider-base/image-provider-factory.h"
+#include "compensator/compensator.h"
 #include "controller_base.h"
 
-bool Controller::InitializeImageProvider(std::string type) {
+void Controller::RunGimbal() {
+    if (CmdlineArgParser::Instance().RunWithGimbal()) {
+        SerialReceivePacket serial_receive_packet{};
+        serial_->GetData(serial_receive_packet, std::chrono::milliseconds(5));
+        receive_packet_ = ReceivePacket(serial_receive_packet);
+    }
+}
+
+bool Controller::Initialize(const std::string &type) {
     // Use reset here to allocate memory for an abstract class.
     image_provider_.reset(CREATE_IMAGE_PROVIDER(CmdlineArgParser::Instance().RunWithCamera() ? "camera" : "video"));
     if (!image_provider_->Initialize(
@@ -14,10 +22,7 @@ bool Controller::InitializeImageProvider(std::string type) {
         image_provider_.reset();
         return false;
     }
-    return true;
-}
 
-bool Controller::InitializeGimbalSerial() {
     if (CmdlineArgParser::Instance().RunWithGimbal() || CmdlineArgParser::Instance().RunWithSerial()) {
         serial_ = std::make_unique<Serial>();
         if (!serial_->StartCommunication()) {
@@ -28,13 +33,24 @@ bool Controller::InitializeGimbalSerial() {
             return false;
         }
     }
-    return true;
-}
 
-void Controller::RunGimbal() {
-    if (CmdlineArgParser::Instance().RunWithGimbal()) {
-        SerialReceivePacket serial_receive_packet{};
-        serial_->GetData(serial_receive_packet, std::chrono::milliseconds(5));
-        receive_packet_ = ReceivePacket(serial_receive_packet);
+    // Initialize Rune module.
+    Frame init_frame;
+    image_provider_->GetFrame(init_frame);
+
+    if (Compensator::Instance().Initialize(type))
+        LOG(INFO) << "Offset initialized.";
+    else {
+        LOG(ERROR) << "Offset initialize failed.";
+        return false;
     }
+
+    if (coordinate::InitializeMatrix("../config/" + type + "/matrix-init.yaml"))
+        LOG(INFO) << "Camera initialized.";
+    else {
+        LOG(ERROR) << "Camera coordinate matrix initialize failed.";
+        return false;
+    }
+
+    return true;
 }

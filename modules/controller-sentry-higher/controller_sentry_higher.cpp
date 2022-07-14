@@ -11,46 +11,33 @@
         SentryHigherController::sentry_higher_controller_registry_("sentry_higher");
 
 bool SentryHigherController::Initialize() {
-    if (!InitializeImageProvider("sentry_higher") || !InitializeGimbalSerial())
+    // Common initialization.
+    if (!Controller::Initialize("sentry_higher"))
         return false;
 
+    // Initialize the painter.
     if (CmdlineArgParser::Instance().DebugUseTrackbar())
         painter_ = debug::NoPainter::Instance();
     else
         painter_ = debug::NoPainter::Instance();
-
-    if (Compensator::Instance().Initialize("sentry_higher"))
-        LOG(INFO) << "Setoff initialize successfully!";
-    else
-        LOG(ERROR) << "Setoff initialize unsuccessfully!";
-
-    if (coordinate::InitializeMatrix("../config/sentry_higher/matrix-init.yaml"))
-        LOG(INFO) << "Camera initialize successfully!";
-    else
-        LOG(ERROR) << "Camera initialize unsuccessfully!";
 
     LOG(INFO) << "Higher sentry_higher controller is ready.";
     return true;
 }
 
 void SentryHigherController::Run() {
-    ArmorPredictor armor_predictor(Entity::kBlue,"sentry_higher");
+    ArmorPredictor armor_predictor(Entity::kBlue, "sentry_higher");
     sleep(2);
 
     cv::Rect ROI; // roi of detect armor
     while (!exit_signal_) {
         auto time = std::chrono::steady_clock::now();
-        if (!image_provider_->GetFrame(frame_)) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(5));
-            LOG(ERROR) << "wait for image...";
-            continue;
-        }
 
-        if (CmdlineArgParser::Instance().RunWithGimbal()) {
-            SerialReceivePacket serial_receive_packet{};
-            serial_->GetData(serial_receive_packet, std::chrono::milliseconds(5));
-            receive_packet_ = ReceivePacket(serial_receive_packet);
-        }
+        if (!GetImage<false>())
+            continue;
+
+        RunGimbal();
+
         boxes_ = armor_detector_(frame_.image, ROI);
         BboxToArmor();
         battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.yaw_pitch_roll,

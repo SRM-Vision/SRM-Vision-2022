@@ -76,13 +76,13 @@ bool Serial::Send() {
         static int sent_num(0);
         ++sent_num;
         auto duration = (std::chrono::steady_clock::now() - time);
-        if(duration > std::chrono::seconds (1)){
+        if (duration > std::chrono::seconds(1)) {
             DLOG(INFO) << "Sent speed: " << sent_num / double(duration.count()) * 1e9 << " t/s.";
             time = std::chrono::steady_clock::now();
             sent_num = 0;
         }
-        DLOG(INFO) << "Sent " << sizeof(SerialSendPacket) << " bytes of data to serial port " << serial_port_;
-        DLOG(INFO) << "Data: " << send_data_;
+        DLOG(INFO) << "Sent " << sizeof(SerialSendPacket) << " bytes of data to serial port " << serial_port_ << ".";
+        DLOG(INFO) << "Data: " << send_data_ << ".";
 
         return true;
     }
@@ -128,7 +128,7 @@ bool Serial::Receive() {
 
     tcflush(serial_fd_, TCIFLUSH);
     DLOG(INFO) << "Received " << sizeof(SerialReceivePacket) << " bytes of data.";
-    DLOG(INFO) << "Data: " << receive_data_;
+    DLOG(INFO) << "Data: " << receive_data_ << ".";
     return true;
 }
 
@@ -151,7 +151,7 @@ bool Serial::OpenSerialPort(const std::string &port) {
     if (chmod(port.c_str(), S_IRWXU | S_IRWXG | S_IRWXO)) {
         LOG(WARNING) << "Running in user mode, manually setting permission is required.";
         LOG(WARNING) << "To set permission of current serial port, run this command as root:";
-        LOG(WARNING) << "  chmod 777 " << port;
+        LOG(WARNING) << "  $ chmod 777 " << port;
     }
 
     serial_fd_ = open(port.c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK);

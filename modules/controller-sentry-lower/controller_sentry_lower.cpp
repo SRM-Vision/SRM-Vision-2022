@@ -11,23 +11,15 @@
         SentryLowerController::sentry_lower_controller_registry_("sentry_lower");
 
 bool SentryLowerController::Initialize() {
-    if (!InitializeImageProvider("sentry_lower") || !InitializeGimbalSerial())
+    // Common initialization.
+    if (!Controller::Initialize("sentry_lower"))
         return false;
 
+    // Initialize the painter.
     if (CmdlineArgParser::Instance().DebugUseTrackbar())
         painter_ = debug::Painter::Instance();
     else
         painter_ = debug::NoPainter::Instance();
-
-    if (Compensator::Instance().Initialize("sentry_lower"))
-        LOG(INFO) << "Setoff initialize successfully!";
-    else
-        LOG(ERROR) << "Setoff initialize unsuccessfully!";
-
-    if (coordinate::InitializeMatrix("../config/sentry_lower/matrix-init.yaml"))
-        LOG(INFO) << "Camera initialize successfully!";
-    else
-        LOG(ERROR) << "Camera initialize unsuccessfully!";
 
     LOG(INFO) << "Lower sentry_lower controller is ready.";
     return true;
@@ -43,11 +35,8 @@ void SentryLowerController::Run() {
         if (!GetImage<false>())
             continue;
 
-        if (CmdlineArgParser::Instance().RunWithGimbal()) {
-            SerialReceivePacket serial_receive_packet{};
-            serial_->GetData(serial_receive_packet, std::chrono::milliseconds(5));
-            receive_packet_ = ReceivePacket(serial_receive_packet);
-        }
+        RunGimbal();
+
         boxes_ = armor_detector_(frame_.image, ROI);
         BboxToArmor();
         battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.yaw_pitch_roll,
