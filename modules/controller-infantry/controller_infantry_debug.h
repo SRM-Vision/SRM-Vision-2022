@@ -49,10 +49,10 @@ public:
         controller_debug_.ShowImage(window_names, wait_time);
     }
 
-    inline void GetKey(char &key)
+    inline char GetKey()
     {
 #if !NDEBUG
-        key = cv::waitKey(1) & 0xff;
+        char key = cv::waitKey(1) & 0xff;
         if (key == 's')
         {
             ArmorPredictorDebug::Instance().Save();
@@ -60,8 +60,11 @@ public:
             RuneDetectorDebug::Instance().Save();
         }
 
-#endif
+        if (key == 'q')
+            return 'q';
 
+#endif
+        return 'h';
     }
 };
 
