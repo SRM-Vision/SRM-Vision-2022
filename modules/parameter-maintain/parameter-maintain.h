@@ -3,6 +3,10 @@
 
 #include <iostream>
 #include <opencv2/opencv.hpp>
+#include "controller-hero/controller_hero_debug.h"
+#include "controller-infantry/controller_infantry_debug.h"
+#include "controller-sentry-lower/controller_sentry_lower_debug.h"
+#include "controller-sentry-higher/controller_sentry_higher_debug.h"
 
 // predictor rune needed data structure
 #include <predictor-rune/predictor-rune.h>
@@ -11,7 +15,7 @@
 // coordinate, image_provider isn't contained in this file, since it is been welly sealed
 /// \brief This is parameter maintain class, other debug class is friend to this class
 /// \note Don't use this class alone. Coordinate, image_provider isn't contained in this file, since it is been welly sealed.
-class ParameterMaintain : NO_COPY, NO_MOVE
+class ParameterMaintain
 {
     ParameterMaintain(const std::string& controller_type_name="infantry")
     {
@@ -23,6 +27,7 @@ class ParameterMaintain : NO_COPY, NO_MOVE
 private:
     cv::FileStorage config_;
     std::string controller_type_name_;
+    friend class ControllerInfantryDebug;
 private:   // detector rune debug
     const std::string rune_detector_config_path = "../config/" + controller_type_name_ +"/rune-detector-param.yaml";
     void initDetectorRuneParameters();
