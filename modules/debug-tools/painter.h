@@ -10,8 +10,6 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 
-#include "detector-rune-debug/detector_rune_debug.h"
-
 namespace debug {
     class IPainter {
     public:
@@ -72,8 +70,8 @@ namespace debug {
 
             if (key == 'q')
                 cv::waitKey(wait_time);
-            else if (key == 's')
-                RuneDetectorDebug::Instance().Save();
+//            else if (key == 's')
+//                OLDRuneDetectorDebug::Instance().Save();
         }
 
         inline void DrawRotatedBox(const cv::RotatedRect &rect,

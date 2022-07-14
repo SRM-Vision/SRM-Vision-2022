@@ -7,10 +7,10 @@
 #ifndef DETECTOR_RUNE_H_
 #define DETECTOR_RUNE_H_
 
-#include <detector-rune-debug/detector_rune_debug.h>
 #include "data-structure/frame.h"
 #include "digital-twin/facilities/power_rune.h"
 #include "debug-tools/painter.h"
+#include "detector_rune_debug.h"
 
 class RuneDetector : NO_COPY, NO_MOVE {
 public:

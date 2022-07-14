@@ -8,6 +8,7 @@
 #include "controller-sentry-lower/controller_sentry_lower_debug.h"
 #include "controller-sentry-higher/controller_sentry_higher_debug.h"
 
+
 // predictor rune needed data structure
 #include <predictor-rune/predictor-rune.h>
 
@@ -28,6 +29,7 @@ private:
     cv::FileStorage config_;
     std::string controller_type_name_;
     friend class ControllerInfantryDebug;
+    friend class RuneDetectorDebug;
 private:   // detector rune debug
     const std::string rune_detector_config_path = "../config/" + controller_type_name_ +"/rune-detector-param.yaml";
     void initDetectorRuneParameters();
