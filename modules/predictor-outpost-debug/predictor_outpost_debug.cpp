@@ -2,7 +2,7 @@
 #include "cmdline-arg-parser/cmdline_arg_parser.h"
 #include "predictor_outpost_debug.h"
 
-bool OutpostPredictorDebug::Initialize(const std::string &config_path, bool debug_use_trackbar, bool show_in_image) {
+bool OutpostPredictorDebug::Initialize(const std::string &config_path, bool debug_use_trackbar) {
     config_path_ = config_path;
     // Open config file.
     config_.open(config_path_, cv::FileStorage::READ);

@@ -27,7 +27,8 @@ private:
     };
     [[maybe_unused]] static ControllerRegistry<HeroController> hero_controller_registry_;
 
-    OutpostPredictor outpost_predictor_new_;
+    OutpostPredictor outpost_predictor_;
+//    OutpostMeasure outpost_measure_;
 
 
 };

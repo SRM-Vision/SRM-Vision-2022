@@ -7,16 +7,27 @@
 
 #include <glog/logging.h>
 #include "debug-tools/trackbar.h"
-
+/**
+ * \Brief Create trackbar to adjust params.
+ * \note Maybe only used to measure the offset
+ */
 class OutpostPredictorDebug {
 public:
     inline static OutpostPredictorDebug &Instance() {
         static OutpostPredictorDebug _;
         return _;
     }
+    /**
+     * \Brief Collect armors, get center points and decide auto-shoot signal.
+     * @param config_path the config_path of data file.
+     * @param debug_use_trackbar whether use trackbar.
+     * @return whether initialize successfully.
+     */
+    bool Initialize(const std::string &config_path, bool debug_use_trackbar = true);
 
-    bool Initialize(const std::string &config_path, bool debug_use_trackbar = true, bool show_in_image = true);
-
+    /**
+     * \Brief Save the data in the param file.
+     */
     void Save();
 
 private:

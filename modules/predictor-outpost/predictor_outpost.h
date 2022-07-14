@@ -7,14 +7,15 @@
 
 #ifndef PREDICTOR_OUTPOST_NEW_H_
 #define PREDICTOR_OUTPOST_NEW_H_
-
-
+#include "math-tools/algorithms.h"
 #include <data-structure/communication.h>
 #include "../digital-twin/battlefield.h"
 #include "debug-tools/painter.h"
 #include "predictor-armor/spin_detector.h"
 #include "predictor-armor-debug/predictor_armor_debug.h"
 #include "predictor-outpost-debug/predictor_outpost_debug.h"
+
+
 /**
  * \Brief Find the center shooting point of outpost, auto-shoot after a time_delay.
  * @Details Set color first, then run predictor to auto-shoot and clear all parameters in controller if the mode changes.
@@ -23,6 +24,14 @@ class OutpostPredictor{
 public:
     OutpostPredictor() = default;
     ~OutpostPredictor() = default;
+
+    /**
+     * \Brief Load params and choice debug or not.
+     * @param config_path the config path of outpost params data file.
+     * @param debug Choice debug or not.
+     * @return Whether initialized successfully.
+     */
+    bool Initialize(const std::string &config_path, bool debug = true);
 
     /**
      * \Brief Collect armors, get center points and decide auto-shoot signal.
@@ -44,6 +53,7 @@ public:
     void Clear();
 
 private:
+
     /**
      * \Brief Find the armor with the biggest area.
      * @param [in] armors. All detected armors.
@@ -68,7 +78,7 @@ private:
     const double kFindBiggestArmorTime = 4;  ///< during this time try to find the the front of the target.
     const double kAreaThreshold = 0.93;  ///< when area is biggest than area threshold * biggest armor it is the front of the target.
     const double kAreaThresholdLow = 0.9;  ///< lower threshold to avoid can't find the front of the target.
-    const double kAimBuff = 20;  ///< to ensure the result.
+    const double kAimBuff = 20;  ///< The num frame number to ensure the result.
 
     Outpost outpost_{};
 

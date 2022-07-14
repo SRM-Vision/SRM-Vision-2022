@@ -7,6 +7,8 @@
 #include "predictor-armor/predictor_armor_renew.h"
 #include "predictor-outpost/predictor_outpost.h"
 #include "controller_hero.h"
+//#include "predictor-outpost/outpost_measure.h"
+
 
 /**
  * \warning Controller registry will be initialized before the program entering the main function!
@@ -29,6 +31,11 @@ bool HeroController::Initialize() {
         LOG(INFO) << "Camera initialize successfully!";
     else
         LOG(ERROR) << "Camera initialize unsuccessfully!";
+
+    if (outpost_predictor_.Initialize("../config/hero/outpost-param.yaml", true))
+        LOG(INFO) << "Outpost predictor initialize successfully!";
+    else
+        LOG(ERROR) << "Outpost predictor initialize unsuccessfully!";
 
     LOG(INFO) << "Hero controller is ready.";
     return true;
@@ -59,13 +66,10 @@ void HeroController::Run() {
             BboxToArmor(Armor::ArmorSize::kSmall);
             battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.yaw_pitch_roll,
                                        armors_);
+            // outpost_measure_.Run(battlefield_,receive_packet_.color,receive_packet_.bullet_speed);
 
-//            outpost_detector_.SetColor(receive_packet_.color);
-//            send_packet_ = outpost_predictor_.Run(outpost_detector_.Run(battlefield_), 16);
-//            outpost_predictor_.GetROI(ROI,frame_.image);
-
-            outpost_predictor_new_.SetColor(receive_packet_.color);
-            send_packet_ = outpost_predictor_new_.Run(battlefield_, receive_packet_.bullet_speed);
+            outpost_predictor_.SetColor(receive_packet_.color);
+            send_packet_ = outpost_predictor_.Run(battlefield_, receive_packet_.bullet_speed);
 
             if (send_packet_.fire)
                 debug::Painter::Instance()->DrawText("Fire", {50, 50}, cv::Scalar(100, 255, 100), 2);

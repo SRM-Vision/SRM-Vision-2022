@@ -1,5 +1,9 @@
 #include "predictor_outpost.h"
-#include "math-tools/algorithms.h"
+
+
+bool OutpostPredictor::Initialize(const std::string &config_path, bool debug) {
+    OutpostPredictorDebug::Instance().Initialize(config_path, debug);
+}
 
 
 SendPacket OutpostPredictor::Run(Battlefield battlefield, float bullet_speed) {
@@ -13,18 +17,14 @@ SendPacket OutpostPredictor::Run(Battlefield battlefield, float bullet_speed) {
                            0, 0,
                            0, 0,
                            0, 0, 0};
-    auto facilities = battlefield.Facilities();
-    auto robots = battlefield.Robots();
-    cv::Point3f shoot_point_;
-
-    /*
-     * TODO Add height judgment.
-     */
 
 
     /*
      * Collect armors.
+     * TODO Add height judgment.
      */
+    auto facilities = battlefield.Facilities();
+    auto robots = battlefield.Robots();
     for (auto &robot: robots[enemy_color_]) {
         for (auto &armor: robot.second->Armors())
             outpost_.AddBottomArmor(armor);
@@ -120,6 +120,7 @@ SendPacket OutpostPredictor::Run(Battlefield battlefield, float bullet_speed) {
             auto current_time = std::chrono::high_resolution_clock::now();
             double time_gap = (static_cast<std::chrono::duration<double, std::milli>>(current_time -
                                                                                       ready_time_)).count();
+            shoot_delay_time_ = OutpostPredictorDebug::Instance().ShootDelay();
             if (shoot_delay_time_ < time_gap * 1e-3) {
                 send_packet.fire = 1;
                 ready_fire_ = false;
@@ -134,9 +135,6 @@ SendPacket OutpostPredictor::Run(Battlefield battlefield, float bullet_speed) {
     return send_packet;
 
 }
-
-
-
 
 
 int OutpostPredictor::FindBiggestArmor(const std::vector<Armor> &armors) {
