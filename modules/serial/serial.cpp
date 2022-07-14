@@ -1,11 +1,11 @@
-#include "serial.h"
 #include <termios.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <chrono>
+#include "serial.h"
 
-/// \brief Automatically acquire UART device connected to the system.
+/// @brief Automatically acquire UART device connected to the system.
 inline std::string GetUartDeviceName() {
     FILE *ls = popen("ls /dev/ttyACM* --color=never", "r");
     static char name[127];
@@ -17,7 +17,7 @@ inline std::string GetUartDeviceName() {
     return name;
 }
 
-/// \brief Convert uint type baud-rate to termios type.
+/// @brief Convert uint type baud-rate to termios type.
 inline unsigned int ConvertBaudRate(unsigned int baud_rate) {
     switch (baud_rate) {
         case 115200:

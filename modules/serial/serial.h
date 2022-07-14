@@ -1,8 +1,8 @@
 /**
  * Serial class header.
- * \author trantuan-20048607, anonymity
- * \date 2022.1.28
- * \details Include this file to use serial communication.
+ * @author trantuan-20048607, anonymity
+ * @date 2022.1.28
+ * @details Include this file to use serial communication.
  */
 
 #ifndef SERIAL_H_
@@ -14,7 +14,7 @@
 #include "lang-feature-extension/disable-constructors.h"
 #include "packet.h"
 
-/// \brief Serial manager class.
+/// @brief Serial manager class.
 class Serial : NO_COPY, NO_MOVE {
 public:
     Serial() :
@@ -24,28 +24,28 @@ public:
     ~Serial();
 
     /**
-     * \brief Is serial port connected?
-     * \return Whether serial port is opened.
+     * @brief Is serial port connected?
+     * @return Whether serial port is opened.
      */
     [[maybe_unused]] [[nodiscard]] inline bool IsOpened() const { return !serial_port_.empty(); }
 
     /**
-     * \brief Start serial communication.
-     * \return Whether communication is successfully established.
+     * @brief Start serial communication.
+     * @return Whether communication is successfully established.
      */
     bool StartCommunication();
 
     /**
-     * \brief Stop serial communication.
-     * \return Whether communication is successfully stopped.
+     * @brief Stop serial communication.
+     * @return Whether communication is successfully stopped.
      */
     bool StopCommunication();
 
     /**
-     * \brief Send a data packet.
-     * \param [in] data A data packet to send.
-     * \param [in] duration Time duration.
-     * \return Whether data packet is successfully sent.
+     * @brief Send a data packet.
+     * @param [in] data A data packet to send.
+     * @param [in] duration Time duration.
+     * @return Whether data packet is successfully sent.
      */
     template<typename Rep, typename Period>
     [[maybe_unused]] bool SendData(SerialSendPacket &data, const std::chrono::duration<Rep, Period> &duration) {
@@ -65,10 +65,10 @@ public:
     }
 
     /**
-     * \brief Get a data packet.
-     * \param [out] data A data packet to receive.
-     * \param [in] duration Time duration.
-     * \return Whether data packet is successfully read.
+     * @brief Get a data packet.
+     * @param [out] data A data packet to receive.
+     * @param [in] duration Time duration.
+     * @return Whether data packet is successfully read.
      */
     template<typename Rep, typename Period>
     [[maybe_unused]] bool GetData(SerialReceivePacket &data, const std::chrono::duration<Rep, Period> &duration) {
@@ -89,15 +89,15 @@ public:
 
 private:
     /**
-     * \brief Open specified serial port.
-     * \param port Serial port.
-     * \return Whether specified serial port is successfully opened.
+     * @brief Open specified serial port.
+     * @param port Serial port.
+     * @return Whether specified serial port is successfully opened.
      */
     [[nodiscard]] bool OpenSerialPort(const std::string &port);
 
     /**
-     * \brief Close serial port.
-     * \return Whether specified serial port is successfully closed.
+     * @brief Close serial port.
+     * @return Whether specified serial port is successfully closed.
      */
     [[nodiscard]] bool CloseSerialPort() const;
 

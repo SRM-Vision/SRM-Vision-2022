@@ -26,8 +26,8 @@ namespace coordinate {
     // IMU and camera joint calibration.
     static double rm_cam_to_imu_data[] = {1, 0, 0, 0, 1, 0, 0, 0, 1};
     static double tm_cam_to_imu_data[] = {0, 0, 0};
-    static RotationMatrix camera_to_imu_rotation_matrix(rm_cam_to_imu_data);
-    static TranslationMatrix camera_to_imu_translation_matrix(tm_cam_to_imu_data);
+    extern RotationMatrix camera_to_imu_rotation_matrix;
+    extern TranslationMatrix camera_to_imu_translation_matrix;
 
     bool InitializeMatrix(const std::string &path);
 }
@@ -39,7 +39,8 @@ namespace coordinate::transform {
         RotationMatrix r_yaw, r_roll, r_pitch;
 
         // SIMD acceleration.
-        float r[4] = {e_yaw_pitch_roll[0], e_yaw_pitch_roll[1], e_yaw_pitch_roll[2], float(0)}, sin_r[4], cos_r[4];
+        float r[4] = {e_yaw_pitch_roll[0], e_yaw_pitch_roll[1], e_yaw_pitch_roll[2], float(0)},
+                sin_r[4], cos_r[4];
         algorithm::SinCosFloatX4(r, sin_r, cos_r);
         r_yaw << cos_r[0], 0, sin_r[0],
                 0, 1, 0,
