@@ -3,7 +3,7 @@
 coordinate::RotationMatrix coordinate::camera_to_imu_rotation_matrix(rm_cam_to_imu_data);
 coordinate::TranslationMatrix coordinate::camera_to_imu_translation_matrix(tm_cam_to_imu_data);
 
-bool coordinate::InitializeMatrix(const std::string &path) {
+ bool coordinate::InitializeMatrix(const std::string &path) {
     cv::FileStorage r_and_t_matrix_param_config;
     r_and_t_matrix_param_config.open(path, cv::FileStorage::READ);
     if (!r_and_t_matrix_param_config.isOpened()) {

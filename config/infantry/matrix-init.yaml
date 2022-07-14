@@ -14,6 +14,3 @@ TM_CAM_TO_IMU_DATA: !!opencv-matrix
   data: [ 0.008,
           -0.115,
           -0.014]
-#  data: [ 0.008,
-#          -0.115,
-#          -0.014 ]
