@@ -8,10 +8,10 @@
 #ifndef CONTROLLER_BASE_H_
 #define CONTROLLER_BASE_H_
 
+#include <opencv2/highgui.hpp>
 #include "lang-feature-extension/disable-constructors.h"
-#include "data-structure/communication.h"
-#include "digital-twin/battlefield.h"
 #include "serial/serial.h"
+#include "digital-twin/battlefield.h"
 #include "image-provider-base/image-provider-base.h"
 #include "detector-armor/detector_armor.h"
 
@@ -43,6 +43,30 @@ public:
     virtual ~Controller() = default;
 
 protected:
+    [[nodiscard]] bool InitializeImageProvider();
+
+    [[nodiscard]] bool InitializeGimbal();
+
+    template<bool flip>
+    [[nodiscard]] bool GetImage() {
+        if (!image_provider_->GetFrame(frame_)) {
+            LOG(WARNING) << "Failed to get image, wait for camera or press ctrl-c to quit.";
+#if NDEBUG
+            sleep(1);
+#else
+            cv::waitKey(1000);
+#endif
+            return false;
+        }
+
+        if (flip)  // Flip image when using camera.
+            if (CmdlineArgParser::Instance().RunWithCamera()) {
+                cv::flip(frame_.image, frame_.image, 0);
+                cv::flip(frame_.image, frame_.image, 1);
+            }
+        return true;
+    }
+
     std::unique_ptr<ImageProvider> image_provider_;  ///< Image provider handler.
     Frame frame_;
     std::unique_ptr<Serial> serial_;  ///< Serial communication handler.
