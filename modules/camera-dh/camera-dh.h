@@ -1,18 +1,16 @@
 /**
  * DaHeng camera header.
- * \author trantuan-20048607
- * \date 2022.1.28
- * \warning NEVER include this file except in ./camera_dh.cpp.
+ * @author trantuan-20048607
+ * @date 2022.1.28
+ * @warning NEVER include this file except in ./camera_dh.cpp.
  */
 
 #ifndef CAMERA_DH_H_
 #define CAMERA_DH_H_
 
-// Include nothing to avoid this file being wrongly included.
-
 /**
- * \brief This macro is used to check if the device is successfully initialized.
- * \warning Do NOT use this macro in other place!
+ * @brief This macro is used to check if the device is successfully initialized.
+ * @warning Do NOT use this macro in other place!
  */
 #define GX_OPEN_CAMERA_CHECK_STATUS(status_code)          \
     if ((status_code) != GX_STATUS_SUCCESS) {             \
@@ -31,8 +29,8 @@
     }
 
 /**
- * \brief This macro is used to check if parameters are successfully modified or set.
- * \warning Do NOT use this macro in other place!
+ * @brief This macro is used to check if parameters are successfully modified or set.
+ * @warning Do NOT use this macro in other place!
  */
 #define GX_CHECK_STATUS(status_code)              \
     if ((status_code) != GX_STATUS_SUCCESS) {     \
@@ -41,8 +39,8 @@
     }
 
 /**
- * \brief This macro is used to check if the stream is successfully opened or closed.
- * \warning Do NOT use this macro in other place!
+ * @brief This macro is used to check if the stream is successfully opened or closed.
+ * @warning Do NOT use this macro in other place!
  */
 #define GX_START_STOP_STREAM_CHECK_STATUS_(status_code)  \
     if ((status_code) != GX_STATUS_SUCCESS) {            \
@@ -59,8 +57,8 @@
     }
 
 /**
- * \brief DaHeng camera class implementation.
- * \warning NEVER directly use this class to create camera!  \n
+ * @brief DaHeng camera class implementation.
+ * @warning NEVER directly use this class to create camera!  \n
  *   Turn to CameraFactory class for correct method.
  */
 class [[maybe_unused]] DHCamera final : public Camera {
@@ -121,9 +119,9 @@ public:
 
 private:
     /**
-     * \brief Register image callback for DH camera.
-     * \param callback Callback param.
-     * \return Whether callback is registered.
+     * @brief Register image callback for DH camera.
+     * @param callback Callback param.
+     * @return Whether callback is registered.
      */
     inline bool RegisterCaptureCallback(GXCaptureCallBack callback) {
         GX_STATUS status_code;
@@ -136,8 +134,8 @@ private:
     }
 
     /**
-     * \brief Unregister image callback for DH camera.
-     * \return Whether callback is unregistered.
+     * @brief Unregister image callback for DH camera.
+     * @return Whether callback is unregistered.
      */
     inline bool UnregisterCaptureCallback() {
         GX_STATUS status_code;
@@ -148,9 +146,9 @@ private:
     }
 
     /**
-     * \brief DHCamera implementation of exposure time setting.
-     * \param exposure_time 64 bit integer exposure time.
-     * \return Whether exposure time is set.
+     * @brief DHCamera implementation of exposure time setting.
+     * @param exposure_time 64 bit integer exposure time.
+     * @return Whether exposure time is set.
      */
     inline bool SetExposureTimeDHImplementation(int64_t exposure_time) {
         GX_STATUS status_code;
@@ -164,13 +162,13 @@ private:
     }
 
     /**
-     * \brief Set exposure mode only for DaHeng cameras.
-     * \param gx_exposure_mode_entry Exposure mode entry. Valid values:
-     * \code
+     * @brief Set exposure mode only for DaHeng cameras.
+     * @param gx_exposure_mode_entry Exposure mode entry. Valid values:
+     * @code
      *   GX_EXPOSURE_MODE_TIMED         = 1
      *   GX_EXPOSURE_MODE_TRIGGERWIDTH  = 2
-     * \endcode
-     * \return Whether exposure mode is set.
+     * @endcode
+     * @return Whether exposure mode is set.
      */
     inline bool SetExposureMode(GX_EXPOSURE_MODE_ENTRY gx_exposure_mode_entry) {
         GX_STATUS status_code;
@@ -184,13 +182,13 @@ private:
     }
 
     /**
-     * \brief Set exposure time mode only for DaHeng cameras.
-     * \param gx_exposure_time_mode_entry Exposure time mode entry. Valid values:
-     * \code
+     * @brief Set exposure time mode only for DaHeng cameras.
+     * @param gx_exposure_time_mode_entry Exposure time mode entry. Valid values:
+     * @code
      *   GX_EXPOSURE_TIME_MODE_ULTRASHORT  = 0
      *   GX_EXPOSURE_TIME_MODE_STANDARD    = 1
-     * \endcode
-     * \return Whether exposure time mode is set.
+     * @endcode
+     * @return Whether exposure time mode is set.
      */
     inline bool SetExposureTimeMode(GX_EXPOSURE_TIME_MODE_ENTRY gx_exposure_time_mode_entry) {
         GX_STATUS status_code;
@@ -204,9 +202,9 @@ private:
     }
 
     /**
-     * \brief DHCamera implementation of gain value setting.
-     * \param gain Double gain value.
-     * \return Whether gain value is set.
+     * @brief DHCamera implementation of gain value setting.
+     * @param gain Double gain value.
+     * @return Whether gain value is set.
      */
     inline bool SetGainValueDHImplementation(double gain) {
         GX_STATUS status_code;
@@ -229,14 +227,14 @@ private:
     }
 
     /**
-     * \brief Set gain to auto mode only for DaHeng cameras.
-     * \param gx_gain_auto_entry Auto gain mode entry. Valid values:
-     * \code
+     * @brief Set gain to auto mode only for DaHeng cameras.
+     * @param gx_gain_auto_entry Auto gain mode entry. Valid values:
+     * @code
      *   GX_GAIN_AUTO_OFF         = 0
      *   GX_GAIN_AUTO_CONTINUOUS  = 1
      *   GX_GAIN_AUTO_ONCE        = 2
-     * \endcode
-     * \return Whether gain auto mode is set.
+     * @endcode
+     * @return Whether gain auto mode is set.
      */
     inline bool SetGainAuto(GX_GAIN_AUTO_ENTRY gx_gain_auto_entry) {
         GX_STATUS status_code;
@@ -250,9 +248,9 @@ private:
     }
 
     /**
-     * \brief Get error details for output.
-     * \param error_status_code A status code returned from GxI API.
-     * \return A string with error details.
+     * @brief Get error details for output.
+     * @param error_status_code A status code returned from GxI API.
+     * @return A string with error details.
      */
     inline static std::string GetErrorInfo(GX_STATUS error_status_code) {
         size_t str_size = 0;
@@ -272,22 +270,22 @@ private:
     }
 
     /**
-     * \brief Convert RAW 8/16 pixel formats to an RGB 24 one.
-     * \param [in] frame_callback A frame buffer acquired directly from camera.
-     * \return Whether pixel format is normally converted.
+     * @brief Convert RAW 8/16 pixel formats to an RGB 24 one.
+     * @param [in] frame_callback A frame buffer acquired directly from camera.
+     * @return Whether pixel format is normally converted.
      */
     bool Raw8Raw16ToRGB24(GX_FRAME_CALLBACK_PARAM *frame_callback);
 
     /**
-     * \brief Internal capture callback function.
-     * \param [in] frame_callback Frame callback pointer.
+     * @brief Internal capture callback function.
+     * @param [in] frame_callback Frame callback pointer.
      */
     static void GX_STDC DefaultCaptureCallback(GX_FRAME_CALLBACK_PARAM *frame_callback);
 
     /**
-     * \brief Daemon thread main function.
-     * \param [in] obj Place camera itself here.
-     * \attention Do NOT use this function in another place!
+     * @brief Daemon thread main function.
+     * @param [in] obj Place camera itself here.
+     * @attention Do NOT use this function in another place!
      */
     static void *DaemonThreadFunction(void *obj);
 

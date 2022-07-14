@@ -59,13 +59,14 @@ protected:
      * \brief Convert boxes to armors.
      * \attention Since std::vector is not threading safe, do not use it in different threads.
      */
-    inline void BboxToArmor() {
+    inline void BboxToArmor(Armor::ArmorSize size = Armor::ArmorSize::kAuto) {
         armors_.clear();
         for (const auto &box: boxes_)
             armors_.emplace_back(box,
                                  image_provider_->IntrinsicMatrix(),
                                  image_provider_->DistortionMatrix(),
-                                 receive_packet_.yaw_pitch_roll);
+                                 receive_packet_.yaw_pitch_roll,
+                                 size);
     }
 };
 

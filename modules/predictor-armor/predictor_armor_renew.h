@@ -9,11 +9,10 @@
 #include "lang-feature-extension/disable_constructors.h"
 #include "cmdline-arg-parser/cmdline_arg_parser.h"
 #include "digital-twin/battlefield.h"
-#include "antitop_detector.h"
-#include "predictor_fsm.h"
 #include "predict_armor.h"
 #include "antitop_detector_renew.h"
 #include "debug-tools/painter.h"
+#include "spin_detector.h"
 
 
 class PredictorArmorRenew: NO_COPY, NO_MOVE {
@@ -34,8 +33,7 @@ public:
     inline void Clear(){
         predict_armors_.clear();
         target_ = -1;
-        for(auto& anti_top_detector:anti_top_detectors)
-            anti_top_detector.second.Reset();
+        spin_detector_.Reset();
         for(auto& buffer:grey_buffers_)  /// pending
             buffer.second = 0;
     }
@@ -53,7 +51,7 @@ public:
         }
     }
 
-    /// used to setoff
+    /// used to offset
     double GetTargetDistance(){
         if(target_ != -1)
             return predict_armors_[target_].Distance();
@@ -75,7 +73,7 @@ public:
             roi_rect = {};
             return;
         }
-        return predict_armors_[target_].GetROI(roi_rect,src_image);
+        predict_armors_[target_].GetROI(roi_rect,src_image);
     }
 
 private:
@@ -87,7 +85,8 @@ private:
 
     std::unordered_map<Robot::RobotTypes, int> grey_buffers_;   ///< times of gray armors appearing in succession
 
-    std::unordered_map<Robot::RobotTypes, AntiTopDetectorRenew> anti_top_detectors; ///< used to judge whether is top
+    SpinDetector spin_detector_{SpinDetector::kSpherical, 0.05, 1.2,
+                                0.625, 0.125};
 
     /// Used to merge grey and enemy armors. but also pick the right pair armors.
     std::unordered_map<Robot::RobotTypes, std::vector<Armor>> ReviseRobots(const RobotMap& robots,bool exist_enemy,
