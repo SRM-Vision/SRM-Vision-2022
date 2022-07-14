@@ -17,7 +17,7 @@ const double kPicDistanceThreshold = 30;
 const double kSwitchByAreaThreshold = 0.7;
 
 /// used for anti-spin, allow to follow for fire.
-const double kAllowFollowRange = 0.6;
+const double kAllowFollowRange = 0.5;
 
 // TODO Calibrate shoot delay and acceleration threshold.
 const double kShootDelay = 0.02;
