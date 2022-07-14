@@ -147,34 +147,39 @@ namespace predictor::rune {
 
         ~RunePredictor() = default;
 
-        bool Initialize(const std::string &config_path, bool debug);
+        /**
+         * @brief Initialize rune predictor
+         * @param [in] config_path Rune predictor's parameter yaml address.
+         * @param [in] debug Whether use debug.
+         * @return Whether initialize successfully.
+         */
+        [[nodiscard]]bool Initialize(const std::string &config_path, bool debug);
 
-        SendPacket Run(const PowerRune &power_rune, AimModes aim_mode, float bullet_speed);
+        /**
+         * @brief Use rune predictor to get predicted point.
+         * @param [in] power_rune Some parameters conveyed by rune detector.
+         * @param [in] aim_mode Rune's mode, kBigRune or kSmallRune.
+         * @param [in] bullet_speed Bullet speed from electronic controller.
+         * @return Processed data which will be sent to electronic controller.
+         */
+        [[nodiscard]]SendPacket Run(const PowerRune &power_rune, AimModes aim_mode, float bullet_speed);
 
     private:
-        /**
-         * @brief According to parameters fitted, get predicting angle.
-         * @details If aim_mode is kBigRune, it needs some time to fit.
-         * @param [in] aim_mode Rune mode.
-         */
         void PredictAngle(AimModes aim_mode);
 
-        /**
-         * @brief According to predicted angle, get predict point and it will show on image.
-         */
         void PredictPoint();
 
         bool debug_;
-        PowerRune rune_;    ///< It is initiated by package conveyed by rune detector.
+        PowerRune rune_;  ///< It is initiated by package conveyed by rune detector.
         State state_;
         RotationalSpeed rotational_speed_;
-        FittingData fitting_data_;   ///< Data for fit.
-        OutputData output_data_;     ///< Contain yaw, pitch, delay.
+        FittingData fitting_data_;  ///< Data for fit.
+        OutputData output_data_;  ///< Contain yaw, pitch, delay.
 
-        double predicted_angle_;     ///< Predicted angle according to fitted palstance.
+        double predicted_angle_;  ///< Predicted angle according to fitted palstance.
         float bullet_speed_;
         cv::Point2f predicted_point_;
-        cv::Point2f fixed_point_;    ///< Final point which contains all compensation.
+        cv::Point2f fixed_point_;  ///< Final point which contains all compensation.
     };
 }
 
