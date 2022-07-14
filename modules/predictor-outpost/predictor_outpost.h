@@ -8,20 +8,38 @@
 #ifndef PREDICTOR_OUTPOST_NEW_H_
 #define PREDICTOR_OUTPOST_NEW_H_
 
-#endif //PREDICTOR_OUTPOST_NEW_H_
 
 #include <data-structure/communication.h>
 #include "../digital-twin/battlefield.h"
 #include "debug-tools/painter.h"
 #include "predictor-armor/spin_detector.h"
 #include "predictor-armor-debug/predictor_armor_debug.h"
+#include "predictor-outpost-debug/predictor_outpost_debug.h"
 
 class OutpostPredictor{
 public:
     OutpostPredictor() = default;
     ~OutpostPredictor() = default;
+
+    /**
+    * \brief Examine 2 armors by distance.
+    * \param armor_1 First armor.
+    * \param armor_2 Second armor.
+    * \param threshold Distance threshold.
+    * \return Whether they're getting close.
+    */
     SendPacket Run(Battlefield battlefield, float bullet_speed = 16);
-    void SetColor(const Entity::Colors& enemy_color)    {   enemy_color_ = enemy_color;}
+
+    /**
+    * \brief Set the color of outpost.
+    * \param enemy_color Enemy color.
+    */
+    void SetColor(const Entity::Colors &enemy_color) { enemy_color_ = enemy_color; }
+
+    /**
+    * \brief Clear the information in OutpostPredictor.
+    */
+    void Clear();
 
 private:
     /**
@@ -60,8 +78,9 @@ private:
     bool need_init_ = true;
 
     double biggest_area_ = 0;
-    double delay_time_   = 0.1;
+    double shoot_delay_time_   = 0;
 
     int buff{};
 };
 
+#endif //PREDICTOR_OUTPOST_H_
