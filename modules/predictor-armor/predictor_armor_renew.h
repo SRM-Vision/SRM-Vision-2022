@@ -10,7 +10,6 @@
 #include "cmdline-arg-parser/cmdline_arg_parser.h"
 #include "digital-twin/battlefield.h"
 #include "predict_armor.h"
-#include "antitop_detector_renew.h"
 #include "debug-tools/painter.h"
 #include "spin_detector.h"
 

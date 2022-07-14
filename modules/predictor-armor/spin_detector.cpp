@@ -34,6 +34,8 @@ bool SpinDetector::Update(const Armor &armor, const uint64_t current_time) {
         yaw_x_delta = current_yaw_x - last_yaw_x_;
     }
 
+    DLOG(INFO) << "current yaw/x delta: " << current_yaw_x;
+
     if(abs(yaw_x_delta) > min_jump_yaw_x_){
         reverse_buffer = 0;
         ++jump_count_;
