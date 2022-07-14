@@ -24,7 +24,7 @@ public:
         }
     }
 
-private:
+public:
     debug::IPainter* painter_;
 
 public:

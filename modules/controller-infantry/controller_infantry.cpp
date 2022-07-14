@@ -56,10 +56,10 @@ void InfantryController::Run() {
             power_rune_ = rune_detector_.Run(receive_packet_.color, frame_);
             send_packet_ = SendPacket(
                     rune_predictor_.Run(power_rune_, receive_packet_.mode, receive_packet_.bullet_speed));
-            painter_->DrawPoint(rune_predictor_.PredictedPoint(),
-                                cv::Scalar(0, 255, 255), 3, 3);
-            painter_->ShowImage("Rune", 1);
-        } else {
+            controller_infantry_debug_.DrawAutoAimRune(frame_.image, &rune_predictor_, "Infantry Rune Run", 1);
+        }
+
+        if (!CmdlineArgParser::Instance().RuneModeRune()) {
             boxes_ = armor_detector_(frame_.image, ROI);
 
             BboxToArmor();
@@ -73,14 +73,14 @@ void InfantryController::Run() {
                 send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size);
             armor_predictor.GetROI(ROI, frame_.image);
 
-            controller_infantry_debug_.DrawArmorDetection(frame_.image,
-                                                          ROI,
-                                                          boxes_,
-                                                          &armor_predictor,
-                                                          image_provider_->IntrinsicMatrix(),
-                                                          frame_.image.size,
-                                                          "Infantry Run",
-                                                          1);
+            controller_infantry_debug_.DrawAutoAimArmor(frame_.image,
+                                                        ROI,
+                                                        boxes_,
+                                                        &armor_predictor,
+                                                        image_provider_->IntrinsicMatrix(),
+                                                        frame_.image.size,
+                                                        "Infantry Run",
+                                                        1);
         }
 
         auto key = cv::waitKey(1) & 0xff;

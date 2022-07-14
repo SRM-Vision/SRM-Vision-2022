@@ -17,22 +17,33 @@ public:
         controller_debug_.Initialize(use_painter);
     }
 
-private:
+public:
     ControllerDebug controller_debug_;
 
 public:
-    inline void DrawArmorDetection(const cv::Mat& image,
-                                   const cv::Rect_<int>& ROI,
-                                   const std::vector<bbox_t> &bboxes,
-                                   ArmorPredictor* armor_predictor,
-                                   const cv::Mat &intrinsic_matrix,
-                                   const cv::MatSize &image_size,
-                                   const std::string &window_names,
-                                   const int &wait_time)
+    inline void DrawAutoAimArmor(const cv::Mat& image,
+                                 const cv::Rect_<int>& ROI,
+                                 const std::vector<bbox_t> &bboxes,
+                                 ArmorPredictor* armor_predictor,
+                                 const cv::Mat &intrinsic_matrix,
+                                 const cv::MatSize &image_size,
+                                 const std::string &window_names,
+                                 const int &wait_time)
     {
         controller_debug_.UpdateImage(image);
         controller_debug_.drawROI(ROI);
         controller_debug_.drawArmors(bboxes, armor_predictor, intrinsic_matrix, image_size);
+        controller_debug_.ShowImage(window_names, wait_time);
+    }
+
+    inline void DrawAutoAimRune(const cv::Mat& image,
+                                RunePredictor* rune_predictor,
+                                const std::string &window_names,
+                                const int &wait_time)
+    {
+        controller_debug_.UpdateImage(image);
+        controller_debug_.painter_->DrawPoint(rune_predictor->PredictedPoint(),
+                                              cv::Scalar(0, 255, 255), 3, 3);
         controller_debug_.ShowImage(window_names, wait_time);
     }
 
