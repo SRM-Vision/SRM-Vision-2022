@@ -14,6 +14,7 @@
 #include "digital-twin/battlefield.h"
 #include "image-provider-base/image-provider-base.h"
 #include "detector-armor/detector_armor.h"
+#include "predictor-armor/predictor_armor.h"
 
 /**
  * \brief Controller base class.
@@ -32,7 +33,8 @@ public:
             serial_(nullptr),
             armor_detector_(),
             send_packet_(),
-            receive_packet_() {
+            receive_packet_(),
+            armor_predictor_(){
         armor_detector_.Initialize("../assets/models/armor_detector_model.onnx");
     }
 
@@ -43,9 +45,9 @@ public:
     virtual ~Controller() = default;
 
 protected:
-    [[nodiscard]] bool InitializeImageProvider();
+    [[nodiscard]] bool InitializeImageProvider(std::string type);
 
-    [[nodiscard]] bool InitializeGimbal();
+    [[nodiscard]] bool InitializeGimbalSerial();
 
     template<bool flip>
     [[nodiscard]] bool GetImage() {
@@ -67,6 +69,8 @@ protected:
         return true;
     }
 
+    void RunGimbal();
+
     std::unique_ptr<ImageProvider> image_provider_;  ///< Image provider handler.
     Frame frame_;
     std::unique_ptr<Serial> serial_;  ///< Serial communication handler.
@@ -76,6 +80,7 @@ protected:
     std::vector<bbox_t> boxes_;  ///< Store boxes here to speed up.
     std::vector<Armor> armors_;  ///< Store armors here to speed up.
     Battlefield battlefield_;
+    ArmorPredictor armor_predictor_;
 
     static bool exit_signal_;  ///< Global normal exit signal.
 

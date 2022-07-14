@@ -7,6 +7,7 @@
 #include "predictor-armor/predictor_armor_renew.h"
 #include "predictor-outpost/predictor_outpost.h"
 #include "controller_hero.h"
+
 /**
  * \warning Controller registry will be initialized before the program entering the main function!
  *   This means any error occurring here will not be caught unless you're using debugger.
@@ -16,30 +17,10 @@
         HeroController::hero_controller_registry_("hero");
 
 bool HeroController::Initialize() {
-    // Use reset here to allocate memory for an abstract class.
-    image_provider_.reset(CREATE_IMAGE_PROVIDER(CmdlineArgParser::Instance().RunWithCamera() ? "camera" : "video"));
-    if (!image_provider_->Initialize(
-            CmdlineArgParser::Instance().RunWithCamera() ?
-            "../config/hero/camera-init.yaml" : "../config/hero/video-init.yaml")) {
-        LOG(ERROR) << "Failed to initialize image provider.";
-        // Till now the camera may be open, it's necessary to reset image_provider_ manually to release camera.
-        image_provider_.reset();
+    if (!InitializeImageProvider("hero") || !InitializeGimbalSerial())
         return false;
-    }
 
-    if (CmdlineArgParser::Instance().RunWithGimbal()) {
-        serial_ = std::make_unique<Serial>();
-        if (!serial_->StartCommunication()) {
-            LOG(ERROR) << "Failed to start serial communication.";
-            serial_->StopCommunication();
-            // To use std::make_unique will automatically reset serial_ at the next time.
-            // So, there's no need to reset it manually.
-            return false;
-        }
-
-    }
-
-    if(Compensator::Instance().Initialize("hero"))
+    if (Compensator::Instance().Initialize("hero"))
         LOG(INFO) << "Offset initialize successfully!";
     else
         LOG(ERROR) << "Offset initialize unsuccessfully!";
@@ -54,36 +35,26 @@ bool HeroController::Initialize() {
 }
 
 void HeroController::Run() {
-    PredictorArmorRenew armor_predictor(Entity::Colors::kBlue,"hero");
+    PredictorArmorRenew armor_predictor(Entity::Colors::kBlue, "hero");
 
     sleep(2);
-    //cv::Rect ROI{300,200,620,700}; // roi of detect armor
-
-    cv::Rect ROI{}; // roi of detect armor
+    cv::Rect ROI; // roi of detect armor
 
     while (!exit_signal_) {
         auto time = std::chrono::steady_clock::now();
-        if (!image_provider_->GetFrame(frame_)){
-            std::this_thread::sleep_for(std::chrono::milliseconds(5));
-            LOG(ERROR) << "wait for image...";
+
+        if (!GetImage<true>())
             continue;
-        }
 
-
-        if (CmdlineArgParser::Instance().RunWithGimbal()) {
-            SerialReceivePacket serial_receive_packet{};
-            serial_->GetData(serial_receive_packet, std::chrono::milliseconds(5));
-            receive_packet_ = ReceivePacket(serial_receive_packet);
-        }
+        RunGimbal();
 
         debug::Painter::Instance()->UpdateImage(frame_.image);
 
-        boxes_ = armor_detector_(frame_.image,ROI);
-        for(auto &box:boxes_)
+        boxes_ = armor_detector_(frame_.image, ROI);
+        for (auto &box: boxes_)
             DLOG(INFO) << "CONFIDENCE:  " << box.confidence;
         // if(receive_packet_.mode == kOutPost)
-        if (CmdlineArgParser::Instance().RunModeOutpost())
-        {
+        if (CmdlineArgParser::Instance().RunModeOutpost()) {
 
             BboxToArmor(Armor::ArmorSize::kSmall);
             battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.yaw_pitch_roll,
@@ -94,15 +65,14 @@ void HeroController::Run() {
 //            outpost_predictor_.GetROI(ROI,frame_.image);
 
             outpost_predictor_new_.SetColor(receive_packet_.color);
-            send_packet_ = outpost_predictor_new_.Run(battlefield_,receive_packet_.bullet_speed);
+            send_packet_ = outpost_predictor_new_.Run(battlefield_, receive_packet_.bullet_speed);
 
-            if(send_packet_.fire)
-                debug::Painter::Instance()->DrawText("Fire",{50,50},cv::Scalar(100, 255, 100),2);
-            debug::Painter::Instance()->DrawBoundingBox(ROI,cv::Scalar(0,0,255),2);
-            debug::Painter::Instance()->DrawBoundingBox(ROI,cv::Scalar(0,0,255),2);
+            if (send_packet_.fire)
+                debug::Painter::Instance()->DrawText("Fire", {50, 50}, cv::Scalar(100, 255, 100), 2);
+            debug::Painter::Instance()->DrawBoundingBox(ROI, cv::Scalar(0, 0, 255), 2);
+            debug::Painter::Instance()->DrawBoundingBox(ROI, cv::Scalar(0, 0, 255), 2);
             debug::Painter::Instance()->ShowImage("ARMOR DETECT", 1);
-        }
-        else {
+        } else {
             /// TODO mode switch
             BboxToArmor();
             battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.yaw_pitch_roll,
@@ -113,7 +83,7 @@ void HeroController::Run() {
                 send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size,
                                                    receive_packet_.mode, receive_packet_.bullet_speed);
             } else
-                send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size,AimModes::kAntiTop);
+                send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size, AimModes::kAntiTop);
 
             if (receive_packet_.mode != AimModes::kOutPost)
                 send_packet_.fire = 0;
@@ -121,17 +91,17 @@ void HeroController::Run() {
             //armor_predictor.GetROI(ROI,frame_.image);
             for (const auto &box: boxes_) {
                 debug::Painter::Instance()->DrawRotatedRectangle(box.points[0],
-                                                                box.points[1],
-                                                                box.points[2],
-                                                                box.points[3],
-                                                                cv::Scalar(0, 255, 0), 2);
+                                                                 box.points[1],
+                                                                 box.points[2],
+                                                                 box.points[3],
+                                                                 cv::Scalar(0, 255, 0), 2);
                 debug::Painter::Instance()->DrawText(std::to_string(box.id), box.points[0], 255, 2);
                 debug::Painter::Instance()->DrawPoint(armors_.front().Center(), cv::Scalar(100, 255, 100), 2, 2);
             }
             debug::Painter::Instance()->DrawPoint(armor_predictor.ShootPointInPic(image_provider_->IntrinsicMatrix(),
-                                                                                 frame_.image.size),
-                                                 cv::Scalar(0, 0, 255), 1, 10);
-            debug::Painter::Instance()->DrawBoundingBox(ROI,cv::Scalar(0,0,255),2);
+                                                                                  frame_.image.size),
+                                                  cv::Scalar(0, 0, 255), 1, 10);
+            debug::Painter::Instance()->DrawBoundingBox(ROI, cv::Scalar(0, 0, 255), 2);
             debug::Painter::Instance()->ShowImage("ARMOR DETECT", 1);
         }
 //

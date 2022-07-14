@@ -7,6 +7,7 @@
 #include "detector-rune/detector_rune.h"
 #include "predictor-rune/predictor-rune.h"
 #include "compensator/compensator.h"
+#include "predictor-armor/predictor_armor.h"
 #include "controller_infantry.h"
 #include "controller_infantry_debug.h"
 
@@ -19,36 +20,42 @@
         InfantryController::infantry_controller_registry_("infantry");
 
 bool InfantryController::Initialize() {
-    if (!InitializeImageProvider() || !InitializeGimbal())
+    if (!InitializeImageProvider("infantry") || !InitializeGimbalSerial())
         return false;
 
-    // rune initialize program.
+    // Initialize Rune module.
     Frame init_frame;
     image_provider_->GetFrame(init_frame);
     if (rune_detector_.Initialize("../config/infantry/rune-detector-param.yaml", init_frame,
                                   CmdlineArgParser::Instance().DebugUseTrackbar()))
         LOG(INFO) << "Rune detector initialize successfully!";
-    else
-        LOG(ERROR) << "Rune detector initialize unsuccessfully!";
+    else {
+        LOG(ERROR) << "Rune detector initialize failed.";
+        return false;
+    }
     rune_predictor_.Initialize("../config/infantry/rune-predictor-param.yaml", true);
     if (CmdlineArgParser::Instance().DebugUseTrackbar())  // TODO Debug
     {
         painter_ = debug::Painter::Instance();
-        LOG(INFO) << "Rune predictor initialize successfully!";
+        LOG(INFO) << "Running with debug painter.";
     } else {
         painter_ = debug::NoPainter::Instance();
-        LOG(ERROR) << "Rune predictor initialize unsuccessfully!";
+        LOG(INFO) << "Running without debug painter.";
     }
 
     if (Compensator::Instance().Initialize("infantry"))
-        LOG(INFO) << "Offset initialize successfully!";
-    else
-        LOG(ERROR) << "Offset  initialize unsuccessfully!";
+        LOG(INFO) << "Offset initialized.";
+    else {
+        LOG(ERROR) << "Offset initialize failed.";
+        return false;
+    }
 
     if (coordinate::InitializeMatrix("../config/infantry/matrix-init.yaml"))
-        LOG(INFO) << "Camera initialize successfully!";
-    else
-        LOG(ERROR) << "Camera initialize unsuccessfully!";
+        LOG(INFO) << "Camera initialized.";
+    else {
+        LOG(ERROR) << "Camera coordinate matrix initialize failed.";
+        return false;
+    }
 
     LOG(INFO) << "Infantry controller is ready.";
     return true;
@@ -56,22 +63,17 @@ bool InfantryController::Initialize() {
 
 void InfantryController::Run() {
     sleep(2);
+    cv::Rect ROI;  // Armor ROI rect.
 
-    cv::Rect ROI; // roi of detect armor
     while (!exit_signal_) {
         auto time = std::chrono::steady_clock::now();
 
         if (!GetImage<true>())
             continue;
 
+        RunGimbal();
+
         painter_->UpdateImage(frame_.image);
-
-        if (CmdlineArgParser::Instance().RunWithGimbal()) {
-            SerialReceivePacket serial_receive_packet{};
-            serial_->GetData(serial_receive_packet, std::chrono::milliseconds(5));
-            receive_packet_ = ReceivePacket(serial_receive_packet);
-        }
-
         if (CmdlineArgParser::Instance().RuneModeRune()) {
             power_rune_ = rune_detector_.Run(receive_packet_.color, frame_, frame_.image.size);
             send_packet_ = SendPacket(rune_predictor_.Run(power_rune_, kSmallRune, receive_packet_.bullet_speed));
@@ -86,19 +88,15 @@ void InfantryController::Run() {
                                                                                  - time);
             DLOG(INFO) << "armor detector computation cost ms: " << double(duration.count()) / 1e6;
 
-//            for(auto &box:boxes_){
-//                DLOG(INFO) << "CONFIDENCE:  " << box.confidence;
-//            }
             BboxToArmor();
             battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.yaw_pitch_roll,
                                        armors_);
             /// TODO mode switch
             if (CmdlineArgParser::Instance().RunWithSerial()) {
                 armor_predictor_.SetColor(receive_packet_.color);
-                send_packet_ = armor_predictor_.Run(battlefield_, frame_.image.size,
-                                                    receive_packet_.mode, receive_packet_.bullet_speed);
+                send_packet_ = armor_predictor_.Run(battlefield_, frame_.image.size, receive_packet_.bullet_speed);
             } else
-                send_packet_ = armor_predictor_.Run(battlefield_, frame_.image.size, AimModes::kAntiTop);
+                send_packet_ = armor_predictor_.Run(battlefield_, frame_.image.size, receive_packet_.bullet_speed);
             armor_predictor_.GetROI(ROI, frame_.image);
             painter_->UpdateImage(frame_.image);
             painter_->DrawBoundingBox(ROI, cv::Scalar(0, 0, 255), 2);
@@ -123,25 +121,21 @@ void InfantryController::Run() {
             break;
         else if (key == 's')
             ArmorPredictorDebug::Instance().Save();
-//        Compensator::Instance().SetOff(send_packet_.pitch,
-//                                       receive_packet_.bullet_speed,send_packet_.check_sum,
-//                                       armor_predictor_.GetTargetDistance(),
-//                                       receive_packet_.mode);
+
         if (CmdlineArgParser::Instance().RunWithSerial()) {
             serial_->SendData(send_packet_, std::chrono::milliseconds(5));
         }
         boxes_.clear();
         armors_.clear();
-        auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now()
-                                                                             - time);
-        DLOG(INFO) << "all computation cost ms: " << double(duration.count()) / 1e6;
-        DLOG(INFO) << " FPS: " << 1e9 / double(duration.count());
+        auto duration =
+                std::chrono::duration_cast<std::chrono::nanoseconds>(
+                        std::chrono::steady_clock::now() - time);
+        LOG(INFO) << "Cost: " << double(duration.count()) / 1e6 << ", FPS: " << 1e9 / double(duration.count()) << ".";
     }
 
-    // exit.
-    if (CmdlineArgParser::Instance().RunWithGimbal())
+    // Exit.
+    if (CmdlineArgParser::Instance().RunWithGimbal() || CmdlineArgParser::Instance().RunWithSerial())
         serial_->StopCommunication();
 
     image_provider_.reset();
 }
-

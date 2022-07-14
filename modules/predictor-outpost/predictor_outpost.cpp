@@ -1,13 +1,11 @@
-//
-// Created by lzy on 2022/7/13.
-//
 #include "predictor_outpost.h"
 #include "math-tools/algorithms.h"
 
-const int kFindTime = 5;
-const cv::Size kZoomRatio = {18, 22};
 
 SendPacket OutpostPredictor::Run(Battlefield battlefield, float bullet_speed) {
+    /*
+     * Initialize
+     */
     outpost_.ClearBottomArmor();
     SendPacket send_packet{0, 0, 0,
                            0, 0,
@@ -18,7 +16,15 @@ SendPacket OutpostPredictor::Run(Battlefield battlefield, float bullet_speed) {
     auto facilities = battlefield.Facilities();
     auto robots = battlefield.Robots();
     cv::Point3f shoot_point_;
-    // TODO 高度判断
+
+    /*
+     * TODO Add height judgment.
+     */
+
+
+    /*
+     * Collect armors.
+     */
     for (auto &robot: robots[enemy_color_]) {
         for (auto &armor: robot.second->Armors())
             outpost_.AddBottomArmor(armor);
@@ -28,16 +34,9 @@ SendPacket OutpostPredictor::Run(Battlefield battlefield, float bullet_speed) {
             outpost_.AddBottomArmor(armor);
     }
 
-    for (const auto &armor: outpost_.BottomArmors()) {
-        debug::Painter::Instance()->DrawRotatedRectangle(armor.Corners()[0],
-                                                         armor.Corners()[1],
-                                                         armor.Corners()[2],
-                                                         armor.Corners()[3],
-                                                         cv::Scalar(0, 255, 0), 2);
-        debug::Painter::Instance()->DrawText(std::to_string(armor.ID()), {200, 200}, 255, 2);
-
-    }
-
+    /*
+     * Decide mode.
+     */
     if (outpost_.BottomArmors().empty() && prepared_) {
         return {0, 0, 0,
                 10, 0,
@@ -51,23 +50,34 @@ SendPacket OutpostPredictor::Run(Battlefield battlefield, float bullet_speed) {
                 0, 0, 0, 0, 0};
     }
 
+    /*
+     * Set spin start time
+     */
     if (need_init_) {
         start_time_ = std::chrono::high_resolution_clock::now();
         need_init_ = false;
     }
 
+    /*
+     * Decide rotate direction and coming/going armor.
+     */
     if (clockwise_ <= 7 && clockwise_ >= -7 && !checked_clockwise_)
         IsClockwise();
     else
         DecideComingGoing();
 
+
     auto current_time_chrono = std::chrono::high_resolution_clock::now();
+    /// time_gap is time period from start spinning time to now.
     double time_gap = (static_cast<std::chrono::duration<double, std::milli>>(current_time_chrono -
                                                                               start_time_)).count();
-
+    /// biggest_armor is the armor with biggest area in horizon.
     int biggest_armor = FindBiggestArmor(outpost_.BottomArmors());
 
-    if (time_gap * 1e-3 < 4 && !prepared_) {
+    /*
+     * Detect for a specific time to decide center point.
+     */
+    if (time_gap * 1e-3 < kFindBiggestArmorTime && !prepared_) {
         if (outpost_.BottomArmors()[biggest_armor].Area() > biggest_area_)
             biggest_area_ = outpost_.BottomArmors()[biggest_armor].Area();
         auto shoot_point_spherical = coordinate::convert::Rectangular2Spherical(
@@ -79,24 +89,28 @@ SendPacket OutpostPredictor::Run(Battlefield battlefield, float bullet_speed) {
                 outpost_.BottomArmors()[biggest_armor].TranslationVectorCam());
         send_packet.yaw = shoot_point_spherical(0, 0), send_packet.pitch = shoot_point_spherical(1, 0);
 
-        if (0.93 * biggest_area_ < outpost_.BottomArmors()[biggest_armor].Area()) {
-            buff += 2;
-        } else if (0.90 * biggest_area_ < outpost_.BottomArmors()[biggest_armor].Area()) {
-            ++buff;
-        } else buff = 0;
-        if (buff > 20) {
+        if (kAreaThreshold * biggest_area_ < outpost_.BottomArmors()[biggest_armor].Area()) {
+            aim_buff_ += 2;
+        } else if (kAreaThresholdLow * biggest_area_ < outpost_.BottomArmors()[biggest_armor].Area()) {
+            ++aim_buff_;
+        } else aim_buff_ = 0;
+        if (aim_buff_ > kAimBuff) {
             outpost_.center_point_ = outpost_.BottomArmors()[biggest_armor].Center();
             prepared_ = true;
             start_time_ = std::chrono::high_resolution_clock::now();
         }
     }
 
+    /*
+     * Ready to auto-shoot.
+     */
     if (prepared_) {
         double time_gap2 = (static_cast<std::chrono::duration<double, std::milli>>(current_time_chrono -
                                                                                    start_time_)).count();
-        debug::Painter::Instance()->DrawPoint(outpost_.center_point_, cv::Scalar(0, 255, 0), 5, 2);
-        if (time_gap2 * 1e-3 > 0.1)
+
+        if (time_gap2 * 1e-3 > 0.1)                // Send communication signal every 0.1s.
             send_packet.distance_mode = 10;
+        /// Pixel distance is to calculate shoot time
         double pixel_distance = abs(outpost_.center_point_.x - outpost_.coming_center_.x);
         if (pixel_distance < 10 && !ready_fire_) {
             ready_time_ = std::chrono::high_resolution_clock::now();
@@ -120,6 +134,10 @@ SendPacket OutpostPredictor::Run(Battlefield battlefield, float bullet_speed) {
     return send_packet;
 
 }
+
+
+
+
 
 int OutpostPredictor::FindBiggestArmor(const std::vector<Armor> &armors) {
     if (armors.size() == 1)
@@ -194,11 +212,11 @@ void OutpostPredictor::IsClockwise() {
     else
         LOG(INFO) << "Outpost clockwise something wrong";
     if (clockwise_ > 7) {
-        LOG(WARNING) << "Outpost is Clockwise";
+        LOG(INFO) << "Outpost is Clockwise";
         clockwise_ = 1;
         checked_clockwise_ = true;
     } else if (clockwise_ < -7) {
-        LOG(WARNING) << "Outpost is anti-Clockwise";
+        LOG(INFO) << "Outpost is anti-Clockwise";
         clockwise_ = -1;
         checked_clockwise_ = true;
     }
@@ -218,5 +236,5 @@ void OutpostPredictor::Clear() {
     prepared_ = false;
     need_init_ = true;
 
-    buff = 0;
+    aim_buff_ = 0;
 }

@@ -11,32 +11,14 @@
         SentryLowerController::sentry_lower_controller_registry_("sentry_lower");
 
 bool SentryLowerController::Initialize() {
-    // Use reset here to allocate memory for an abstract class.
-    image_provider_.reset(CREATE_IMAGE_PROVIDER(CmdlineArgParser::Instance().RunWithCamera() ? "camera" : "video"));
-    if (!image_provider_->Initialize(
-            CmdlineArgParser::Instance().RunWithCamera() ?
-            "../config/sentry_lower/camera-init.yaml" : "../config/sentry_lower/video-init.yaml")) {
-        LOG(ERROR) << "Failed to initialize image provider.";
-        // Till now the camera may be open, it's necessary to reset image_provider_ manually to release camera.
-        image_provider_.reset();
+    if (!InitializeImageProvider("sentry_lower") || !InitializeGimbalSerial())
         return false;
-    }
 
     if (CmdlineArgParser::Instance().DebugUseTrackbar())
         painter_ = debug::Painter::Instance();
     else
         painter_ = debug::NoPainter::Instance();
 
-    if (CmdlineArgParser::Instance().RunWithGimbal()) {
-        serial_ = std::make_unique<Serial>();
-        if (!serial_->StartCommunication()) {
-            LOG(ERROR) << "Failed to start serial communication.";
-            serial_->StopCommunication();
-            // To use std::make_unique will automatically reset serial_ at the next time.
-            // So, there's no need to reset it manually.
-            return false;
-        }
-    }
     if (Compensator::Instance().Initialize("sentry_lower"))
         LOG(INFO) << "Setoff initialize successfully!";
     else

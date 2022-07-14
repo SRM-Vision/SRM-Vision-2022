@@ -27,8 +27,6 @@ private:
     };
     [[maybe_unused]] static ControllerRegistry<HeroController> hero_controller_registry_;
 
-//    OutpostDataDetector outpost_detector_;
-//    OutpostPredictor outpost_predictor_;
     OutpostPredictor outpost_predictor_new_;
 
 
