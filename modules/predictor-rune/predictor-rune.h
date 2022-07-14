@@ -44,7 +44,7 @@ namespace predictor::rune {
 
         double x;  ///< Independent variable.
         double y;  ///< Dependent variable.
-        int rotational_direction;  ///< 1 is clockwise, -1 is counterclockwise.
+        [[maybe_unused]] int rotational_direction{};  ///< 1 is clockwise, -1 is counterclockwise.
     };
 
     /**
@@ -101,7 +101,7 @@ namespace predictor::rune {
         std::vector<double> palstance;  ///< Speed data for fitting.
         std::vector<double> time;       ///< Time data for fitting.
 
-        bool outdated;   ///< Whether Fitting Is Error
+        bool outdated;   ///< Whether Fitting Is Error.
         bool ready;
     };
 
@@ -134,7 +134,6 @@ namespace predictor::rune {
 
     class RunePredictor : NO_COPY, NO_MOVE {
     public:
-        ATTR_READER(predicted_angle_, PredictedAngle)
 
         ATTR_READER_REF(predicted_point_, PredictedPoint)
 
@@ -148,12 +147,12 @@ namespace predictor::rune {
         ~RunePredictor() = default;
 
         /**
-         * @brief Initialize rune predictor
-         * @param [in] config_path Rune predictor's parameter yaml address.
+         * @brief Initialize rune predictor.
+         * @param [in] config_path Rune predictor's parameters' yaml address.
          * @param [in] debug Whether use debug.
          * @return Whether initialize successfully.
          */
-        [[nodiscard]]bool Initialize(const std::string &config_path, bool debug);
+        bool Initialize(const std::string &config_path, bool debug);
 
         /**
          * @brief Use rune predictor to get predicted point.

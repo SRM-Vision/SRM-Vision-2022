@@ -73,19 +73,19 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, const cv::MatSize
     auto& robots = battlefield.Robots();
     auto& facilities = battlefield.Facilities();
 
-    // whether locked target
+    // whether locked same target
     bool locked_same_target(true);
 
     std::shared_ptr<Armor> target_current{nullptr};
 
-    cv::Point2f pic_center{float(size().width / 2.0),float(size().height / 2.0)};
+    cv::Point2f picture_center{float(size().width / 2.0), float(size().height / 2.0)};
 
     std::vector<Armor> armors;
 
     double delta_t = algorithm::NanoSecondsToSeconds(last_time_, battlefield.TimeStamp());
     last_time_ = battlefield.TimeStamp();
 
-    // add armors.
+    // add armors to vector.
     if(robots.find(enemy_color_) != robots.end())
         for(auto& [_,robot]:robots.at(enemy_color_))
             armors.insert(armors.end(),robot->Armors().begin(),robot->Armors().end());
@@ -108,7 +108,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, const cv::MatSize
     //not find current armor
     if(!target_current) {
         locked_same_target = false;
-        target_current = SameArmorByPicDis(pic_center, armors, DBL_MAX);
+        target_current = SameArmorByPicDis(picture_center, armors, DBL_MAX);
     }
 
     // Do nothing if nothing is found.
@@ -124,6 +124,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, const cv::MatSize
     else
         grey_buffer_ = 0;
 
+    // update spin detector
     spin_detector_.Update(*target_current, battlefield.TimeStamp());
 
     if(locked_same_target){
@@ -158,6 +159,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, const cv::MatSize
         }
 
     }else {
+        // locked a new armor
         last_target_ = target_current;
         InitializeEKF(battlefield.YawPitchRoll(), target_current->TranslationVectorWorld());
         predict_speed_ << 0, 0;

@@ -1,19 +1,39 @@
 #include "predictor-rune.h"
 #include <ceres/ceres.h>
 #include "detector-rune/detector_rune_debug.h"
-#include "predictor_rune_debug.h"
 
 predictor::rune::RunePredictor::RunePredictor() : debug_(true),
                                                   rune_(), state_(), rotational_speed_(), fitting_data_(),
                                                   output_data_(), bullet_speed_(15),
                                                   predicted_angle_(), predicted_point_() {}
 
+bool predictor::rune::RunePredictor::Initialize(const std::string &config_path, bool debug) {
+    cv::FileStorage config;
+
+    // Open config file.
+    config.open(config_path, cv::FileStorage::READ);
+    if (!config.isOpened()) {
+        DLOG(WARNING) << "Failed to open rune predictor config file " << config_path << ".";
+        return false;
+    }
+
+    debug_ = debug;
+
+    config["AMPLITUDE"] >> rotational_speed_.a;
+    config["PALSTANCE"] >> rotational_speed_.w;
+    config["PHASE"] >> rotational_speed_.p;
+    rotational_speed_.b = 2.090 - rotational_speed_.a;
+
+    return true;
+}
+
 SendPacket predictor::rune::RunePredictor::Run(const PowerRune &power_rune, AimModes aim_mode, float bullet_speed) {
     rune_ = power_rune;
     bullet_speed_ = bullet_speed;
-
     //FIXME Now data is unknown.
+    aim_mode = kBigRune;
     bullet_speed_ = 30;
+
     if (aim_mode == kBigRune) {
         DLOG(INFO) << "Rune predictor mode: big.";
         state_.UpdatePalstance(rune_, fitting_data_);
@@ -25,7 +45,7 @@ SendPacket predictor::rune::RunePredictor::Run(const PowerRune &power_rune, AimM
         state_.CheckMode();
     } else {
         DLOG(INFO) << "Rune predictor mode: small.";
-        rotational_speed_.w = rune_.Clockwise() * 1.04717;
+        rotational_speed_.w = 1.04717;
         PredictAngle(aim_mode);
         PredictPoint();
         output_data_.Update(debug_, rune_, predicted_angle_, predicted_point_, fixed_point_);
@@ -53,7 +73,8 @@ void predictor::rune::OutputData::Update(bool debug,
         yaw = pitch = delay = 0;
     }
 
-    DLOG(INFO) << "Predicted angle: " << predicted_angle;
+    if (debug)
+        DLOG(INFO) << "Predicted angle: " << predicted_angle;
     int delta_u = RuneDetectorDebug::Instance().DeltaU() - 50;  ///< Horizontal ballistic compensation.
     int delta_v = RuneDetectorDebug::Instance().DeltaV() - 50;  ///< Vertical ballistic compensation.
 
@@ -63,17 +84,15 @@ void predictor::rune::OutputData::Update(bool debug,
     fixed_point = predicted_point + cv::Point2f(static_cast<float>(delta_u), static_cast<float>(delta_v));
 
     // Use SIMD atan2 for 4x floats.
-    // auto yaw_data_pixel = float(std::atan2(fixed_point.x - rune.ImageCenter().x, 1350));
-    // auto pitch_data_pixel = float(std::atan2(-rune.ImageCenter().y + fixed_point.y, 1350));
     float x[4] = {1350, 1350, 1, 1},
             y[4] = {fixed_point.x - rune.ImageCenter().x, fixed_point.y - rune.ImageCenter().y, 1, 1},
             z[4] = {0};
     algorithm::Atan2FloatX4(y, x, z);
-    yaw = z[0], pitch = z[1];
+    yaw = z[0], pitch = z[1];  // Maybe need subtract image-center value.
 
     if (debug)
         DLOG(INFO) << "Output yaw: " << yaw << ", pitch: " << pitch << ".";
-    delay = 1.f;    ///< Output Data's Time Delay
+    delay = 1.f;
 }
 
 void predictor::rune::FittingData::Fit(bool debug, RotationalSpeed &rotational_speed) {
@@ -82,7 +101,7 @@ void predictor::rune::FittingData::Fit(bool debug, RotationalSpeed &rotational_s
     if (!ready) {
         // Preparing, wait for some time.
         if (palstance.size() >= kPreparePalstanceDataNum) {
-            ready = true;          // Ready to fit.
+            ready = true;  // Ready to fit.
             palstance.clear();
         }
     } else {
@@ -140,7 +159,7 @@ bool predictor::rune::State::UpdatePalstance(const PowerRune &rune, FittingData 
         return false;
     }
 
-    float angle;  ///< Temp angle var in DEGREE.
+    float angle;  // Temp angle var in DEGREE.
     auto current_time_chrono = std::chrono::high_resolution_clock::now();
     current_time = double(std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::system_clock::now().time_since_epoch()).count());
@@ -158,8 +177,7 @@ bool predictor::rune::State::UpdatePalstance(const PowerRune &rune, FittingData 
                 current_time_chrono - last_time)).count();
 
         current_palstance = angle / time_gap * 1e3;
-        // current_palstance = std::min(160.0, std::max(0.2, current_palstance));
-        DLOG(INFO) << "current palstance: " << current_palstance;
+        current_palstance = std::min(160.0, std::max(0.2, current_palstance));  // Restrict palstance between min_value to max_value
         // Update palstance data.
         fitting_data.palstance.push_back(current_palstance);
         fitting_data.time.push_back(current_time);
@@ -170,38 +188,9 @@ bool predictor::rune::State::UpdatePalstance(const PowerRune &rune, FittingData 
     return true;
 }
 
-/// checked: fan changed
-void predictor::rune::State::CheckMode() {
-    if (std::abs(last_angle - 0.0) < 0.001) {
-        last_angle = current_angle;
-    } else {
-        double delta_angle = std::abs(current_angle - last_angle);
-        last_angle = current_angle;
-        if (delta_angle > 60 && delta_angle < 350)
-            DLOG(INFO) << "Rune fan changes now.";
-    }
-}
-
-bool predictor::rune::RunePredictor::Initialize(const std::string &config_path, bool debug) {
-    cv::FileStorage config;
-
-    // Open config file.
-    config.open(config_path, cv::FileStorage::READ);
-    if (!config.isOpened()) {
-        DLOG(WARNING) << "Failed to open rune predictor config file " << config_path << ".";
-        return false;
-    }
-
-    debug_ = debug;
-
-    rotational_speed_ = RunePredictorDebug::Instance().RotationalSpeed();
-
-    return true;
-}
-
 void predictor::rune::RunePredictor::PredictAngle(AimModes aim_mode) {
     DLOG(INFO) << "clockwise: " << rune_.Clockwise();
-    double rotated_angle;
+    double rotated_angle;  ///< Angle to rotate calculated by palstance.
     if (aim_mode == kBigRune) {
         if (fitting_data_.outdated) {
             fitting_data_.Fit(debug_, rotational_speed_);
@@ -213,18 +202,23 @@ void predictor::rune::RunePredictor::PredictAngle(AimModes aim_mode) {
             auto rotated_radian = rotational_speed_.Integral(state_.current_time + delay_time + compensate_time)
                                   - rotational_speed_.Integral(state_.current_time);
             rotated_angle = rotated_radian * 180 / CV_PI;
-
             state_.UpdateAngle(rune_.RtgVec());
+            if (debug_)
+                DLOG(INFO) << "clock_wise: " << rune_.Clockwise() << "   " <<
+                           state_.current_angle << "   " << rotated_angle;
+
             predicted_angle_ = state_.current_angle - rune_.Clockwise() * rotated_angle;
         }
     } else {
         double delay_time = 7.0 / bullet_speed_;  // Ballistic Time Compensation.
-        double compensate_time = 0.05;   // Other compensation
+        double compensate_time = 0.05;  // Other compensation
         auto rotated_radian = rune_.Clockwise() * rotational_speed_.w * (compensate_time + delay_time);
         rotated_angle = rotated_radian * 180 / CV_PI;
 
         state_.UpdateAngle(rune_.RtpVec());
-        DLOG(INFO) << "clock_wise: " << rune_.Clockwise() << "   " << state_.current_angle << "   " << rotated_angle;
+        if (debug_)
+            DLOG(INFO) << "clock_wise: " << rune_.Clockwise() << "   " <<
+                       state_.current_angle << "   " << rotated_angle;
         predicted_angle_ = state_.current_angle - rune_.Clockwise() * rotated_angle;
     }
 }
@@ -235,4 +229,15 @@ void predictor::rune::RunePredictor::PredictPoint() {
     auto predicted_rad = static_cast<float>(CV_2PI - predicted_angle_ * CV_PI / 180);
     predicted_point_ = rune_.CenterR() + cv::Point2f(algorithm::CosFloat(predicted_rad) * radius,
                                                      algorithm::SinFloat(predicted_rad) * radius);
+}
+
+void predictor::rune::State::CheckMode() {
+    if (std::abs(last_angle - 0.0) < 0.001) {
+        last_angle = current_angle;
+    } else {
+        double delta_angle = std::abs(current_angle - last_angle);
+        last_angle = current_angle;
+        if (delta_angle > 60 && delta_angle < 350)
+            DLOG(INFO) << "Rune fan changes now.";
+    }
 }
