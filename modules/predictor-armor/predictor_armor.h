@@ -59,13 +59,6 @@ public:
     SendPacket Run(const Battlefield &battlefield, const cv::MatSize &size, double bullet_speed = 15);
 
     /**
-     * @brief get the roi to detect.
-     * @param roi_rect the rect that hed detected in the range of.
-     * @param src_image the frame that is detected.
-     */
-    void GetROI(cv::Rect &roi_rect, const cv::Mat &src_image);
-
-    /**
     * \brief Generate a packet according to data inside.
     * \return Send packet to serial port.
     */

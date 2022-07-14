@@ -24,7 +24,6 @@ public:
 
 public:
     inline void DrawAutoAimArmor(const cv::Mat& image,
-                                 const cv::Rect_<int>& ROI,
                                  const std::vector<bbox_t> &bboxes,
                                  ArmorPredictor* armor_predictor,
                                  const cv::Mat &intrinsic_matrix,
@@ -33,7 +32,6 @@ public:
                                  const int &wait_time)
     {
         controller_debug_.UpdateImage(image);
-        controller_debug_.drawROI(ROI);
         controller_debug_.drawArmors(bboxes, armor_predictor, intrinsic_matrix, image_size);
         controller_debug_.ShowImage(window_names, wait_time);
     }

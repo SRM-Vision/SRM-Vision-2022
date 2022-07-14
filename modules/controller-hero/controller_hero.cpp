@@ -35,7 +35,6 @@ bool HeroController::Initialize() {
 
 void HeroController::Run() {
     sleep(2);
-    cv::Rect ROI; // roi of detect armor
     ArmorPredictor armor_predictor(Entity::kBlue, "hero");
     while (!exit_signal_) {
         auto time = std::chrono::steady_clock::now();
@@ -47,7 +46,7 @@ void HeroController::Run() {
 
         debug::Painter::Instance()->UpdateImage(frame_.image);
 
-        boxes_ = armor_detector_(frame_.image, ROI);
+        boxes_ = armor_detector_(frame_.image);
         for (auto &box: boxes_)
             DLOG(INFO) << "CONFIDENCE:  " << box.confidence;
         // if(receive_packet_.mode == kOutPost)
@@ -63,8 +62,6 @@ void HeroController::Run() {
 
             if (send_packet_.fire)
                 debug::Painter::Instance()->DrawText("Fire", {50, 50}, cv::Scalar(100, 255, 100), 2);
-            debug::Painter::Instance()->DrawBoundingBox(ROI, cv::Scalar(0, 0, 255), 2);
-            debug::Painter::Instance()->DrawBoundingBox(ROI, cv::Scalar(0, 0, 255), 2);
             debug::Painter::Instance()->ShowImage("ARMOR DETECT", 1);
         } else {
             /// TODO mode switch
@@ -94,7 +91,6 @@ void HeroController::Run() {
             debug::Painter::Instance()->DrawPoint(armor_predictor.ShootPointInPic(image_provider_->IntrinsicMatrix(),
                                                                                   frame_.image.size),
                                                   cv::Scalar(0, 0, 255), 1, 10);
-            debug::Painter::Instance()->DrawBoundingBox(ROI, cv::Scalar(0, 0, 255), 2);
             debug::Painter::Instance()->ShowImage("ARMOR DETECT", 1);
         }
 //

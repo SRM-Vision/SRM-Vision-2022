@@ -41,7 +41,9 @@ public:
      * \param [in] image Input image.
      * \return 4-point structures in a vector.
      */
-    std::vector<bbox_t> operator()(const cv::Mat &image, cv::Rect ROI) const;
+    std::vector<bbox_t> operator()(const cv::Mat &image) const;
+
+    void UpdateROI(const cv::Rect &roi);
 
 private:
     void BuildEngineFromONNX(const std::string &);
@@ -58,6 +60,9 @@ private:
     cudaStream_t stream_;
     int input_index_, output_index_;
     size_t input_size_, output_size_;
+
+    cv::Rect roi_;
+
 };
 
 #endif  // DETECTOR_ARMOR_H_

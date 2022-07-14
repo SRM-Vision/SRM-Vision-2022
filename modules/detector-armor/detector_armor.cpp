@@ -207,20 +207,20 @@ void ArmorDetector::CacheEngine(const std::string &cache_file) {
     engine_buffer->destroy();
 }
 
-std::vector<bbox_t> ArmorDetector::operator()(const cv::Mat &image, cv::Rect ROI) const {
+std::vector<bbox_t> ArmorDetector::operator()(const cv::Mat &image) const {
     // ROI
-    cv::Mat roi;
-    if(ROI.size() != cv::Size(0,0))
-        roi = image(ROI);
+    cv::Mat roi_image;
+    if(roi_.size() != cv::Size(0,0))
+        roi_image = image(roi_);
     else
-        roi = image;
+        roi_image = image;
 
     // Pre-process. [bgr2rgb & resize]
     cv::Mat x;
-    float fx = (float) roi.cols / 640.f, fy = (float) roi.rows / 384.f;
-    cv::cvtColor(roi, x, cv::COLOR_BGR2RGB);
+    float fx = (float) roi_image.cols / 640.f, fy = (float) roi_image.rows / 384.f;
+    cv::cvtColor(roi_image, x, cv::COLOR_BGR2RGB);
 
-    if (roi.cols != 640 || roi.rows != 384)
+    if (roi_image.cols != 640 || roi_image.rows != 384)
         cv::resize(x, x, {640, 384});
 
     x.convertTo(x, CV_32F);
@@ -280,13 +280,17 @@ std::vector<bbox_t> ArmorDetector::operator()(const cv::Mat &image, cv::Rect ROI
     }
 
     // ROI reduction
-    if(!ROI.empty()){
+    if(!roi_.empty()){
         for(auto &bbox:result){
             for(auto &point:bbox.points){
-                point += cv::Point2f(ROI.tl());
+                point += cv::Point2f(roi_.tl());
             }
         }
     }
 
     return result;
+}
+
+void ArmorDetector::UpdateROI(const cv::Rect &roi) {
+    roi_ = roi;
 }

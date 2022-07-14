@@ -29,7 +29,6 @@ void SentryLowerController::Run() {
     ArmorPredictor armor_predictor(Entity::Colors::kBlue, "sentry_lower");
     sleep(2);
 
-    cv::Rect ROI; // roi of detect armor
     while (!exit_signal_) {
         auto time = std::chrono::steady_clock::now();
         if (!GetImage<false>())
@@ -37,7 +36,7 @@ void SentryLowerController::Run() {
 
         RunGimbal();
 
-        boxes_ = armor_detector_(frame_.image, ROI);
+        boxes_ = armor_detector_(frame_.image);
         BboxToArmor();
         battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.yaw_pitch_roll,
                                    armors_);
@@ -46,7 +45,6 @@ void SentryLowerController::Run() {
             send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size);
         } else
             send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size);
-        armor_predictor.GetROI(ROI, frame_.image);
         auto img = frame_.image.clone();
         painter_->UpdateImage(frame_.image);
         for (const auto &box: boxes_) {
