@@ -11,6 +11,7 @@
 DEFINE_string(type, "", "controller type");
 DEFINE_bool(camera, false, "run with camera");
 DEFINE_bool(serial, false, "run with serial communication");
+DEFINE_bool(record, true, "record videos");
 
 DEFINE_int32(mode_chooser, 0, "controller running mode chooser");
 
@@ -39,6 +40,7 @@ void CmdlineArgParser::Parse(int argc, char **argv) {
     run_with_camera_ = FLAGS_camera;
     run_with_serial_ = FLAGS_serial;
     controller_type_ = FLAGS_type;
+    record_ = FLAGS_record;
 
     mode_chooser_ = FLAGS_mode_chooser;
     debug_show_image_ = FLAGS_debug_image;

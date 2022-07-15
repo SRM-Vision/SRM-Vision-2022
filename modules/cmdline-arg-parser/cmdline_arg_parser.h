@@ -23,6 +23,8 @@ public:
 
     ATTR_READER(run_with_serial_, RunWithSerial)
 
+    ATTR_READER(record_, Record)
+
     ATTR_READER(run_mode_rune_, RuneModeRune)
 
     ATTR_READER(run_mode_outpost_, RunModeOutpost)
@@ -39,6 +41,7 @@ public:
             run_with_camera_(false),
             run_with_serial_(false),
             run_mode_rune_(false),
+            record_(true),
             run_mode_outpost_(false),
             mode_chooser_(0),
             debug_show_image_(false),
@@ -63,6 +66,7 @@ private:
     bool run_mode_rune_;       ///< secondly controller mode.
     bool run_mode_outpost_;
     bool with_ekf_;
+    bool record_;
 };
 
 #endif  // CMDLINE_ARG_PARSER_H_
