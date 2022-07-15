@@ -28,8 +28,8 @@ public:
                                    const int &wait_time)
     {
         controller_debug_.UpdateImage(image);
-        controller_debug_.drawROI(ROI);
-        controller_debug_.drawArmors(bboxes, armor_predictor, intrinsic_matrix, image_size);
+        controller_debug_.DrawRoi(ROI);
+        controller_debug_.DrawArmors(bboxes, armor_predictor, intrinsic_matrix, image_size);
         controller_debug_.ShowImage(window_names, wait_time);
     }
 
@@ -42,7 +42,7 @@ public:
                                    const int &wait_time)
     {
         controller_debug_.UpdateImage(image);
-        controller_debug_.drawROI(ROI);
+        controller_debug_.DrawRoi(ROI);
         controller_debug_.ShowPoint(outpost_predictor->OutpostCenter());
         if(outpost_predictor->Fire())
             controller_debug_.ShowText("Fire");
