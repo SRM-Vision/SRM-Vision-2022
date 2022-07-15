@@ -32,9 +32,10 @@ public:
     /**
      * \brief Initialize by specified configuration file.
      * \param [in] file_path Configuration file path.
+     * \param record Record video and save to ../cache.
      * \return Whether initialization succeeded.
      */
-    virtual bool Initialize(const std::string &file_path) = 0;
+    virtual bool Initialize(const std::string &file_path, bool record = false) = 0;
 
     /**
      * \brief Get a frame.

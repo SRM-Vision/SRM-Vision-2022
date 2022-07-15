@@ -4,5 +4,4 @@ ALL_CAMS_CONFIG_FILE: "../config/all-cams-config.yaml"
 ALL_LENS_CONFIG_FILE: "../config/all-lens-config.yaml"
 
 #CAMERA: "HV_00D27551310"
-#CAMERA: "HV_00E56446766"
-CAMERA: "HV_00D27551311"
+CAMERA: "HV_00E56446766"

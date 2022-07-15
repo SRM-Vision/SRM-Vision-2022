@@ -28,7 +28,7 @@ bool Controller::Initialize(const std::string &type) {
     image_provider_.reset(CREATE_IMAGE_PROVIDER(CmdlineArgParser::Instance().RunWithCamera() ? "camera" : "video"));
     if (!image_provider_->Initialize(
             CmdlineArgParser::Instance().RunWithCamera() ?
-            "../config/" + type + "/camera-init.yaml" : "../config/" + type + "/video-init.yaml")) {
+            "../config/" + type + "/camera-init.yaml" : "../config/" + type + "/video-init.yaml", false)) {
         LOG(ERROR) << "Failed to initialize image provider.";
         // Till now the camera may be open, it's necessary to reset image_provider_ manually to release camera.
         image_provider_.reset();

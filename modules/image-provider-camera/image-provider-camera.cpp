@@ -1,3 +1,6 @@
+#include <thread>
+#include <ctime>
+#include <opencv2/videoio.hpp>
 #include "camera-base/camera-factory.h"
 #include "image-provider-base/image-provider-factory.h"
 #include "image-provider-camera.h"
@@ -11,6 +14,11 @@
         ImageProviderRegistry<ImageProviderCamera>("camera");
 
 ImageProviderCamera::~ImageProviderCamera() {
+    if (rec_) {
+        rec_->release();
+        delete rec_;
+        rec_ = nullptr;
+    }
     if (camera_) {
         camera_->StopStream();
         camera_->CloseCamera();
@@ -21,7 +29,7 @@ ImageProviderCamera::~ImageProviderCamera() {
     }
 }
 
-bool ImageProviderCamera::Initialize(const std::string &file_path) {
+bool ImageProviderCamera::Initialize(const std::string &file_path, bool record) {
     // Load initialization configuration file.
     cv::FileStorage camera_init_config;
     camera_init_config.open(file_path, cv::FileStorage::READ);
@@ -113,6 +121,24 @@ bool ImageProviderCamera::Initialize(const std::string &file_path) {
         intrinsic_matrix_.release();
         distortion_matrix_.release();
         return false;
+    }
+
+    if (record) {
+        Frame frame;
+
+        // Test image to get width and height.
+        while (!camera_->GetFrame(frame))
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
+        time_t t = time(nullptr);
+        char temp_time[32] = {'\0'};
+        strftime(temp_time, sizeof(temp_time), "%Y-%m-%d-%H.%M.%S", localtime(&t));
+        // Start recording.
+        rec_ = new cv::VideoWriter(
+                "../cache/" + static_cast<std::string>(temp_time) + "-rec.mp4",
+                cv::VideoWriter::fourcc('D', 'I', 'V', 'X'),
+                cv::CAP_FFMPEG,
+                60, cv::Size(frame.image.size[0], frame.image.size[1]));
     }
 
     return true;

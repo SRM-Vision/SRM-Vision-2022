@@ -18,7 +18,7 @@ ImageProviderVideo::~ImageProviderVideo() {
     }
 }
 
-bool ImageProviderVideo::Initialize(const std::string &file_path) {
+bool ImageProviderVideo::Initialize(const std::string &file_path, bool record) {
     // Load initialization configuration file.
     cv::FileStorage video_init_config;
     video_init_config.open(file_path, cv::FileStorage::READ);

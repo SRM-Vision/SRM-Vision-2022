@@ -21,7 +21,7 @@ public:
 
     ~ImageProviderVideo() final;
 
-    bool Initialize(const std::string &) final;
+    bool Initialize(const std::string &, bool record) final;
 
     inline bool GetFrame(Frame &frame) final {
         if (video_.read(frame.image)) {

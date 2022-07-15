@@ -16,7 +16,7 @@ int main([[maybe_unused]] int argc, char *argv[]) {
     FLAGS_max_log_size = 16;
 
     auto f = AirResistanceModel();
-    f.SetParam(0.26, 994, 36, 0.0425, 0.041);
+    f.SetParam(0.26, 994, 30, 0.0425, 0.041);
     auto a = BallisticModel();
     a.SetParam(f, 31);
     auto solver = PitchAngleSolver();

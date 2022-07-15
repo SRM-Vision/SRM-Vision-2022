@@ -17,18 +17,27 @@
  */
 class [[maybe_unused]] ImageProviderCamera final : public ImageProvider {
 public:
-    ImageProviderCamera() : camera_(nullptr) {}
+    ImageProviderCamera() : camera_(nullptr), rec_(nullptr) {}
 
     ~ImageProviderCamera() final;
 
-    bool Initialize(const std::string &) final;
+    bool Initialize(const std::string &, bool record) final;
 
-    inline bool GetFrame(Frame &frame) final { return camera_->GetFrame(frame); }
+    inline bool GetFrame(Frame &frame) final {
+        bool state = camera_->GetFrame(frame);
+        if (state && rec_) {
+            auto img_copy = frame.image.clone();
+            rec_->write(img_copy);
+        }
+        return state;
+    }
 
     ATTR_READER(camera_, GetCameraHandle)
 
 private:
     Camera *camera_;  ///< Camera pointer.
+
+    cv::VideoWriter *rec_;  ///< Video writer pointer.
 
     /// Own registry for image provider camera.
     [[maybe_unused]] static ImageProviderRegistry<ImageProviderCamera> registry_;
