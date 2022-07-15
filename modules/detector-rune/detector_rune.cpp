@@ -44,13 +44,13 @@ PowerRune RuneDetector::Run(Entity::Colors color, Frame &frame) {
         ROI_tl_point_.y = std::max(0, int(energy_center_r_.y) - length);
         cv::Rect ROI_rect = cv::Rect(ROI_tl_point_.x, ROI_tl_point_.y, 2 * length, 2 * length) &
                             cv::Rect(0, 0, frame.image.cols, frame.image.rows);
+        image_ = frame.image(ROI_rect);  // Use ROI
 
-        image_ = frame.image.clone()(ROI_rect);  // Use ROI
         energy_center_r_ -= cv::Point2f(ROI_tl_point_);  // Update last frame's points according to ROI size.
         armor_center_p_ -= cv::Point2f(ROI_tl_point_);
     } else {
         ROI_tl_point_ = cv::Point2i(0, 0);
-        image_ = frame.image.clone();
+        image_ = frame.image;
     }
 
     if (3 == image_.channels())
@@ -65,9 +65,11 @@ PowerRune RuneDetector::Run(Entity::Colors color, Frame &frame) {
     else
         FindArmorCenterP();
 
-    debug::Painter::Instance()->DrawPoint(armor_center_p_, cv::Scalar(0, 255, 0), 2, 2);
-    debug::Painter::Instance()->DrawText("P", armor_center_p_, cv::Scalar(0, 255, 0), 3);
-    debug::Painter::Instance()->DrawText("R", energy_center_r_, cv::Scalar(255, 0, 255), 3);
+    if (debug_) {
+        debug::Painter::Instance()->DrawPoint(armor_center_p_, cv::Scalar(0, 255, 0), 2, 2);
+        debug::Painter::Instance()->DrawText("P", armor_center_p_, cv::Scalar(0, 255, 0), 3);
+        debug::Painter::Instance()->DrawText("R", energy_center_r_, cv::Scalar(255, 0, 255), 3);
+    }
 
     return {color_,
             clockwise_,
@@ -336,7 +338,8 @@ void RuneDetector::FindRotateDirection() {
         float radius, final_radius = 0;
         for (auto current_rotation = r_to_p_vec.begin() + 6; current_rotation != r_to_p_vec.end(); ++current_rotation) {
             double cross = first_rotation.cross(cv::Point2f(current_rotation->x, current_rotation->y));
-            radius = algorithm::SqrtFloat(current_rotation->x * current_rotation->x + current_rotation->y * current_rotation->y);
+            radius = algorithm::SqrtFloat(
+                    current_rotation->x * current_rotation->x + current_rotation->y * current_rotation->y);
             final_radius +=
                     std::min(rune_radius_ * (1 + kMaxRatio), std::max(rune_radius_ * (1 - kMaxRatio), radius)) / 15;
 

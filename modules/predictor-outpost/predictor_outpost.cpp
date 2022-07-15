@@ -1,5 +1,5 @@
 #include "predictor_outpost.h"
-
+const cv::Size kZoomRatio = {18,22};
 
 bool OutpostPredictor::Initialize() {
 #if !NDEBUG
@@ -83,6 +83,7 @@ SendPacket OutpostPredictor::Run(Battlefield battlefield, float bullet_speed) {
     if (time_gap * 1e-3 < kFindBiggestArmorTime && !prepared_) {
         if (outpost_.BottomArmors()[biggest_armor].Area() > biggest_area_)
             biggest_area_ = outpost_.BottomArmors()[biggest_armor].Area();
+        UpdateROICorners(outpost_.BottomArmors()[biggest_armor]);
         auto shoot_point_spherical = coordinate::convert::Rectangular2Spherical(
                 outpost_.BottomArmors()[biggest_armor].TranslationVectorCam());
         send_packet.yaw = shoot_point_spherical(0, 0), send_packet.pitch = shoot_point_spherical(1, 0);
@@ -90,6 +91,7 @@ SendPacket OutpostPredictor::Run(Battlefield battlefield, float bullet_speed) {
     } else if (!prepared_) {
         auto shoot_point_spherical = coordinate::convert::Rectangular2Spherical(
                 outpost_.BottomArmors()[biggest_armor].TranslationVectorCam());
+        UpdateROICorners(outpost_.BottomArmors()[biggest_armor]);
         send_packet.yaw = shoot_point_spherical(0, 0), send_packet.pitch = shoot_point_spherical(1, 0);
 
         if (kAreaThreshold * biggest_area_ < outpost_.BottomArmors()[biggest_armor].Area()) {
@@ -241,3 +243,36 @@ void OutpostPredictor::Clear() {
 
     aim_buff_ = 0;
 }
+
+cv::Rect OutpostPredictor::GetROI(const cv::Mat &src_image) {
+    cv::Rect roi_rect = {};
+    if(outpost_.BottomArmors().empty())   {
+        ++roi_buff_;
+        if(roi_buff_>30){
+            return roi_rect;
+        }
+    }
+    else roi_buff_ =0;
+    int width =  abs(roi_corners_[0].x - roi_corners_[1].x) < abs(roi_corners_[1].x - roi_corners_[2].x) ?
+                 int(abs(roi_corners_[1].x - roi_corners_[2].x)) : int(abs(roi_corners_[0].x - roi_corners_[1].x));
+    int height = abs(roi_corners_[0].y - roi_corners_[1].y) < abs(roi_corners_[1].y - roi_corners_[2].y) ?
+                 int(abs(roi_corners_[1].y - roi_corners_[2].y)) : int(abs(roi_corners_[0].y - roi_corners_[1].y));
+    int x = int(cv::min(cv::min(roi_corners_[0].x,roi_corners_[1].x),cv::min(roi_corners_[2].x,roi_corners_[3].x)));
+    int y = int(cv::min(cv::min(roi_corners_[0].y,roi_corners_[1].y),cv::min(roi_corners_[2].y,roi_corners_[3].y)));
+    cv::Rect target_right{x,y,width,height};
+    auto zoom_size = cv::Size(target_right.width * kZoomRatio.width,
+                              target_right.height * kZoomRatio.height);
+    roi_rect = target_right + zoom_size;
+    roi_rect -= cv::Point((zoom_size.width >> 1 ),(zoom_size.height >> 1));
+    roi_rect = roi_rect & cv::Rect(0, 0, src_image.cols,src_image.rows);
+    DLOG(INFO) <<"roi"<<roi_rect;
+    return roi_rect;
+
+}
+
+void OutpostPredictor::UpdateROICorners(const Armor &armor) {
+    for(int i = 0;i<4;i++){
+        roi_corners_[i] = armor.Corners()[i];
+    }
+}
+
