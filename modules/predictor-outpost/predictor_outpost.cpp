@@ -1,4 +1,5 @@
 #include "predictor_outpost.h"
+
 const cv::Size kZoomRatio = {16, 22};
 
 bool OutpostPredictor::Initialize() {
@@ -93,6 +94,9 @@ SendPacket OutpostPredictor::Run(Battlefield battlefield) {
                 outpost_.BottomArmors()[biggest_armor].TranslationVectorCam());
         UpdateROICorners(outpost_.BottomArmors()[biggest_armor]);
         send_packet.yaw = shoot_point_spherical(0, 0), send_packet.pitch = shoot_point_spherical(1, 0);
+        DLOG(INFO) << "outpost distance： " << outpost_.BottomArmors()[biggest_armor].Distance();
+        DLOG(INFO) << "armor length： " << norm(outpost_.BottomArmors()[biggest_armor].Corners()[0] - outpost_.BottomArmors()[biggest_armor].Corners()[1]);
+        DLOG(INFO) << "armor height： " << outpost_.BottomArmors()[biggest_armor].TranslationVectorWorld();
 
         if (kAreaThreshold * biggest_area_ < outpost_.BottomArmors()[biggest_armor].Area()) {
             aim_buff_ += 2;
@@ -119,7 +123,7 @@ SendPacket OutpostPredictor::Run(Battlefield battlefield) {
             send_packet.distance_mode = 10;
         /// Pixel distance is to calculate shoot time
         double pixel_distance = abs(outpost_.center_point_.x - outpost_.coming_center_.x);
-        if (pixel_distance < 10 && !ready_fire_) {
+        if (pixel_distance < 1 && !ready_fire_) {
             ready_time_ = std::chrono::high_resolution_clock::now();
             ready_fire_ = true;
         }
@@ -138,6 +142,11 @@ SendPacket OutpostPredictor::Run(Battlefield battlefield) {
     if (!prepared_) {
         send_packet.pitch += 0.11;
         send_packet.yaw += 0.02;
+        send_packet.yaw = send_packet.yaw + OutpostPredictorDebug::Instance().DeltaYawLeft() -
+                          OutpostPredictorDebug::Instance().DeltaYawRight();
+        send_packet.pitch = send_packet.pitch + OutpostPredictorDebug::Instance().DeltaPitchDown() -
+                            OutpostPredictorDebug::Instance().DeltaPitchUp();
+
     }
     fire_ = send_packet.fire;
 
@@ -303,17 +312,23 @@ SendPacket OutpostPredictor::Run(Battlefield battlefield, const float &bullet_sp
         for (auto &armor: facility.second->BottomArmors())
             outpost_.AddBottomArmor(armor);
     }
+    if (outpost_.BottomArmors().empty()) return send_packet;
+
+
 
     if (clockwise_ <= 7 && clockwise_ >= -7 && !checked_clockwise_)
         IsClockwise();
     else
         DecideComingGoing();
 
+
     int biggest_armor = FindBiggestArmor(outpost_.BottomArmors());
     UpdateROICorners(outpost_.BottomArmors()[biggest_armor]);
     auto shoot_point_spherical = coordinate::convert::Rectangular2Spherical(
             outpost_.BottomArmors()[biggest_armor].TranslationVectorCam());
     send_packet.yaw = 0, send_packet.pitch = shoot_point_spherical(1, 0);
+    DLOG(INFO) << "outpost distance： " << outpost_.BottomArmors()[biggest_armor].Distance();
+    DLOG(INFO) << "armor length： " << norm(outpost_.BottomArmors()[biggest_armor].Corners()[0] - outpost_.BottomArmors()[biggest_armor].Corners()[1]);
 
     auto mid_x = frame_size().width >> 1;
     if (!ready_fire_ && abs(mid_x - outpost_.coming_center_.x) < 10) {
@@ -344,7 +359,7 @@ SendPacket OutpostPredictor::Run(Battlefield battlefield, const float &bullet_sp
 SendPacket OutpostPredictor::Run(Battlefield battlefield, const float &bullet_speed, cv::MatSize frame_size, int time) {
     SendPacket send_packet;
     if (time < 60 * 3)
-        send_packet = Run(battlefield,bullet_speed,frame_size);
+        send_packet = Run(battlefield, bullet_speed, frame_size);
     else
         send_packet = Run(battlefield);
     return send_packet;

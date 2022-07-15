@@ -36,7 +36,7 @@ bool ParameterMaintain::initDetectorRuneParameters() {
 
 bool ParameterMaintain::saveDetectorRuneParameters() {
     // Open config file.
-    config_.open(rune_detector_config_path, cv::FileStorage::READ);
+    config_.open(rune_detector_config_path, cv::FileStorage::WRITE);
     if (!config_.isOpened()) {
         LOG(ERROR) << "Failed to open rune detector config file " << rune_detector_config_path << ".";
         return false;
@@ -101,7 +101,7 @@ bool ParameterMaintain::initPredictorArmorParameters() {
 }
 
 bool ParameterMaintain::savePredictorArmorParameters() {
-    config_.open(armor_predictor_config_path, cv::FileStorage::READ);
+    config_.open(armor_predictor_config_path, cv::FileStorage::WRITE);
     if (!config_.isOpened()) {
         LOG(ERROR) << "Failed to open armor predictor config file " << armor_predictor_config_path << ".";
         return false;
@@ -136,7 +136,7 @@ bool ParameterMaintain::initPredictorOutpostParameters() {
 }
 
 bool ParameterMaintain::savePredictorOutpostParameters() {
-    config_.open(outpost_predictor_config_path, cv::FileStorage::READ);
+    config_.open(outpost_predictor_config_path, cv::FileStorage::WRITE);
     if (!config_.isOpened()) {
         LOG(ERROR) << "Failed to open outpost predictor config file " << outpost_predictor_config_path << ".";
         return false;

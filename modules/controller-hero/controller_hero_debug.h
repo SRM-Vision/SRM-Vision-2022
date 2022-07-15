@@ -56,6 +56,7 @@ public:
         if (key == 's')
         {
             ArmorPredictorDebug::Instance().Save();
+            OutpostPredictorDebug::Instance().Save();
 
         }
 
