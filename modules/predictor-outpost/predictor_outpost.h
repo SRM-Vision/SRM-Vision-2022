@@ -21,9 +21,10 @@
  * \Brief Find the center shooting point of outpost, auto-shoot after a time_delay.
  * @Details Set color first, then run predictor to auto-shoot and clear all parameters in controller if the mode changes.
  */
-class OutpostPredictor{
+class OutpostPredictor {
 public:
     OutpostPredictor() = default;
+
     ~OutpostPredictor() = default;
 
     /**
@@ -53,7 +54,15 @@ public:
     */
     void Clear();
 
+    /**
+    * \Brief get the roi.
+    * \param [out]roi_rect.
+    * \param src_image the image;
+    */
+    cv::Rect GetROI(const cv::Mat &src_image);
+
     ATTR_READER(outpost_center_, OutpostCenter);
+
     ATTR_READER(fire_, Fire);
 
 private:
@@ -78,6 +87,13 @@ private:
      */
     void IsClockwise();
 
+
+    /**
+     * \Brief get the center of ROI.
+     * @param armor the main armor.
+     */
+    void UpdateROICorners(const Armor& armor);
+
 private:
     const double kFindBiggestArmorTime = 4;  ///< during this time try to find the the front of the target.
     const double kAreaThreshold = 0.93;  ///< when area is biggest than area threshold * biggest armor it is the front of the target.
@@ -85,7 +101,7 @@ private:
     const double kAimBuff = 20;  ///< The num frame number to ensure the result.
 
     Outpost outpost_{};
-    cv::Point2f outpost_center_{};
+    cv::Point2f outpost_center_{};  ///< only used to show the point in the image when debug
     std::chrono::high_resolution_clock::time_point start_time_{};
     std::chrono::high_resolution_clock::time_point ready_time_{};
 
@@ -98,10 +114,13 @@ private:
     bool ready_fire_{false};
     bool prepared_{false};
     bool need_init_{true};
-    bool fire_{false};
+    bool fire_{false};  ///< only used to show the image in the image when debug
 
     double biggest_area_{0};
     double shoot_delay_time_{0};
+
+    int roi_buff_;
+    cv::Point2f roi_corners_[4];
 
     int aim_buff_{0};
 };

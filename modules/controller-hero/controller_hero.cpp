@@ -7,8 +7,6 @@
 #include "predictor-outpost/predictor_outpost.h"
 #include "controller_hero.h"
 #include "predictor-armor/predictor_armor.h"
-//#include "predictor-outpost/outpost_measure.h"
-
 
 /**
  * \warning Controller registry will be initialized before the program entering the main function!
@@ -58,8 +56,10 @@ void HeroController::Run() {
 
             outpost_predictor_.SetColor(receive_packet_.color);
             send_packet_ = outpost_predictor_.Run(battlefield_, receive_packet_.bullet_speed);
+            auto roi = outpost_predictor_.GetROI(frame_.image);
+            armor_detector_.UpdateROI(roi);
             controller_hero_debug_.DrawOutpostData(frame_.image,
-                                                   ROI,
+                                                   roi,
                                                    &outpost_predictor_,
                                                    image_provider_->IntrinsicMatrix(),
                                                    frame_.image.size,
@@ -110,10 +110,8 @@ void HeroController::Run() {
                                                                               - time);
 
         DLOG(INFO) << "FPS: " << 1000.0 / double(duration.count());
-//        cv::waitKey(0);
     }
 
-    // exit.
     if (CmdlineArgParser::Instance().RunWithGimbal())
         serial_->StopCommunication();
 
