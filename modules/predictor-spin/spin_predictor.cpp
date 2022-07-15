@@ -12,8 +12,6 @@ const int kMaxXReverseSpinBuffer{40};
 bool PredictorSpin::Update(const Armor &armor, const uint64_t current_time) {
     double time_after_last_jump{algorithm::NanoSecondsToSeconds(last_jump_time_, current_time)};
 
-    DLOG(INFO) << "TIME AFTER JUMP: " << time_after_last_jump;
-
     // If it exceeds the maximum period and has not turned, it is not top.
     if((is_slow_spin_ || is_quick_spin_) && time_after_last_jump > slow_jump_period_max_){
         is_slow_spin_ = is_quick_spin_ = false;
@@ -23,7 +21,7 @@ bool PredictorSpin::Update(const Armor &armor, const uint64_t current_time) {
         is_quick_spin_ = false;
     }
 
-    DLOG(INFO) << "JUMP PERIOD: " << jump_period_;
+    DLOG(INFO) << "jump period: " << jump_period_;
 
     double current_yaw_x, yaw_x_delta;
     if(mode_ == Mode::kSpherical){
@@ -35,7 +33,7 @@ bool PredictorSpin::Update(const Armor &armor, const uint64_t current_time) {
         yaw_x_delta = current_yaw_x - last_yaw_x_;
     }
 
-    DLOG(INFO) << "CLOCKWISE: " << clockwise_;
+    DLOG(INFO) << "clockwise (0:anticlockwise): " << clockwise_;
 
     if(abs(yaw_x_delta) > min_jump_yaw_x_){
         reverse_buffer = 0;

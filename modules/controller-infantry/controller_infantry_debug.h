@@ -47,7 +47,7 @@ public:
         controller_debug_.ShowImage(window_names, wait_time);
     }
 
-    inline char GetKey()
+    static inline char GetKey()
     {
 #if !NDEBUG
         char key = cv::waitKey(1) & 0xff;
