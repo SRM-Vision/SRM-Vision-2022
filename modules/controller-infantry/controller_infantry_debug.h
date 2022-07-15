@@ -56,7 +56,7 @@ public:
 
     /**
      * \brief Draw Auto aim runes for infantry controller's rune detections.
-     * \param image
+     * \param image Original input image
      * \param rune_predictor
      * \param window_names
      * \param wait_time
@@ -69,6 +69,8 @@ public:
         controller_debug_.UpdateImage(image);
         controller_debug_.painter_->DrawPoint(rune_predictor->PredictedPoint(),
                                               cv::Scalar(0, 255, 255), 3, 3);
+        controller_debug_.painter_->DrawText("P", rune_predictor->ArmorCenterP(), cv::Scalar(255, 0, 255), 3);
+        controller_debug_.painter_->DrawText("R", rune_predictor->EnergyCenterR(), cv::Scalar(255, 255, 0), 3);
         controller_debug_.ShowImage(window_names, wait_time);
     }
 

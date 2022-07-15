@@ -33,7 +33,7 @@ bool InfantryController::Initialize() {
         LOG(ERROR) << "Rune detector initialize failed.";
         return false;
     }
-    rune_predictor_.Initialize("../config/infantry/rune-predictor-param.yaml", true);
+    rune_predictor_.Initialize("../config/infantry/rune-predictor-param.yaml");
 
     LOG(INFO) << "Infantry controller is ready.";
     return true;
@@ -53,7 +53,7 @@ void InfantryController::Run() {
         || receive_packet_.mode == AimModes::kSmallRune
         || receive_packet_.mode == AimModes::kBigRune) {
             power_rune_ = rune_detector_.Run(receive_packet_.color, frame_);
-            send_packet_ = rune_predictor_.Run(power_rune_, receive_packet_.mode, receive_packet_.bullet_speed);
+            send_packet_ = rune_predictor_.Run(power_rune_, kSmallRune, 30);
             controller_infantry_debug_.DrawAutoAimRune(frame_.image, &rune_predictor_, "Infantry Rune Run", 1);
         }
 
@@ -76,7 +76,6 @@ void InfantryController::Run() {
                                                           "Infantry Run",
                                                           1);
         }
-
 
         if (ControllerInfantryDebug::GetKey() == 'q')
             break;

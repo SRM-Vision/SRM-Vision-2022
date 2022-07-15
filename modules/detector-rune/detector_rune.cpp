@@ -304,6 +304,7 @@ bool RuneDetector::FindCenterR() {
 void RuneDetector::FindFanCenterG() {
     // FIXME Need a better method for calculating.
     fan_center_g_ = 0.5 * (armor_encircle_rect_.center + cv::Point2f(ROI_tl_point_)) + 0.5 * energy_center_r_;
+    rtp_vec_ = armor_center_p_ - energy_center_r_;
     rtg_vec_ = fan_center_g_ - energy_center_r_;
 }
 

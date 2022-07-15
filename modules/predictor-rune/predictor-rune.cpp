@@ -2,12 +2,12 @@
 #include <ceres/ceres.h>
 #include "detector-rune/detector_rune_debug.h"
 
-predictor::rune::RunePredictor::RunePredictor() : debug_(true),
-                                                  rune_(), state_(), rotational_speed_(), fitting_data_(),
-                                                  output_data_(), bullet_speed_(15),
-                                                  predicted_angle_(), predicted_point_() {}
+predictor::rune::RunePredictor::RunePredictor() :
+        rune_(), state_(), rotational_speed_(), fitting_data_(),
+        output_data_(), bullet_speed_(15),
+        predicted_angle_(), predicted_point_() {}
 
-bool predictor::rune::RunePredictor::Initialize(const std::string &config_path, bool debug) {
+bool predictor::rune::RunePredictor::Initialize(const std::string &config_path) {
     cv::FileStorage config;
 
     // Open config file.
@@ -30,10 +30,8 @@ bool predictor::rune::RunePredictor::Initialize(const std::string &config_path, 
 SendPacket predictor::rune::RunePredictor::Run(const PowerRune &power_rune, AimModes aim_mode, float bullet_speed) {
     rune_ = power_rune;
     bullet_speed_ = bullet_speed;
-    //FIXME Now data is unknown.
-    aim_mode = kBigRune;
-    bullet_speed_ = 30;
 
+    // Aim mode is big rune.
     if (aim_mode == kBigRune) {
         DLOG(INFO) << "Rune predictor mode: big.";
         state_.UpdatePalstance(rune_, fitting_data_);
@@ -41,14 +39,17 @@ SendPacket predictor::rune::RunePredictor::Run(const PowerRune &power_rune, AimM
         PredictAngle(aim_mode);
         if (!fitting_data_.outdated)
             PredictPoint();
-        output_data_.Update(debug_, rune_, predicted_angle_, predicted_point_, fixed_point_);
+        output_data_.Update(rune_, predicted_angle_, predicted_point_, fixed_point_);
         state_.CheckMode();
-    } else {
+    }
+
+    // Aim mode is small rune.
+    if (aim_mode == kSmallRune) {
         DLOG(INFO) << "Rune predictor mode: small.";
-        rotational_speed_.w = 1.04717;
+        rotational_speed_.w = rune_.Clockwise() * 1.04717;
         PredictAngle(aim_mode);
         PredictPoint();
-        output_data_.Update(debug_, rune_, predicted_angle_, predicted_point_, fixed_point_);
+        output_data_.Update(rune_, predicted_angle_, predicted_point_, fixed_point_);
         state_.CheckMode();
     }
 
@@ -56,25 +57,61 @@ SendPacket predictor::rune::RunePredictor::Run(const PowerRune &power_rune, AimM
             static_cast<float>(output_data_.yaw + output_data_.pitch + output_data_.delay)};
 }
 
-double predictor::rune::RotationalSpeed::Integral(double integral_time) const {
+void predictor::rune::RunePredictor::PredictAngle(AimModes aim_mode) {
+    double rotated_angle;  ///< Angle to rotate calculated by palstance.
+
+    // Aim mode is big rune. Need to fit data.
+    if (aim_mode == kBigRune) {
+        if (fitting_data_.outdated) {
+            fitting_data_.Fit(rotational_speed_);
+            state_.UpdateAngle(rune_.RtgVec());
+            predicted_angle_ = state_.current_angle;   // No Predicting When Fitting.
+        } else {
+            double bullet_delay_time = 7.0 / bullet_speed_;   // Ballistic Time Compensation
+            double compensate_time = 0.05;
+            auto rotated_radian =
+                    rotational_speed_.AngularIntegral(state_.current_time + bullet_delay_time + compensate_time)
+                    - rotational_speed_.AngularIntegral(state_.current_time);
+            rotated_angle = rotated_radian * 180 / CV_PI;
+            state_.UpdateAngle(rune_.RtgVec());
+            DLOG(INFO) << "clock_wise: " << rune_.Clockwise();
+            DLOG(INFO) << state_.current_angle << "   " << rotated_angle;
+
+            predicted_angle_ = state_.current_angle - rune_.Clockwise() * rotated_angle;
+        }
+    }
+
+    // Aim mode is small rune.
+    if (aim_mode == kSmallRune) {
+        double bullet_delay_time = 7.0 / bullet_speed_;  // Ballistic Time Compensation.
+        double compensate_time = 0.05;  // Other compensation
+        auto rotated_radian = rune_.Clockwise() * rotational_speed_.w * (compensate_time + bullet_delay_time);
+        rotated_angle = rotated_radian * 180 / CV_PI;
+
+        state_.UpdateAngle(rune_.RtpVec());
+
+        DLOG(INFO) << "clock_wise: " << rune_.Clockwise();
+        DLOG(INFO) << state_.current_angle << "   " << rotated_angle << "   " << state_.current_angle;
+        predicted_angle_ = state_.current_angle - rune_.Clockwise() * rotated_angle;
+    }
+}
+
+double predictor::rune::RotationalSpeed::AngularIntegral(double integral_time) const {
     constexpr double c = 0;
-    // -1 * rotational_direction * (-a / w * cos(w * integral_time + p) + b * integral_time + c)
+    // Angular displacement integral
     return -a / w * cos(w * integral_time + p) + b * integral_time + c;
 }
 
-void predictor::rune::OutputData::Update(bool debug,
-                                         const PowerRune &rune,
+void predictor::rune::OutputData::Update(const PowerRune &rune,
                                          double predicted_angle,
                                          const cv::Point2f &predicted_point,
                                          cv::Point2f &fixed_point) {
     if (rune.ArmorCenterP() == cv::Point2f(0, 0)) {
-        if (debug)
-            DLOG(INFO) << "Rune Predictor receive zeros detection result.";
+        DLOG(INFO) << "Rune Predictor receive zeros detection result.";
         yaw = pitch = delay = 0;
     }
 
-    if (debug)
-        DLOG(INFO) << "Predicted angle: " << predicted_angle;
+    DLOG(INFO) << "Predicted angle: " << predicted_angle;
     int delta_u = RuneDetectorDebug::Instance().DeltaU() - 50;  ///< Horizontal ballistic compensation.
     int delta_v = RuneDetectorDebug::Instance().DeltaV() - 50;  ///< Vertical ballistic compensation.
 
@@ -90,14 +127,11 @@ void predictor::rune::OutputData::Update(bool debug,
     algorithm::Atan2FloatX4(y, x, z);
     yaw = z[0], pitch = z[1];  // Maybe need subtract image-center value.
 
-    if (debug)
-        DLOG(INFO) << "Output yaw: " << yaw << ", pitch: " << pitch << ".";
+    DLOG(INFO) << "Output yaw: " << yaw << ", pitch: " << pitch << ".";
     delay = 1.f;
 }
 
-void predictor::rune::FittingData::Fit(bool debug, RotationalSpeed &rotational_speed) {
-    if (!outdated)  // Fitting is error.
-        return;
+void predictor::rune::FittingData::Fit(RotationalSpeed &rotational_speed) {
     if (!ready) {
         // Preparing, wait for some time.
         if (palstance.size() >= kPreparePalstanceDataNum) {
@@ -114,7 +148,7 @@ void predictor::rune::FittingData::Fit(bool debug, RotationalSpeed &rotational_s
             for (int i = 0; i < kResidualBlockNum; ++i)
                 problem.AddResidualBlock(
                         new ceres::AutoDiffCostFunction<TrigonometricResidual, 1, 1, 1, 1>(
-                                new TrigonometricResidual(time[i], palstance[i]) ),
+                                new TrigonometricResidual(time[i], palstance[i])),
                         new ceres::CauchyLoss(0.5), &rotational_speed.a,
                         &rotational_speed.w, &rotational_speed.p);
             ceres::Solver::Options options;
@@ -122,14 +156,13 @@ void predictor::rune::FittingData::Fit(bool debug, RotationalSpeed &rotational_s
             options.linear_solver_type = ceres::DENSE_QR;
             options.minimizer_progress_to_stdout = true;
 
-            if (debug) {
-                ceres::Solver::Summary summary;
-                ceres::Solve(options, &problem, &summary);
-                DLOG(INFO) << summary.BriefReport();
-                DLOG(INFO) << "Fitting: a = " << rotational_speed.a
-                           << ", w = " << rotational_speed.w
-                           << ", phi = " << rotational_speed.p;
-            }
+            ceres::Solver::Summary summary;
+            ceres::Solve(options, &problem, &summary);
+            DLOG(INFO) << summary.BriefReport();
+            DLOG(INFO) << "Fitting: a = " << rotational_speed.a
+                       << ", w = " << rotational_speed.w
+                       << ", phi = " << rotational_speed.p;
+
             ready = false;
             outdated = false;      // Now fitting may be right.
         }

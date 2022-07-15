@@ -53,11 +53,11 @@ namespace predictor::rune {
      */
     struct RotationalSpeed {
         /**
-         * @brief Integral of rotational speed is rotational angle.
+         * @brief AngularIntegral of rotational speed is rotational angle.
          * @param integral_time Integrate from t=0 to t=integral_time.
          * @return Rotational angle, in RADIAN, COUNTERCLOCKWISE is positive.
          */
-        [[nodiscard]] double Integral(double integral_time) const;
+        [[nodiscard]] double AngularIntegral(double integral_time) const;
 
         int rotational_direction;  ///< 1 is clockwise, -1 is counterclockwise.
         double a;  ///< Amplitude, or A.
@@ -76,8 +76,7 @@ namespace predictor::rune {
          * @param [in] predicted_point Predicted point calculated by predictor.
          * @param [out] fixed_point Fixed predicted point considering shooting delay.
          */
-        void Update(bool debug,
-                    const PowerRune &rune,
+        void Update(const PowerRune &rune,
                     double predicted_angle,
                     const cv::Point2f &predicted_point,
                     cv::Point2f &fixed_point);
@@ -96,7 +95,7 @@ namespace predictor::rune {
          * @param debug Debug mode switch.
          * @param [out] rotational_speed Output fit rotational speed.
          */
-        void Fit(bool debug, RotationalSpeed &rotational_speed);
+        void Fit(RotationalSpeed &rotational_speed);
 
         std::vector<double> palstance;  ///< Speed data for fitting.
         std::vector<double> time;       ///< Time data for fitting.
@@ -134,6 +133,9 @@ namespace predictor::rune {
 
     class RunePredictor : NO_COPY, NO_MOVE {
     public:
+        ATTR_READER_REF(rune_.ArmorCenterP(), ArmorCenterP)
+
+        ATTR_READER_REF(rune_.CenterR(), EnergyCenterR)
 
         ATTR_READER_REF(predicted_point_, PredictedPoint)
 
@@ -168,7 +170,6 @@ namespace predictor::rune {
 
         void PredictPoint();
 
-        bool debug_;
         PowerRune rune_;  ///< It is initiated by package conveyed by rune detector.
         State state_;
         RotationalSpeed rotational_speed_;
