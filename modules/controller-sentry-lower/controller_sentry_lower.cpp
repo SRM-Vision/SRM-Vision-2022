@@ -30,11 +30,10 @@ void SentryLowerController::Run() {
     sleep(2);
 
     while (!exit_signal_) {
-        auto time = std::chrono::steady_clock::now();
         if (!GetImage<false>())
             continue;
 
-        RunGimbal();
+        ReceiveSerialData();
 
         boxes_ = armor_detector_(frame_.image);
         BboxToArmor();
@@ -72,17 +71,15 @@ void SentryLowerController::Run() {
                                        send_packet_.check_sum,
                                        armor_predictor.GetTargetDistance());
 
-        if (CmdlineArgParser::Instance().RunWithSerial())
-            serial_->SendData(send_packet_, std::chrono::milliseconds(5));
+        SendSerialData();
 
         boxes_.clear();
         armors_.clear();
-        auto duration = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now()
-                                                                              - time);
-        DLOG(INFO) << "FPS: " << 1000000.0 / duration.count();
+
+        CountPerformanceData();
     }
 
-    if (CmdlineArgParser::Instance().RunWithGimbal())
+    if (CmdlineArgParser::Instance().RunWithSerial())
         serial_->StopCommunication();
 
     image_provider_.reset();

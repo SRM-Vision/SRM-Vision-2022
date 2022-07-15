@@ -23,8 +23,6 @@ public:
 
     ATTR_READER(run_with_serial_, RunWithSerial)
 
-    ATTR_READER(run_with_gimbal_, RunWithGimbal)
-
     ATTR_READER(run_mode_rune_, RuneModeRune)
 
     ATTR_READER(run_mode_outpost_, RunModeOutpost)
@@ -39,13 +37,13 @@ public:
 
     CmdlineArgParser() :
             run_with_camera_(false),
-            run_with_gimbal_(false),
             run_with_serial_(false),
             run_mode_rune_(false),
             run_mode_outpost_(false),
             mode_chooser_(0),
             debug_show_image_(false),
-            debug_use_trackbar_(false) {}
+            debug_use_trackbar_(false),
+            with_ekf_(true) {}
 
     inline static CmdlineArgParser &Instance() {
         static CmdlineArgParser _;
@@ -56,7 +54,6 @@ public:
 
 private:
     bool run_with_camera_;         ///< Running with camera flag.
-    bool run_with_gimbal_;         ///< Running with serial gimbal communication flag.
     bool run_with_serial_;         ///< Running with serial else communication flag.
     std::string controller_type_;  ///< Controller type, no default value.
 

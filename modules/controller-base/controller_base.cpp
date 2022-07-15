@@ -3,12 +3,24 @@
 #include "compensator/compensator.h"
 #include "controller_base.h"
 
-void Controller::RunGimbal() {
-    if (CmdlineArgParser::Instance().RunWithGimbal()) {
+void Controller::ReceiveSerialData() {
+    if (CmdlineArgParser::Instance().RunWithSerial()) {
         SerialReceivePacket serial_receive_packet{};
         serial_->GetData(serial_receive_packet, std::chrono::milliseconds(5));
         receive_packet_ = ReceivePacket(serial_receive_packet);
     }
+}
+
+void Controller::SendSerialData() {
+    if (CmdlineArgParser::Instance().RunWithSerial())
+        serial_->SendData(send_packet_, std::chrono::milliseconds(5));
+}
+
+void Controller::CountPerformanceData() {
+    static auto time = std::chrono::steady_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - time);
+    LOG(INFO) << "Cost: " << double(duration.count()) / 1e6 << ", FPS: " << 1e9 / double(duration.count()) << ".";
+    time = std::chrono::steady_clock::now(); // don`t remove
 }
 
 bool Controller::Initialize(const std::string &type) {
@@ -23,7 +35,7 @@ bool Controller::Initialize(const std::string &type) {
         return false;
     }
 
-    if (CmdlineArgParser::Instance().RunWithGimbal() || CmdlineArgParser::Instance().RunWithSerial()) {
+    if (CmdlineArgParser::Instance().RunWithSerial()) {
         serial_ = std::make_unique<Serial>();
         if (!serial_->StartCommunication()) {
             LOG(ERROR) << "Failed to start serial communication.";
