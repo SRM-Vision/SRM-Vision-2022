@@ -47,7 +47,7 @@ public:
     * \Brief Set the color of outpost.
     * \param enemy_color Enemy color.
     */
-    void SetColor(const Entity::Colors &enemy_color) { enemy_color_ = enemy_color; }
+    inline void SetColor(const Entity::Colors &enemy_color) { enemy_color_ = enemy_color; }
 
     /**
     * \Brief Clear the information in OutpostPredictor.
