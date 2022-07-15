@@ -122,14 +122,14 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, const cv::MatSize
         grey_buffer_ = 0;
 
     // update spin detector
-    spin_detector_.Update(*target_current, battlefield.TimeStamp());
+    spin_predictor_.Update(*target_current, battlefield.TimeStamp());
 
     if(locked_same_target){
         // EKF Predict
         Predict(*target_current, delta_t, bullet_speed, battlefield.YawPitchRoll(), kShootDelay);
 
         // anti spinning
-        if (spin_detector_.IsSpin()){
+        if (spin_predictor_.IsSpin()){
 
             // find another armor in the robot
             std::shared_ptr<Armor> another_armor{nullptr};
@@ -137,8 +137,8 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, const cv::MatSize
                 if(armor.ID() == last_target_->ID() && armor.Center() != target_current->Center())
                     another_armor = std::make_shared<Armor>(armor);
             }
-            if(another_armor && spin_detector_.Clockwise() != -1 && another_armor->Area() > last_target_->Area() * kSwitchByAreaThreshold
-                    && (spin_detector_.Clockwise() ^ (last_target_->Center().x > another_armor->Center().x))){
+            if(another_armor && spin_predictor_.Clockwise() != -1 && another_armor->Area() > last_target_->Area() * kSwitchByAreaThreshold
+               && (spin_predictor_.Clockwise() ^ (last_target_->Center().x > another_armor->Center().x))){
                 // Update speed in ekf, to speed up fitting.
                 last_target_ = another_armor;
                 InitializeEKF(battlefield.YawPitchRoll(),another_armor->TranslationVectorWorld());
@@ -146,11 +146,11 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, const cv::MatSize
                 ekf_.x_estimate_(3,0) = -predict_speed_(1,0);
             }
             // if spinning, Swing head in advance.
-            if(algorithm::NanoSecondsToSeconds(spin_detector_.LastJumpTime(), battlefield.TimeStamp()) /
-                                                        spin_detector_.JumpPeriod() < kAllowFollowRange){
+            if(algorithm::NanoSecondsToSeconds(spin_predictor_.LastJumpTime(), battlefield.TimeStamp()) /
+               spin_predictor_.JumpPeriod() < kAllowFollowRange){
                 fire_ = true;
             }else{
-                predict_world_vector_ << spin_detector_.LastJumpPosition();
+                predict_world_vector_ << spin_predictor_.LastJumpPosition();
                 UpdateShootPointAndPredictCam(battlefield.YawPitchRoll());
             }
         }
@@ -286,7 +286,7 @@ SendPacket ArmorPredictor::GenerateSendPacket() const {
 
 void ArmorPredictor::Clear() {
     last_target_ = nullptr;
-    spin_detector_.Reset();
+    spin_predictor_.Reset();
 }
 
 cv::Point2f ArmorPredictor::TargetCenter() {

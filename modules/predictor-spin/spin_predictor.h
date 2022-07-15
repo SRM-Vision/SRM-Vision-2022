@@ -2,12 +2,12 @@
 // Created by xiguang on 2022/7/11.
 //
 
-#ifndef SPIN_DETECTOR_H_
-#define SPIN_DETECTOR_H_
+#ifndef SPIN_PREDICTOR_H_
+#define SPIN_PREDICTOR_H_
 
 #include <digital-twin/components/armor.h>
 
-class SpinDetector {
+class PredictorSpin {
 public:
 
     /**
@@ -17,7 +17,7 @@ public:
             kSpherical,
             SIZE};
 
-    SpinDetector() = delete;
+    PredictorSpin() = delete;
 
     /**
      * @brief Used for judge slow spin and high spin. Default parameters are only available for SPHERICAL mode.
@@ -27,8 +27,8 @@ public:
      * @param quick_jump_period_max high speed spin must faster than this. The unit is radians or pixels.
      * @param quick_jump_period_min high speed spin must slower than this. The unit is radians or pixels.
      */
-    explicit SpinDetector(Mode mode = Mode::kSpherical, double min_jump_yaw_x = 0.05, double slow_jump_period_max = 1.2,
-                          double quick_jump_period_max = 0.625, double quick_jump_period_min = 0.125): min_jump_yaw_x_(min_jump_yaw_x),
+    explicit PredictorSpin(Mode mode = Mode::kSpherical, double min_jump_yaw_x = 0.05, double slow_jump_period_max = 1.2,
+                           double quick_jump_period_max = 0.625, double quick_jump_period_min = 0.125): min_jump_yaw_x_(min_jump_yaw_x),
                                                                                               slow_jump_period_max_(slow_jump_period_max),
                                                                                               quick_jump_period_max_(quick_jump_period_max),
                                                                                               quick_jump_period_min_(quick_jump_period_min),
@@ -41,7 +41,7 @@ public:
      * @param jump_period_max spin must faster than this. The unit is radians or pixels.
      * @param jump_period_min spin must slower than this. The unit is radians or pixels.
      */
-    explicit SpinDetector(double min_jump_yaw_x = 0.05, double jump_period_max = 1.2, double jump_period_min = 0.125, Mode mode = Mode::kSpherical):
+    explicit PredictorSpin(double min_jump_yaw_x = 0.05, double jump_period_max = 1.2, double jump_period_min = 0.125, Mode mode = Mode::kSpherical):
             min_jump_yaw_x_(min_jump_yaw_x),
             slow_jump_period_max_(jump_period_max),
             quick_jump_period_max_(jump_period_min),
@@ -123,4 +123,4 @@ private:
 };
 
 
-#endif //SPIN_DETECTOR_H_
+#endif //SPIN_PREDICTOR_H_

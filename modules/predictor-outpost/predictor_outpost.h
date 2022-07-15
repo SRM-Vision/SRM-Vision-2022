@@ -11,7 +11,7 @@
 #include <data-structure/communication.h>
 #include "../digital-twin/battlefield.h"
 #include "debug-tools/painter.h"
-#include "predictor-armor/spin_detector.h"
+#include "predictor-spin/spin_predictor.h"
 #include "predictor-armor/predictor_armor_debug.h"
 #include "predictor_outpost_debug.h"
 #include "lang-feature-extension/attr-reader.h"

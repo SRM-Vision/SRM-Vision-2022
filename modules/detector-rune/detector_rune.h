@@ -14,7 +14,7 @@
 
 class RuneDetector : NO_COPY, NO_MOVE {
 public:
-    [[maybe_unused]] explicit RuneDetector(Entity::Colors color = Entity::Colors::kRed, bool debug = true);
+    [[maybe_unused]] explicit RuneDetector(Entity::Colors color = Entity::Colors::kRed, bool debug = false);
 
     ~RuneDetector() = default;
 
