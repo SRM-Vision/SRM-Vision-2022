@@ -17,8 +17,6 @@ bool predictor::rune::RunePredictor::Initialize(const std::string &config_path) 
         return false;
     }
 
-    debug_ = debug;
-
     config["AMPLITUDE"] >> rotational_speed_.a;
     config["PALSTANCE"] >> rotational_speed_.w;
     config["PHASE"] >> rotational_speed_.p;
@@ -210,7 +208,8 @@ bool predictor::rune::State::UpdatePalstance(const PowerRune &rune, FittingData 
                 current_time_chrono - last_time)).count();
 
         current_palstance = angle / time_gap * 1e3;
-        current_palstance = std::min(160.0, std::max(0.2, current_palstance));  // Restrict palstance between min_value to max_value
+        current_palstance = std::min(160.0, std::max(0.2,
+                                                     current_palstance));  // Restrict palstance between min_value to max_value
         // Update palstance data.
         fitting_data.palstance.push_back(current_palstance);
         fitting_data.time.push_back(current_time);
@@ -219,41 +218,6 @@ bool predictor::rune::State::UpdatePalstance(const PowerRune &rune, FittingData 
 
     last_rtg_vec = rune.RtgVec();
     return true;
-}
-
-void predictor::rune::RunePredictor::PredictAngle(AimModes aim_mode) {
-    DLOG(INFO) << "clockwise: " << rune_.Clockwise();
-    double rotated_angle;  ///< Angle to rotate calculated by palstance.
-    if (aim_mode == kBigRune) {
-        if (fitting_data_.outdated) {
-            fitting_data_.Fit(debug_, rotational_speed_);
-            state_.UpdateAngle(rune_.RtgVec());
-            predicted_angle_ = state_.current_angle;   // No Predicting When Fitting.
-        } else {
-            double delay_time = 7.0 / bullet_speed_;   // Ballistic Time Compensation
-            double compensate_time = 0.05;
-            auto rotated_radian = rotational_speed_.Integral(state_.current_time + delay_time + compensate_time)
-                                  - rotational_speed_.Integral(state_.current_time);
-            rotated_angle = rotated_radian * 180 / CV_PI;
-            state_.UpdateAngle(rune_.RtgVec());
-            if (debug_)
-                DLOG(INFO) << "clock_wise: " << rune_.Clockwise() << "   " <<
-                           state_.current_angle << "   " << rotated_angle;
-
-            predicted_angle_ = state_.current_angle - rune_.Clockwise() * rotated_angle;
-        }
-    } else {
-        double delay_time = 7.0 / bullet_speed_;  // Ballistic Time Compensation.
-        double compensate_time = 0.05;  // Other compensation
-        auto rotated_radian = rune_.Clockwise() * rotational_speed_.w * (compensate_time + delay_time);
-        rotated_angle = rotated_radian * 180 / CV_PI;
-
-        state_.UpdateAngle(rune_.RtpVec());
-        if (debug_)
-            DLOG(INFO) << "clock_wise: " << rune_.Clockwise() << "   " <<
-                       state_.current_angle << "   " << rotated_angle;
-        predicted_angle_ = state_.current_angle - rune_.Clockwise() * rotated_angle;
-    }
 }
 
 void predictor::rune::RunePredictor::PredictPoint() {

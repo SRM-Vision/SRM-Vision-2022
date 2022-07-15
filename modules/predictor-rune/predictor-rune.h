@@ -154,7 +154,7 @@ namespace predictor::rune {
          * @param [in] debug Whether use debug.
          * @return Whether initialize successfully.
          */
-        bool Initialize(const std::string &config_path, bool debug);
+        bool Initialize(const std::string &config_path);
 
         /**
          * @brief Use rune predictor to get predicted point.
