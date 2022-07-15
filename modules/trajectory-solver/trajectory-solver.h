@@ -156,9 +156,9 @@ namespace trajectory_solver {
          * @param max_theta Maximal pitch angle, RAD.
          * @param max_error Maximal error acceptable, m.
          * @param max_iter Maximal iteration times.
-         * @return The fixed pitch angle, RAD.
+         * @return The fixed pitch angle, RAD; total time, s.
          */
-        [[maybe_unused]] double Solve(double min_theta, double max_theta, double max_error, unsigned int max_iter);
+        [[maybe_unused]] Eigen::Vector2d Solve(double min_theta, double max_theta, double max_error, unsigned int max_iter);
 
     private:
         BallisticModel ballistic_model;

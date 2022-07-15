@@ -96,7 +96,7 @@ using namespace algorithm;
     target_x = _target_x;
 }
 
-[[maybe_unused]] double PitchAngleSolver::Solve(double min_theta, double max_theta, double max_error, unsigned int max_iter) {
+[[maybe_unused]] Eigen::Vector2d PitchAngleSolver::Solve(double min_theta, double max_theta, double max_error, unsigned int max_iter) {
     TrajectorySolver solver;
     unsigned int n = 1;
     double mid_theta, error, t;
@@ -113,11 +113,11 @@ using namespace algorithm;
             error = target_x - x.x();
             DLOG(INFO) << "iter: " << n << ", theta: " << mid_theta << ", x: " << x.x() << ", error: " << error << ".";
         } else
-            return mid_theta;
+            return {mid_theta, 0};
         if (error * v.y() > 0)
             max_theta = mid_theta;
         else
             min_theta = mid_theta;
     } while ((error > max_error || error < -max_error) && n++ < max_iter);
-    return mid_theta;
+    return {mid_theta, t};
 }

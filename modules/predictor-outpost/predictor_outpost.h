@@ -29,17 +29,17 @@ public:
 
     /**
      * \Brief Load params and choice debug or not.
-     * @param config_path the config path of outpost params data file.
-     * @param debug Choice debug or not.
-     * @return Whether initialized successfully.
+     * \param config_path the config path of outpost params data file.
+     * \param debug Choice debug or not.
+     * \return Whether initialized successfully.
      */
     bool Initialize();
 
     /**
      * \Brief Collect armors, get center points and decide auto-shoot signal.
-     * @param battlefield
-     * @param bullet_speed
-     * @return 'SendPacket' to send information to EC.
+     * \param battlefield
+     * \param bullet_speed
+     * \return 'SendPacket' to send information to EC.
      */
     SendPacket Run(Battlefield battlefield, float bullet_speed = 16);
 
@@ -69,28 +69,28 @@ private:
 
     /**
      * \Brief Find the armor with the biggest area.
-     * @param [in] armors. All detected armors.
-     * @return index of the armor with biggest area.
+     * \param [in] armors. All detected armors.
+     * \return index of the armor with biggest area.
      */
     int FindBiggestArmor(const std::vector<Armor> &armors);
 
     /**
      * \Brief Decide the coming/going armor in different rotating cases.
-     * @Details In one or two armors cases, compare 'armor center x' with 'outpost center x' to decide coming/going.
+     * \Details In one or two armors cases, compare 'armor center x' with 'outpost center x' to decide coming/going.
      */
     void DecideComingGoing();
 
     /**
      * \Brief Judge rotate direction.
-     * @Details Calculate difference value of contiguous armor centers' x.
-     * @Note Variable 'clockwise' is ought to be valued as 1 (rotate left) or -1 (rotate right).
+     * \Details Calculate difference value of contiguous armor centers' x.
+     * \Note Variable 'clockwise' is ought to be valued as 1 (rotate left) or -1 (rotate right).
      */
     void IsClockwise();
 
 
     /**
      * \Brief get the center of ROI.
-     * @param armor the main armor.
+     * \param armor the main armor.
      */
     void UpdateROICorners(const Armor& armor);
 

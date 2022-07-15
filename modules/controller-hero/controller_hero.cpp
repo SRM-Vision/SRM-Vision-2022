@@ -32,7 +32,6 @@ bool HeroController::Initialize() {
 }
 
 void HeroController::Run() {
-    cv::Rect ROI;
     sleep(2);
     ArmorPredictor armor_predictor(Entity::kBlue, "hero");
     while (!exit_signal_) {
@@ -79,7 +78,7 @@ void HeroController::Run() {
 
 
             controller_hero_debug_.DrawArmorDetection(frame_.image,
-                                                      ROI,
+                                                      {},
                                                       boxes_,
                                                       &armor_predictor,
                                                       image_provider_->IntrinsicMatrix(),
@@ -93,11 +92,8 @@ void HeroController::Run() {
 //                                       armor_predictor.GetTargetDistance(),
 //                                       receive_packet_.mode);
 
-        auto key = cv::waitKey(5) & 0xff;
-        if (key == 'q')
+        if (controller_hero_debug_.GetKey() == 'q')
             break;
-        else if (key == 's')
-            ArmorPredictorDebug::Instance().Save();
 
         if (CmdlineArgParser::Instance().RunWithSerial()) {
             CheckSum();
@@ -106,10 +102,10 @@ void HeroController::Run() {
         boxes_.clear();
         armors_.clear();
 
-        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now()
+        auto duration = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now()
                                                                               - time);
 
-        LOG(INFO) << "FPS: " << 1000.0 / double(duration.count());
+        LOG(INFO) << "FPS: " << 1000000.0 / double(duration.count());
     }
 
     if (CmdlineArgParser::Instance().RunWithGimbal())

@@ -8,6 +8,7 @@
 #ifndef CONTROLLER_HERO_H_
 #define CONTROLLER_HERO_H_
 #include "controller_hero_debug.h"
+//#include "predictor-outpost/outpost_measure.h"
 
 class [[maybe_unused]] HeroController final : public Controller {
 public:

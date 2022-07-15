@@ -49,7 +49,24 @@ public:
         controller_debug_.ShowImage(window_names, wait_time);
     }
 
+    inline char GetKey()
+    {
+#if !NDEBUG
+        char key = cv::waitKey(1) & 0xff;
+        if (key == 's')
+        {
+            ArmorPredictorDebug::Instance().Save();
 
+        }
+
+        if (key == 'q')
+            return 'q';
+
+#endif
+        return 'h';
+    }
 };
+
+
 
 #endif //CONTROLLER_INFANTRY_DEBUG_H_

@@ -1,5 +1,5 @@
 #include "predictor_outpost.h"
-const cv::Size kZoomRatio = {18,22};
+const cv::Size kZoomRatio = {16, 22};
 
 bool OutpostPredictor::Initialize() {
 #if !NDEBUG
