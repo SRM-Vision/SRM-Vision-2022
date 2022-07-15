@@ -25,10 +25,8 @@ public:
 
     inline bool GetFrame(Frame &frame) final {
         bool state = camera_->GetFrame(frame);
-        if (state && rec_) {
-            auto img_copy = frame.image.clone();
-            rec_->write(img_copy);
-        }
+        if (state && rec_)
+            rec_->write(frame.image);
         return state;
     }
 
