@@ -22,8 +22,10 @@ bool InfantryController::Initialize() {
     if (!Controller::Initialize("infantry"))
         return false;
 
-    // Initialize painter.
+#if !NDEBUG
+    // Initialize painter.TODO: use trackbar
     controller_infantry_debug_.Initialize(CmdlineArgParser::Instance().DebugUseTrackbar());
+#endif
 
     // Initialize Rune module.
     Frame init_frame;

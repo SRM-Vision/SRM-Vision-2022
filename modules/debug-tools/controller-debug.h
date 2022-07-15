@@ -33,6 +33,12 @@ public:
         }
     }
 
+    ~ControllerDebug()
+    {
+        delete painter_;
+    }
+
+
 public:
     /// Painter for drawing
     debug::IPainter* painter_;
