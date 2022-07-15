@@ -2,15 +2,14 @@
 // Created by xiguang on 2022/7/11.
 //
 
-#include <chrono>
-#include "spin_detector.h"
+#include "spin_predictor.h"
 
 /// when not jump, yaw/x delta must opposite of jumping direction.
 const int kMaxYawReverseSpinBuffer{25};
 
 const int kMaxXReverseSpinBuffer{40};
 
-bool SpinDetector::Update(const Armor &armor, const uint64_t current_time) {
+bool PredictorSpin::Update(const Armor &armor, const uint64_t current_time) {
     double time_after_last_jump{algorithm::NanoSecondsToSeconds(last_jump_time_, current_time)};
 
     DLOG(INFO) << "TIME AFTER JUMP: " << time_after_last_jump;
@@ -62,8 +61,7 @@ bool SpinDetector::Update(const Armor &armor, const uint64_t current_time) {
         ++reverse_buffer;
         if((reverse_buffer > kMaxYawReverseSpinBuffer && mode_ == Mode::kSpherical) ||
             (reverse_buffer > kMaxXReverseSpinBuffer && mode_ == Mode::kPlane)){
-//            static int time = 0;
-//            DLOG(INFO) << "over reverse buffer max: " << ++time;
+            DLOG(INFO) << "reverse buffer full, refresh the spin predictor.";
             reverse_buffer = 0;
             jump_count_ = 0;
             is_quick_spin_ = is_slow_spin_ = false;
@@ -77,13 +75,13 @@ bool SpinDetector::Update(const Armor &armor, const uint64_t current_time) {
     return IsSpin();
 }
 
-void SpinDetector::Reset() {
+void PredictorSpin::Reset() {
     jump_count_ = 0;
     last_yaw_x_ = 0;
     reverse_buffer = 0;
 }
 
-void SpinDetector::UpdateClockwise(double yaw_x_delta) {
+void PredictorSpin::UpdateClockwise(double yaw_x_delta) {
     if(std::signbit(yaw_x_delta)) // if yaw_delta is negative.
         clockwise_ = 0;
     else

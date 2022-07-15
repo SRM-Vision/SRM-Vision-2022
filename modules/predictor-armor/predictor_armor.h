@@ -9,7 +9,7 @@
 #include "cmdline-arg-parser/cmdline_arg_parser.h"
 #include "digital-twin/battlefield.h"
 #include "debug-tools/painter.h"
-#include "spin_detector.h"
+#include "predictor-spin/spin_predictor.h"
 #include "math-tools/ekf.h"
 
 
@@ -72,8 +72,8 @@ private:
     int grey_buffer_{0};   ///< times of gray armors appearing in succession
 
     /// used to detect spin.
-    SpinDetector spin_detector_{SpinDetector::kSpherical, 0.05, 1.2,
-                                0.625, 0.125};
+    PredictorSpin spin_predictor_{PredictorSpin::kSpherical, 0.05, 1.2,
+                                  0.625, 0.125};
 
     ///target information.
     coordinate::TranslationVector predict_world_vector_, predict_cam_vector_, shoot_point_vector_;
