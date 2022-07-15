@@ -114,7 +114,7 @@ void predictor::rune::FittingData::Fit(bool debug, RotationalSpeed &rotational_s
             for (int i = 0; i < kResidualBlockNum; ++i)
                 problem.AddResidualBlock(
                         new ceres::AutoDiffCostFunction<TrigonometricResidual, 1, 1, 1, 1>(
-                                new TrigonometricResidual(time[i], palstance[i])),
+                                new TrigonometricResidual(time[i], palstance[i]) ),
                         new ceres::CauchyLoss(0.5), &rotational_speed.a,
                         &rotational_speed.w, &rotational_speed.p);
             ceres::Solver::Options options;
