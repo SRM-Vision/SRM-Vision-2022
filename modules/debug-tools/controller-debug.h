@@ -33,11 +33,7 @@ public:
         }
     }
 
-    ~ControllerDebug()
-    {
-        delete painter_;
-    }
-
+    ~ControllerDebug() = default;
 
 public:
     /// Painter for drawing

@@ -130,16 +130,15 @@ bool ImageProviderCamera::Initialize(const std::string &file_path, bool record) 
         while (!camera_->GetFrame(frame))
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
+        // Get current time for filename.
         time_t t = time(nullptr);
         char temp_time[32] = {'\0'};
         strftime(temp_time, sizeof(temp_time), "%Y-%m-%d-%H.%M.%S", localtime(&t));
         // Start recording.
         rec_ = new cv::VideoWriter(
                 "../cache/" + static_cast<std::string>(temp_time) + "-rec.mp4",
-                cv::VideoWriter::fourcc('D', 'I', 'V', 'X'),
-                cv::CAP_FFMPEG,
-                60, cv::Size(frame.image.size[0], frame.image.size[1]));
+                cv::CAP_FFMPEG, cv::VideoWriter::fourcc('M', 'P', '4', 'V'),
+                60, cv::Size(frame.image.cols, frame.image.rows));
     }
-
     return true;
 }
