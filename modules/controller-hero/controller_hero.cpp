@@ -109,7 +109,7 @@ void HeroController::Run() {
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now()
                                                                               - time);
 
-        DLOG(INFO) << "FPS: " << 1000.0 / double(duration.count());
+        LOG(INFO) << "FPS: " << 1000.0 / double(duration.count());
     }
 
     if (CmdlineArgParser::Instance().RunWithGimbal())
