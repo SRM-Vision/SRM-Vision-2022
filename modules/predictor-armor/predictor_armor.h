@@ -59,8 +59,8 @@ public:
     SendPacket Run(const Battlefield &battlefield, const cv::MatSize &size, double bullet_speed = 15);
 
     /**
-    * \brief Generate a packet according to data inside.
-    * \return Send packet to serial port.
+    * @brief Generate a packet according to data inside.
+    * @return Send packet to serial port.
     */
     [[nodiscard]] inline SendPacket GenerateSendPacket() const;
 

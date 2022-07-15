@@ -74,7 +74,6 @@ void InfantryController::Run() {
                 send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size, receive_packet_.bullet_speed);
             } else
                 send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size);
-
             controller_infantry_debug_.DrawAutoAimArmor(frame_.image,
                                                           boxes_,
                                                           &armor_predictor,
@@ -85,7 +84,7 @@ void InfantryController::Run() {
         }
 
 
-        if (controller_infantry_debug_.GetKey() == 'q')
+        if (ControllerInfantryDebug::GetKey() == 'q')
             break;
 
         if (CmdlineArgParser::Instance().RunWithSerial()) {
