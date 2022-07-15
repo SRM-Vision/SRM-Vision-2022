@@ -73,12 +73,14 @@ private:  ///< predictor rune debug
     std::string rune_predictor_config_path;
     void initPredictorRuneParameters();
     void savePredictorRuneParameters();
+    // Trackbar value cache.
     predictor::rune::RotationalSpeed rotational_speed_;
 
 private:  ///< predictor armor debug
     std::string armor_predictor_config_path;
     void initPredictorArmorParameters();
     void savePredictorArmorParameters();
+    // Trackbar value cache.
     double p_xz_noise_ = 0.01;
     double p_y_noise_ = 0.01;
     double p_x_speed_noise_ = 10;
@@ -92,6 +94,7 @@ private:  ///< predictor outpost debug
     const std::string outpost_predictor_config_path = "../config/hero/outpost-param.yaml";
     void initPredictorOutpostParameters();
     void savePredictorOutpostParameters();
+    // Trackbar value cache.
     double outpost_shoot_delay_ = 0.02;
     double delta_pitch_up_ = 0.0;
     double delta_pitch_down_ = 0.0;
