@@ -16,7 +16,7 @@ public:
 
     bool Initialize(const std::string &controller_type_name)
     {
-        parameter_maintain_.ManulInit(controller_type_name);
+        parameter_maintain_.ManualInit(controller_type_name);
         return true;
     }
 
