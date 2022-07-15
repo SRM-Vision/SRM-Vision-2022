@@ -15,7 +15,7 @@
 #include "predictor-armor/predictor_armor_debug.h"
 #include "predictor_outpost_debug.h"
 #include "lang-feature-extension/attr-reader.h"
-
+#include "trajectory-solver/trajectory-solver.h"
 
 /**
  * \Brief Find the center shooting point of outpost, auto-shoot after a time_delay.
@@ -41,7 +41,9 @@ public:
      * \param bullet_speed
      * \return 'SendPacket' to send information to EC.
      */
-    SendPacket Run(Battlefield battlefield, float bullet_speed = 16);
+    SendPacket Run(Battlefield battlefield);
+    SendPacket Run(Battlefield battlefield, const float& bullet_speed, cv::MatSize frame_size);
+    SendPacket Run(Battlefield battlefield, const float& bullet_speed, cv::MatSize frame_size,int time);
 
     /**
     * \Brief Set the color of outpost.
@@ -52,7 +54,19 @@ public:
     /**
     * \Brief Clear the information in OutpostPredictor.
     */
-    void Clear();
+    void Clear(){
+        checked_clockwise_ = false;
+        clockwise_ = 0;  ///< 1 (rotate left) or -1 (rotate right)
+        last_armor_x_ = 0 ;
+        ready_fire_ = false;
+        prepared_ = false;
+        need_init_ = true;
+        fire_ = false;  ///< only used to show the image in the image when debug
+        biggest_area_ = 0;
+        shoot_delay_time_ = 0;
+        roi_buff_ = 0;
+        aim_buff_ = 0;
+    };
 
     /**
     * \Brief get the roi.
@@ -94,6 +108,13 @@ private:
      */
     void UpdateROICorners(const Armor& armor);
 
+    /**
+     * \Brief get flying time of bullet.
+     * \param bullet_speed bullet speed.
+     * \param armor the target.
+     */
+    double GetBulletFlyTime(const float& bullet_speed, const Armor& armor);
+
 private:
     const double kFindBiggestArmorTime = 4;  ///< during this time try to find the the front of the target.
     const double kAreaThreshold = 0.93;  ///< when area is biggest than area threshold * biggest armor it is the front of the target.
@@ -117,7 +138,7 @@ private:
     bool fire_{false};  ///< only used to show the image in the image when debug
 
     double biggest_area_{0};
-    double shoot_delay_time_{0};
+    double shoot_delay_time_{0.1};
 
     int roi_buff_;
     cv::Point2f roi_corners_[4];

@@ -53,7 +53,7 @@ void HeroController::Run() {
                                        armors_);
 
             outpost_predictor_.SetColor(receive_packet_.color);
-            send_packet_ = outpost_predictor_.Run(battlefield_, receive_packet_.bullet_speed);
+            send_packet_ = outpost_predictor_.Run(battlefield_);
             auto roi = outpost_predictor_.GetROI(frame_.image);
             armor_detector_.UpdateROI(roi);
             controller_hero_debug_.DrawOutpostData(frame_.image,
