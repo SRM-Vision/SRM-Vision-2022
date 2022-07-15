@@ -14,21 +14,20 @@
 class ParameterMaintain {
 public:
     explicit ParameterMaintain(const std::string &controller_type_name) {
-        rune_detector_config_path = "../config/" + controller_type_name + "/rune-detector-param.yaml";
+        rune_detector_config_path = "../config/infantry/rune-detector-param.yaml";
+        rune_predictor_config_path = "../config/infantry/rune-predictor-param.yaml";
         armor_predictor_config_path = "../config/" + controller_type_name + "/predict-param.yaml";
-        rune_predictor_config_path = "../config/" + controller_type_name + "/rune-predictor-param.yaml";
 
         initDetectorRuneParameters();
         initPredictorRuneParameters();
         initPredictorArmorParameters();
         initPredictorOutpostParameters();
     }
-
-    void ManualInit(const std::string &controller_type_name)  // should be same as the construct function
-    {
-        rune_detector_config_path = "../config/" + controller_type_name + "/rune-detector-param.yaml";
-        armor_predictor_config_path = "../config/" + controller_type_name + "/predict-param.yaml";
-        rune_predictor_config_path = "../config/" + controller_type_name + "/rune-predictor-param.yaml";
+    // should be same as the construct function
+    void ManualInit(const std::string &controller_type_name) {
+            rune_detector_config_path = "../config/infantry/rune-detector-param.yaml";
+            rune_predictor_config_path = "../config/infantry/rune-predictor-param.yaml";
+            armor_predictor_config_path = "../config/" + controller_type_name + "/predict-param.yaml";
 
         initDetectorRuneParameters();
         initPredictorRuneParameters();
