@@ -34,10 +34,6 @@ bool Controller::Initialize(const std::string &type) {
         }
     }
 
-    // Initialize Rune module.
-    Frame init_frame;
-    image_provider_->GetFrame(init_frame);
-
     if (Compensator::Instance().Initialize(type))
         LOG(INFO) << "Offset initialized.";
     else {

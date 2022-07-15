@@ -5,7 +5,7 @@
 #include "predictor_armor.h"
 
 /// When an armor lasts gray for time below this value, it will be considered as hit.
-const unsigned int kMaxGreyCount = UINT_MAX;
+const unsigned int kMaxGreyCount = 20;
 
 /// Picture Distance threshold to judge whether a target is too far.
 const double kPicDistanceThreshold = 30;
@@ -19,7 +19,6 @@ const double kAllowFollowRange = 0.5;
 // TODO Calibrate shoot delay and acceleration threshold.
 const double kShootDelay = 0.02;
 const double kFireAccelerationThreshold = 3.0;
-const cv::Size kZoomRatio = {16,8};
 
 /// Predicting function template structure.
 struct PredictFunction {
@@ -104,6 +103,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, const cv::MatSize
 
     //not find current armor
     if(!target_current) {
+        DLOG(INFO) << "not found last armor, try to switch new one.";
         locked_same_target = false;
         target_current = SameArmorByPicDis(picture_center, armors, DBL_MAX);
     }
@@ -130,7 +130,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, const cv::MatSize
 
         // anti spinning
         if (spin_predictor_.IsSpin()){
-
+            DLOG(INFO) << "It`s spin.";
             // find another armor in the robot
             std::shared_ptr<Armor> another_armor{nullptr};
             for(auto &armor:armors){
@@ -144,6 +144,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, const cv::MatSize
                 InitializeEKF(battlefield.YawPitchRoll(),another_armor->TranslationVectorWorld());
                 ekf_.x_estimate_(1,0) = predict_speed_(0,0);
                 ekf_.x_estimate_(3,0) = -predict_speed_(1,0);
+                DLOG(INFO) << "Switch to another spinning armor.";
             }
             // if spinning, Swing head in advance.
             if(algorithm::NanoSecondsToSeconds(spin_predictor_.LastJumpTime(), battlefield.TimeStamp()) /

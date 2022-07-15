@@ -12,34 +12,59 @@
 #include "detector-rune/detector_rune_debug.h"
 #include "debug-tools/controller-debug.h"
 
+/**
+ * \brief Debug tool class for controller infantry.
+ */
 class ControllerInfantryDebug{
 public:
+    /**
+     * \brief Manually initialization.
+     * \param use_painter
+     */
     void Initialize(const bool use_painter)
     {
         controller_debug_.Initialize(use_painter);
     }
 
 public:
+    /// general controller debug class
     ControllerDebug controller_debug_;
 
 public:
+    /**
+     * \brief Draw Auto aim armors for infantry controller's armor detection.
+     * \param image
+     * \param bboxes
+     * \param armor_predictor
+     * \param intrinsic_matrix
+     * \param image_size
+     * \param window_names
+     * \param wait_time
+     */
     inline void DrawAutoAimArmor(const cv::Mat& image,
                                  const std::vector<bbox_t> &bboxes,
                                  ArmorPredictor* armor_predictor,
                                  const cv::Mat &intrinsic_matrix,
                                  const cv::MatSize &image_size,
                                  const std::string &window_names,
-                                 const int &wait_time)
+                                 const int &wait_time) const
     {
         controller_debug_.UpdateImage(image);
         controller_debug_.DrawArmors(bboxes, armor_predictor, intrinsic_matrix, image_size);
         controller_debug_.ShowImage(window_names, wait_time);
     }
 
+    /**
+     * \brief Draw Auto aim runes for infantry controller's rune detections.
+     * \param image
+     * \param rune_predictor
+     * \param window_names
+     * \param wait_time
+     */
     inline void DrawAutoAimRune(const cv::Mat& image,
                                 RunePredictor* rune_predictor,
                                 const std::string &window_names,
-                                const int &wait_time)
+                                const int &wait_time) const
     {
         controller_debug_.UpdateImage(image);
         controller_debug_.painter_->DrawPoint(rune_predictor->PredictedPoint(),
@@ -47,15 +72,20 @@ public:
         controller_debug_.ShowImage(window_names, wait_time);
     }
 
-    inline char GetKey()
+    /**
+     * \brief Integrate opencv's waitkey
+     * \return 's' for saving, 'q' for quit, 'h' for normal
+     */
+    static inline char GetKey()
     {
 #if !NDEBUG
-        char key = cv::waitKey(1) & 0xff;
+        char key = char(cv::waitKey(1) & 0xff);
         if (key == 's')
         {
             ArmorPredictorDebug::Instance().Save();
             RunePredictorDebug::Instance().Save();
             RuneDetectorDebug::Instance().Save();
+            return 's';
         }
 
         if (key == 'q')

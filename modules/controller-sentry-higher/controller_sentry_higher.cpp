@@ -16,7 +16,7 @@ bool SentryHigherController::Initialize() {
         return false;
 
     // Initialize the painter.
-    if (CmdlineArgParser::Instance().DebugUseTrackbar())
+    if (CmdlineArgParser::Instance().DebugShowImage())
         painter_ = debug::NoPainter::Instance();
     else
         painter_ = debug::NoPainter::Instance();

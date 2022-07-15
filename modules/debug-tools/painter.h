@@ -86,7 +86,6 @@ namespace debug {
         inline void DrawBoundingBox(const cv::Rect &rect,
                                    const cv::Scalar &color,
                                    int thickness) final {
-            cv::Point2f rect_point[4];
             cv::rectangle(image_,rect.tl(),rect.br(),color,thickness);
         }
 

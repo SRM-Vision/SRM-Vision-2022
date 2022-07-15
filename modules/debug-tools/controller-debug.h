@@ -23,7 +23,6 @@ public:
      */
     void Initialize(const bool use_painter)
     {
-#if !NDEBUG
         if (use_painter)
         {
             painter_ = debug::Painter::Instance();
@@ -32,9 +31,11 @@ public:
             painter_ = debug::NoPainter::Instance();
             LOG(INFO) << "Running without debug painter.";
         }
-#else
-        painter_ = debug::NoPainter::Instance();
-#endif
+    }
+
+    ~ControllerDebug()
+    {
+        delete painter_;
     }
 
 

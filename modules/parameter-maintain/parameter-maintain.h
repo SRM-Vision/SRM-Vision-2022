@@ -11,12 +11,10 @@
 // coordinate, image_provider isn't contained in this file, since it is been welly sealed
 /// \brief This is parameter maintain class, other debug class is friend to this class
 /// \note Don't use this class alone. Coordinate, image_provider isn't contained in this file, since it is been welly sealed.
-class ParameterMaintain
-{
+class ParameterMaintain {
 public:
-    explicit ParameterMaintain(const std::string& controller_type_name)
-    {
-        rune_detector_config_path = "../config/" + controller_type_name +"/rune-detector-param.yaml";
+    explicit ParameterMaintain(const std::string &controller_type_name) {
+        rune_detector_config_path = "../config/" + controller_type_name + "/rune-detector-param.yaml";
         armor_predictor_config_path = "../config/" + controller_type_name + "/predict-param.yaml";
         rune_predictor_config_path = "../config/" + controller_type_name + "/rune-predictor-param.yaml";
 
@@ -26,9 +24,9 @@ public:
         initPredictorOutpostParameters();
     }
 
-    void ManualInit(const std::string& controller_type_name)  // should be same as the construct function
+    void ManualInit(const std::string &controller_type_name)  // should be same as the construct function
     {
-        rune_detector_config_path = "../config/" + controller_type_name +"/rune-detector-param.yaml";
+        rune_detector_config_path = "../config/" + controller_type_name + "/rune-detector-param.yaml";
         armor_predictor_config_path = "../config/" + controller_type_name + "/predict-param.yaml";
         rune_predictor_config_path = "../config/" + controller_type_name + "/rune-predictor-param.yaml";
 
@@ -41,16 +39,24 @@ public:
 
 private:
     cv::FileStorage config_;
+
     friend class ControllerInfantryDebug;
+
     friend class RuneDetectorDebug;
+
     friend class RunePredictorDebug;
+
     friend class OutpostPredictorDebug;
+
     friend class ArmorPredictorDebug;
 
 private:   ///< detector rune debug
     std::string rune_detector_config_path;
-    void initDetectorRuneParameters();
-    void saveDetectorRuneParameters();
+
+    bool initDetectorRuneParameters();
+
+    bool saveDetectorRuneParameters();
+
     // Trackbar value cache.
     int split_gray_thresh_;  ///< Binarization threshold.
     int min_bounding_box_area_;
@@ -71,14 +77,22 @@ private:   ///< detector rune debug
 
 private:  ///< predictor rune debug
     std::string rune_predictor_config_path;
-    void initPredictorRuneParameters();
-    void savePredictorRuneParameters();
+
+    bool initPredictorRuneParameters();
+
+    bool savePredictorRuneParameters();
+
+    // Trackbar value cache.
     predictor::rune::RotationalSpeed rotational_speed_;
 
 private:  ///< predictor armor debug
     std::string armor_predictor_config_path;
-    void initPredictorArmorParameters();
-    void savePredictorArmorParameters();
+
+    bool initPredictorArmorParameters();
+
+    bool savePredictorArmorParameters();
+
+    // Trackbar value cache.
     double p_xz_noise_ = 0.01;
     double p_y_noise_ = 0.01;
     double p_x_speed_noise_ = 10;
@@ -90,8 +104,12 @@ private:  ///< predictor armor debug
 
 private:  ///< predictor outpost debug
     const std::string outpost_predictor_config_path = "../config/hero/outpost-param.yaml";
-    void initPredictorOutpostParameters();
-    void savePredictorOutpostParameters();
+
+    bool initPredictorOutpostParameters();
+
+    bool savePredictorOutpostParameters();
+
+    // Trackbar value cache.
     double outpost_shoot_delay_ = 0.02;
     double delta_pitch_up_ = 0.0;
     double delta_pitch_down_ = 0.0;

@@ -1,4 +1,3 @@
-#include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 #include "cmdline-arg-parser/cmdline_arg_parser.h"
 #include "image-provider-base/image-provider-factory.h"
@@ -22,8 +21,10 @@ bool InfantryController::Initialize() {
     if (!Controller::Initialize("infantry"))
         return false;
 
-    // Initialize painter.
-    controller_infantry_debug_.Initialize(CmdlineArgParser::Instance().DebugUseTrackbar());
+#if !NDEBUG
+    // Initialize painter.TODO: use trackbar
+    controller_infantry_debug_.Initialize(CmdlineArgParser::Instance().DebugShowImage());
+#endif
 
     // Initialize Rune module.
     Frame init_frame;
@@ -66,13 +67,11 @@ void InfantryController::Run() {
             BboxToArmor();
             battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.yaw_pitch_roll,
                                        armors_);
-            /// TODO mode switch
             if (CmdlineArgParser::Instance().RunWithSerial()) {
                 armor_predictor.SetColor(receive_packet_.color);
                 send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size, receive_packet_.bullet_speed);
             } else
                 send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size);
-
             controller_infantry_debug_.DrawAutoAimArmor(frame_.image,
                                                           boxes_,
                                                           &armor_predictor,
@@ -83,7 +82,7 @@ void InfantryController::Run() {
         }
 
 
-        if (controller_infantry_debug_.GetKey() == 'q')
+        if (ControllerInfantryDebug::GetKey() == 'q')
             break;
 
         if (CmdlineArgParser::Instance().RunWithSerial()) {

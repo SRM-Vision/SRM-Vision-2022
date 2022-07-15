@@ -31,6 +31,8 @@ public:
 
     ATTR_READER(debug_use_trackbar_, DebugUseTrackbar)
 
+    ATTR_READER(debug_show_image_, DebugShowImage)
+
     ATTR_READER_REF(controller_type_, ControllerType)
 
     ATTR_READER(with_ekf_, WithEKF)
