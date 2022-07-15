@@ -65,7 +65,11 @@ protected:
         return true;
     }
 
-    void RunGimbal();
+    void ReceiveSerialData();
+
+    void SendSerialData();
+
+    static void CountPerformanceData();
 
     std::unique_ptr<ImageProvider> image_provider_;  ///< Image provider handler.
     Frame frame_;

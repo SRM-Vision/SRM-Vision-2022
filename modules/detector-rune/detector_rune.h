@@ -75,7 +75,6 @@ private:
     bool found_armor_center_p;  ///< Whether armor center P is found.
     cv::Point2f energy_center_r_;
     cv::Point2f armor_center_p_;
-    cv::Point2f last_energy_center_r;
     cv::Point2f fan_center_g_;
     cv::Point2f r_offset_;  ///< Compensate energy_center_r by last frame's point when lost frame.
     cv::Point2f p_offset_;  ///< Compensate armor_center_p by last frame's point when lost frame.

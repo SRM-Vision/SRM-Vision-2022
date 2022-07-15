@@ -35,12 +35,11 @@ void HeroController::Run() {
     sleep(2);
     ArmorPredictor armor_predictor(Entity::kBlue, "hero");
     while (!exit_signal_) {
-        auto time = std::chrono::steady_clock::now();
 
         if (!GetImage<true>())
             continue;
 
-        RunGimbal();
+        ReceiveSerialData();
 
         boxes_ = armor_detector_(frame_.image);
 
@@ -95,20 +94,15 @@ void HeroController::Run() {
         if (controller_hero_debug_.GetKey() == 'q')
             break;
 
-        if (CmdlineArgParser::Instance().RunWithSerial()) {
-            CheckSum();
-            serial_->SendData(send_packet_, std::chrono::milliseconds(5));
-        }
+        SendSerialData();
+
         boxes_.clear();
         armors_.clear();
 
-        auto duration = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now()
-                                                                              - time);
-
-        LOG(INFO) << "FPS: " << 1000000.0 / double(duration.count());
+        CountPerformanceData();
     }
 
-    if (CmdlineArgParser::Instance().RunWithGimbal())
+    if (CmdlineArgParser::Instance().RunWithSerial())
         serial_->StopCommunication();
 
     image_provider_.reset();

@@ -43,19 +43,17 @@ void InfantryController::Run() {
     sleep(2);
     ArmorPredictor armor_predictor{Entity::kBlue, "infantry"};
     while (!exit_signal_) {
-        auto time = std::chrono::steady_clock::now();
 
         if (!GetImage<true>())
             continue;
 
-        RunGimbal();
+        ReceiveSerialData();
 
         if (CmdlineArgParser::Instance().RuneModeRune()
         || receive_packet_.mode == AimModes::kSmallRune
         || receive_packet_.mode == AimModes::kBigRune) {
             power_rune_ = rune_detector_.Run(receive_packet_.color, frame_);
-            send_packet_ = SendPacket(
-                    rune_predictor_.Run(power_rune_, receive_packet_.mode, receive_packet_.bullet_speed));
+            send_packet_ = rune_predictor_.Run(power_rune_, receive_packet_.mode, receive_packet_.bullet_speed);
             controller_infantry_debug_.DrawAutoAimRune(frame_.image, &rune_predictor_, "Infantry Rune Run", 1);
         }
 
@@ -83,19 +81,17 @@ void InfantryController::Run() {
         if (ControllerInfantryDebug::GetKey() == 'q')
             break;
 
-        if (CmdlineArgParser::Instance().RunWithSerial()) {
-            serial_->SendData(send_packet_, std::chrono::milliseconds(5));
-        }
+        SendSerialData();
+
         boxes_.clear();
         armors_.clear();
-        auto duration =
-                std::chrono::duration_cast<std::chrono::nanoseconds>(
-                        std::chrono::steady_clock::now() - time);
-        LOG(INFO) << "Cost: " << double(duration.count()) / 1e6 << ", FPS: " << 1e9 / double(duration.count()) << ".";
+
+        CountPerformanceData();
+
     }
 
     // Exit.
-    if (CmdlineArgParser::Instance().RunWithGimbal() || CmdlineArgParser::Instance().RunWithSerial())
+    if (CmdlineArgParser::Instance().RunWithSerial())
         serial_->StopCommunication();
 
     image_provider_.reset();
