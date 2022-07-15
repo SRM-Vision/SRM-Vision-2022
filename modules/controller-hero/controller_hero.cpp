@@ -20,7 +20,7 @@ bool HeroController::Initialize() {
     // Common initialization.
     if (!Controller::Initialize("hero"))
         return false;
-    controller_hero_debug_.Initialize(CmdlineArgParser::Instance().DebugUseTrackbar());
+    controller_hero_debug_.Initialize(CmdlineArgParser::Instance().DebugShowImage());
     // Initialize the outpost detector.
     if (outpost_predictor_.Initialize())
         LOG(INFO) << "Outpost predictor initialize successfully!";

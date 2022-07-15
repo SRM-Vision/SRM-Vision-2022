@@ -18,7 +18,7 @@ DEFINE_int32(mode_chooser, 0, "controller running mode chooser");
 // TODO Temporary flag for debug, will be removed in the future.
 DEFINE_bool(rune, false, "run with rune, must under infantry controller");
 DEFINE_bool(outpost, false, "run with outpost, must under hero controller");
-DEFINE_bool(debug_image, false, "in debug mode show image");
+DEFINE_bool(debug_image, true, "in debug mode show image");
 DEFINE_bool(debug_trackbar, true, "in debug use trackbar");
 DEFINE_bool(ekf, true, "use ekf");
 
