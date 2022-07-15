@@ -83,7 +83,12 @@ PowerRune RuneDetector::Run(Entity::Colors color, Frame &frame) {
 }
 
 void RuneDetector::PreProcess() {
-    cv::split(image_, image_channels_);
+    try {
+        cv::split(image_, image_channels_);
+    } catch (...) {
+        LOG(ERROR) << "Image is binary, Rune PreProcess only take images with three dimension.";
+    }
+
 
     if (Entity::Colors::kRed == color_)
         cv::subtract(image_channels_.at(2), image_channels_.at(0), image_);     // Target is red energy.
