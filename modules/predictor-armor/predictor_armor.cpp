@@ -18,7 +18,8 @@ const double kSwitchByAreaThreshold = 0.7;
 const double kAllowFollowRange = 0.5;
 
 // TODO Calibrate shoot delay and acceleration threshold.
-const double kShootDelay = 0.02;
+
+const double kShootDelay = 0.15;
 const double kFireAccelerationThreshold = 3.0;
 
 /// Predicting function template structure.
@@ -267,7 +268,7 @@ SendPacket ArmorPredictor::GenerateSendPacket(float pitch_right, double bullet_s
     if (4 <= last_target_->Distance() && last_target_->Distance() < 6) distance_mode = 3;
     DLOG(INFO) << " distance: " << last_target_->Distance();
 
-    pitch = -Compensator::Instance().PitchOffset(pitch_right,bullet_speed,AimModes::kNormal) + pitch_right;
+    pitch = -Compensator::Instance().PitchOffset(pitch_right,bullet_speed,last_target_->Distance(),AimModes::kNormal);
 
     // 图传点
 //        cv::Mat3d camera_mat;
