@@ -117,7 +117,7 @@ void predictor::rune::OutputData::Update(const PowerRune &rune,
     fixed_point = predicted_point + cv::Point2f(static_cast<float>(delta_u), static_cast<float>(delta_v));
 
     // Use SIMD atan2 for 4x floats.
-    float x[4] = {1350, 1350, 1, 1},
+    float x[4] = {5350, 5350, 1, 1},
             y[4] = {fixed_point.x - rune.ImageCenter().x, fixed_point.y - rune.ImageCenter().y, 1, 1},
             z[4] = {0};
     algorithm::Atan2FloatX4(y, x, z);
