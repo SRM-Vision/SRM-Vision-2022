@@ -47,7 +47,7 @@ bool Controller::Initialize(const std::string &type) {
         }
     }
 
-    if (Compensator::Instance().Initialize(type))
+    if (Compensator::Instance().Initialize(type,15))
         LOG(INFO) << "Offset initialized.";
     else {
         LOG(ERROR) << "Offset initialize failed.";

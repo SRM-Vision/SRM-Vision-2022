@@ -144,7 +144,7 @@ Compensator::Offset(float &pitch, float &yaw, double bullet_speed, float &check_
     }
 }
 
-double Compensator::PitchOffset(float &pitch, double bullet_speed, float &check_sum, double distance, AimModes mode) {
+double Compensator::PitchOffset(float &pitch, double bullet_speed, double distance, AimModes mode) {
     if (bullet_speed_ != bullet_speed)  // When bullet-speed is changed, it needs to refit model.
         InitModel(bullet_speed, robot_name_);
 
@@ -171,7 +171,6 @@ double Compensator::PitchOffset(float &pitch, double bullet_speed, float &check_
         angle_solver_.UpdateParam(1.2, plane_distance);
         auto res = angle_solver_.Solve(-CV_PI / 6, CV_PI / 3, 0.01, 16);
         delta_pitch = float(res.x()) - pitch;
-        check_sum += delta_pitch;
 
         DLOG(INFO) << "Compensated pitch: " << res.x();
         return delta_pitch;
@@ -206,7 +205,6 @@ double Compensator::PitchOffset(float &pitch, double bullet_speed, float &check_
         angle_solver_.UpdateParam(1.2, plane_distance);
         auto res = angle_solver_.Solve(-CV_PI / 6, CV_PI / 3, 0.01, 16);
         delta_pitch = float(res.x()) - pitch;
-        check_sum += delta_pitch;
 
         DLOG(INFO) << "Compensated pitch: " << pitch;
         return delta_pitch;
