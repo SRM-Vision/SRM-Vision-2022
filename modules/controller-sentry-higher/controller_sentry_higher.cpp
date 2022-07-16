@@ -44,9 +44,10 @@ void SentryHigherController::Run() {
         if (CmdlineArgParser::Instance().RunWithSerial()) {
             armor_predictor.SetColor(receive_packet_.color);
             send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size);
-        } else
+        } else {
             send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size);
-        auto img = frame_.image.clone();
+        }
+
         painter_->UpdateImage(frame_.image);
         for (const auto &box: boxes_) {
             painter_->DrawRotatedRectangle(box.points[0],
