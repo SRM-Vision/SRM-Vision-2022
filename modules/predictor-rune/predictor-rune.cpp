@@ -73,7 +73,6 @@ void predictor::rune::RunePredictor::PredictAngle(AimModes aim_mode) {
             rotated_angle = rotated_radian * 180 / CV_PI;
             state_.UpdateAngle(rune_.RtgVec());
             DLOG(INFO) << "clock_wise: " << rune_.Clockwise();
-            DLOG(INFO) << state_.current_angle << "   " << rotated_angle;
 
             predicted_angle_ = state_.current_angle - rune_.Clockwise() * rotated_angle;
         }
@@ -87,9 +86,8 @@ void predictor::rune::RunePredictor::PredictAngle(AimModes aim_mode) {
         rotated_angle = rotated_radian * 180 / CV_PI;
 
         state_.UpdateAngle(rune_.RtpVec());
-
         DLOG(INFO) << "clock_wise: " << rune_.Clockwise();
-        DLOG(INFO) << state_.current_angle << "   " << rotated_angle << "   " << state_.current_angle;
+
         predicted_angle_ = state_.current_angle - rune_.Clockwise() * rotated_angle;
     }
 }
@@ -180,7 +178,6 @@ void predictor::rune::State::UpdateAngle(const cv::Point2f &rtg_vec) {
     while (current_angle < 0) current_angle += 360;
     while (current_angle > 360) current_angle -= 360;
     current_angle = 360 - current_angle;
-    DLOG(INFO) << "Current angle: " << current_angle;
 }
 
 bool predictor::rune::State::UpdatePalstance(const PowerRune &rune, FittingData &fitting_data) {

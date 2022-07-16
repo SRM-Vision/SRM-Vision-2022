@@ -7,7 +7,7 @@
         debug_(debug),
         clockwise_(0),
         frame_lost_(0),
-        rune_radius_(125),
+        rune_radius_(120),
         found_armor_center_p(false),
         found_energy_center_r(false),
         rtp_vec_(cv::Point2f(0, 0)),
@@ -23,7 +23,7 @@ bool RuneDetector::Initialize(const std::string &config_path) {
     found_armor_center_p = found_energy_center_r = false;
     energy_center_r_ = fan_center_g_ = armor_center_p_ = cv::Point2f(0, 0);
     clockwise_ = frame_lost_ = 0;
-    rune_radius_ = 125;
+    rune_radius_ = 120;
 
 #if !NDEBUG
     RuneDetectorDebug::Instance().addTrackbar();
@@ -87,8 +87,6 @@ void RuneDetector::PreProcess() {
         cv::subtract(image_channels_.at(2), image_channels_.at(0), image_);     // Target is red energy.
     else if (Entity::Colors::kBlue == color_)
         cv::subtract(image_channels_.at(0), image_channels_.at(2), image_);     // Target is blue energy.
-    else
-        DLOG(ERROR) << "Input wrong color " << color_ << " of power rune.";
 
     cv::threshold(image_, image_, RuneDetectorDebug::Instance().SplitGrayThresh(), 255, cv::THRESH_BINARY);
 
@@ -100,7 +98,7 @@ void RuneDetector::PreProcess() {
     }
 
     cv::Mat element_close = cv::getStructuringElement(cv::MORPH_RECT,
-                                                       cv::Size(2 * structElementSize - 1, 2 * structElementSize - 1));
+                                                      cv::Size(2 * structElementSize - 1, 2 * structElementSize - 1));
     cv::morphologyEx(image_, image_, cv::MORPH_CLOSE, element_close);
     cv::Mat element_dilate = cv::getStructuringElement(cv::MORPH_RECT,
                                                        cv::Size(2 * structElementSize - 1, 2 * structElementSize - 1));
@@ -158,18 +156,8 @@ bool RuneDetector::FindArmorCenterP() {
                         armor_rect_area < RuneDetectorDebug::Instance().MaxArmorArea() &&
                         armor_rect_wh_ratio > RuneDetectorDebug::Instance().MinArmorWHRatio()
                         && armor_rect_wh_ratio < RuneDetectorDebug::Instance().MaxArmorWHRatio()) {
-                        // Find P Point but it may be wrong
-                        rtp_vec_ = armor_encircle_rect_.center - energy_center_r_;
-                        float vec_length = std::sqrt(rtp_vec_.x * rtp_vec_.x + rtp_vec_.y * rtp_vec_.y);
-                        if (clockwise_ && (vec_length > rune_radius_ * (1 + kMaxRatio) ||
-                                           vec_length < rune_radius_ * (1 - kMaxRatio))) {
-                            DLOG(WARNING) << "Wrong p point: " << armor_encircle_rect_.center;
-                            armor_center_p_ += p_offset_;
-                        } else {
-                            p_offset_ = armor_encircle_rect_.center - armor_center_p_;
-                            armor_center_p_ = armor_encircle_rect_.center;
-                        }
-                        armor_center_p_ += cv::Point2f(ROI_tl_point_);
+                        p_offset_ = armor_encircle_rect_.center - armor_center_p_;
+                        armor_center_p_ = armor_encircle_rect_.center + cv::Point2f(ROI_tl_point_);
                         found_armor_center_p = true;
                         // Have found armor center that meets requirements, exit the sub contour loop.
                         break;
@@ -223,6 +211,7 @@ bool RuneDetector::FindCenterR() {
 
     if (possible_center_r.empty()) {
         DLOG(WARNING) << "No possible center R points found.";
+        energy_center_r_ += cv::Point2f(ROI_tl_point_);
         return false;
     }
 
@@ -230,6 +219,7 @@ bool RuneDetector::FindCenterR() {
     cv::Point2f fan_rect_points_[4];  ///< Four vertices of the enclosing rectangle of a fan
     fan_encircle_rect_.points(fan_rect_points_);
     cv::Point2f possible_ptr_vec = fan_encircle_rect_.center - armor_center_p_ + cv::Point2f(ROI_tl_point_);
+    DLOG(INFO) << "Possible_ptr_vec: " << possible_ptr_vec;
 
     cv::Point2f direction_vec;  ///< Directional vector from fan-center to energy-center R
     auto dis_width = std::hypot(fan_rect_points_[0].x - fan_rect_points_[1].x,
@@ -270,9 +260,9 @@ bool RuneDetector::FindCenterR() {
             // Find R point but it may be wrong
             if (clockwise_ && (std::abs(center_r.x - energy_center_r_.x) > kMaxDeviation
                                || std::abs(center_r.y - energy_center_r_.y) > kMaxDeviation)) {
-                DLOG(WARNING) << "Wrong R Point: " << center_r;
                 cv::Point2f dir_vec = cv::Point2f(center_r.x - energy_center_r_.x, center_r.y - energy_center_r_.y);
                 float vec_length = algorithm::SqrtFloat(dir_vec.x * dir_vec.x + dir_vec.y * dir_vec.y);
+                DLOG(WARNING) << "Wrong R Point: " << center_r << "\t" << energy_center_r_;
                 // Max compensation on the direction vector
                 r_offset_ = kMaxDeviation * cv::Point2f(dir_vec.x / vec_length, dir_vec.y / vec_length);
                 energy_center_r_ += r_offset_;
@@ -295,7 +285,6 @@ bool RuneDetector::FindCenterR() {
         return false;
     } else {
         ++frame_lost_;
-        energy_center_r_ += r_offset_;
         found_energy_center_r = true;
     }
     return true;
@@ -327,24 +316,20 @@ void RuneDetector::FindRotateDirection() {
             final_radius +=
                     std::min(rune_radius_ * (1 + kMaxRatio), std::max(rune_radius_ * (1 - kMaxRatio), radius)) / 15;
 
-
-            DLOG(INFO) << cross << "  /t" << first_rotation << "  /t"
-                       << cv::Point2f(current_rotation->x, current_rotation->y);
-
             if (cross > 0.0)
                 ++clockwise_;
             else if (cross < 0.0)
                 --clockwise_;
         }
         if (clockwise_ > 8) {
-            DLOG(INFO) << "Power rune's direction is clockwise.";
+            DLOG(INFO) << "Power rune's direction is clockwise." << " \tRadius: " << rune_radius_;
             clockwise_ = 1;
         } else if (clockwise_ < -8) {
-            DLOG(INFO) << "Power rune's direction is anti-clockwise.";
+            DLOG(INFO) << "Power rune's direction is anti-clockwise." << " \tRadius: " << rune_radius_;
             clockwise_ = -1;
         } else {
             clockwise_ = 0;
-            DLOG(WARNING) << "Rotating direction is not decided!";
+            DLOG(WARNING) << "Rotating direction is not decided!" << " \tRadius: " << rune_radius_;
             r_to_p_vec.clear();
         }
     }
