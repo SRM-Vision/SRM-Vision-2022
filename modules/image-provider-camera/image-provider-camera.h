@@ -24,14 +24,7 @@ public:
     bool Initialize(const std::string &, bool record) final;
 
     inline bool GetFrame(Frame &frame) final {
-        bool state = camera_->GetFrame(frame);
-        timespec t_1{}, t_2{};
-        clock_gettime(CLOCK_REALTIME, &t_1);
-        if (state && rec_)
-            rec_->write(frame.image);
-        clock_gettime(CLOCK_REALTIME, &t_2);
-        LOG(INFO) << "Write image time: " << (t_2.tv_nsec - t_1.tv_nsec) << " ns.";
-        return state;
+        return camera_->GetFrame(frame);
     }
 
     ATTR_READER(camera_, GetCameraHandle)
