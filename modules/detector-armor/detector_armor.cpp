@@ -238,10 +238,6 @@ std::vector<bbox_t> ArmorDetector::operator()(const cv::Mat &image) const {
     auto dur = end - start;
     auto time = std::chrono::duration_cast<std::chrono::microseconds>(dur);
 
-#if ELPP_FEATURE_PERFORMANCE_TRACKING
-    LOG(INFO) << "Armor detector inference time : [" << (double) time.count() / 1000.0 << " ms]";
-#endif
-
     // Post-process. [nms]
     std::vector<bbox_t> result;
 
