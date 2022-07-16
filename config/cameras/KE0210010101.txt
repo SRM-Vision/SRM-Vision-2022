@@ -27,7 +27,7 @@ ChunkModeActive	0
 ChunkEnable	0
 ExposureTime	4000
 AcquisitionFrameRateMode	Off
-AcquisitionFrameRate	2020
+AcquisitionFrameRate	210
 RegionSelector	Region0
 OffsetX	0
 RegionSelector	Region0
@@ -106,14 +106,7 @@ GainAuto	Off
 GainSelector	AnalogAll
 AutoGainMin	0
 AutoGainMax	16
-BalanceRatioSelector	Red
-BalanceRatio	1.54297
-BalanceRatioSelector	Green
-BalanceRatio	1
-BalanceRatioSelector	Blue
-BalanceRatio	1.71094
-BalanceRatioSelector	Red
-BalanceWhiteAuto	Off
+BalanceWhiteAuto	Continuous
 AWBLampHouse	Adaptive
 AWBROIWidth	1280
 AWBROIHeight	1024

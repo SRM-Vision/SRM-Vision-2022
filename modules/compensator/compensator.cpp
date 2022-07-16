@@ -167,8 +167,8 @@ double Compensator::PitchOffset(float &pitch, double bullet_speed, double distan
                                    offset2d_[2] * distance +
                                    offset2d_[3]);
         }
-
-        angle_solver_.UpdateParam(1.2, plane_distance);
+        DLOG(INFO) << "plane_distance: " << plane_distance;
+        angle_solver_.UpdateParam(0.12, plane_distance);
         auto res = angle_solver_.Solve(-CV_PI / 6, CV_PI / 3, 0.01, 16);
         delta_pitch = float(res.x()) - pitch;
 
@@ -214,7 +214,7 @@ double Compensator::PitchOffset(float &pitch, double bullet_speed, double distan
 void Compensator::InitModel(double bullet_speed, const std::string &robot_name) {
     if (robot_name[0] == 'i') {
         auto f = trajectory_solver::AirResistanceModel();
-        f.SetParam(0.48, 994, 36, 0.017, 0.0032);
+        f.SetParam(0.48, 994, 30, 0.017, 0.0032);
         auto a = trajectory_solver::BallisticModel();
         a.SetParam(f, 31);
         angle_solver_ = trajectory_solver::PitchAngleSolver();
