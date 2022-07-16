@@ -137,7 +137,7 @@ bool ImageProviderCamera::Initialize(const std::string &file_path, bool record) 
         // Start recording.
         rec_ = new cv::VideoWriter(
                 "../cache/" + static_cast<std::string>(temp_time) + "-rec.mp4",
-                cv::CAP_FFMPEG, cv::VideoWriter::fourcc('M', 'P', '4', 'V'),
+                cv::CAP_FFMPEG, cv::VideoWriter::fourcc('a','v','c','1'),
                 60, cv::Size(frame.image.cols, frame.image.rows));
     }
     return true;
