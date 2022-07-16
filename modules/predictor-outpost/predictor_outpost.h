@@ -41,8 +41,8 @@ public:
      * \param bullet_speed
      * \return 'SendPacket' to send information to EC.
      */
-    SendPacket Run(Battlefield battlefield);
-    SendPacket Run(Battlefield battlefield, const float& bullet_speed, cv::MatSize frame_size);
+    SendPacket OldRun(Battlefield battlefield);
+    SendPacket NewRun(Battlefield battlefield, const float& bullet_speed,  int width);
     SendPacket Run(Battlefield battlefield, const float& bullet_speed, cv::MatSize frame_size,int time);
 
     /**
@@ -138,7 +138,7 @@ private:
     bool fire_{false};  ///< only used to show the image in the image when debug
 
     double biggest_area_{0};
-    double shoot_delay_time_{0.1};
+    double shoot_delay_time_{0.52};
 
     int roi_buff_;
     cv::Point2f roi_corners_[4];
