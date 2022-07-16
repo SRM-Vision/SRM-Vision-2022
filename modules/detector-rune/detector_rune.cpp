@@ -7,6 +7,7 @@
         debug_(debug),
         clockwise_(0),
         frame_lost_(0),
+        frame_stable_(0),
         rune_radius_(120),
         found_armor_center_p(false),
         found_energy_center_r(false),
@@ -22,7 +23,7 @@
 bool RuneDetector::Initialize(const std::string &config_path) {
     found_armor_center_p = found_energy_center_r = false;
     energy_center_r_ = fan_center_g_ = armor_center_p_ = cv::Point2f(0, 0);
-    clockwise_ = frame_lost_ = 0;
+    clockwise_ = frame_lost_ = frame_stable_ = 0;
     rune_radius_ = 120;
 
 #if !NDEBUG
@@ -33,12 +34,11 @@ bool RuneDetector::Initialize(const std::string &config_path) {
 }
 
 PowerRune RuneDetector::Run(Entity::Colors color, Frame &frame) {
-    // FIXME The color from electronic control is unknown.
     color_ = color;
-    color_ = Entity::kRed;
 
-    if (clockwise_ && found_energy_center_r) {
+    if (frame_stable_ >= 20 && found_energy_center_r) {
         int length = int(rune_radius_ * 2);
+        // Avoid empty-image.
         ROI_tl_point_.x = std::min(std::max(0, int(energy_center_r_.x) - length), frame.image.cols - 1);
         ROI_tl_point_.y = std::min(std::max(0, int(energy_center_r_.y) - length), frame.image.rows - 1);
         cv::Rect ROI_rect = cv::Rect(ROI_tl_point_.x, ROI_tl_point_.y, 2 * length, 2 * length) &
@@ -81,7 +81,6 @@ void RuneDetector::PreProcess() {
     } catch (...) {
         LOG(ERROR) << "Image is binary, Rune PreProcess only take images with three dimension.";
     }
-
 
     if (Entity::Colors::kRed == color_)
         cv::subtract(image_channels_.at(2), image_channels_.at(0), image_);     // Target is red energy.
@@ -171,7 +170,8 @@ bool RuneDetector::FindArmorCenterP() {
         if (!found_armor_center_p) {
             if (frame_lost_ >= kMaxFrameLost) {  // Continuous frames lost.
                 DLOG(WARNING) << "No P point found for a long time!!! ";
-                armor_center_p_ = cv::Point2f(0, 0);
+                armor_center_p_ = cv::Point2f(float(image_.cols >> 1), float(image_.rows >> 1))
+                                  + cv::Point2f(ROI_tl_point_);
             } else {
                 armor_center_p_ += p_offset_ + cv::Point2f(ROI_tl_point_);
                 found_armor_center_p = true;
@@ -212,6 +212,8 @@ bool RuneDetector::FindCenterR() {
     if (possible_center_r.empty()) {
         DLOG(WARNING) << "No possible center R points found.";
         energy_center_r_ += cv::Point2f(ROI_tl_point_);
+        --frame_stable_;
+        ++frame_lost_;
         return false;
     }
 
@@ -257,14 +259,15 @@ bool RuneDetector::FindCenterR() {
 
     for (const auto &center_r: possible_center_r) {
         if (center_r.inside(R_rect)) {
-            // Find R point but it may be wrong
-            if (clockwise_ && (std::abs(center_r.x - energy_center_r_.x) > kMaxDeviation
-                               || std::abs(center_r.y - energy_center_r_.y) > kMaxDeviation)) {
+            // Find R point but it may be wrong.
+            if (frame_stable_ >= 20 && (std::abs(center_r.x - energy_center_r_.x) > kMaxDeviation
+                                        || std::abs(center_r.y - energy_center_r_.y) > kMaxDeviation)) {
                 cv::Point2f dir_vec = cv::Point2f(center_r.x - energy_center_r_.x, center_r.y - energy_center_r_.y);
                 float vec_length = algorithm::SqrtFloat(dir_vec.x * dir_vec.x + dir_vec.y * dir_vec.y);
                 DLOG(WARNING) << "Wrong R Point: " << center_r << "\t" << energy_center_r_;
-                // Max compensation on the direction vector
+                // Max compensation on the direction vector.
                 r_offset_ = kMaxDeviation * cv::Point2f(dir_vec.x / vec_length, dir_vec.y / vec_length);
+                --frame_stable_;
                 energy_center_r_ += r_offset_;
             } else {
                 r_offset_ = center_r - energy_center_r_;
@@ -277,10 +280,12 @@ bool RuneDetector::FindCenterR() {
     }
 
     if (found_energy_center_r) {
+        ++frame_stable_;
         return true;
     }
     energy_center_r_ += r_offset_ + cv::Point2f(ROI_tl_point_);
     if (frame_lost_ >= kMaxFrameLost) {
+        frame_stable_ = 0;
         DLOG(WARNING) << "No center R found.";
         return false;
     } else {

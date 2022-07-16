@@ -68,6 +68,7 @@ private:
 
     int clockwise_;  ///< Rotation direction, -1 for anti-clockwise , 1 for clockwise.
     int frame_lost_;  ///< Lost frame when detecting.
+    int frame_stable_;  ///< Number of frame that can find all points.
     float rune_radius_;
     cv::RotatedRect fan_encircle_rect_;  ///< Enclosing rectangle of a fan.
     cv::RotatedRect armor_encircle_rect_;  ///< Enclosing rectangle of a fan's armor.
@@ -83,7 +84,7 @@ private:
 
     cv::Point3f send_yaw_pitch_delay_;
 
-    const float kMaxDeviation = 10;
+    const float kMaxDeviation = 20;
     const int kMaxFrameLost = 5;
     const float kMaxRatio = 0.1;
 };
