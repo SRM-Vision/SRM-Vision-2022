@@ -100,7 +100,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, const cv::MatSize
 
     // find armor which is the same as the last target or nearest to the picture center.
     if(last_target_){
-        target_current = SameArmorByPicDis(last_target_->Center(), armors,kPicDistanceThreshold);
+        target_current = SameArmorByPicDis(last_target_->Center(), armors, kPicDistanceThreshold);
     }
 
     //not find current armor
