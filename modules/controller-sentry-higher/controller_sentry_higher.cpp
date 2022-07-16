@@ -1,12 +1,17 @@
-#include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
-#include <debug-tools/painter.h>
 #include "cmdline-arg-parser/cmdline_arg_parser.h"
 #include "image-provider-base/image-provider-factory.h"
-#include "controller_sentry_higher.h"
-#include "compensator/compensator.h"
+#include "controller-base/controller_factory.h"
+#include "predictor-rune/predictor-rune.h"
 #include "predictor-armor/predictor_armor.h"
+#include "controller_sentry_higher.h"
+#include "controller_sentry_higher_debug.h"
 
+/**
+ * \warning Controller registry will be initialized before the program entering the main function!
+ *   This means any error occurring here will not be caught unless you're using debugger.
+ *   (Thus, do not use this variable in any other place and you should not modify it.)
+ */
 [[maybe_unused]] ControllerRegistry<SentryHigherController>
         SentryHigherController::sentry_higher_controller_registry_("sentry_higher");
 
@@ -15,64 +20,52 @@ bool SentryHigherController::Initialize() {
     if (!Controller::Initialize("sentry_higher"))
         return false;
 
-    // Initialize the painter.
-    if (CmdlineArgParser::Instance().DebugShowImage())
-        painter_ = debug::NoPainter::Instance();
-    else
-        painter_ = debug::NoPainter::Instance();
+    // Initialize painter.TODO: use trackbar
+    controller_sentry_higher_debug_.Initialize(CmdlineArgParser::Instance().DebugShowImage());
 
-    LOG(INFO) << "Higher sentry_higher controller is ready.";
+    // Initialize Rune module.
+    Frame init_frame;
+    image_provider_->GetFrame(init_frame);
+
+    LOG(INFO) << "Infantry controller is ready.";
     return true;
 }
 
 void SentryHigherController::Run() {
-    ArmorPredictor armor_predictor(Entity::kBlue, "sentry_higher");
     sleep(2);
-
+    ArmorPredictor armor_predictor{Entity::kBlue, "sentry_higher"};
     while (!exit_signal_) {
 
-        if (!GetImage<false>())
+        if (!GetImage<true>())
             continue;
 
         ReceiveSerialData();
 
-        boxes_ = armor_detector_(frame_.image);
-        BboxToArmor();
-        battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.yaw_pitch_roll,
-                                   armors_);
 
-        if (CmdlineArgParser::Instance().RunWithSerial()) {
-            armor_predictor.SetColor(receive_packet_.color);
-            send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size);
-        } else {
-            send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size);
-        }
+            boxes_ = armor_detector_(frame_.image);
 
-        painter_->UpdateImage(frame_.image);
-        for (const auto &box: boxes_) {
-            painter_->DrawRotatedRectangle(box.points[0],
-                                           box.points[1],
-                                           box.points[2],
-                                           box.points[3],
-                                           cv::Scalar(0, 255, 0), 2);
-            painter_->DrawText(std::to_string(box.id), box.points[0], 255, 2);
-            painter_->DrawPoint(armors_.front().Center(), cv::Scalar(100, 255, 100), 2, 2);
-        }
+            BboxToArmor();
+            battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.yaw_pitch_roll,
+                                       armors_);
+            DLOG(INFO) << "battlefield pitch" << battlefield_.YawPitchRoll()[0] << ' ' << battlefield_.YawPitchRoll()[1];
+            if (CmdlineArgParser::Instance().RunWithSerial()) {
+                armor_predictor.SetColor(receive_packet_.color);
+                send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size, receive_packet_.bullet_speed);
+            } else
+                send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size);
 
-        painter_->DrawPoint(armor_predictor.ShootPointInPic(image_provider_->IntrinsicMatrix(),
-                                                            frame_.image.size),
-                            cv::Scalar(0, 0, 255), 1, 10);
-        painter_->ShowImage("ARMOR DETECT", 1);
 
-        auto key = cv::waitKey(1) & 0xff;
-        if (key == 'q')
+            controller_sentry_higher_debug_.DrawAutoAimArmor(frame_.image,
+                                                        boxes_,
+                                                        &armor_predictor,
+                                                        image_provider_->IntrinsicMatrix(),
+                                                        frame_.image.size,
+                                                        "Infantry Run",
+                                                        1);
+
+
+        if (ControllerSentryHigherDebug::GetKey() == 'q')
             break;
-        else if (key == 's')
-            ArmorPredictorDebug::Instance().Save();
-
-        Compensator::Instance().Offset(send_packet_.pitch, send_packet_.yaw, receive_packet_.bullet_speed,
-                                       send_packet_.check_sum,
-                                       armor_predictor.GetTargetDistance());
 
         SendSerialData();
 
@@ -80,8 +73,10 @@ void SentryHigherController::Run() {
         armors_.clear();
 
         CountPerformanceData();
+
     }
 
+    // Exit.
     if (CmdlineArgParser::Instance().RunWithSerial())
         serial_->StopCommunication();
 
