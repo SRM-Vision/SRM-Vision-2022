@@ -3,6 +3,7 @@
 //
 
 #include "predictor_armor.h"
+#include "compensator/compensator.h"
 
 /// When an armor lasts gray for time below this value, it will be considered as hit.
 const unsigned int kMaxGreyCount = 20;
@@ -163,7 +164,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, const cv::MatSize
         predict_speed_ << 0, 0;
     }
 
-    return GenerateSendPacket();
+    return GenerateSendPacket(battlefield.YawPitchRoll()[1],bullet_speed);
 }
 
 std::shared_ptr<Armor> ArmorPredictor::SameArmorByPicDis(const cv::Point2f &target_center, const std::vector<Armor> &armors, double threshold) {
@@ -255,7 +256,7 @@ void ArmorPredictor::Update(const Armor &armor) {
     last_target_->SetID(id);
 }
 
-SendPacket ArmorPredictor::GenerateSendPacket() const {
+SendPacket ArmorPredictor::GenerateSendPacket(float pitch_right, double bullet_speed) const {
     auto shoot_point_spherical = coordinate::convert::Rectangular2Spherical(shoot_point_vector_);
     auto yaw = shoot_point_spherical(0,0),pitch = shoot_point_spherical(1,0);
 
@@ -265,6 +266,8 @@ SendPacket ArmorPredictor::GenerateSendPacket() const {
     if (2 <= last_target_->Distance() && last_target_->Distance() < 4) distance_mode = 2;
     if (4 <= last_target_->Distance() && last_target_->Distance() < 6) distance_mode = 3;
     DLOG(INFO) << " distance: " << last_target_->Distance();
+
+    pitch = -Compensator::Instance().PitchOffset(pitch_right,bullet_speed,AimModes::kNormal) + pitch_right;
 
     // 图传点
 //        cv::Mat3d camera_mat;

@@ -62,7 +62,7 @@ public:
     * @brief Generate a packet according to data inside.
     * @return Send packet to serial port.
     */
-    [[nodiscard]] inline SendPacket GenerateSendPacket() const;
+    [[nodiscard]] inline SendPacket GenerateSendPacket(float pitch_right, double bullet_speed) const;
 
 private:
     Entity::Colors enemy_color_;  ///< Target's color.
