@@ -304,26 +304,36 @@ void RuneDetectorNetwork::Initialize(const std::string &onnx_file) {
     TRT_ASSERT(output_buffer_ != nullptr)
 }
 
-BuffObject RuneDetectorNetwork::ModelRun(const cv::Mat &image) const
+BuffObject RuneDetectorNetwork::ModelRun(const cv::Mat &image)
 {
-    // Pre-process. [bgr2rgb & resize]
-    cv::Mat x = image.clone();
-    float fx = (float) x.cols / 416.f; float fy = (float) x.rows / 416.f;
+    roi_point_tl_ = cv::Point2i(
+            std::max(0, int(energy_center_r_.x - 200)),
+            std::max(0, int(energy_center_r_.y - 200)) );
+    cv::Mat image_ = image.clone();
+    if (energy_center_r_ != cv::Point2f(0, 0))
+    {
+        // Avoid empty-image.
+        cv::Rect ROI_rect = cv::Rect(roi_point_tl_.x, roi_point_tl_.y, 2 * 200, 2 * 200) &
+                            cv::Rect(0, 0, image.cols, image.rows);
+        image_ = image(ROI_rect);  // Use ROI
+    }
+
+    // Pre-process. [resize]
+    float fx = (float) image_.cols / 416.f; float fy = (float) image_.rows / 416.f;
     if (image.cols != 416 || image.rows != 416)
-        cv::resize(x, x, {416, 416});
-    cv::imshow("resized image", x);
-    x.convertTo(x, CV_32F);
+        cv::resize(image_, image_, {416, 416});
+    cv::imshow("resized image", image_);
+    image_.convertTo(image_, CV_32F);
 
-    cv::Mat x_split[3];
-    cv::split(x, x_split);
+    cv::Mat image_split[3];
+    cv::split(image_, image_split);
     //cv::cvtColor(image, x, cv::COLOR_BGR2RGB);
-
 
     float *input_data = new float[416*416*3];
     //Copy img into blob
     for(int c = 0;c < 3;c++)
     {
-        memcpy(input_data, x_split[c].data, INPUT_W * INPUT_H * sizeof(float));
+        memcpy(input_data, image_split[c].data, INPUT_W * INPUT_H * sizeof(float));
         input_data += INPUT_W * INPUT_H;
     }
     input_data -= INPUT_W * INPUT_H * 3;
@@ -384,8 +394,8 @@ BuffObject RuneDetectorNetwork::ModelRun(const cv::Mat &image) const
 
             for (int i = 0; i < 5; i++)
             {
-                pts_final[i].x = pts_final[i].x / (N / 5) * fx;
-                pts_final[i].y = pts_final[i].y / (N / 5) * fy;
+                pts_final[i].x = pts_final[i].x / (N / 5) * fx + roi_point_tl_.x;
+                pts_final[i].y = pts_final[i].y / (N / 5) * fy + roi_point_tl_.y;
             }
 
             (*object).apex[0] = pts_final[0];
@@ -399,6 +409,10 @@ BuffObject RuneDetectorNetwork::ModelRun(const cv::Mat &image) const
 
     cv::Mat draw_image = image.clone();
     std::cout << "results size's" << results.size() << std::endl;
+
+    // if vector is empty, return empty point.
+    if (results.empty())
+        return {};
 
     std::sort(results.begin(), results.end(), [](BuffObject a, BuffObject b){
         return a.prob > b.prob;
@@ -508,6 +522,10 @@ void RuneDetectorNetwork::FindRotateDirection() {
     const float kMaxRatio = 0.1;
     static float rune_radius_ = 120;
 
+    // detection is not found.
+    if (rtp_vec_ == cv::Point2f(0, 0))
+        return;
+
 
     if (clockwise_ == 0) {
         r_to_p_vec.emplace_back(rtp_vec_);
@@ -560,14 +578,13 @@ PowerRune RuneDetectorNetwork::Run(Entity::Colors color, Frame &frame) {
         FindRotateDirection();
 
     return {color,
-                     clockwise_,
-                     rtp_vec_,
-                     cv::Point2f(0, 0), // rtg is dismissed
-                     energy_center_r_,
-                     armor_center_p_,
-                     cv::Point2f(0, 0),
-                     cv::Point3_<float>(0, 0, 0),
-                     cv::Point2f(float(frame.image.cols >> 1), float(frame.image.rows >> 1))
-                     };
+            clockwise_,
+            rtp_vec_,
+            cv::Point2f(0, 0), // rtg is dismissed
+            energy_center_r_,
+            armor_center_p_,
+            cv::Point2f(0, 0),
+            cv::Point3_<float>(0, 0, 0),
+            cv::Point2f(float(frame.image.cols >> 1), float(frame.image.rows >> 1))};
 }
 

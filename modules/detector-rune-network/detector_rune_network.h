@@ -62,7 +62,7 @@ private:
 
     void CacheEngine(const std::string &);
 
-    BuffObject ModelRun(const cv::Mat &image) const;
+    BuffObject ModelRun(const cv::Mat &image);
 
     nvinfer1::ICudaEngine *engine_;         ///< CUDA engine handle.
     nvinfer1::IExecutionContext *context_;  ///< CUDA execution context handle.
@@ -82,6 +82,8 @@ private:
     int clockwise_ = 0;
 
     void FindRotateDirection();
+
+    cv::Point2i roi_point_tl_;
 
 };
 
