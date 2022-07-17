@@ -4,8 +4,10 @@
 #include <glog/logging.h>
 #include "lang-feature-extension/attr-reader.h"
 #include "parameter-maintain/parameter-maintain.h"
-#include "predictor_armor_debug.h"
 #include "debug-tools/trackbar.h"
+
+template<unsigned int N_x, unsigned int N_y>
+class ExtendedKalmanFilter;
 
 class ArmorPredictorDebug {
 public:
@@ -55,6 +57,8 @@ private:
 
 public:
     void addTrackbar();
+
+    void AlterPredictCovMeasureCov(ExtendedKalmanFilter<5,3>& ekf) const;
 
 };
 
