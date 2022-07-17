@@ -8,6 +8,7 @@
 #define PREDICTOR_RUNE_H_
 
 #include "lang-feature-extension/disable-constructors.h"
+#include "trajectory-solver/trajectory-solver.h"
 #include "data-structure/communication.h"
 #include "digital-twin/facilities/power_rune.h"
 #include "data-structure/buffer.h"
