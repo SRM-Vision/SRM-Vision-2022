@@ -22,7 +22,7 @@ bool InfantryController::Initialize() {
     if (!Controller::Initialize("infantry"))
         return false;
 
-    // Initialize painter.TODO: use trackbar
+    // Initialize painter.
     controller_infantry_debug_.Initialize(CmdlineArgParser::Instance().DebugShowImage());
 
     // Initialize Rune module.

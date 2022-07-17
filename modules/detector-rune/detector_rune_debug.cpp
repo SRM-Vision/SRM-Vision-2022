@@ -89,13 +89,13 @@ void RuneDetectorDebug::addTrackbar() {
                                                  kMaxRAreaTrackbar / 200);
 
     /// --- delta_u_ ---
-    debug::Trackbar<int>::Instance().AddTrackbar("delta_u (0-100): ",
+    debug::Trackbar<int>::Instance().AddTrackbar("delta_u (0-4000): ",
                                                  trackbar_window_name_,
                                                  parameter_maintain_.delta_u_,
                                                  kMaxCompensation);
 
     /// --- delta_v_ ---
-    debug::Trackbar<int>::Instance().AddTrackbar("delta_v (0-100): ",
+    debug::Trackbar<int>::Instance().AddTrackbar("delta_v (0-4000): ",
                                                  trackbar_window_name_,
                                                  parameter_maintain_.delta_v_,
                                                  kMaxCompensation);

@@ -27,7 +27,7 @@ bool SentryHigherController::Initialize() {
     Frame init_frame;
     image_provider_->GetFrame(init_frame);
 
-    LOG(INFO) << "Infantry controller is ready.";
+    LOG(INFO) << "Sentry controller is ready.";
     return true;
 }
 
@@ -60,7 +60,7 @@ void SentryHigherController::Run() {
                                                         &armor_predictor,
                                                         image_provider_->IntrinsicMatrix(),
                                                         frame_.image.size,
-                                                        "Infantry Run",
+                                                        "Sentry Run",
                                                         1);
 
 
