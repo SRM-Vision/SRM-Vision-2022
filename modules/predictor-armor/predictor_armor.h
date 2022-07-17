@@ -30,12 +30,12 @@ public:
     inline void Clear();
 
     /**
-     * @brief if tracking a armor, count a shoot point in picture.
-     * @param intrinsic_matrix intrinsic matrix of camera
-     * @param size size of frame
-     * @return  point of shooting point.
+     * \brief if tracking a armor, count a shoot point in picture.
+     * \param intrinsic_matrix [IN] intrinsic matrix of camera
+     * \param size size of frame
+     * \return  point of shooting point.
      */
-    [[nodiscard]] cv::Point2f ShootPointInPic(const cv::Mat& intrinsic_matrix,cv::MatSize size);
+    [[nodiscard]] cv::Point2f ShootPointInPic(const cv::Mat& intrinsic_matrix, cv::MatSize size);
 
     /// used to offset
     [[nodiscard]] double GetTargetDistance();
@@ -44,23 +44,23 @@ public:
     [[nodiscard]] cv::Point2f TargetCenter();
 
     /**
-     * @brief Initialized the predictor before using. If enter a car name in constructor, initialization is not necessary.
-     * @param car_name car name for read configuration file.
+     * \brief Initialized the predictor before using. If enter a car name in constructor, initialization is not necessary.
+     * \param car_name [IN] car name for read configuration file.
      */
     static void Initialize(const std::string& car_name);
 
     /**
-     * @brief run to predict shooting point and get send packet.
-     * @param battlefield battlefield information.
-     * @param size size of frame that be detected.
-     * @param bullet_speed The speed of the bullet provided by the electronic controller.
-     * @return the sending packet to serials.
+     * \brief run to predict shooting point and get send packet.
+     * \param battlefield [IN] battlefield information.
+     * \param size [IN] size of frame that be detected.
+     * \param bullet_speed The speed of the bullet provided by the electronic controller.
+     * \return the sending packet to serials.
      */
     SendPacket Run(const Battlefield &battlefield, const cv::MatSize &size, double bullet_speed = 15);
 
     /**
-    * @brief Generate a packet according to data inside.
-    * @return Send packet to serial port.
+    * \brief Generate a packet according to data inside.
+    * \return Send packet to serial port.
     */
     [[nodiscard]] inline SendPacket GenerateSendPacket(float pitch_right, double bullet_speed) const;
 
@@ -85,8 +85,29 @@ private:
 
     uint64_t last_time_{0};
 
-    /// find the same armor to target by picture distance.
-    static std::shared_ptr<Armor> SameArmorByPicDis(const cv::Point2f &target_center, const std::vector<Armor> &armors, double threshold);
+    /**
+     * \brief a method to find the same armor to target by picture distance.
+     * \param target_center [IN] center of locked last target.
+     * \param armors [IN/OUT] where to find the new armor.
+     * \param threshold the allowed longest distance between last armor and new armor.
+     * \return the iterator of the new target in armors.
+     */
+    static auto SameArmorByPictureDistance(const cv::Point2f &target_center,
+                                                             std::vector<Armor> &armors,
+                                                             double threshold);
+
+    /**
+     * \brief find the best matched armor which is closest to the last one and is not too oblique.
+     * \param target [OUT] a shared ptr that wants to catch target.
+     * \param target_center [IN] center of last armor
+     * \param armors [IN/OUT] where to find the new armor.
+     * \param distance_threshold the allowed longest distance between last armor and new armor.
+     * \param oblique_threshold when length divided by width less than this, consider it`s too oblique.
+     * \return whether the target is the same as the last one.
+     */
+    static bool FindMatchArmor(std::shared_ptr<Armor> &target, const cv::Point2f &target_center,
+                               std::vector<Armor> &armors, double distance_threshold,
+                               double oblique_threshold);
 
     void InitializeEKF(const std::array<float, 3> &yaw_pitch_roll,
                        const coordinate::TranslationVector &translation_vector_world);
