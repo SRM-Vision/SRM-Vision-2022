@@ -12,16 +12,13 @@
 #include <glog/logging.h>
 #include <Eigen/Eigen>
 
-
-// static constexpr int INPUT_W = 640;    // Width of input
-// static constexpr int INPUT_H = 384;    // Height of input
 static constexpr int INPUT_W = 416;    // Width of input
 static constexpr int INPUT_H = 416;    // Height of input
 static constexpr int NUM_CLASSES = 2;  // Number of classes
 static constexpr int NUM_COLORS = 2;   // Number of color
-static constexpr int TOPK = 128;       // TopK
+static constexpr int TOPK = 32;       // TopK
 static constexpr float NMS_THRESH  = 0.1;
-static constexpr float BBOX_CONF_THRESH = 0.6;
+static constexpr float BBOX_CONF_THRESH = 0.95;
 static constexpr float MERGE_CONF_ERROR = 0.15;
 static constexpr float MERGE_MIN_IOU = 0.2;
 
@@ -52,7 +49,6 @@ struct GridAndStride
     int grid1;
     int stride;
 };
-
 
 /**
  * @brief Generate grids and stride.
@@ -310,6 +306,7 @@ BuffObject RuneDetectorNetwork::ModelRun(const cv::Mat &image)
             std::max(0, int(energy_center_r_.x - 200)),
             std::max(0, int(energy_center_r_.y - 200)) );
     cv::Mat image_ = image.clone();
+
     if (energy_center_r_ != cv::Point2f(0, 0))
     {
         // Avoid empty-image.
@@ -317,6 +314,8 @@ BuffObject RuneDetectorNetwork::ModelRun(const cv::Mat &image)
                             cv::Rect(0, 0, image.cols, image.rows);
         image_ = image(ROI_rect);  // Use ROI
     }
+
+    cv::GaussianBlur(image_, image_, cv::Size(7, 7), 0);
 
     // Pre-process. [resize]
     float fx = (float) image_.cols / 416.f; float fy = (float) image_.rows / 416.f;
@@ -374,6 +373,16 @@ BuffObject RuneDetectorNetwork::ModelRun(const cv::Mat &image)
     nms_sorted_bboxes(results, picked, NMS_THRESH);
     int count = picked.size();
     results.resize(count);
+
+    std::vector<BuffObject> filtered;
+    for (int i=0; i<results.size(); i++)
+    {
+        if (results[i].cls == 1)
+        {
+            filtered.push_back(results[i]);
+        }
+    }
+    results = filtered;
 
     for (int i = 0; i < count; i++)
     {
@@ -463,16 +472,12 @@ void RuneDetectorNetwork::BuildEngineFromONNX(const std::string &onnx_file) {
 
     auto config = builder->createBuilderConfig();
 
-    config->setFlag(nvinfer1::BuilderFlag::kFP16);
-
-
-
-//    if (builder->platformHasFastFp16()) {
-//        LOG(INFO) << "Platform supports fp16, fp16 is enabled.";
-//        config->setFlag(nvinfer1::BuilderFlag::kFP16);
-//    } else {
-//        LOG(INFO) << "Platform does not support fp16, enable fp32 instead.";
-//    }
+    if (builder->platformHasFastFp16()) {
+        LOG(INFO) << "Platform supports fp16, fp16 is enabled.";
+        config->setFlag(nvinfer1::BuilderFlag::kFP16);
+    } else {
+        LOG(INFO) << "Platform does not support fp16, enable fp32 instead.";
+    }
 
     size_t free, total;
     cuMemGetInfo(&free, &total);
@@ -576,6 +581,7 @@ PowerRune RuneDetectorNetwork::Run(Entity::Colors color, Frame &frame) {
 
     if (!clockwise_)
         FindRotateDirection();
+    cv::waitKey(0);
 
     return {color,
             clockwise_,
