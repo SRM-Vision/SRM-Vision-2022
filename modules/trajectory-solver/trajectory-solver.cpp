@@ -85,7 +85,7 @@ using namespace algorithm;
             solutions.push_back({solver.t - solver.h / 2, solver.y, current_x});
     }
     if (i == iter)
-        LOG(WARNING) << "Time limit exceeded when solving the trajectory. The result maybe wrong or incomplete.";
+        DLOG(WARNING) << "Time limit exceeded when solving the trajectory. The result maybe wrong or incomplete.";
     if (solutions.empty()) {
         solutions.push_back({solver.t, solver.y, current_x});
         return false;
@@ -112,7 +112,7 @@ using namespace algorithm;
     target_x = _target_x;
 }
 
-[[maybe_unused]] Eigen::Vector2d
+[[maybe_unused]] Eigen::Vector3d
 PitchAngleSolver::Solve(double min_theta, double max_theta, double max_error, unsigned int max_iter) {
     TrajectorySolver solver;
     TrajectoryResult min_error_result;
@@ -188,5 +188,7 @@ PitchAngleSolver::Solve(double min_theta, double max_theta, double max_error, un
         }
     } while ((error > max_error || error < -max_error) && n++ < max_iter);
     DLOG(INFO) << "Selected theta: " << min_error_theta << ", error: " << min_error << ".";
-    return {min_error_theta, min_error_result.t};
+    if (abs(error) / target_x > 0.01)
+        LOG(WARNING) << "Error of pitch solution is more than 1%, the solution should not be trusted.";
+    return {min_error_theta, min_error_result.t, abs(error) / target_x};
 }
