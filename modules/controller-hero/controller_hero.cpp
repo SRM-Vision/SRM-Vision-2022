@@ -35,6 +35,7 @@ void HeroController::Run() {
     sleep(2);
     ArmorPredictor armor_predictor(Entity::kBlue, "hero");
     while (!exit_signal_) {
+        static std::chrono::steady_clock::time_point time = std::chrono::steady_clock::now();
 
         if (!GetImage<false>())
             continue;
@@ -43,13 +44,12 @@ void HeroController::Run() {
 
         boxes_ = armor_detector_(frame_.image);
 
-        if (CmdlineArgParser::Instance().RunModeOutpost() ||
-            receive_packet_.mode == AimModes::kOutPost) {
+        if (CmdlineArgParser::Instance().RunModeOutpost() ) {
 
             BboxToArmor(Armor::ArmorSize::kSmall);
-            for(auto &armor:armors_){
-                DLOG(INFO)<<"armor";
-                DLOG(INFO)<<armor.TranslationVectorWorld();
+            for (auto &armor: armors_) {
+                DLOG(INFO) << "armor";
+                DLOG(INFO) << armor.TranslationVectorWorld();
             }
 
             battlefield_ = Battlefield(frame_.time_stamp,
@@ -58,23 +58,29 @@ void HeroController::Run() {
                                        armors_);
 
             outpost_predictor_.SetColor(receive_packet_.color);
-            send_packet_ = outpost_predictor_.OldRun(battlefield_);
-            send_packet_ = outpost_predictor_.NewRun(battlefield_,receive_packet_.bullet_speed,frame_.image.size().width);
+//            send_packet_ = outpost_predictor_.OldRun(battlefield_);
+            send_packet_ = outpost_predictor_.NewRun(battlefield_, receive_packet_.bullet_speed,
+                                                     frame_.image.size().width, time);
             auto roi = outpost_predictor_.GetROI(frame_.image);
             armor_detector_.UpdateROI(roi);
             controller_hero_debug_.DrawOutpostData(frame_.image,
                                                    roi,
+                                                   boxes_,
                                                    &outpost_predictor_,
                                                    image_provider_->IntrinsicMatrix(),
                                                    frame_.image.size,
                                                    "Hero Run",
                                                    1);
+
+//            outpost_measure_.Run(battlefield_,receive_packet_.color,receive_packet_.bullet_speed);
+//            debug::Painter::Instance()->UpdateImage(frame_.image);
+//            debug::Painter::Instance()->ShowImage("lll",1);
         } else {
 
             BboxToArmor();
-            for(auto &armor:armors_){
-                DLOG(INFO)<<"armor";
-                DLOG(INFO)<<armor.TranslationVectorWorld();
+            for (auto &armor: armors_) {
+                DLOG(INFO) << "armor";
+                DLOG(INFO) << armor.TranslationVectorWorld();
             }
             battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.yaw_pitch_roll,
                                        armors_);
@@ -93,6 +99,7 @@ void HeroController::Run() {
                                                       frame_.image.size,
                                                       "Hero Run",
                                                       1);
+            send_packet_.fire = 0;
         }
 //
 //        Compensator::Instance().Offset(send_packet_.pitch, send_packet_.yaw,
@@ -107,7 +114,7 @@ void HeroController::Run() {
 
         boxes_.clear();
         armors_.clear();
-
+        time = std::chrono::steady_clock::now();
         CountPerformanceData();
     }
 

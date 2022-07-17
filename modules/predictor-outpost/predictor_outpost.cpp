@@ -1,6 +1,6 @@
 #include "predictor_outpost.h"
 
-const cv::Size kZoomRatio = {16, 30};
+const cv::Size kZoomRatio = {18, 60};
 
 bool OutpostPredictor::Initialize() {
 #if !NDEBUG
@@ -291,7 +291,20 @@ double OutpostPredictor::GetBulletFlyTime(const float &bullet_speed, const Armor
     return res.y();
 }
 
-SendPacket OutpostPredictor::NewRun(Battlefield battlefield, const float &bullet_speed, int width) {
+bool ThrowLine(const std::vector<Armor> &armors, double mid_x) {
+    for (auto &armor: armors) {
+        if ((armor.Corners()[0].x < mid_x && mid_x < armor.Corners()[1].x) ||
+            (armor.Corners()[1].x < mid_x && mid_x < armor.Corners()[0].x) ||
+            (armor.Corners()[1].x < mid_x && mid_x < armor.Corners()[2].x) ||
+            (armor.Corners()[2].x < mid_x && mid_x < armor.Corners()[1].x))
+            return true;
+    }
+    return false;
+}
+
+
+SendPacket OutpostPredictor::NewRun(Battlefield battlefield, const float &bullet_speed, int width,
+                                    const std::chrono::steady_clock::time_point &time) {
     outpost_.ClearBottomArmor();
     SendPacket send_packet{0, 0, 0,
                            0, 0,
@@ -299,8 +312,8 @@ SendPacket OutpostPredictor::NewRun(Battlefield battlefield, const float &bullet
                            0, 0,
                            0, 0,
                            0, 0, 0};
-
     send_packet.distance_mode = 10;
+
     /*
      * Collect armors.
      * TODO Add height judgment.
@@ -318,15 +331,14 @@ SendPacket OutpostPredictor::NewRun(Battlefield battlefield, const float &bullet
     if (outpost_.BottomArmors().empty()) return send_packet;
 
 
-    if (clockwise_ <= 7 && clockwise_ >= -7 && !checked_clockwise_)
-        IsClockwise();
-    else
-        DecideComingGoing();
+//    if (clockwise_ <= 7 && clockwise_ >= -7 && !checked_clockwise_)
+//        IsClockwise();
+//    else
+//        DecideComingGoing();
 
 
     int biggest_armor = FindBiggestArmor(outpost_.BottomArmors());
     UpdateROICorners(outpost_.BottomArmors()[biggest_armor]);
-    DLOG(INFO) << "bulletFlyTime" << GetBulletFlyTime(bullet_speed, outpost_.BottomArmors()[biggest_armor]);
 
     auto shoot_point_spherical = coordinate::convert::Rectangular2Spherical(
             outpost_.BottomArmors()[biggest_armor].TranslationVectorCam());
@@ -337,22 +349,29 @@ SendPacket OutpostPredictor::NewRun(Battlefield battlefield, const float &bullet
 
     int mid_x = width / 2;
 
-    if (!ready_fire_ && ((abs(mid_x - outpost_.coming_center_.x) < 15) || abs(mid_x - outpost_.going_center_.x) < 15)) {
+    if (!ready_fire_ &&
+        ThrowLine(outpost_.BottomArmors(), mid_x)) {
         ready_time_ = std::chrono::high_resolution_clock::now();
         ready_fire_ = true;
     }
     if (ready_fire_) {
+
         auto current_time = std::chrono::high_resolution_clock::now();
         double time_gap = (static_cast<std::chrono::duration<double, std::milli>>(current_time -
                                                                                   ready_time_)).count();
         auto bullet_fly_time = GetBulletFlyTime(bullet_speed, outpost_.BottomArmors()[biggest_armor]);
-        shoot_delay_time_ = 5.0 / 6.0 - bullet_fly_time;
+        auto cost_time = double(
+                std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - time).count()) *
+                         1e-6;
+        auto delay_time = bullet_fly_time + cost_time * 1e-3;
+        shoot_delay_time_ = 5.0 / 6.0 - delay_time;
         if (shoot_delay_time_ < time_gap * 1e-3) {
             send_packet.fire = 1;
             ready_fire_ = false;
         }
     }
 
+    fire_ = send_packet.fire;
     send_packet.check_sum = send_packet.yaw + send_packet.pitch + send_packet.delay +
                             float(send_packet.fire) + float(send_packet.distance_mode) +
                             float(send_packet.point1_x) + float(send_packet.point1_y) +
@@ -362,12 +381,10 @@ SendPacket OutpostPredictor::NewRun(Battlefield battlefield, const float &bullet
     return send_packet;
 }
 
-SendPacket OutpostPredictor::Run(Battlefield battlefield, const float &bullet_speed, cv::MatSize frame_size, int time) {
+SendPacket OutpostPredictor::Run(Battlefield battlefield, const float &bullet_speed, cv::MatSize frame_size,
+                                 const std::chrono::steady_clock::time_point &time) {
     SendPacket send_packet;
-    if (time < 60 * 3)
-        send_packet = NewRun(battlefield, bullet_speed, frame_size().width);
-    else
-        send_packet = OldRun(battlefield);
+    send_packet = NewRun(battlefield, bullet_speed, frame_size().width, time);
     return send_packet;
 }
 

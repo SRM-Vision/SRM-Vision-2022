@@ -42,8 +42,8 @@ public:
      * \return 'SendPacket' to send information to EC.
      */
     SendPacket OldRun(Battlefield battlefield);
-    SendPacket NewRun(Battlefield battlefield, const float& bullet_speed,  int width);
-    SendPacket Run(Battlefield battlefield, const float& bullet_speed, cv::MatSize frame_size,int time);
+    SendPacket NewRun(Battlefield battlefield, const float& bullet_speed,  int width,const std::chrono::steady_clock::time_point& time);
+    SendPacket Run(Battlefield battlefield, const float& bullet_speed, cv::MatSize frame_size,const std::chrono::steady_clock::time_point& time);
 
     /**
     * \Brief Set the color of outpost.

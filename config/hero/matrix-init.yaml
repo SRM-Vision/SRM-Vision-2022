@@ -4,9 +4,9 @@ RM_CAM_TO_IMU_DATA: !!opencv-matrix
   rows: 3
   cols: 3
   dt: d
-  data: [ 1, 0, 0,
+  data: [ 0.996217886, 0, -0.086890293,
           0, 1, 0,
-          0, 0, 1]
+          0.086890293, 0, 0.996217886]
 TM_CAM_TO_IMU_DATA: !!opencv-matrix
   rows: 3
   cols: 1

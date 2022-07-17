@@ -28,6 +28,14 @@ public:
         controller_debug_.UpdateImage(image);
         controller_debug_.DrawRoi(ROI);
         controller_debug_.DrawArmors(bboxes, armor_predictor, intrinsic_matrix, image_size);
+        controller_debug_.painter_->DrawLine({float(image_size().width *0.5 ),50},
+                                             {float(image_size().width *0.5), float(image.size().height - 50)},
+                                             cv::Scalar(0,0, 255),
+                                             2);
+        controller_debug_.painter_->DrawLine({float(image_size().width -100),float(image.size().height *0.5)},
+                                             {100, float(image.size().height *0.5)},
+                                             cv::Scalar(0,0, 255),
+                                             2);
         controller_debug_.ShowImage(window_names, wait_time);
 
     }
@@ -35,6 +43,7 @@ public:
 
     inline void DrawOutpostData(const cv::Mat &image,
                                 const cv::Rect_<int> &ROI,
+                                const std::vector<bbox_t> &bboxes,
                                 OutpostPredictor *outpost_predictor,
                                 const cv::Mat &intrinsic_matrix,
                                 const cv::MatSize &image_size,
@@ -43,13 +52,23 @@ public:
         controller_debug_.UpdateImage(image);
         controller_debug_.DrawRoi(ROI);
         controller_debug_.ShowPoint(outpost_predictor->OutpostCenter());
+        for (const auto &box: bboxes) {
+            controller_debug_.painter_->DrawRotatedRectangle(box.points[0],
+                                           box.points[1],
+                                           box.points[2],
+                                           box.points[3],
+                                           cv::Scalar(0, 255, 0), 2);}
         if (outpost_predictor->Fire())
             controller_debug_.ShowText("Fire");
 
         controller_debug_.painter_->DrawLine({float(image_size().width *0.5 ),50},
                                              {float(image_size().width *0.5), float(image.size().height - 50)},
-                                             cv::Scalar(255,0, 255),
-                                             3);
+                                             cv::Scalar(0,0, 255),
+                                             2);
+        controller_debug_.painter_->DrawLine({float(image_size().width -100),float(image.size().height *0.5)},
+                                             {100, float(image.size().height *0.5)},
+                                             cv::Scalar(0,0, 255),
+                                             2);
         controller_debug_.ShowImage(window_names, wait_time);
 
 
