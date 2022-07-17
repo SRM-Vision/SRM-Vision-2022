@@ -90,15 +90,15 @@ public:
                 case 4:
                 case 5:
                     double armor_height_pixel = std::max(
-                            corners_[0].y - corners_[3].y,
-                            corners_[1].y - corners_[2].y
+                            abs(corners_[0].y - corners_[1].y),
+                            abs(corners_[1].y - corners_[2].y)
                     ), armor_width_pixel = std::max(
-                            corners_[0].x - corners_[1].x,
-                            corners_[1].x - corners_[2].x
+                            abs(corners_[0].x - corners_[1].x),
+                            abs(corners_[1].x - corners_[2].x)
                     );
                     // TODO Value armor_width_pixel / armor_height_pixel depends on camera and lens' chose.
                     //   Further testing is required.
-                    if (armor_width_pixel / armor_height_pixel > 1.3) {
+                    if (armor_width_pixel / armor_height_pixel > 3.8) {
                         cv::solvePnP(big_armor_pc,
                                      image_points,
                                      intrinsic_mat,

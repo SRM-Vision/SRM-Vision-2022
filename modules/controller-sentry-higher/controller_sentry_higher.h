@@ -6,6 +6,8 @@
 #define CONTROLLER_SENTRY_HIGHER_H_
 
 #include "controller-base/controller_factory.h"
+#include "controller_sentry_higher_debug.h"
+
 class [[maybe_unused]] SentryHigherController final : public Controller {
 public:
     bool Initialize() final;
@@ -22,6 +24,7 @@ private:
 
     /// Own registry in controller factory.
     [[maybe_unused]] static ControllerRegistry<SentryHigherController> sentry_higher_controller_registry_;
-    debug::IPainter* painter_;
+
+    ControllerSentryHigherDebug controller_sentry_higher_debug_;
 };
 #endif //CONTROLLER_SENTRY_HIGHER_H_

@@ -64,6 +64,16 @@ void Compensator::Offset(float &pitch, float &yaw, double bullet_speed, float &c
     } else if (robot_name_ == "sentry_higher") {
         float plane_distance = 0, delta_pitch = 0;
         DLOG(INFO) << "before offset pitch:" << pitch;
+        plane_distance = offset2d_[0] * distance * distance * distance +
+                         offset2d_[1] * distance * distance +
+                         offset2d_[2] * distance +
+                         offset2d_[3];
+        delta_pitch = offset2p_[0] * plane_distance * plane_distance * plane_distance +
+                      offset2p_[1] * plane_distance * plane_distance +
+                      offset2p_[2] * plane_distance +
+                      offset2p_[3];
+        pitch -= delta_pitch;
+        check_sum -= delta_pitch;
         DLOG(INFO) << "after offset pitch: " << pitch;
     } else if (robot_name_ == "hero") {
         float plane_distance = 0, delta_pitch = 0, delta_yaw = 0;

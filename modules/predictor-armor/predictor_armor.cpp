@@ -9,7 +9,7 @@
 const unsigned int kMaxGreyCount = 20;
 
 /// Picture Distance threshold to judge whether a target is too far.
-const double kPicDistanceThreshold = 30;
+const double kPicDistanceThreshold = 10;
 
 ///< Switch target in anti-top When new armor bigger than 0.7 * old armor.
 const double kSwitchByAreaThreshold = 0.7;
@@ -17,9 +17,18 @@ const double kSwitchByAreaThreshold = 0.7;
 /// used for anti-spin, allow to follow for fire.
 const double kAllowFollowRange = 0.5;
 
+/// the threshold to consider a armor is oblique.
+const double kObliqueThreshold = 1.4;
+
+/// the threshold to consider a armor is oblique in anti-spin mode.
+const double kObliqueThresholdInSpin = 1;
+
 // TODO Calibrate shoot delay and acceleration threshold.
 
+/// shooting delay
 const double kShootDelay = 0.15;
+
+/// The maximum acceleration allowed to fire
 const double kFireAccelerationThreshold = 3.0;
 
 /// Predicting function template structure.
@@ -85,29 +94,54 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, const cv::MatSize
 
     // add armors to vector.
     if(robots.find(enemy_color_) != robots.end())
-        for(auto& [_,robot]:robots.at(enemy_color_))
+        for(auto&& [_,robot]:robots.at(enemy_color_))
             armors.insert(armors.end(),robot->Armors().begin(),robot->Armors().end());
     if(robots.find(Entity::kGrey) != robots.end() && grey_buffer_ < kMaxGreyCount)
-        for(auto& [_,robot]:robots.at(Entity::kGrey))
+        for(auto&& [_,robot]:robots.at(Entity::kGrey))
             armors.insert(armors.end(),robot->Armors().begin(),robot->Armors().end());
 
     if(facilities.find(enemy_color_) != facilities.end())
-        for(auto& [_,facility]:facilities.at(enemy_color_))
+        for(auto&& [_,facility]:facilities.at(enemy_color_))
             armors.insert(armors.end(),facility->BottomArmors().begin(),facility->BottomArmors().end());
     if(facilities.find(Entity::kGrey) != facilities.end() && grey_buffer_ < kMaxGreyCount)
-        for(auto& [_,facility]:facilities.at(Entity::kGrey))
+        for(auto&& [_,facility]:facilities.at(Entity::kGrey))
             armors.insert(armors.end(),facility->BottomArmors().begin(),facility->BottomArmors().end());
+
+    DLOG(INFO) << "find " << armors.size() << " armors.";
 
     // find armor which is the same as the last target or nearest to the picture center.
     if(last_target_){
-        target_current = SameArmorByPicDis(last_target_->Center(), armors,kPicDistanceThreshold);
+        DLOG(INFO) << "exist historical armor.";
+        if(spin_predictor_.IsSpin())
+            locked_same_target = FindMatchArmor(target_current,
+                                                last_target_->Center(),
+                                                armors,
+                                                kPicDistanceThreshold,
+                                                kObliqueThresholdInSpin);
+        else
+            locked_same_target = FindMatchArmor(target_current,
+                                                last_target_->Center(),
+                                                armors,
+                                                kPicDistanceThreshold,
+                                                kObliqueThreshold);
     }
 
     //not find current armor
     if(!target_current) {
         DLOG(INFO) << "not found last armor, try to switch new one.";
         locked_same_target = false;
-        target_current = SameArmorByPicDis(picture_center, armors, DBL_MAX);
+        if(spin_predictor_.IsSpin())    // oblique threshold is higher than oblique threshold in anti-spin mode.
+            FindMatchArmor(target_current,
+                           picture_center,
+                           armors,
+                           DBL_MAX,
+                           kObliqueThresholdInSpin);
+        else
+            FindMatchArmor(target_current,
+                           picture_center,
+                           armors,
+                           DBL_MAX,
+                           kObliqueThreshold);
     }
 
     // Do nothing if nothing is found.
@@ -127,6 +161,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, const cv::MatSize
     spin_predictor_.Update(*target_current, battlefield.TimeStamp());
 
     if(locked_same_target){
+        DLOG(INFO) << "locked the same armor.";
         // EKF Predict
         Predict(*target_current, delta_t, bullet_speed, battlefield.YawPitchRoll(), kShootDelay);
 
@@ -139,26 +174,31 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, const cv::MatSize
                 if(armor.ID() == last_target_->ID() && armor.Center() != target_current->Center())
                     another_armor = std::make_shared<Armor>(armor);
             }
-            if(another_armor && spin_predictor_.Clockwise() != -1 && another_armor->Area() > last_target_->Area() * kSwitchByAreaThreshold
-               && (spin_predictor_.Clockwise() ^ (last_target_->Center().x > another_armor->Center().x))){
+            if(another_armor
+            && spin_predictor_.Clockwise() != -1
+            && another_armor->Area() > last_target_->Area() * kSwitchByAreaThreshold
+            && (spin_predictor_.Clockwise() ^ (last_target_->Center().x > another_armor->Center().x))){
                 // Update speed in ekf, to speed up fitting.
                 last_target_ = another_armor;
                 InitializeEKF(battlefield.YawPitchRoll(),another_armor->TranslationVectorWorld());
                 ekf_.x_estimate_(1,0) = predict_speed_(0,0);
                 ekf_.x_estimate_(3,0) = -predict_speed_(1,0);
-                DLOG(INFO) << "Switch to another spinning armor.";
-            }
-            // if spinning, Swing head in advance.
-            if(algorithm::NanoSecondsToSeconds(spin_predictor_.LastJumpTime(), battlefield.TimeStamp()) /
+                Predict(*another_armor,delta_t,bullet_speed,battlefield.YawPitchRoll(),kShootDelay);
+                DLOG(INFO) << "anti-spin mode, switch to another spinning armor.";
+            }else if(algorithm::NanoSecondsToSeconds(spin_predictor_.LastJumpTime(), battlefield.TimeStamp()) /
                spin_predictor_.JumpPeriod() < kAllowFollowRange){
+                DLOG(INFO) << "anti-spin mode, allow to fire.";
                 fire_ = true;
             }else{
+                // if spinning, Swing head in advance.
+                DLOG(INFO) << "anti-spin mode, head shake.";
                 predict_world_vector_ << spin_predictor_.LastJumpPosition();
                 UpdateShootPointAndPredictCam(battlefield.YawPitchRoll());
             }
         }
 
     }else {
+        DLOG(INFO) << "locked a new armor, initialize ekf.";
         // locked a new armor
         last_target_ = target_current;
         InitializeEKF(battlefield.YawPitchRoll(), target_current->TranslationVectorWorld());
@@ -168,17 +208,55 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, const cv::MatSize
     return GenerateSendPacket(battlefield.YawPitchRoll()[1],bullet_speed);
 }
 
-std::shared_ptr<Armor> ArmorPredictor::SameArmorByPicDis(const cv::Point2f &target_center, const std::vector<Armor> &armors, double threshold) {
-    double distance_max{DBL_MAX};
-    std::shared_ptr<Armor> same_armor{nullptr};
-    for(auto &armor : armors){
-        double distance{cv::norm(armor.Center() - target_center)};
-        if(distance < threshold && distance < distance_max){
-            distance_max = distance;
-            same_armor = std::make_shared<Armor>(armor);
+auto ArmorPredictor::SameArmorByPictureDistance(const cv::Point2f &target_center,
+                                                                  std::vector<Armor> &armors,
+                                                                  double threshold) {
+    double distance_min{DBL_MAX};
+    auto same_armor{armors.cend()};
+    for(auto begin{armors.cbegin()};begin < armors.cend();++begin){
+        double distance{cv::norm(begin->Center() - target_center)};
+        if(distance < threshold && distance < distance_min) {
+            distance_min = distance;
+            same_armor = begin;
         }
     }
+    DLOG(INFO) << "min distance to found armor: " << distance_min;
     return same_armor;
+}
+
+bool ArmorPredictor::FindMatchArmor(std::shared_ptr<Armor> &target, const cv::Point2f &target_center,
+                                    std::vector<Armor> &armors, double distance_threshold,
+                                    double oblique_threshold) {
+    bool is_same_armor{true};
+    while(true){
+        auto same_armor = SameArmorByPictureDistance(target_center, armors, distance_threshold);
+        if(same_armor != armors.cend()){
+            DLOG(INFO) << "find a same armor by distance in picture.";
+            double armor_height_pixel = std::max(
+                    abs(same_armor->Corners()[0].y - same_armor->Corners()[1].y),
+                    abs(same_armor->Corners()[1].y - same_armor->Corners()[2].y)
+            ), armor_width_pixel = std::max(
+                    abs(same_armor->Corners()[0].x - same_armor->Corners()[1].x),
+                    abs(same_armor->Corners()[1].x - same_armor->Corners()[2].x)
+            );
+
+            // when armor is too oblique, change target.
+            if(armor_width_pixel / armor_height_pixel < oblique_threshold){
+                DLOG(INFO) << "armor is too oblique, try to change target.";
+                armors.erase(same_armor);
+                is_same_armor = false;
+                continue;
+            }else{
+                DLOG(INFO) << "confirm armor.";
+                target = std::make_shared<Armor>(*same_armor);
+                return is_same_armor;
+            }
+        }else
+            break;
+    }
+    DLOG(INFO) << "no matched armor.";
+    target = nullptr;
+    return false;
 }
 
 void ArmorPredictor::InitializeEKF(const std::array<float, 3> &yaw_pitch_roll,
@@ -261,7 +339,7 @@ SendPacket ArmorPredictor::GenerateSendPacket(float pitch_right, double bullet_s
     auto shoot_point_spherical = coordinate::convert::Rectangular2Spherical(shoot_point_vector_);
     auto yaw = shoot_point_spherical(0,0),pitch = shoot_point_spherical(1,0);
 
-    auto delay = 0.f;// TODO Add delay and check_sum here.
+    auto delay = 0.f;
     int distance_mode = 0;
     if (0 <= last_target_->Distance() && last_target_->Distance() < 2) distance_mode = 1;
     if (2 <= last_target_->Distance() && last_target_->Distance() < 4) distance_mode = 2;
@@ -307,6 +385,9 @@ double ArmorPredictor::GetTargetDistance() {
 }
 
 cv::Point2f ArmorPredictor::ShootPointInPic(const cv::Mat &intrinsic_matrix, cv::MatSize size) {
+    DLOG(INFO) << "shooting point in picture: " << (last_target_ ?
+            coordinate::transform::CameraToPicture(intrinsic_matrix,predict_cam_vector_)
+            : cv::Point2f{float(size().width / 2.0), float(size().height / 2.0)});
     if(last_target_)
         return coordinate::transform::CameraToPicture(intrinsic_matrix,predict_cam_vector_);
     return {float(size().width / 2.0), float(size().height / 2.0)};
