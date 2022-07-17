@@ -225,8 +225,8 @@ void predictor::rune::OutputData::Update(const PowerRune &rune,
 //    double target_h = 5 + (rune.ArmorCenterP().x * rune.ArmorCenterP().y) /
 //                          std::abs((rune.ArmorCenterP().x * rune.ArmorCenterP().y)) *
 //                          algorithm::CosFloat(float(predicted_angle));
-//    angle_solver_.UpdateParam(target_h, 8.32);
-//    auto res = angle_solver_.Solve(-CV_PI / 6, CV_PI / 3, 0.01, 16);
+//    pitch_solver_.UpdateParam(target_h, 8.32);
+//    auto res = pitch_solver_.Solve(-CV_PI / 6, CV_PI / 3, 0.01, 16);
 //    pitch = float(res.x()) - pitch > .15f ? .05f : float(res.x()) - pitch;
 
     DLOG(INFO) << "Output yaw: " << yaw << ", pitch: " << pitch << ".";
@@ -244,9 +244,6 @@ void predictor::rune::State::CheckMode() {
             DLOG(INFO) << "Rune fan changes now.";
     }
 }
-
-
-
 
 double predictor::rune::RotationalSpeed::AngularIntegral(double integral_time) const {
     constexpr double c = 0;
@@ -308,15 +305,11 @@ void predictor::rune::FittingData::Fit(RotationalSpeed &rotational_speed) {
     }
 }
 
-
-
-
-
-void predictor::rune::RunePredictor::InitModel(double bullet_speed) {
-    auto f = trajectory_solver::AirResistanceModel();
-    f.SetParam(0.48, 994, 30, 0.017, 0.0032);
-    auto a = trajectory_solver::BallisticModel();
-    a.SetParam(f, 31);
-    angle_solver_ = trajectory_solver::PitchAngleSolver();
-    angle_solver_.SetParam(a, bullet_speed, 1.35, 2.41, 8.32);
-}
+//void predictor::rune::RunePredictor::InitModel(double bullet_speed) {
+//    auto f = trajectory_solver::AirResistanceModel();
+//    f.SetParam(0.48, 994, 30, 0.017, 0.0032);
+//    auto a = trajectory_solver::BallisticModel();
+//    a.SetParam(f, 31);
+//    pitch_solver_ = trajectory_solver::PitchAngleSolver();
+//    pitch_solver_.SetParam(a, bullet_speed, 1.35, 2.41, 8.32);
+//}

@@ -21,7 +21,7 @@ namespace predictor::rune {
     constexpr int kBufferDataNum           = 50;   ///< Updated data num in every fit period.
     constexpr double kCompensateTime       = 0.04; ///< Communication, program process and etc delay.
 
-    trajectory_solver::PitchAngleSolver angle_solver_{};
+//    trajectory_solver::PitchAngleSolver pitch_solver_{};
     constexpr int kP_pitch = 3000;
     constexpr int kP_yaw = 3000;
 
@@ -180,7 +180,7 @@ namespace predictor::rune {
 
         void PredictPoint();
 
-        static void InitModel(double bullet_speed);
+//        void InitModel(double bullet_speed);
 
         PowerRune rune_;  ///< It is initiated by package conveyed by rune detector.
         State state_;
