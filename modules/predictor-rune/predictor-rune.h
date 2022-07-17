@@ -10,11 +10,15 @@
 #include "lang-feature-extension/disable-constructors.h"
 #include "data-structure/communication.h"
 #include "digital-twin/facilities/power_rune.h"
+#include "data-structure/buffer.h"
+#include "queue"
 
 namespace predictor::rune {
-    constexpr int kCollectPalstanceDataNum = 250;   ///< Amount of data collected for fitting.
+    constexpr int kFirstFitPalstanceDataNum = 100;   ///< Amount of data collected for fitting.
     constexpr int kPreparePalstanceDataNum = 100;  ///< Amount of data required before fitting.
-    constexpr int kResidualBlockNum = 300;          ///< Amount of data observed in one circle.
+    constexpr int kObservationDataNum      = 300;  ///< Amount of data observed in one circle.
+    constexpr int kBufferDataNum           = 50;   ///< Updated data num in every fit period.
+    constexpr double kCompensateTime       = 0.04; ///< Communication, program process and etc delay.
 
     /// @brief Trigonometric residual (cost) function package for Ceres solver.
     struct TrigonometricResidual {
@@ -69,7 +73,7 @@ namespace predictor::rune {
     /// @brief Data package for output.
     struct OutputData {
         /**
-         * @brief Update output data.
+         * @brief Final result! ! ! ! ! Update output data.
          * @param debug Debug mode switch.
          * @param [in] rune Input rune data.
          * @param [in] predicted_angle Predicted angle calculated by predictor.
@@ -88,10 +92,10 @@ namespace predictor::rune {
 
     /// @brief Data and function package for fitting palstance curve.
     struct FittingData {
-        FittingData() : outdated(true), ready(false) {}
+        FittingData() : ready(false), first_fit(true){}
 
         /**
-         * @brief Fit the rotational speed curve.
+         * @brief Fit the rotational speed curve only if meet the data num condition.
          * @param debug Debug mode switch.
          * @param [out] rotational_speed Output fit rotational speed.
          */
@@ -99,14 +103,15 @@ namespace predictor::rune {
 
         std::vector<double> palstance;  ///< Speed data for fitting.
         std::vector<double> time;       ///< Time data for fitting.
+        bool first_fit;
+        int fit_num = 0;
 
-        bool outdated;   ///< Whether Fitting Is Error.
         bool ready;
     };
 
     struct State {
         /**
-         * @brief Update current angle of fan, requires new rtp vector.
+         * @brief Update current angle of fan and convert it into reasonable value, requires new rtp vector.
          * @param [in] rtp_vec Input rtp vec.
          */
         void UpdateAngle(const cv::Point2f &rtg_vec);

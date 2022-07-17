@@ -64,7 +64,7 @@ private:
     const int kMaxArmorAreaTrackbar = 5000;
     const int kMaxRAreaTrackbar = 2000;
     const int kMaxRatioTrackbar = 1000;
-    const int kMaxCompensation = 2000;
+    const int kMaxCompensation = 4000;
 };
 
 #endif //DETECTOR_RUNE_DEBUG_H_
