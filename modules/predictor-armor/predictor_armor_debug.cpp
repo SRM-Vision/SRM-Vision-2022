@@ -1,6 +1,6 @@
 #include "predictor_armor_debug.h"
 #include "cmdline-arg-parser/cmdline_arg_parser.h"
-
+#include "math-tools/ekf.h"
 
 void ArmorPredictorDebug::Save() {
     parameter_maintain_.savePredictorArmorParameters();
@@ -66,4 +66,15 @@ void ArmorPredictorDebug::addTrackbar() {
             trackbar_windows_name_,
             delta_yaw_,
             kDelta_yaw);
+}
+
+void ArmorPredictorDebug::AlterPredictCovMeasureCov(ExtendedKalmanFilter<5,3>& ekf) const {
+    ekf.predict_cov_ << PredictedXZNoise(), 0, 0, 0, 0,
+                        0, PredictedXSpeedNoise(), 0, 0, 0,
+                        0, 0, PredictedYNoise(), 0, 0,
+                        0, 0, 0, PredictedYSpeedNoise(), 0,
+                        0, 0, 0, 0, PredictedXZNoise();
+    ekf.measure_cov_ << MeasureXNoise(), 0, 0,
+                        0, MeasureYNoise(), 0,
+                        0, 0, MeasureZNoise();
 }
