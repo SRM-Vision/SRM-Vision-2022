@@ -11,7 +11,7 @@
 #include "debug-tools/painter.h"
 #include "predictor-spin/spin_predictor.h"
 #include "math-tools/ekf.h"
-
+#include "filter.h"
 
 class ArmorPredictor: NO_COPY, NO_MOVE {
 public:
@@ -62,7 +62,8 @@ public:
     * \brief Generate a packet according to data inside.
     * \return Send packet to serial port.
     */
-    [[nodiscard]] inline SendPacket GenerateSendPacket(float pitch_right, double bullet_speed) const;
+    [[nodiscard]] inline SendPacket
+    GenerateSendPacket(float pitch_right, double bullet_speed, bool is_same_target);
 
 private:
     Entity::Colors enemy_color_;  ///< Target's color.
@@ -84,6 +85,8 @@ private:
     int fire_{0}; ///< to judge whether fire.
 
     uint64_t last_time_{0};
+
+    FilterDTMean<float, 6> distance_filter_{};
 
     /**
      * \brief a method to find the same armor to target by picture distance.

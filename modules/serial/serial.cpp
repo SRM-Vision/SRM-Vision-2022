@@ -72,6 +72,8 @@ bool Serial::Send() {
         LOG(ERROR) << "Failed to send data to serial port " << serial_port_ << ".";
         return false;
     } else {
+
+#if !NDEBUG
         static auto time = std::chrono::steady_clock::now();
         static int sent_num(0);
         ++sent_num;
@@ -81,6 +83,8 @@ bool Serial::Send() {
             time = std::chrono::steady_clock::now();
             sent_num = 0;
         }
+#endif
+
         DLOG(INFO) << "Sent " << sizeof(SerialSendPacket) << " bytes of data to serial port " << serial_port_ << ".";
         DLOG(INFO) << "Data: " << send_data_ << ".";
 

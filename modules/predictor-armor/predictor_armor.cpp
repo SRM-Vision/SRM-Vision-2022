@@ -9,9 +9,9 @@
 const unsigned int kMaxGreyCount = 20;
 
 /// Picture Distance threshold to judge whether a target is too far.
-const double kPicDistanceThreshold = 10;
+const double kPicDistanceThreshold = 30;
 
-///< Switch target in anti-top When new armor bigger than 0.7 * old armor.
+/// Switch target in anti-top When new armor bigger than 0.7 * old armor.
 const double kSwitchByAreaThreshold = 0.7;
 
 /// used for anti-spin, allow to follow for fire.
@@ -29,7 +29,7 @@ const double kObliqueThresholdInSpin = 1;
 const double kShootDelay = 0.15;
 
 /// The maximum acceleration allowed to fire
-const double kFireAccelerationThreshold = 3.0;
+const double kFireAccelerationThreshold = 2.0;
 
 /// Predicting function template structure.
 struct PredictFunction {
@@ -205,7 +205,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, const cv::MatSize
         predict_speed_ << 0, 0;
     }
 
-    return GenerateSendPacket(battlefield.YawPitchRoll()[1],bullet_speed);
+    return GenerateSendPacket(battlefield.YawPitchRoll()[1], bullet_speed, locked_same_target);
 }
 
 auto ArmorPredictor::SameArmorByPictureDistance(const cv::Point2f &target_center,
@@ -353,7 +353,7 @@ void ArmorPredictor::Update(const Armor &armor) {
     last_target_->SetID(id);
 }
 
-SendPacket ArmorPredictor::GenerateSendPacket(float pitch_right, double bullet_speed) const {
+SendPacket ArmorPredictor::GenerateSendPacket(float pitch_right, double bullet_speed, bool is_same_target) {
     auto shoot_point_spherical = coordinate::convert::Rectangular2Spherical(shoot_point_vector_);
     auto yaw = shoot_point_spherical(0,0),pitch = shoot_point_spherical(1,0);
 
@@ -362,9 +362,16 @@ SendPacket ArmorPredictor::GenerateSendPacket(float pitch_right, double bullet_s
     if (0 <= last_target_->Distance() && last_target_->Distance() < 2) distance_mode = 1;
     if (2 <= last_target_->Distance() && last_target_->Distance() < 4) distance_mode = 2;
     if (4 <= last_target_->Distance() && last_target_->Distance() < 6) distance_mode = 3;
-    DLOG(INFO) << " distance: " << last_target_->Distance();
+    DLOG(INFO) << "pnp distance: " << last_target_->Distance();
 
-    pitch = -Compensator::Instance().PitchOffset(pitch_right,bullet_speed,last_target_->Distance(),AimModes::kNormal);
+    float distance{0};
+    if(!is_same_target)
+        distance_filter_.Reset();
+    distance = distance_filter_(last_target_->Distance());
+
+    DLOG(INFO) << "filtered distance： " << distance;
+
+    pitch = -Compensator::Instance().PitchOffset(pitch_right,bullet_speed,distance,AimModes::kNormal);
 
     // 图传点
 //        cv::Mat3d camera_mat;
