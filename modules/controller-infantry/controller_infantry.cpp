@@ -45,7 +45,7 @@ void InfantryController::Run() {
     sleep(2);
     ArmorPredictor armor_predictor{Entity::kBlue, "infantry"};
     while (!exit_signal_) {
-
+        auto time = std::chrono::steady_clock::now();
         if (!GetImage<true>())
             continue;
 
@@ -89,6 +89,11 @@ void InfantryController::Run() {
         armors_.clear();
 
         CountPerformanceData();
+
+        auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - time);
+        if(10 - double(duration.count()) / 1e9  > 1){
+            cv::waitKey(int(10 - double(duration.count()) / 1e9));
+        }
 
     }
 
