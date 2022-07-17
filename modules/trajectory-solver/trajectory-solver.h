@@ -81,6 +81,11 @@ namespace trajectory_solver {
         BallisticModel ballistic_model;  ///< Ballistic model.
     };
 
+    struct TrajectoryResult {
+        double t;
+        Eigen::Vector2d v, x;
+    };
+
     /**
      * @brief Trajectory solver.
      * @details Given initial shooting args, this solver can calculate the whole 2d trajectory of the bullet.
@@ -111,13 +116,11 @@ namespace trajectory_solver {
         /**
          * @brief Solve the trajectory.
          * @param target_h Height of the target, m.
-         * @param [out] t The time point when bullet hits the target.
-         * @param [out] v The velocity vector when bullet hits the target.
-         * @param [out] x The position vector when bullet hits the target.
-         * @return If the solution is valid.
+         * @param [out] solutions Array of all solutions, sorted by x;
+         *   or, if no solutions are found, record the last status.
+         * @return If there is any solution.
          */
-        [[maybe_unused]] bool Solve(double target_h, double &t,
-                                    Eigen::Vector2d &v, Eigen::Vector2d &x);
+        [[maybe_unused]] bool Solve(double target_h, std::vector<TrajectoryResult> &solutions);
 
     private:
         unsigned int iter{};
@@ -138,6 +141,7 @@ namespace trajectory_solver {
          * @param _start_h Initial height, m.
          * @param _target_h Target height, m.
          * @param _target_x Horizontal distance from target, m.
+         * @note Due to limits in trajectory solver, _target_h must be positive.
          */
         [[maybe_unused]] void SetParam(const BallisticModel &model,
                                        double _start_v, double _start_h,
@@ -147,6 +151,7 @@ namespace trajectory_solver {
          * @brief Update target parameters.
          * @param _target_h Target height, m.
          * @param _target_x Horizontal distance from target, m.
+         * @note Due to limits in trajectory solver, _target_h must be positive.
          */
         [[maybe_unused]] void UpdateParam(double _target_h, double _target_x);
 
@@ -158,7 +163,8 @@ namespace trajectory_solver {
          * @param max_iter Maximal iteration times.
          * @return The fixed pitch angle, RAD; total time, s.
          */
-        [[maybe_unused]] Eigen::Vector2d Solve(double min_theta, double max_theta, double max_error, unsigned int max_iter);
+        [[maybe_unused]] Eigen::Vector2d
+        Solve(double min_theta, double max_theta, double max_error, unsigned int max_iter);
 
     private:
         BallisticModel ballistic_model;

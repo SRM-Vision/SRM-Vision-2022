@@ -16,17 +16,36 @@ int main([[maybe_unused]] int argc, char *argv[]) {
     FLAGS_stop_logging_if_full_disk = true;
     FLAGS_max_log_size = 16;
 
+    constexpr double deg2rad = CV_PI / 180;
     auto f = AirResistanceModel();
     f.SetParam(0.26, 994, 30, 0.0425, 0.041);
     auto a = BallisticModel();
     a.SetParam(f, 31);
     auto solver = PitchAngleSolver();
-    solver.SetParam(a, 16, 0.375, 1.2, 1);
-    constexpr double deg2rad = CV_PI / 180;
-    for (double target_x = 1; target_x <= 5; target_x += 0.5) {
+    solver.SetParam(a, 16, 0.35, 1.1, 1);
+    LOG(INFO) << "Now testing lob shoot.";
+    for (double target_x = 1; target_x <= 10; target_x += 0.5) {
         auto start_time = std::chrono::high_resolution_clock::now();
-        solver.UpdateParam(1.2, target_x);
-        auto res = solver.Solve(-CV_PI / 6, CV_PI / 3, 0.01, 16);
+        solver.UpdateParam(1.1, target_x);
+        auto res = solver.Solve(-CV_PI / 2, CV_PI / 2, 0.01, 16);
+        auto theta = res.x(), t = res.y();
+        auto end_time = std::chrono::high_resolution_clock::now();
+        double time_gap = (static_cast<std::chrono::duration<double, std::milli>>(
+                end_time - start_time)).count();
+        LOG(INFO) << "target: " << target_x << " m, angle: " << theta / deg2rad
+                  << " deg, time: " << t << "s, cost: " << time_gap << " ms.";
+    }
+    f = AirResistanceModel();
+    f.SetParam(0.48, 994, 30, 0.0032, 0.017);
+    a = BallisticModel();
+    a.SetParam(f, 31);
+    solver = PitchAngleSolver();
+    solver.SetParam(a, 30, 1.2, 0.18, 1);
+    LOG(INFO) << "Now testing flat shoot.";
+    for (double target_x = 1; target_x <= 10; target_x += 0.5) {
+        auto start_time = std::chrono::high_resolution_clock::now();
+        solver.UpdateParam(0.18, target_x);
+        auto res = solver.Solve(-CV_PI / 2, CV_PI / 2, 0.01, 16);
         auto theta = res.x(), t = res.y();
         auto end_time = std::chrono::high_resolution_clock::now();
         double time_gap = (static_cast<std::chrono::duration<double, std::milli>>(
