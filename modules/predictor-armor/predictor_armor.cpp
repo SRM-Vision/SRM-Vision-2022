@@ -163,7 +163,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, const cv::MatSize
     if(locked_same_target){
         DLOG(INFO) << "locked the same armor.";
         // EKF Predict
-        Predict(*target_current, delta_t, bullet_speed, battlefield.YawPitchRoll(), kShootDelay);
+        Predict(*target_current, delta_t, bullet_speed, battlefield.YawPitchRoll(), ArmorPredictorDebug::Instance().ShootDelay());
 
         // anti spinning
         if (spin_predictor_.IsSpin()){
@@ -183,7 +183,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, const cv::MatSize
                 InitializeEKF(battlefield.YawPitchRoll(),another_armor->TranslationVectorWorld());
                 ekf_.x_estimate_(1,0) = predict_speed_(0,0);
                 ekf_.x_estimate_(3,0) = -predict_speed_(1,0);
-                Predict(*another_armor,delta_t,bullet_speed,battlefield.YawPitchRoll(),kShootDelay);
+                Predict(*another_armor,delta_t,bullet_speed,battlefield.YawPitchRoll(),ArmorPredictorDebug::Instance().ShootDelay());
                 DLOG(INFO) << "anti-spin mode, switch to another spinning armor.";
             }else if(algorithm::NanoSecondsToSeconds(spin_predictor_.LastJumpTime(), battlefield.TimeStamp()) /
                spin_predictor_.JumpPeriod() < kAllowFollowRange){
@@ -262,12 +262,25 @@ bool ArmorPredictor::FindMatchArmor(std::shared_ptr<Armor> &target, const cv::Po
 void ArmorPredictor::InitializeEKF(const std::array<float, 3> &yaw_pitch_roll,
                                    const coordinate::TranslationVector &translation_vector_world) {
     Eigen::Matrix<double, 5, 1> x_real; // used to initialize the ekf
+    Eigen::Matrix<double, 5, 5> predict_cov;
+    Eigen::Matrix<double, 3, 3> measure_cov;
     x_real << translation_vector_world[0],
             0,
             translation_vector_world[1],
             0,
             translation_vector_world[2];
-    ekf_.Initialize(x_real);
+
+    predict_cov << ArmorPredictorDebug::Instance().PredictedXZNoise(), 0, 0, 0, 0,
+                   0, ArmorPredictorDebug::Instance().PredictedXSpeedNoise(), 0, 0, 0,
+                   0, 0, ArmorPredictorDebug::Instance().PredictedYNoise(), 0, 0,
+                   0, 0, 0, ArmorPredictorDebug::Instance().PredictedYSpeedNoise(), 0,
+                   0, 0, 0, 0, ArmorPredictorDebug::Instance().PredictedXZNoise();
+
+    measure_cov << ArmorPredictorDebug::Instance().MeasureXNoise(), 0, 0,
+                   0, ArmorPredictorDebug::Instance().MeasureYNoise(), 0,
+                   0, 0, ArmorPredictorDebug::Instance().MeasureZNoise();
+
+    ekf_.Initialize(x_real,predict_cov, measure_cov);
 
     predict_world_vector_ = translation_vector_world;
 
@@ -298,6 +311,11 @@ void ArmorPredictor::Predict(const Armor &armor, double delta_t, double bullet_s
         /// translate measured value to the format of ekf
         Eigen::Matrix<double, 3, 1> y_real;
         coordinate::convert::Rectangular2Spherical(armor.TranslationVectorWorld().data(), y_real.data());
+
+# if !NDEBUG
+        // update trackbar param
+        ArmorPredictorDebug::Instance().AlterPredictCovMeasureCov(ekf_);
+# endif
 
         Eigen::Matrix<double, 5, 1> x_predict = ekf_.Predict(predict);
         Eigen::Matrix<double, 5, 1> x_estimate = ekf_.Update(measure, y_real);

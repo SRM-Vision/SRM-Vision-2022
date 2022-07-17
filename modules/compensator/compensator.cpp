@@ -51,8 +51,9 @@ bool Compensator::Initialize(const std::string &robot_name, double bullet_speed)
     return true;
 }
 
-void Compensator::Offset(float &pitch, float &yaw, double bullet_speed, float &check_sum, double distance, AimModes mode) {
-    //TODO more mode
+void
+Compensator::Offset(float &pitch, float &yaw, double bullet_speed, float &check_sum, double distance, AimModes mode) {
+    // TODO more mode
     if (pitch == 0 || bullet_speed == 0 || distance == 0)
         return;
     if (robot_name_ == "sentry_lower") {

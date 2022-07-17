@@ -31,30 +31,18 @@ public:
 
     ExtendedKalmanFilter()
             : x_estimate_(VectorX::Zero()),
-              status_cov_(MatrixXX::Identity()) {
-        predict_cov_ << 0.01, 0, 0, 0, 0,
-                        0, 100, 0, 0, 0,
-                        0, 0, 0.01, 0, 0,
-                        0, 0, 0, 100, 0,
-                        0, 0, 0, 0, 0.01;
-        measure_cov_ << 1, 0, 0,
-                        0, 1, 0,
-                        0, 0, 800;
-    }
+              status_cov_(MatrixXX::Identity()) {}
 
-    inline void Initialize(const VectorX &x = VectorX::Zero()) {
+    inline void Initialize(const VectorX &x = VectorX::Zero(),
+                           const MatrixXX &predict_cov = MatrixXX::Identity(),
+                           const MatrixYY &measure_cov = MatrixYY::Identity()) {
         x_estimate_ = x;
+        predict_cov_ = predict_cov;
+        measure_cov_ = measure_cov;
     }
 
     template<typename Func>
     VectorX Predict(Func &&func) {
-        AlterPredictCovMeasureCov(ArmorPredictorDebug::Instance().PredictedXZNoise(),
-                                  ArmorPredictorDebug::Instance().PredictedYNoise(),
-                                  ArmorPredictorDebug::Instance().PredictedXSpeedNoise(),
-                                  ArmorPredictorDebug::Instance().PredictedYSpeedNoise(),
-                                  ArmorPredictorDebug::Instance().MeasureXNoise(),
-                                  ArmorPredictorDebug::Instance().MeasureYNoise(),
-                                  ArmorPredictorDebug::Instance().MeasureZNoise());
         ceres::Jet<double, N_x> x_estimated_auto_jet[N_x];
         for (auto i = 0; i < N_x; ++i) {
             x_estimated_auto_jet[i].a = x_estimate_[i];
@@ -93,18 +81,6 @@ public:
         status_cov_ = (MatrixXX::Identity() - kalman_gain_ * measure_jacobi_) * status_cov_;
 
         return x_estimate_;
-    }
-
-    void AlterPredictCovMeasureCov(double p_xz_noise, double p_y_noise, double p_x_speed_noise, double p_y_speed_noise,
-                              double m_x_noise, double m_y_noise, double m_z_noise) {
-        predict_cov_ << p_xz_noise, 0, 0, 0, 0,
-                        0, p_x_speed_noise, 0, 0, 0,
-                        0, 0, p_y_noise, 0, 0,
-                        0, 0, 0, p_y_speed_noise, 0,
-                        0, 0, 0, 0, p_xz_noise;
-        measure_cov_ << m_x_noise, 0, 0,
-                        0, m_y_noise, 0,
-                        0, 0, m_z_noise;
     }
 
     VectorX x_estimate_;       ///< Estimated status var. [Xe]

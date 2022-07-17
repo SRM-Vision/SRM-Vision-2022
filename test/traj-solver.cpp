@@ -28,12 +28,12 @@ int main([[maybe_unused]] int argc, char *argv[]) {
         auto start_time = std::chrono::high_resolution_clock::now();
         solver.UpdateParam(1.1, target_x);
         auto res = solver.Solve(-CV_PI / 2, CV_PI / 2, 0.01, 16);
-        auto theta = res.x(), t = res.y();
+        auto theta = res.x(), t = res.y(), error = res.z();
         auto end_time = std::chrono::high_resolution_clock::now();
         double time_gap = (static_cast<std::chrono::duration<double, std::milli>>(
                 end_time - start_time)).count();
         LOG(INFO) << "target: " << target_x << " m, angle: " << theta / deg2rad
-                  << " deg, time: " << t << "s, cost: " << time_gap << " ms.";
+                  << " deg, time: " << t << "s, error: " << error * 100 << "%, cost: " << time_gap << " ms.";
     }
     f = AirResistanceModel();
     f.SetParam(0.48, 994, 30, 0.0032, 0.017);
@@ -46,11 +46,11 @@ int main([[maybe_unused]] int argc, char *argv[]) {
         auto start_time = std::chrono::high_resolution_clock::now();
         solver.UpdateParam(0.18, target_x);
         auto res = solver.Solve(-CV_PI / 2, CV_PI / 2, 0.01, 16);
-        auto theta = res.x(), t = res.y();
+        auto theta = res.x(), t = res.y(), error = res.z();
         auto end_time = std::chrono::high_resolution_clock::now();
         double time_gap = (static_cast<std::chrono::duration<double, std::milli>>(
                 end_time - start_time)).count();
         LOG(INFO) << "target: " << target_x << " m, angle: " << theta / deg2rad
-                  << " deg, time: " << t << "s, cost: " << time_gap << " ms.";
+                  << " deg, time: " << t << "s, error: " << error * 100 << "%, cost: " << time_gap << " ms.";
     }
 }

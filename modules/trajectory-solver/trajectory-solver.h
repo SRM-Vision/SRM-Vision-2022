@@ -52,6 +52,12 @@ namespace trajectory_solver {
          */
         [[maybe_unused]] Eigen::Vector2d operator()(const Eigen::Vector2d &v) const;
 
+        /**
+         * @brief Get calculated gravitational acceleration.
+         * @return The gravitational acceleration, m/s^2.
+         */
+        [[maybe_unused]] [[nodiscard]] inline double G() const { return g; }
+
     private:
         AirResistanceModel air_resistance_model;  ///< Air resistance model.
         double g;  ///< Current gravitational acceleration, m/s^2.
@@ -161,9 +167,9 @@ namespace trajectory_solver {
          * @param max_theta Maximal pitch angle, RAD.
          * @param max_error Maximal error acceptable, m.
          * @param max_iter Maximal iteration times.
-         * @return The fixed pitch angle, RAD; total time, s.
+         * @return The fixed pitch angle, RAD; total time, s; error / target_x, 1.
          */
-        [[maybe_unused]] Eigen::Vector2d
+        [[maybe_unused]] Eigen::Vector3d
         Solve(double min_theta, double max_theta, double max_error, unsigned int max_iter);
 
     private:
