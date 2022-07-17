@@ -10,7 +10,7 @@
 
 // coordinate, image_provider isn't contained in this file, since it is been welly sealed
 /// \brief This is parameter maintain class, other debug class is friend to this class
-/// \note Don't use this class alone. Coordinate, image_provider isn't contained in this file, since it is been welly sealed.
+/// \note Don't use this class alone. Coordinate, image_provider isn't contained in this file, since it is been well-sealed.
 class ParameterMaintain {
 public:
     explicit ParameterMaintain(const std::string &controller_type_name) {
