@@ -9,7 +9,7 @@
 const unsigned int kMaxGreyCount = 20;
 
 /// Picture Distance threshold to judge whether a target is too far.
-const double kPicDistanceThreshold = 30;
+const double kPicDistanceThreshold = 100;
 
 /// Switch target in anti-top When new armor bigger than 0.7 * old armor.
 const double kSwitchByAreaThreshold = 0.7;
