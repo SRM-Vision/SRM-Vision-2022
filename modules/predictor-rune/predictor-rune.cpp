@@ -3,8 +3,8 @@
 #include "detector-rune/detector_rune_debug.h"
 
 predictor::rune::RunePredictor::RunePredictor() :
-        rune_(), state_(), rotational_speed_(), fitting_data_(),
-        output_data_(), bullet_speed_(15),
+        rune_(), state_(), fitting_data_(),
+        output_data_(), bullet_speed_(0),
         predicted_angle_(), predicted_point_() {}
 
 bool predictor::rune::RunePredictor::Initialize(const std::string &config_path) {
@@ -27,6 +27,8 @@ bool predictor::rune::RunePredictor::Initialize(const std::string &config_path) 
 
 SendPacket predictor::rune::RunePredictor::Run(const PowerRune &power_rune, AimModes aim_mode, float bullet_speed) {
     rune_ = power_rune;
+//    if (bullet_speed != bullet_speed_)
+//        InitModel(bullet_speed);
     bullet_speed_ = bullet_speed;
 
     // Aim mode is big rune.
@@ -41,7 +43,7 @@ SendPacket predictor::rune::RunePredictor::Run(const PowerRune &power_rune, AimM
         state_.CheckMode();
     }
 
-    // Aim mode is small rune.
+        // Aim mode is small rune.
     else if (aim_mode == kSmallRune) {
         DLOG(INFO) << "Rune predictor mode: small.";
         rotational_speed_.w = rune_.Clockwise() * 1.04717;
@@ -51,7 +53,7 @@ SendPacket predictor::rune::RunePredictor::Run(const PowerRune &power_rune, AimM
         state_.CheckMode();
     }
 
-    // Compensation test
+        // Compensation test
     else {
         DLOG(INFO) << "Compensation mode!";
         PredictAngle(aim_mode);
@@ -168,7 +170,7 @@ void predictor::rune::RunePredictor::PredictAngle(AimModes aim_mode) {
         }
     }
 
-    // Aim mode is small rune.
+        // Aim mode is small rune.
     else if (aim_mode == kSmallRune) {
         double bullet_delay_time = 7.0 / bullet_speed_;  // Ballistic Time Compensation.
         auto rotated_radian = rune_.Clockwise() * rotational_speed_.w * (kCompensateTime + bullet_delay_time);
@@ -214,11 +216,18 @@ void predictor::rune::OutputData::Update(const PowerRune &rune,
     fixed_point = predicted_point + cv::Point2f(static_cast<float>(delta_u), static_cast<float>(delta_v));
 
     // Use SIMD atan2 for 4x floats.
-    float x[4] = {2500, 2500, 1, 1},
+    float x[4] = {kP_yaw, kP_pitch, 1, 1},
             y[4] = {fixed_point.x - rune.ImageCenter().x, fixed_point.y - rune.ImageCenter().y, 1, 1},
             z[4] = {0};
     algorithm::Atan2FloatX4(y, x, z);
-    yaw = z[0], pitch = z[1];  // Maybe need subtract image-center value.
+
+    yaw = z[0] > .15f ? .05f : z[0], pitch = z[1] > .15f ? .05f : z[1];  // Avoid excessive offset
+//    double target_h = 5 + (rune.ArmorCenterP().x * rune.ArmorCenterP().y) /
+//                          std::abs((rune.ArmorCenterP().x * rune.ArmorCenterP().y)) *
+//                          algorithm::CosFloat(float(predicted_angle));
+//    angle_solver_.UpdateParam(target_h, 8.32);
+//    auto res = angle_solver_.Solve(-CV_PI / 6, CV_PI / 3, 0.01, 16);
+//    pitch = float(res.x()) - pitch > .15f ? .05f : float(res.x()) - pitch;
 
     DLOG(INFO) << "Output yaw: " << yaw << ", pitch: " << pitch << ".";
     delay = 1.f;
@@ -301,3 +310,13 @@ void predictor::rune::FittingData::Fit(RotationalSpeed &rotational_speed) {
 
 
 
+
+
+void predictor::rune::RunePredictor::InitModel(double bullet_speed) {
+    auto f = trajectory_solver::AirResistanceModel();
+    f.SetParam(0.48, 994, 30, 0.017, 0.0032);
+    auto a = trajectory_solver::BallisticModel();
+    a.SetParam(f, 31);
+    angle_solver_ = trajectory_solver::PitchAngleSolver();
+    angle_solver_.SetParam(a, bullet_speed, 1.35, 2.41, 8.32);
+}

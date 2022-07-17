@@ -20,6 +20,10 @@ namespace predictor::rune {
     constexpr int kBufferDataNum           = 50;   ///< Updated data num in every fit period.
     constexpr double kCompensateTime       = 0.04; ///< Communication, program process and etc delay.
 
+    trajectory_solver::PitchAngleSolver angle_solver_{};
+    constexpr int kP_pitch = 3000;
+    constexpr int kP_yaw = 3000;
+
     /// @brief Trigonometric residual (cost) function package for Ceres solver.
     struct TrigonometricResidual {
         /**
@@ -63,7 +67,7 @@ namespace predictor::rune {
          */
         [[nodiscard]] double AngularIntegral(double integral_time) const;
 
-        int rotational_direction;  ///< 1 is clockwise, -1 is counterclockwise.
+        [[maybe_unused]] int rotational_direction;  ///< 1 is clockwise, -1 is counterclockwise.
         double a;  ///< Amplitude, or A.
         double w;  ///< Palstance, or omega.
         double p;  ///< Initial phase, or phi.
@@ -174,6 +178,8 @@ namespace predictor::rune {
         void PredictAngle(AimModes aim_mode);
 
         void PredictPoint();
+
+        static void InitModel(double bullet_speed);
 
         PowerRune rune_;  ///< It is initiated by package conveyed by rune detector.
         State state_;
