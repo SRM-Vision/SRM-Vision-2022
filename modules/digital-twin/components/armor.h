@@ -17,7 +17,8 @@
 class Armor : public Component {
 public:
 
-    enum ArmorSize{kBig,
+    enum ArmorSize{
+        kBig,
         kSmall,
         kAuto,
         SIZE};

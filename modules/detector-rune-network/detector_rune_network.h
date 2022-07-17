@@ -7,6 +7,8 @@
 
 #include <NvInfer.h>
 #include <lang-feature-extension/disable-constructors.h>
+#include "digital-twin/facilities/power_rune.h"
+#include "data-structure/frame.h"
 #include <lang-feature-extension/attr-reader.h>
 #include <opencv2/opencv.hpp>
 
@@ -43,20 +45,24 @@ public:
      */
     void Initialize(const std::string &onnx_file);
 
+
+
     /**
-     * \brief Run detection model.
-     * \param [in] image Input image.
-     * \return 4-point structures in a vector.
+     * \brief Run detector once.
+     * \param [in] frame Input original frame.
+     * \return Output power rune data.
      */
-    std::vector<BuffObject> operator()(const cv::Mat &image) const;
+    [[nodiscard]] PowerRune Run(Entity::Colors color, Frame &frame);
 
-
+    // model part
 private:
     void BuildEngineFromONNX(const std::string &);
 
     void BuildEngineFromCache(const std::string &);
 
     void CacheEngine(const std::string &);
+
+    BuffObject ModelRun(const cv::Mat &image) const;
 
     nvinfer1::ICudaEngine *engine_;         ///< CUDA engine handle.
     nvinfer1::IExecutionContext *context_;  ///< CUDA execution context handle.
@@ -66,6 +72,17 @@ private:
     cudaStream_t stream_;
     int input_index_, output_index_;
     size_t input_size_, output_size_;
+
+    // traditional part
+private:
+    cv::Point2f energy_center_r_;
+    cv::Point2f armor_center_p_;
+    cv::Point2f rtp_vec_;
+
+    int clockwise_ = 0;
+
+    void FindRotateDirection();
+
 };
 
 

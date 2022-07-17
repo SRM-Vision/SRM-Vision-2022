@@ -21,7 +21,7 @@ static constexpr int NUM_CLASSES = 2;  // Number of classes
 static constexpr int NUM_COLORS = 2;   // Number of color
 static constexpr int TOPK = 128;       // TopK
 static constexpr float NMS_THRESH  = 0.1;
-static constexpr float BBOX_CONF_THRESH = 0.1;
+static constexpr float BBOX_CONF_THRESH = 0.6;
 static constexpr float MERGE_CONF_ERROR = 0.15;
 static constexpr float MERGE_MIN_IOU = 0.2;
 
@@ -40,21 +40,11 @@ static inline int argmax(const float *ptr, int len)
     return max_arg;
 }
 
-
 static inline size_t get_dims_size(const nvinfer1::Dims &dims) {
     size_t sz = 1;
     for (int i = 0; i < dims.nbDims; ++i) sz *= dims.d[i];
     return sz;
 }
-
-inline constexpr float inv_sigmoid(float x) {
-    return -std::log(1 / x - 1);
-}
-
-inline constexpr float sigmoid(float x) {
-    return 1 / (1 + std::exp(-x));
-}
-
 
 struct GridAndStride
 {
@@ -314,13 +304,16 @@ void RuneDetectorNetwork::Initialize(const std::string &onnx_file) {
     TRT_ASSERT(output_buffer_ != nullptr)
 }
 
-std::vector<BuffObject> RuneDetectorNetwork::operator()(const cv::Mat &image) const {
-
+BuffObject RuneDetectorNetwork::ModelRun(const cv::Mat &image) const
+{
     // Pre-process. [bgr2rgb & resize]
     cv::Mat x = image.clone();
+    float fx = (float) x.cols / 416.f; float fy = (float) x.rows / 416.f;
     if (image.cols != 416 || image.rows != 416)
         cv::resize(x, x, {416, 416});
+    cv::imshow("resized image", x);
     x.convertTo(x, CV_32F);
+
     cv::Mat x_split[3];
     cv::split(x, x_split);
     //cv::cvtColor(image, x, cv::COLOR_BGR2RGB);
@@ -365,18 +358,6 @@ std::vector<BuffObject> RuneDetectorNetwork::operator()(const cv::Mat &image) co
 
     std::cout << "results nums is " << results.size() << std::endl;
 
-    cv::Mat draw_image = image.clone();
-    for (auto result : results)
-    {
-        for (auto apex : result.apex)
-        {
-            cv::circle(draw_image, apex, 2, cv::Scalar(100, 150, 200), 3);
-        }
-    }
-
-    cv::imshow("detector rune network", draw_image);
-
-
     if (results.size() >= TOPK)
         results.resize(TOPK);
     std::vector<int> picked;
@@ -403,8 +384,8 @@ std::vector<BuffObject> RuneDetectorNetwork::operator()(const cv::Mat &image) co
 
             for (int i = 0; i < 5; i++)
             {
-                pts_final[i].x = pts_final[i].x / (N / 5);
-                pts_final[i].y = pts_final[i].y / (N / 5);
+                pts_final[i].x = pts_final[i].x / (N / 5) * fx;
+                pts_final[i].y = pts_final[i].y / (N / 5) * fy;
             }
 
             (*object).apex[0] = pts_final[0];
@@ -416,10 +397,34 @@ std::vector<BuffObject> RuneDetectorNetwork::operator()(const cv::Mat &image) co
         // (*object).area = (int)(calcTetragonArea((*object).apex));
     }
 
+    cv::Mat draw_image = image.clone();
+    std::cout << "results size's" << results.size() << std::endl;
 
+    std::sort(results.begin(), results.end(), [](BuffObject a, BuffObject b){
+        return a.prob > b.prob;
+    });
 
+    std::array<cv::Scalar_<double>, 5> color = {
+            cv::Scalar(0, 255, 255),
+            cv::Scalar(0, 255, 255),
+            cv::Scalar(0, 255, 0),
+            cv::Scalar(0, 255, 255),
+            cv::Scalar(0, 255, 255)
+    };
+    for (auto result : results)
+    {
+        int i=0;
+        for (auto apex : result.apex)
+        {
+            cv::circle(draw_image, apex, 2, color[i], 3);
+            i++;
+        }
+        break;
+    }
 
-    return results;
+    cv::imshow("detector rune network", draw_image);
+
+    return results.at(0);
 }
 
 void RuneDetectorNetwork::BuildEngineFromONNX(const std::string &onnx_file) {
@@ -494,5 +499,75 @@ void RuneDetectorNetwork::CacheEngine(const std::string &cache_file) {
     std::ofstream ofs(cache_file, std::ios::binary);
     ofs.write(static_cast<const char *>(engine_buffer->data()), (std::streamsize) engine_buffer->size());
     engine_buffer->destroy();
+}
+
+
+
+void RuneDetectorNetwork::FindRotateDirection() {
+    static std::vector<cv::Point2f> r_to_p_vec;  ///< Vector Used for deciding rotation direction.
+    const float kMaxRatio = 0.1;
+    static float rune_radius_ = 120;
+
+
+    if (clockwise_ == 0) {
+        r_to_p_vec.emplace_back(rtp_vec_);
+    }
+    // note:frame lost is deleted
+
+    if (clockwise_ == 0 && static_cast<int>(r_to_p_vec.size()) > 20)
+    {
+        cv::Point2f first_rotation = r_to_p_vec[5];  // The fist five frames may be invalid.
+        float radius, final_radius = 0;
+        for (auto current_rotation = r_to_p_vec.begin() + 6; current_rotation != r_to_p_vec.end(); ++current_rotation) {
+            double cross = first_rotation.cross(cv::Point2f(current_rotation->x, current_rotation->y));
+            radius = algorithm::SqrtFloat(
+                    current_rotation->x * current_rotation->x + current_rotation->y * current_rotation->y);
+            final_radius +=
+                    std::min(rune_radius_ * (1 + kMaxRatio), std::max(rune_radius_ * (1 - kMaxRatio), radius)) / 15;
+
+            if (cross > 0.0)
+                ++clockwise_;
+            else if (cross < 0.0)
+                --clockwise_;
+        }
+        if (clockwise_ > 8) {
+            DLOG(INFO) << "Power rune's direction is clockwise." << " \tRadius: " << rune_radius_;
+            clockwise_ = 1;
+        } else if (clockwise_ < -8) {
+            DLOG(INFO) << "Power rune's direction is anti-clockwise." << " \tRadius: " << rune_radius_;
+            clockwise_ = -1;
+        } else {
+            clockwise_ = 0;
+            DLOG(WARNING) << "Rotating direction is not decided!" << " \tRadius: " << rune_radius_;
+            r_to_p_vec.clear();
+        }
+        rune_radius_ = final_radius;
+    }
+}
+
+PowerRune RuneDetectorNetwork::Run(Entity::Colors color, Frame &frame) {
+    BuffObject buff_from_model = ModelRun(frame.image);
+
+    energy_center_r_ = buff_from_model.apex[2];
+    for (int i=0; i<5 && i!=3; i++)
+    {
+        armor_center_p_ += buff_from_model.apex[i];
+    }
+    armor_center_p_ /= 4;
+    rtp_vec_ = armor_center_p_ - energy_center_r_;
+
+    if (!clockwise_)
+        FindRotateDirection();
+
+    return {color,
+                     clockwise_,
+                     rtp_vec_,
+                     cv::Point2f(0, 0), // rtg is dismissed
+                     energy_center_r_,
+                     armor_center_p_,
+                     cv::Point2f(0, 0),
+                     cv::Point3_<float>(0, 0, 0),
+                     cv::Point2f(float(frame.image.cols >> 1), float(frame.image.rows >> 1))
+                     };
 }
 
