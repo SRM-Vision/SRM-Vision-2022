@@ -66,12 +66,11 @@ PowerRune RuneDetector::Run(Entity::Colors color, Frame &frame) {
 
     return {color_,
             clockwise_,
+            0,  // Time_gap
+            0,
             rtp_vec_,
-            rtg_vec_,
             energy_center_r_,
             armor_center_p_,
-            fan_center_g_,
-            send_yaw_pitch_delay_,
             cv::Point2f(float(frame.image.cols >> 1), float(frame.image.rows >> 1))};
 }
 
