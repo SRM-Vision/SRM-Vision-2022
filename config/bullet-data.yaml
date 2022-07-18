@@ -1,0 +1,14 @@
+%YAML:1.0
+---
+
+# Small bullet.
+SMALL_BULLET:
+  c: 0.48  # Air resistance coefficient.
+  m: 0.017  # Mass, kg.
+  d: 0.0032  # Diameter, m.
+
+# Big bullet.
+BIG_BULLET:
+  c: 0.26
+  m: 0.041
+  d: 0.0425

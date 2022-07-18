@@ -18,16 +18,9 @@ public:
     void Run() final;
 
 private:
-    /**
-     * \brief Draw the output point from predictor.
-     * \param [in,out] image Source image.
-     * \param [in] camera_matrix Camera internal matrix.
-     * \param [in] camera_point Point in camera coordinate.
-     */
-
     /// Own registry in controller factory.
     [[maybe_unused]] static ControllerRegistry<SentryLowerController> sentry_lower_controller_registry_;
-    debug::IPainter* painter_;
+    debug::IPainter *painter_;
     ControllerSentryLowerDebug controller_sentry_lower_debug_;
 };
 
