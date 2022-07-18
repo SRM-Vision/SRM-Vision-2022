@@ -27,6 +27,12 @@ public:
         return camera_->GetFrame(frame);
     }
 
+    inline bool IsConnected() final {
+        if (camera_)
+            return camera_->IsConnected();
+        return false;
+    }
+
     ATTR_READER(camera_, GetCameraHandle)
 
 private:

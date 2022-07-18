@@ -32,6 +32,10 @@ public:
             return false;
     }
 
+    inline bool IsConnected() final {
+        return true;
+    }
+
 private:
     cv::VideoCapture video_;  ///< Video object.
 

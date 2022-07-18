@@ -44,6 +44,8 @@ public:
      */
     virtual bool GetFrame(Frame &frame) = 0;
 
+    virtual bool IsConnected() = 0;
+
 protected:
     cv::Mat intrinsic_matrix_;   ///< Intrinsic matrix for solving PnP.
     cv::Mat distortion_matrix_;  ///< Distortion matrix for solving PnP.

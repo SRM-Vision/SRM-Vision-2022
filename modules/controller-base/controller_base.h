@@ -47,12 +47,22 @@ protected:
 
     template<bool flip>
     [[nodiscard]] bool GetImage() {
-        if (!image_provider_->GetFrame(frame_)) {
-            LOG(WARNING) << "Failed to get image, wait for camera or press ctrl-c to quit.";
+        if (!image_provider_->IsConnected()) {
+            LOG(WARNING) << "Image provider is disconnected. Wait for camera or press ctrl-c to quit.";
 #if NDEBUG
-            sleep(1);
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 #else
             cv::waitKey(1000);
+#endif
+            return false;
+        }
+
+        if (!image_provider_->GetFrame(frame_)) {
+            LOG(WARNING) << "Image provider is disconnected. Wait for camera or press ctrl-c to quit.";
+#if NDEBUG
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+#else
+            cv::waitKey(1);
 #endif
             return false;
         }
