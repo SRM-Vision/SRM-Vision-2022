@@ -9,7 +9,6 @@
 #define IMAGE_PROVIDER_CAMERA_H_
 
 // Include nothing to avoid this file being wrongly included.
-
 /**
  * \brief Camera image provider class implementation.
  * \warning NEVER directly use this class to create image provider!  \n
@@ -24,6 +23,9 @@ public:
     bool Initialize(const std::string &, bool record) final;
 
     inline bool GetFrame(Frame &frame) final {
+        // TODO [Screw] Re-add recording.
+        // std::thread t0(Record, frame.image.clone());
+        // t0.join();
         return camera_->GetFrame(frame);
     }
 

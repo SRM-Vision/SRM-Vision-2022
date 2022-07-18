@@ -54,7 +54,7 @@ public:
         if (head_ == tail_) {
             std::lock_guard<std::mutex> head_lock(head_lock_);
             ++head_;
-            head_ &= size;
+            head_ %= size;
         }
     }
 

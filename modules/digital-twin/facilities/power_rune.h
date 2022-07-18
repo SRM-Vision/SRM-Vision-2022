@@ -12,6 +12,8 @@
 
 #include "../facility.h"
 
+
+// FIXME [LIYunzhe1408] ?
 class PowerRune : public Facility {
 public:
     ATTR_READER(clockwise_, Clockwise)
