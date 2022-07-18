@@ -32,6 +32,7 @@ bool HeroController::Initialize() {
 }
 
 void HeroController::Run() {
+    cv::Rect ROI;
     sleep(2);
     ArmorPredictor armor_predictor(Entity::kBlue, "hero");
     while (!exit_signal_) {
@@ -60,7 +61,7 @@ void HeroController::Run() {
             outpost_predictor_.SetColor(receive_packet_.color);
 //            send_packet_ = outpost_predictor_.OldRun(battlefield_);
             send_packet_ = outpost_predictor_.NewRun(battlefield_, receive_packet_.bullet_speed,
-                                                     frame_.image.size().width, time);
+                                                     frame_.image.size().width, receive_packet_.yaw_pitch_roll,time);
             auto roi = outpost_predictor_.GetROI(frame_.image);
             armor_detector_.UpdateROI(roi);
             controller_hero_debug_.DrawOutpostData(frame_.image,
@@ -72,9 +73,6 @@ void HeroController::Run() {
                                                    "Hero Run",
                                                    1);
 
-//            outpost_measure_.Run(battlefield_,receive_packet_.color,receive_packet_.bullet_speed);
-//            debug::Painter::Instance()->UpdateImage(frame_.image);
-//            debug::Painter::Instance()->ShowImage("lll",1);
         } else {
 
             BboxToArmor();
@@ -102,10 +100,7 @@ void HeroController::Run() {
             send_packet_.fire = 0;
         }
 //
-//        Compensator::Instance().Offset(send_packet_.pitch, send_packet_.yaw,
-//                                       receive_packet_.bullet_speed, send_packet_.check_sum,
-//                                       armor_predictor.GetTargetDistance(),
-//                                       receive_packet_.mode);
+
 
         if (controller_hero_debug_.GetKey() == 'q')
             break;

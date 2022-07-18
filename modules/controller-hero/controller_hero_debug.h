@@ -28,12 +28,12 @@ public:
         controller_debug_.UpdateImage(image);
         controller_debug_.DrawRoi(ROI);
         controller_debug_.DrawArmors(bboxes, armor_predictor, intrinsic_matrix, image_size);
-        controller_debug_.painter_->DrawLine({float(image_size().width *0.5 ),50},
-                                             {float(image_size().width *0.5), float(image.size().height - 50)},
+        controller_debug_.painter_->DrawLine({float(image_size().width *0.5 ),200},
+                                             {float(image_size().width *0.5), float(image.size().height - 200)},
                                              cv::Scalar(0,0, 255),
                                              2);
-        controller_debug_.painter_->DrawLine({float(image_size().width -100),float(image.size().height *0.5)},
-                                             {100, float(image.size().height *0.5)},
+        controller_debug_.painter_->DrawLine({float(image_size().width -200),float(image.size().height *0.5)},
+                                             {200, float(image.size().height *0.5)},
                                              cv::Scalar(0,0, 255),
                                              2);
         controller_debug_.ShowImage(window_names, wait_time);
@@ -75,8 +75,8 @@ public:
     }
 
     inline char GetKey() {
-#if !NDEBUG
-        char key = cv::waitKey(6) & 0xff;
+#if NDEBUG
+        char key = cv::waitKey(22) & 0xff;
         if (key == 's') {
             ArmorPredictorDebug::Instance().Save();
             OutpostPredictorDebug::Instance().Save();
