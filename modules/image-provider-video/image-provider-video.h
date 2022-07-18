@@ -17,7 +17,7 @@
  */
 class [[maybe_unused]] ImageProviderVideo final : public ImageProvider {
 public:
-    ImageProviderVideo() : ImageProvider(), time_stamp_(0) {}
+    ImageProviderVideo() : ImageProvider(), time_stamp_(0), connect(false) {}
 
     ~ImageProviderVideo() final;
 
@@ -28,15 +28,19 @@ public:
             time_stamp_ += uint64_t(1e9 / video_.get(cv::CAP_PROP_FPS));
             frame.time_stamp = time_stamp_;
             return true;
-        } else
+        } else {
+            connect = false;
             return false;
+        }
     }
 
     inline bool IsConnected() final {
-        return true;
+        return connect;
     }
 
 private:
+    bool connect;
+
     cv::VideoCapture video_;  ///< Video object.
 
     uint64_t time_stamp_;

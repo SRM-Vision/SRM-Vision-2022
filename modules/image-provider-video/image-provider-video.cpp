@@ -84,5 +84,6 @@ bool ImageProviderVideo::Initialize(const std::string &file_path, bool record) {
         return false;
     }
 
+    connect = true;
     return true;
 }

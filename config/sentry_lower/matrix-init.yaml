@@ -6,8 +6,8 @@ RM_CAM_TO_IMU_DATA: !!opencv-matrix
   dt: d
   data: [ 1, 0, 0,
           0, 1, 0,
-          0, 0, 1]
-TM_CAM_TO_IMU_DATA: !!opencv-matrix # TODO checkout this
+          0, 0, 1 ]
+TM_CAM_TO_IMU_DATA: !!opencv-matrix # FIXME Check and modify this data.
   rows: 3
   cols: 1
   dt: d

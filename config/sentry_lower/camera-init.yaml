@@ -1,5 +1,5 @@
 %YAML:1.0
-
+---
 ALL_CAMS_CONFIG_FILE: "../config/all-cams-config.yaml"
 ALL_LENS_CONFIG_FILE: "../config/all-lens-config.yaml"
 
