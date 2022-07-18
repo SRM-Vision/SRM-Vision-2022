@@ -16,52 +16,45 @@ class PowerRune : public Facility {
 public:
     ATTR_READER(clockwise_, Clockwise)
 
-    ATTR_READER_REF(rtg_vec_, RtgVec)
+    ATTR_READER(rtp_vec_, RtpVec)
 
-    ATTR_READER_REF(rtp_vec_, RtpVec)
+    ATTR_READER(center_r_, CenterR)
 
-    ATTR_READER_REF(center_r_, CenterR)
+    ATTR_READER(armor_center_p_, ArmorCenterP)
 
-    ATTR_READER_REF(armor_center_p_, ArmorCenterP)
+    ATTR_READER(image_center_, ImageCenter)
 
-    ATTR_READER_REF(fan_center_g_, FanCenterG)
+    ATTR_READER(time_gap_, TimeGap)
 
-    ATTR_READER_REF(send_yaw_pitch_delay_, SendYawPitchDelay)
+    ATTR_READER(current_time_, CurrentTime)
 
-    ATTR_READER_REF(image_center_, ImageCenter)
-
-    PowerRune() : Facility(), clockwise_(0) {}
+    PowerRune() : Facility(), clockwise_(0), time_gap_(0) {}
 
     [[maybe_unused]] PowerRune(Colors color,
                                int clockwise,
+                               double time_gap,
+                               double current_time,
                                cv::Point2f rtp_vec,
-                               cv::Point2f rtg_vec,
                                cv::Point2f center_r,
                                cv::Point2f armor_center_p,
-                               cv::Point2f fan_center_g,
-                               cv::Point3f send_yaw_pitch_delay,
                                cv::Point2f image_center) :
             Facility(color, 0, kPowerRune),
             clockwise_(clockwise),
+            time_gap_(time_gap),
+            current_time_(current_time),
             rtp_vec_(std::move(rtp_vec)),
-            rtg_vec_(std::move(rtg_vec)),
             center_r_(std::move(center_r)),
             armor_center_p_(std::move(armor_center_p)),
-            fan_center_g_(std::move(fan_center_g)),
-            send_yaw_pitch_delay_(std::move(send_yaw_pitch_delay)),
             image_center_(std::move(image_center)){}
 
 private:
     int clockwise_;
-
-    cv::Point2f rtp_vec_;
-    cv::Point2f rtg_vec_;
+    double time_gap_;
+    double current_time_;
 
     cv::Point2f center_r_;
     cv::Point2f armor_center_p_;
-    cv::Point2f fan_center_g_;
-
-    cv::Point3f send_yaw_pitch_delay_;
+    cv::Point2f rtp_vec_;
     cv::Point2f image_center_;
 };
 

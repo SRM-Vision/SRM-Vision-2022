@@ -79,8 +79,9 @@ private:
     ///target information.
     coordinate::TranslationVector predict_world_vector_, predict_cam_vector_, shoot_point_vector_;
     Eigen::Vector2d predict_speed_;   ///< x_v,y_v ; norm() = (x_v^2 + y_v^2)^(1/2)
+    Eigen::Vector2d predict_acc_;
 
-    ExtendedKalmanFilter<5,3> ekf_;
+    ExtendedKalmanFilter<7,3> ekf_;
 
     int fire_{0}; ///< to judge whether fire.
 

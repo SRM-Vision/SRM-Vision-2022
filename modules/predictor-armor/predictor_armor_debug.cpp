@@ -32,6 +32,18 @@ void ArmorPredictorDebug::addTrackbar() {
             kMax_p_y_speed_noise);
 
     debug::Trackbar<double>::Instance().AddTrackbar(
+            "p_x_acceleration_noise:",
+            trackbar_windows_name_,
+            parameter_maintain_.p_x_acceleration_noise_,
+            kMax_p_x_acceleration_noise);
+
+    debug::Trackbar<double>::Instance().AddTrackbar(
+            "p_y_acceleration_noise:",
+            trackbar_windows_name_,
+            parameter_maintain_.p_y_acceleration_noise_,
+            kMax_p_y_acceleration_noise);
+
+    debug::Trackbar<double>::Instance().AddTrackbar(
             "m_x_noise:",
             trackbar_windows_name_,
             parameter_maintain_.m_x_noise_,
@@ -68,12 +80,14 @@ void ArmorPredictorDebug::addTrackbar() {
             kDelta_yaw);
 }
 
-void ArmorPredictorDebug::AlterPredictCovMeasureCov(ExtendedKalmanFilter<5,3>& ekf) const {
-    ekf.predict_cov_ << PredictedXZNoise(), 0, 0, 0, 0,
-                        0, PredictedXSpeedNoise(), 0, 0, 0,
-                        0, 0, PredictedYNoise(), 0, 0,
-                        0, 0, 0, PredictedYSpeedNoise(), 0,
-                        0, 0, 0, 0, PredictedXZNoise();
+void ArmorPredictorDebug::AlterPredictCovMeasureCov(ExtendedKalmanFilter<7,3>& ekf) const {
+    ekf.predict_cov_ << PredictedXZNoise(), 0, 0, 0, 0, 0, 0,
+                        0, PredictedXSpeedNoise(), 0, 0, 0, 0, 0,
+                        0, 0, PredictedXAccelerationNoise(), 0, 0, 0, 0,
+                        0, 0, 0, PredictedYNoise(), 0, 0, 0,
+                        0, 0, 0, 0, PredictedYSpeedNoise(), 0, 0,
+                        0, 0, 0, 0, 0, PredictedYAccelerationNoise(), 0,
+                        0, 0, 0, 0, 0, 0, PredictedXZNoise();
     ekf.measure_cov_ << MeasureXNoise(), 0, 0,
                         0, MeasureYNoise(), 0,
                         0, 0, MeasureZNoise();

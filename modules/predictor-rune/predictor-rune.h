@@ -143,13 +143,13 @@ namespace predictor::rune {
 
     class RunePredictor : NO_COPY, NO_MOVE {
     public:
-        ATTR_READER_REF(rune_.ArmorCenterP(), ArmorCenterP)
+        ATTR_READER(rune_.ArmorCenterP(), ArmorCenterP)
 
-        ATTR_READER_REF(rune_.CenterR(), EnergyCenterR)
+        ATTR_READER(rune_.CenterR(), EnergyCenterR)
 
-        ATTR_READER_REF(predicted_point_, PredictedPoint)
+        ATTR_READER(predicted_point_, PredictedPoint)
 
-        ATTR_READER_REF(fixed_point_, FixedPoint)
+        ATTR_READER(fixed_point_, FixedPoint)
 
         /**
          * @brief Constructor, initiate some parameters.
