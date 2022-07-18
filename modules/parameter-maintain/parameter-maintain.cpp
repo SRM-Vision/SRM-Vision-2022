@@ -92,6 +92,8 @@ bool ParameterMaintain::initPredictorArmorParameters() {
     config_["P_Y_NOISE"] >> p_y_noise_;
     config_["P_X_SPEED_NOISE"] >> p_x_speed_noise_;
     config_["P_Y_SPEED_NOISE"] >> p_y_speed_noise_;
+    config_["P_X_ACCELERATION_NOISE"] >> p_x_acceleration_noise_;
+    config_["P_Y_ACCELERATION_NOISE"] >> p_y_acceleration_noise_;
     config_["M_X_NOISE"] >> m_x_noise_;
     config_["M_Y_NOISE"] >> m_y_noise_;
     config_["M_Z_NOISE"] >> m_z_noise_;
@@ -111,6 +113,8 @@ bool ParameterMaintain::savePredictorArmorParameters() {
     config_ << "P_Y_NOISE" << p_y_noise_;
     config_ << "P_X_SPEED_NOISE" << p_x_speed_noise_;
     config_ << "P_Y_SPEED_NOISE" << p_y_speed_noise_;
+    config_ << "P_X_ACCELERATION_NOISE" << p_x_acceleration_noise_;
+    config_ << "P_Y_ACCELERATION_NOISE" << p_y_acceleration_noise_;
     config_ << "M_X_NOISE" << m_x_noise_;
     config_ << "M_Y_NOISE" << m_y_noise_;
     config_ << "M_Z_NOISE" << m_z_noise_;
