@@ -577,12 +577,20 @@ void RuneDetectorNetwork::FindRotateDirection() {
 PowerRune RuneDetectorNetwork::Run(Entity::Colors color, Frame &frame) {
     BuffObject buff_from_model = ModelRun(frame.image);
 
-    energy_center_r_ = buff_from_model.apex[2] / 2 + energy_center_r_ / 2;
-    for (int i=0; i<5 && i!=3; i++)
-    {
+    if (abs(energy_center_r_.x - buff_from_model.apex[2].x) < kMaxDeviation &&
+        abs(energy_center_r_.y - buff_from_model.apex[2].y) < kMaxDeviation)
+        energy_center_r_ = buff_from_model.apex[2] / 2 + energy_center_r_ / 2; // Mean filter.
+    else
+        energy_center_r_ = buff_from_model.apex[2];
+
+    armor_center_p_ = cv::Point2f(0, 0);  // Update last armor_center_p
+    for (int i = 0; i < 5; i++) {
+        if (i == 2)
+            continue;
         armor_center_p_ += buff_from_model.apex[i];
     }
-    armor_center_p_ /= 5;
+    armor_center_p_ /= 4;
+
     rtp_vec_ = armor_center_p_ - energy_center_r_;
 
     if (!clockwise_)

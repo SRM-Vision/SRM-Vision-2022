@@ -221,7 +221,8 @@ void predictor::rune::OutputData::Update(const PowerRune &rune,
             z[4] = {0};
     algorithm::Atan2FloatX4(y, x, z);
 
-    yaw = z[0] > .15f ? .05f : z[0], pitch = z[1] > .15f ? .05f : z[1];  // Avoid excessive offset
+    yaw = abs(z[0]) > .15f ? (z[0] / abs(z[0]) * .05f) : z[0];
+    pitch = abs(z[1]) > .15f ? (z[1] / abs(z[1]) * .05f) : z[1];  // Avoid excessive offset
 //    double target_h = 5 + (rune.ArmorCenterP().x * rune.ArmorCenterP().y) /
 //                          std::abs((rune.ArmorCenterP().x * rune.ArmorCenterP().y)) *
 //                          algorithm::CosFloat(float(predicted_angle));
