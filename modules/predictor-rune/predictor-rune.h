@@ -15,11 +15,15 @@
 #include "queue"
 
 namespace predictor::rune {
-    constexpr int kFirstFitPalstanceDataNum = 100;   ///< Amount of data collected for fitting.
-    constexpr int kPreparePalstanceDataNum = 100;  ///< Amount of data required before fitting.
-    constexpr int kObservationDataNum      = 300;  ///< Amount of data observed in one circle.
-    constexpr int kBufferDataNum           = 50;   ///< Updated data num in every fit period.
-    constexpr double kCompensateTime       = 0.04; ///< Communication, program process and etc delay.
+    constexpr int kFirstFitPalstanceDataNum = 150; // 200;   ///< Amount of data collected for fitting.
+    constexpr int kPreparePalstanceDataNum = 50;  ///< Amount of data required before fitting.
+    constexpr int kObservationDataNum      = 150; // 300;  ///< Amount of data observed in one circle.
+    constexpr int kBufferDataNum           = 150;   ///< Updated data num in every fit period.
+    constexpr double kCompensateTime       = 0.02; ///< Communication, program process and etc delay.
+    constexpr int kMaxNumIterations         = 300;
+
+    constexpr int kAutoFireTimeGap         = 1000;
+    constexpr bool kAutoFireFlag           = false;
 
 //    trajectory_solver::PitchAngleSolver pitch_solver_{};
     constexpr int kP_pitch = 3000;
@@ -93,6 +97,7 @@ namespace predictor::rune {
         float yaw;
         float pitch;
         float delay;
+        int fire = 0;
     };
 
     /// @brief Data and function package for fitting palstance curve.
@@ -110,6 +115,7 @@ namespace predictor::rune {
         std::vector<double> time;       ///< Time data for fitting.
         bool first_fit;
         int fit_num = 0;
+        std::chrono::high_resolution_clock::time_point fit_complete_time;
 
         bool ready;
     };
@@ -119,26 +125,29 @@ namespace predictor::rune {
          * @brief Update current angle of fan and convert it into reasonable value, requires new rtp vector.
          * @param [in] rtp_vec Input rtp vec.
          */
-        void UpdateAngle(const cv::Point2f &rtg_vec);
+        void UpdateAngle(const cv::Point2f &rtp_vec);
 
         /**
          * @brief Update current and last palstance.
          * @param [in] rune Input rune params.
          * @param [out] fitting_data Output fitting data vector, saving current time and current palstance.
-         * @return This function will return false when rtg vector is invalid.
+         * @return This function will return false when rtp vector is invalid.
          */
         bool UpdatePalstance(const PowerRune &rune,
                              FittingData &fitting_data);
 
+        float CalcVectorsAngle(const cv::Point2f &first_vector, const cv::Point2f &second_vector);
+        float CalcPointsDistance(const cv::Point2f &point1, const cv::Point2f &point2);
         /// @brief Check if the rune predicting mode changed.
-        void CheckMode();
+        bool FanChanged();
 
         double current_time;  ///< Current time, made double for calculations.
         std::chrono::high_resolution_clock::time_point last_time;
+        std::chrono::high_resolution_clock::time_point fan_changed_time_chrono;
         double current_angle;
         double current_palstance;
         double last_angle;
-        cv::Point2f last_rtg_vec;
+        cv::Point2f last_rtp_vec;
     };
 
     class RunePredictor : NO_COPY, NO_MOVE {
@@ -182,6 +191,7 @@ namespace predictor::rune {
 
 //        void InitModel(double bullet_speed);
 
+        void AutoFire();
         PowerRune rune_;  ///< It is initiated by package conveyed by rune detector.
         State state_;
         RotationalSpeed rotational_speed_;
@@ -190,6 +200,7 @@ namespace predictor::rune {
 
         double predicted_angle_;  ///< Predicted angle according to fitted palstance.
         float bullet_speed_;
+        bool auto_fire_signal_ = false;
         cv::Point2f predicted_point_;
         cv::Point2f fixed_point_;  ///< Final point which contains all compensation.
     };

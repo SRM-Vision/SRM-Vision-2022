@@ -54,10 +54,10 @@ void InfantryController::Run() {
         if (CmdlineArgParser::Instance().RuneModeRune()
         || receive_packet_.mode == AimModes::kSmallRune
         || receive_packet_.mode == AimModes::kBigRune) {
-            rune_detector_network_.Run(receive_packet_.color, frame_);
+            power_rune_ = rune_detector_network_.Run(receive_packet_.color, frame_);
 //            power_rune_ = rune_detector_.Run(receive_packet_.color, frame_);
-//            send_packet_ = rune_predictor_.Run(power_rune_, kSmallRune, 30);
-//            controller_infantry_debug_.DrawAutoAimRune(frame_.image, &rune_predictor_, "Infantry Rune Run", 1);
+            send_packet_ = rune_predictor_.Run(power_rune_, kBigRune, 30);
+            controller_infantry_debug_.DrawAutoAimRune(frame_.image, &rune_predictor_, "detector rune network", 1);
         }
 
         if (!CmdlineArgParser::Instance().RuneModeRune()) {
