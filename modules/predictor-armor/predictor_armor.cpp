@@ -43,12 +43,14 @@ struct PredictFunction {
      * \param [out] x Output predicted x.
      */
     template<typename T>
-    void operator()(const T x_0[5], T x[5]) {
+    void operator()(const T x_0[7], T x[7]) {
         x[0] = x_0[0] + delta_t * x_0[1];  // 0.1
-        x[1] = x_0[1];  // 100
-        x[2] = x_0[2] + delta_t * x_0[3];  // 0.1
-        x[3] = x_0[3];  // 100
-        x[4] = x_0[4];  // 0.01
+        x[1] = x_0[1] + delta_t * x_0[2];  // 100
+        x[2] = x_0[2];  // 0.1
+        x[3] = x_0[3] + delta_t * x_0[4];  // 100
+        x[4] = x_0[4] + delta_t * x_0[5];  // 0.01
+        x[5] = x_0[5];
+        x[6] = x_0[6];
     }
 
     double delta_t;
@@ -63,8 +65,8 @@ struct MeasureFunction {
      * \param [out] y Output target position in spherical coordinate system.
      */
     template<typename T>
-    void operator()(const T x[5], T y[3]) {
-        T _x[3] = {x[0], x[2], x[4]};
+    void operator()(const T x[7], T y[3]) {
+        T _x[3] = {x[0], x[3], x[6]};
         coordinate::convert::Rectangular2Spherical<T>(_x, y);
     }
 };
@@ -182,7 +184,9 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, const cv::MatSize
                 last_target_ = another_armor;
                 InitializeEKF(battlefield.YawPitchRoll(),another_armor->TranslationVectorWorld());
                 ekf_.x_estimate_(1,0) = predict_speed_(0,0);
-                ekf_.x_estimate_(3,0) = -predict_speed_(1,0);
+                ekf_.x_estimate_(4,0) = -predict_speed_(1,0);
+                ekf_.x_estimate_(2,0) = predict_acc_(0,0);
+                ekf_.x_estimate_(5,0) = -predict_acc_(1,0);
                 Predict(*another_armor,delta_t,bullet_speed,battlefield.YawPitchRoll(),ArmorPredictorDebug::Instance().ShootDelay());
                 DLOG(INFO) << "anti-spin mode, switch to another spinning armor.";
             }else if(algorithm::NanoSecondsToSeconds(spin_predictor_.LastJumpTime(), battlefield.TimeStamp()) /
@@ -203,6 +207,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, const cv::MatSize
         last_target_ = target_current;
         InitializeEKF(battlefield.YawPitchRoll(), target_current->TranslationVectorWorld());
         predict_speed_ << 0, 0;
+        predict_acc_ << 0, 0;
     }
 
     return GenerateSendPacket(battlefield.YawPitchRoll()[1], bullet_speed, locked_same_target);
@@ -261,24 +266,36 @@ bool ArmorPredictor::FindMatchArmor(std::shared_ptr<Armor> &target, const cv::Po
 
 void ArmorPredictor::InitializeEKF(const std::array<float, 3> &yaw_pitch_roll,
                                    const coordinate::TranslationVector &translation_vector_world) {
-    Eigen::Matrix<double, 5, 1> x_real; // used to initialize the ekf
-    Eigen::Matrix<double, 5, 5> predict_cov;
+    Eigen::Matrix<double, 7, 1> x_real; // used to initialize the ekf
+    Eigen::Matrix<double, 7, 7> predict_cov;
     Eigen::Matrix<double, 3, 3> measure_cov;
     x_real << translation_vector_world[0],
-            0,
+            0,0,
             translation_vector_world[1],
-            0,
+            0,0,
             translation_vector_world[2];
 
-    predict_cov << ArmorPredictorDebug::Instance().PredictedXZNoise(), 0, 0, 0, 0,
-                   0, ArmorPredictorDebug::Instance().PredictedXSpeedNoise(), 0, 0, 0,
-                   0, 0, ArmorPredictorDebug::Instance().PredictedYNoise(), 0, 0,
-                   0, 0, 0, ArmorPredictorDebug::Instance().PredictedYSpeedNoise(), 0,
-                   0, 0, 0, 0, ArmorPredictorDebug::Instance().PredictedXZNoise();
+    predict_cov << ArmorPredictorDebug::Instance().PredictedXZNoise(), 0, 0, 0, 0, 0, 0,
+                   0, ArmorPredictorDebug::Instance().PredictedXSpeedNoise(), 0, 0, 0, 0, 0,
+                   0, 0, ArmorPredictorDebug::Instance().PredictedXAccelerationNoise(), 0, 0, 0, 0,
+                   0, 0, 0, ArmorPredictorDebug::Instance().PredictedYNoise(), 0, 0, 0,
+                   0, 0, 0, 0, ArmorPredictorDebug::Instance().PredictedYSpeedNoise(), 0, 0,
+                   0, 0, 0, 0, 0, ArmorPredictorDebug::Instance().PredictedYAccelerationNoise(), 0,
+                   0, 0, 0, 0, 0, 0, ArmorPredictorDebug::Instance().PredictedXZNoise();
 
     measure_cov << ArmorPredictorDebug::Instance().MeasureXNoise(), 0, 0,
                    0, ArmorPredictorDebug::Instance().MeasureYNoise(), 0,
                    0, 0, ArmorPredictorDebug::Instance().MeasureZNoise();
+
+//    predict_cov << ArmorPredictorDebug::Instance().PredictedXZNoise(), 0, 0, 0, 0,
+//                   0, ArmorPredictorDebug::Instance().PredictedXSpeedNoise(), 0, 0, 0,
+//                   0, 0, ArmorPredictorDebug::Instance().PredictedYNoise(), 0, 0,
+//                   0, 0, 0, ArmorPredictorDebug::Instance().PredictedYSpeedNoise(), 0,
+//                   0, 0, 0, 0, ArmorPredictorDebug::Instance().PredictedXZNoise();
+//
+//    measure_cov << ArmorPredictorDebug::Instance().MeasureXNoise(), 0, 0,
+//                   0, ArmorPredictorDebug::Instance().MeasureYNoise(), 0,
+//                   0, 0, ArmorPredictorDebug::Instance().MeasureZNoise();
 
     ekf_.Initialize(x_real,predict_cov, measure_cov);
 
@@ -303,6 +320,7 @@ void ArmorPredictor::UpdateShootPointAndPredictCam(const std::array<float, 3> &y
 void ArmorPredictor::Predict(const Armor &armor, double delta_t, double bullet_speed,
                              const std::array<float, 3> &yaw_pitch_roll, double shoot_delay) {
     Eigen::Vector2d new_speed;
+    Eigen::Vector2d new_acc;
     if(CmdlineArgParser::Instance().WithEKF()){
         PredictFunction predict;  ///< Predicting function.
         MeasureFunction measure;  ///< Measuring function.
@@ -317,20 +335,21 @@ void ArmorPredictor::Predict(const Armor &armor, double delta_t, double bullet_s
         ArmorPredictorDebug::Instance().AlterPredictCovMeasureCov(ekf_);
 # endif
 
-        Eigen::Matrix<double, 5, 1> x_predict = ekf_.Predict(predict);
-        Eigen::Matrix<double, 5, 1> x_estimate = ekf_.Update(measure, y_real);
+        Eigen::Matrix<double, 7, 1> x_predict = ekf_.Predict(predict);
+        Eigen::Matrix<double, 7, 1> x_estimate = ekf_.Update(measure, y_real);
 
         /// add ballistic delay
         auto delta_t_predict = armor.TranslationVectorWorld().norm() / bullet_speed + shoot_delay;
         predict.delta_t = delta_t_predict;
         predict(x_estimate.data(), x_predict.data());
-        predict_world_vector_ << x_predict(0, 0), x_predict(2, 0), x_predict(4, 0);
-        DLOG(INFO) << "speed:        " << x_predict(1,0) << "   " << x_predict(3,0);
+        predict_world_vector_ << x_predict(0, 0), x_predict(3, 0), x_predict(6, 0);
+        DLOG(INFO) << "speed:        " << x_predict(1,0) << "   " << x_predict(4,0);
         // try to not predict pitch.
         auto predict_world_spherical_vector = coordinate::convert::Rectangular2Spherical(predict_world_vector_);
         predict_world_spherical_vector[1] = y_real[1];  // not predict pitch
         predict_world_vector_ = coordinate::convert::Spherical2Rectangular(predict_world_spherical_vector);
-        new_speed << x_predict(1,0), x_predict(3,0);
+        new_speed << x_predict(1,0), x_predict(4,0);
+        new_acc << x_predict(2,0),x_predict(5,0);
     }else {
         predict_world_vector_ = armor.TranslationVectorWorld();
         new_speed << 0, 0;
@@ -343,6 +362,7 @@ void ArmorPredictor::Predict(const Armor &armor, double delta_t, double bullet_s
     else
         fire_ = 0;
     predict_speed_ = new_speed;
+    predict_acc_ = new_acc;
 }
 
 void ArmorPredictor::Update(const Armor &armor) {

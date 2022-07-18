@@ -78,6 +78,9 @@ private:
     cv::Point2f energy_center_r_;
     cv::Point2f armor_center_p_;
     cv::Point2f rtp_vec_;
+    double time_gap_{};  ///< Time gap between two valid frames.
+    double current_time_{};
+    std::chrono::high_resolution_clock::time_point last_time_{};  ///< Last frame's time.
 
     int clockwise_ = 0;
 

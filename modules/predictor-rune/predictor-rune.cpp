@@ -35,7 +35,7 @@ SendPacket predictor::rune::RunePredictor::Run(const PowerRune &power_rune, AimM
     if (aim_mode == kBigRune) {
         DLOG(INFO) << "Rune predictor mode: big.";
         state_.UpdatePalstance(rune_, fitting_data_);
-        state_.UpdateAngle(rune_.RtgVec());
+        state_.UpdateAngle(rune_.RtpVec());
         /// Fit data if not ready.
         PredictAngle(aim_mode);
         PredictPoint();
@@ -87,9 +87,9 @@ bool predictor::rune::State::UpdatePalstance(const PowerRune &rune, FittingData 
      * Filter invalid data.
      */
     if (last_rtg_vec != cv::Point2f(0, 0)) {
-        angle = algorithm::VectorAngle(last_rtg_vec, rune.RtgVec());  // Calculate angle in DEGREE.
+        angle = algorithm::VectorAngle(last_rtg_vec, rune.RtpVec());  // Calculate angle in DEGREE.
         if (angle == 0) {
-            last_rtg_vec = rune.RtgVec();
+            last_rtg_vec = rune.RtpVec();
             last_time = current_time_chrono;
             return true;
         }
@@ -108,7 +108,7 @@ bool predictor::rune::State::UpdatePalstance(const PowerRune &rune, FittingData 
         last_time = current_time_chrono;
     }
 
-    last_rtg_vec = rune.RtgVec();
+    last_rtg_vec = rune.RtpVec();
     return true;
 }
 
@@ -150,7 +150,7 @@ void predictor::rune::RunePredictor::PredictAngle(AimModes aim_mode) {
                 fitting_data_.palstance.clear();
                 fitting_data_.time.clear();
             }
-            state_.UpdateAngle(rune_.RtgVec());
+            state_.UpdateAngle(rune_.RtpVec());
             predicted_angle_ = state_.current_angle;   ///< No Predicting When Fitting.
         } else {
 
@@ -163,7 +163,7 @@ void predictor::rune::RunePredictor::PredictAngle(AimModes aim_mode) {
                     rotational_speed_.AngularIntegral(state_.current_time + bullet_delay_time + rune::kCompensateTime)
                     - rotational_speed_.AngularIntegral(state_.current_time);
             rotated_angle = rotated_radian * 180 / CV_PI;
-            state_.UpdateAngle(rune_.RtgVec());
+            state_.UpdateAngle(rune_.RtpVec());
             DLOG(INFO) << "clock_wise: " << rune_.Clockwise();
 
             predicted_angle_ = state_.current_angle - rune_.Clockwise() * rotated_angle;

@@ -34,6 +34,8 @@ public:
     ATTR_READER(parameter_maintain_.p_y_noise_, PredictedYNoise)
     ATTR_READER(parameter_maintain_.p_x_speed_noise_, PredictedXSpeedNoise)
     ATTR_READER(parameter_maintain_.p_y_speed_noise_,PredictedYSpeedNoise)
+    ATTR_READER(parameter_maintain_.p_y_acceleration_noise_,PredictedYAccelerationNoise)
+    ATTR_READER(parameter_maintain_.p_x_acceleration_noise_,PredictedXAccelerationNoise)
     ATTR_READER(parameter_maintain_.m_x_noise_, MeasureXNoise)
     ATTR_READER(parameter_maintain_.m_y_noise_, MeasureYNoise)
     ATTR_READER(parameter_maintain_.m_z_noise_, MeasureZNoise)
@@ -48,6 +50,8 @@ private:
     const double kMax_p_y_noise = 1;
     const double kMax_p_x_speed_noise = 1000;
     const double kMax_p_y_speed_noise = 1000;
+    const double kMax_p_x_acceleration_noise = 10000;
+    const double kMax_p_y_acceleration_noise = 10000;
     const double kMax_m_x_noise = 10;
     const double kMax_m_y_noise = 10;
     const int kMax_m_z_noise = 1000;
@@ -58,7 +62,7 @@ private:
 public:
     void addTrackbar();
 
-    void AlterPredictCovMeasureCov(ExtendedKalmanFilter<5,3>& ekf) const;
+    void AlterPredictCovMeasureCov(ExtendedKalmanFilter<7,3>& ekf) const;
 
 };
 

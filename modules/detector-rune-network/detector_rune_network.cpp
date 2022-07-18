@@ -302,6 +302,13 @@ void RuneDetectorNetwork::Initialize(const std::string &onnx_file) {
 
 BuffObject RuneDetectorNetwork::ModelRun(const cv::Mat &image)
 {
+    auto current_time_chrono = std::chrono::high_resolution_clock::now();
+    current_time_ = double(std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::system_clock::now().time_since_epoch()).count());
+    time_gap_ = (static_cast<std::chrono::duration<double, std::milli>>(
+            current_time_chrono - last_time_)).count();
+    last_time_ = current_time_chrono;
+
     roi_point_tl_ = cv::Point2i(
             std::max(0, int(energy_center_r_.x - 200)),
             std::max(0, int(energy_center_r_.y - 200)) );
@@ -531,7 +538,6 @@ void RuneDetectorNetwork::FindRotateDirection() {
     if (rtp_vec_ == cv::Point2f(0, 0))
         return;
 
-
     if (clockwise_ == 0) {
         r_to_p_vec.emplace_back(rtp_vec_);
     }
@@ -571,12 +577,12 @@ void RuneDetectorNetwork::FindRotateDirection() {
 PowerRune RuneDetectorNetwork::Run(Entity::Colors color, Frame &frame) {
     BuffObject buff_from_model = ModelRun(frame.image);
 
-    energy_center_r_ = buff_from_model.apex[2];
+    energy_center_r_ = buff_from_model.apex[2] / 2 + energy_center_r_ / 2;
     for (int i=0; i<5 && i!=3; i++)
     {
         armor_center_p_ += buff_from_model.apex[i];
     }
-    armor_center_p_ /= 4;
+    armor_center_p_ /= 5;
     rtp_vec_ = armor_center_p_ - energy_center_r_;
 
     if (!clockwise_)
@@ -585,12 +591,11 @@ PowerRune RuneDetectorNetwork::Run(Entity::Colors color, Frame &frame) {
 
     return {color,
             clockwise_,
+            time_gap_,
+            current_time_,
             rtp_vec_,
-            cv::Point2f(0, 0), // rtg is dismissed
             energy_center_r_,
             armor_center_p_,
-            cv::Point2f(0, 0),
-            cv::Point3_<float>(0, 0, 0),
             cv::Point2f(float(frame.image.cols >> 1), float(frame.image.rows >> 1))};
 }
 
