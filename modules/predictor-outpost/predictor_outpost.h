@@ -7,6 +7,7 @@
 
 #ifndef PREDICTOR_OUTPOST_NEW_H_
 #define PREDICTOR_OUTPOST_NEW_H_
+
 #include "math-tools/algorithms.h"
 #include <data-structure/communication.h>
 #include "../digital-twin/battlefield.h"
@@ -16,6 +17,7 @@
 #include "predictor_outpost_debug.h"
 #include "lang-feature-extension/attr-reader.h"
 #include "trajectory-solver/trajectory-solver.h"
+#include "compensator/compensator.h"
 
 /**
  * \Brief Find the center shooting point of outpost, auto-shoot after a time_delay.
@@ -42,8 +44,13 @@ public:
      * \return 'SendPacket' to send information to EC.
      */
     SendPacket OldRun(Battlefield battlefield);
-    SendPacket NewRun(Battlefield battlefield, const float& bullet_speed,  int width,const std::chrono::steady_clock::time_point& time);
-    SendPacket Run(Battlefield battlefield, const float& bullet_speed, cv::MatSize frame_size,const std::chrono::steady_clock::time_point& time);
+
+    SendPacket NewRun(Battlefield battlefield, const float &bullet_speed, int width,const std::array<float, 3> e_yaw_pitch_roll,
+                      const std::chrono::steady_clock::time_point &time);
+
+//    SendPacket Run(Battlefield battlefield, const float &bullet_speed, cv::MatSize frame_size,
+//                   const float &real_pitch,
+//                   const std::chrono::steady_clock::time_point &time);
 
     /**
     * \Brief Set the color of outpost.
@@ -54,10 +61,10 @@ public:
     /**
     * \Brief Clear the information in OutpostPredictor.
     */
-    void Clear(){
+    void Clear() {
         checked_clockwise_ = false;
         clockwise_ = 0;  ///< 1 (rotate left) or -1 (rotate right)
-        last_armor_x_ = 0 ;
+        last_armor_x_ = 0;
         ready_fire_ = false;
         prepared_ = false;
         need_init_ = true;
@@ -106,14 +113,14 @@ private:
      * \Brief get the center of ROI.
      * \param armor the main armor.
      */
-    void UpdateROICorners(const Armor& armor);
+    void UpdateROICorners(const Armor &armor);
 
     /**
      * \Brief get flying time of bullet.
      * \param bullet_speed bullet speed.
      * \param armor the target.
      */
-    double GetBulletFlyTime(const float& bullet_speed, const Armor& armor);
+    Eigen::Vector3d GetPitchFlyTime(const float &bullet_speed, const Armor &armor);
 
 private:
     const double kFindBiggestArmorTime = 4;  ///< during this time try to find the the front of the target.

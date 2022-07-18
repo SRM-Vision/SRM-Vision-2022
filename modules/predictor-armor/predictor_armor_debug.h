@@ -57,7 +57,7 @@ private:
     const int kMax_m_z_noise = 1000;
     const double kMax_shoot_delay = 0.5;
     const double kDelta_pitch = 1;
-    const double kDelta_yaw = 0.5;
+    const double kDelta_yaw = 1;
 
 public:
     void addTrackbar();

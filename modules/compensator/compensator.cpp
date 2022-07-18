@@ -236,7 +236,7 @@ void Compensator::InitModel(double bullet_speed, const std::string &robot_name) 
         auto a = trajectory_solver::BallisticModel();
         a.SetParam(f, 31);
         angle_solver_ = trajectory_solver::PitchAngleSolver();
-        angle_solver_.SetParam(a, bullet_speed, 0.375, 1.2, 1);
+        angle_solver_.SetParam(a, bullet_speed, 0.43, 1.2, 1);
         return;
     }
 }
