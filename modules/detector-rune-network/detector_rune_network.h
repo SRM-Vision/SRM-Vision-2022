@@ -87,7 +87,7 @@ private:
     void FindRotateDirection();
 
     cv::Point2i roi_point_tl_;
-
+    const float kMaxDeviation = 50;
 };
 
 
