@@ -18,6 +18,7 @@
 #include "lang-feature-extension/attr-reader.h"
 #include "trajectory-solver/trajectory-solver.h"
 #include "compensator/compensator.h"
+#include "predictor-armor/filter.h"
 
 /**
  * \Brief Find the center shooting point of outpost, auto-shoot after a time_delay.
@@ -132,6 +133,9 @@ private:
     cv::Point2f outpost_center_{};  ///< only used to show the point in the image when debug
     std::chrono::high_resolution_clock::time_point start_time_{};
     std::chrono::high_resolution_clock::time_point ready_time_{};
+
+
+    FilterDTMean<double,6> distance_filter_;
 
     Entity::Colors enemy_color_{};
     bool checked_clockwise_{false};

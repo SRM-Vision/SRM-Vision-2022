@@ -76,7 +76,7 @@ public:
 
     inline char GetKey() {
 #if NDEBUG
-        char key = cv::waitKey(22) & 0xff;
+        char key = cv::waitKey(1) & 0xff;
         if (key == 's') {
             ArmorPredictorDebug::Instance().Save();
             OutpostPredictorDebug::Instance().Save();
