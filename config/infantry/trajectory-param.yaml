@@ -3,10 +3,10 @@
 
 # PnP map to real horizontal distance, m->m.
 # f(x) = a + bx + cx^2 + dx^3
-A: -0.494436
-B: 1.36971
-C: -0.0988656
-D: 0.00539253
+A: 0.3003
+B: 0.6576
+C: 0.1436
+D: -0.01615
 
 # Current latitude, DEG.
 L: 31

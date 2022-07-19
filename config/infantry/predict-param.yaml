@@ -1,5 +1,6 @@
 %YAML:1.0
 ---
+# param in SJTU
 P_XZ_NOISE: 0.1
 P_Y_NOISE: 0.1
 P_X_SPEED_NOISE: 100
