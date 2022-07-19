@@ -17,11 +17,12 @@
 class Armor : public Component {
 public:
 
-    enum ArmorSize{
+    enum ArmorSize {
         kBig,
         kSmall,
         kAuto,
-        SIZE};
+        SIZE
+    };
 
     ATTR_READER_REF(corners_, Corners)
 
@@ -41,6 +42,8 @@ public:
 
     ATTR_READER(confidence_, Confidence)
 
+    ATTR_READER(size_, Size)
+
     Armor(const bbox_t &box,
           const cv::Mat &intrinsic_mat,
           const cv::Mat &distortion_mat,
@@ -48,7 +51,8 @@ public:
           ArmorSize size = ArmorSize::kAuto) :
             Component(Colors(box.color), kArmor),
             id_(box.id),
-            confidence_(box.confidence) {
+            confidence_(box.confidence),
+            size_(size) {
         const static std::vector<cv::Point3d> small_armor_pc = {
                 {-0.066, 0.027,  0.},
                 {-0.066, -0.027, 0.},
@@ -67,7 +71,7 @@ public:
         cv::Mat rv_cam, tv_cam;
         std::vector<cv::Point2f> image_points(corners_, corners_ + 4);
 
-        if(size == ArmorSize::kAuto) {
+        if (size == ArmorSize::kAuto) {
             switch (id_) {
                 case 0:  // Sentry.
                 case 1:  // Hero.
@@ -116,16 +120,14 @@ public:
                     }
                     break;
             }
-        }
-        else if(size == ArmorSize::kBig){
+        } else if (size == ArmorSize::kBig) {
             cv::solvePnP(big_armor_pc,
                          image_points,
                          intrinsic_mat,
                          distortion_mat,
                          rv_cam,
                          tv_cam);
-        }
-        else {
+        } else {
             cv::solvePnP(small_armor_pc,
                          image_points,
                          intrinsic_mat,
@@ -192,10 +194,10 @@ public:
         return algorithm::PolygonArea<4>(corners_);
     }
 
-    Armor& operator=(const Armor& armor){
-        if(this == &armor) return SELF;
+    Armor &operator=(const Armor &armor) {
+        if (this == &armor) return SELF;
         id_ = armor.id_;
-        for(int i = 0; i < 4; ++i)
+        for (int i = 0; i < 4; ++i)
             corners_[i] = armor.corners_[i];
         center_ = armor.center_;
         rotation_vector_cam_ = armor.rotation_vector_cam_;
@@ -208,7 +210,7 @@ public:
         return SELF;
     }
 
-    void SetID(unsigned int id){
+    void SetID(unsigned int id) {
         id_ = id;
     }
 
@@ -227,6 +229,8 @@ protected:
 
     float distance_{};
     float confidence_{};
+
+    ArmorSize size_;
 };
 
 #endif  // ARMOR_H_

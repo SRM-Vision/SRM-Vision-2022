@@ -57,7 +57,7 @@ void SentryLowerController::Run() {
         double delta_pitch = 0;
         if (!armors_.empty()) {
             double current_pitch = battlefield_.YawPitchRoll()[1];
-            auto pitch_solution = pitch_solver.Solve(30, armors_[0]);
+            auto pitch_solution = pitch_solver.AnyTargetOffset(30, armors_[0]);
             delta_pitch = pitch_solution.x() - current_pitch;
 
             DLOG(INFO) << "cY: " << battlefield_.YawPitchRoll()[0]

@@ -391,7 +391,7 @@ SendPacket ArmorPredictor::GenerateSendPacket(float pitch_right, double bullet_s
 
     DLOG(INFO) << "filtered distance: " << distance;
 
-    pitch = -Compensator::Instance().PitchOffset(pitch_right,bullet_speed,distance,AimModes::kNormal);
+    // pitch = -Compensator::Instance().PitchOffset(pitch_right,bullet_speed,distance,AimModes::kNormal);
 
     // 图传点
 //        cv::Mat3d camera_mat;
