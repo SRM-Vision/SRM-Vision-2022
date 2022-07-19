@@ -46,12 +46,12 @@ public:
 private:
     const std::string trackbar_windows_name_ = "Armor Predictor Debug";
 
-    const double kMax_p_xz_noise = 1;
-    const double kMax_p_y_noise = 1;
-    const double kMax_p_x_speed_noise = 1000;
-    const double kMax_p_y_speed_noise = 1000;
-    const double kMax_p_x_acceleration_noise = 10000;
-    const double kMax_p_y_acceleration_noise = 10000;
+    const double kMax_p_xz_noise = 100;
+    const double kMax_p_y_noise = 100;
+    const double kMax_p_x_speed_noise = 100;
+    const double kMax_p_y_speed_noise = 100;
+    const double kMax_p_x_acceleration_noise = 100;
+    const double kMax_p_y_acceleration_noise = 100;
     const double kMax_m_x_noise = 10;
     const double kMax_m_y_noise = 10;
     const int kMax_m_z_noise = 1000;

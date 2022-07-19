@@ -15,7 +15,7 @@ const double kPicDistanceThreshold = 100;
 const double kSwitchByAreaThreshold = 0.7;
 
 /// used for anti-spin, allow to follow for fire.
-const double kAllowFollowRange = 0.5;
+const double kAllowFollowRange = 0.3;
 
 /// the threshold to consider a armor is oblique.
 const double kObliqueThreshold = 1.4;
@@ -338,7 +338,7 @@ void ArmorPredictor::Predict(const Armor &armor, double delta_t, double bullet_s
         Eigen::Matrix<double, 7, 1> x_predict = ekf_.Predict(predict);
         Eigen::Matrix<double, 7, 1> x_estimate = ekf_.Update(measure, y_real);
 
-        /// add ballistic delay
+        /// add ballistic delay FIXME use projected pnp distance
         auto delta_t_predict = armor.TranslationVectorWorld().norm() / bullet_speed + shoot_delay;
         predict.delta_t = delta_t_predict;
         predict(x_estimate.data(), x_predict.data());

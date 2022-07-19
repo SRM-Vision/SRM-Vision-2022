@@ -6,44 +6,44 @@
 #include "detector-rune-network/detector_rune_network.h"
 #include "predictor-rune/predictor-rune.h"
 #include "predictor-armor/predictor_armor.h"
-#include "controller_infantry.h"
-#include "controller_infantry_debug.h"
+#include "controller_infantry5.h"
+#include "controller_infantry5_debug.h"
 
 /**
  * \warning Controller registry will be initialized before the program entering the main function!
  *   This means any error occurring here will not be caught unless you're using debugger.
  *   (Thus, do not use this variable in any other place and you should not modify it.)
  */
-[[maybe_unused]] ControllerRegistry<InfantryController>
-        InfantryController::infantry_controller_registry_("infantry");
+[[maybe_unused]] ControllerRegistry<Infantry5Controller>
+        Infantry5Controller::infantry5_controller_registry_("infantry5");
 
-bool InfantryController::Initialize() {
+bool Infantry5Controller::Initialize() {
     // Common initialization.
-    if (!Controller::Initialize("infantry"))
+    if (!Controller::Initialize("infantry5"))
         return false;
 
     // Initialize painter.
-    controller_infantry_debug_.Initialize(CmdlineArgParser::Instance().DebugShowImage());
+    controller_infantry5_debug_.Initialize(CmdlineArgParser::Instance().DebugShowImage());
 
     // Initialize Rune module.
     Frame init_frame;
     image_provider_->GetFrame(init_frame);
-    if (rune_detector_.Initialize("../config/infantry/rune-detector-param.yaml"))
+    if (rune_detector_.Initialize("../config/infantry5/rune-detector-param.yaml"))
         LOG(INFO) << "Rune detector initialize successfully!";
     else {
         LOG(ERROR) << "Rune detector initialize failed.";
         return false;
     }
     rune_detector_network_.Initialize("../assets/models/rune_detector_model.onnx");
-    rune_predictor_.Initialize("../config/infantry/rune-predictor-param.yaml");
+    rune_predictor_.Initialize("../config/infantry5/rune-predictor-param.yaml");
 
     LOG(INFO) << "Infantry controller is ready.";
     return true;
 }
 
-void InfantryController::Run() {
+void Infantry5Controller::Run() {
     sleep(2);
-    ArmorPredictor armor_predictor{Entity::kBlue, "infantry"};
+    ArmorPredictor armor_predictor{Entity::kBlue, "infantry5"};
     while (!exit_signal_) {
         if (!GetImage<true>())
             continue;
@@ -56,7 +56,7 @@ void InfantryController::Run() {
             power_rune_ = rune_detector_network_.Run(receive_packet_.color, frame_);
 //            power_rune_ = rune_detector_.Run(receive_packet_.color, frame_);
             send_packet_ = rune_predictor_.Run(power_rune_, kBigRune, 30);
-            controller_infantry_debug_.DrawAutoAimRune(frame_.image, &rune_predictor_, "detector rune network", 1);
+            controller_infantry5_debug_.DrawAutoAimRune(frame_.image, &rune_predictor_, "detector rune network", 1);
         }
 
         if (!CmdlineArgParser::Instance().RuneModeRune()) {
@@ -70,7 +70,7 @@ void InfantryController::Run() {
                 send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size, receive_packet_.bullet_speed);
             } else
                 send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size);
-            controller_infantry_debug_.DrawAutoAimArmor(frame_.image,
+            controller_infantry5_debug_.DrawAutoAimArmor(frame_.image,
                                                           boxes_,
                                                           &armor_predictor,
                                                           image_provider_->IntrinsicMatrix(),
@@ -79,7 +79,7 @@ void InfantryController::Run() {
                                                           1);
         }
 
-        if (ControllerInfantryDebug::GetKey() == 'q')
+        if (ControllerInfantry5Debug::GetKey() == 'q')
             break;
 
         SendSerialData();
