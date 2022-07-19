@@ -12,6 +12,9 @@
 #include <glog/logging.h>
 #include <Eigen/Eigen>
 
+
+/// FIXME blue armor
+
 static constexpr int INPUT_W = 416;    // Width of input
 static constexpr int INPUT_H = 416;    // Height of input
 static constexpr int NUM_CLASSES = 2;  // Number of classes
@@ -310,21 +313,15 @@ BuffObject RuneDetectorNetwork::ModelRun(const cv::Mat &image)
     last_time_ = current_time_chrono;
     current_time_ /= 1000;
 
-    roi_point_tl_ = cv::Point2i(
-            // Fixme adapt ROI into reasonable area
-            std::max(0, int(energy_center_r_.x - 200)),
-            std::max(0, int(energy_center_r_.y - 200)) );
     cv::Mat image_ = image.clone();
-
-    if (energy_center_r_ != cv::Point2f(0, 0))
-    {
-        // Avoid empty-image.
-        cv::Rect ROI_rect = cv::Rect(roi_point_tl_.x, roi_point_tl_.y, 2 * 200, 2 * 200) &
+    cv::Rect roi_rect = cv::Rect(0, 0, image.cols, image.rows);
+    // last detection is valid.
+    if (energy_center_r_ != cv::Point2f(0, 0)) {
+        roi_point_tl_ = cv::Point2i(std::max(0, int(energy_center_r_.x - 213)), std::max(0, int(energy_center_r_.y - 213)));
+        roi_rect = cv::Rect(roi_point_tl_.x, roi_point_tl_.y, 2 * 213, 2 * 213) &
                             cv::Rect(0, 0, image.cols, image.rows);
-        image_ = image(ROI_rect);  // Use ROI
     }
-
-    // cv::GaussianBlur(image_, image_, cv::Size(7, 7), 0);
+    image_ = image(roi_rect);  // Use ROI
 
     // Pre-process. [resize]
     float fx = (float) image_.cols / 416.f; float fy = (float) image_.rows / 416.f;
@@ -332,15 +329,15 @@ BuffObject RuneDetectorNetwork::ModelRun(const cv::Mat &image)
         cv::resize(image_, image_, {416, 416});
     image_.convertTo(image_, CV_32F);
 
-    cv::Mat image_split[3];
-    cv::split(image_, image_split);
-    //cv::cvtColor(image, x, cv::COLOR_BGR2RGB);
+    cv::Mat image_splits[3];
+    cv::split(image_, image_splits);
+//    cv::cvtColor(image_, image_, cv::COLOR_BGR2RGB);
 
-    float *input_data = new float[416*416*3];
+    auto *input_data = new float[416*416*3];
     //Copy img into blob
-    for(int c = 0;c < 3;c++)
+    for(auto & image_split : image_splits)
     {
-        memcpy(input_data, image_split[c].data, INPUT_W * INPUT_H * sizeof(float));
+        memcpy(input_data, image_split.data, INPUT_W * INPUT_H * sizeof(float));
         input_data += INPUT_W * INPUT_H;
     }
     input_data -= INPUT_W * INPUT_H * 3;
@@ -361,18 +358,14 @@ BuffObject RuneDetectorNetwork::ModelRun(const cv::Mat &image)
 
     // Post-process. [nms]
     std::vector<BuffObject> results;
-
     results.reserve(kTopkNum);
-    std::vector<uint8_t> removed(kTopkNum);
 
     std::vector<int> strides = {8, 16, 32};
     std::vector<GridAndStride> grid_strides;
 
     generate_grids_and_stride(INPUT_W, INPUT_H, strides, grid_strides);
     generateYoloxProposals(grid_strides, output_buffer_, BBOX_CONF_THRESH, results);
-
     qsort_descent_inplace(results);
-
 
     if (results.size() >= TOPK)
         results.resize(TOPK);
