@@ -2,6 +2,8 @@
 #include "math-tools/algorithms.h"
 #include "trajectory-solver.h"
 
+#define TRAJECTORY_SOLVER_LOG_DETAILS false
+
 using namespace trajectory_solver;
 using namespace algorithm;
 
@@ -85,7 +87,7 @@ using namespace algorithm;
             solutions.push_back({solver.t - solver.h / 2, solver.y, current_x});
     }
     if (i == iter)
-        DLOG(WARNING) << "Time limit exceeded when solving the trajectory. The result maybe wrong or incomplete.";
+        LOG(WARNING) << "Time limit exceeded when solving the trajectory. The result maybe wrong or incomplete.";
     if (solutions.empty()) {
         solutions.push_back({solver.t, solver.y, current_x});
         return false;
@@ -96,8 +98,6 @@ using namespace algorithm;
 [[maybe_unused]] void PitchAngleSolver::SetParam(const BallisticModel &model,
                                                  double _start_v, double _start_h,
                                                  double _target_h, double _target_x) {
-    if (_target_h < 0)
-        LOG(WARNING) << "Detected negative _target_h, the result may be wrong.";
     ballistic_model = model;
     start_v = _start_v;
     start_h = _start_h;
@@ -106,8 +106,6 @@ using namespace algorithm;
 }
 
 [[maybe_unused]] void PitchAngleSolver::UpdateParam(double _target_h, double _target_x) {
-    if (_target_h < 0)
-        LOG(WARNING) << "Detected negative _target_h, the result may be wrong.";
     target_h = _target_h;
     target_x = _target_x;
 }
@@ -138,8 +136,9 @@ PitchAngleSolver::Solve(double min_theta, double max_theta, double max_error, un
                     result = &solutions[1];
                     min_theta = mid_theta;
                     error = target_x - result->x.x();
-                    DLOG(INFO) << "iter: " << n << ", type: LOB A, theta: " << mid_theta
-                               << ", x: " << result->x.x() << ", error: " << error << ".";
+                    DLOG_IF(INFO, TRAJECTORY_SOLVER_LOG_DETAILS)
+                                    << "iter: " << n << ", type: LOB A, theta: " << mid_theta
+                                    << ", x: " << result->x.x() << ", error: " << error << ".";
                 }
                     // The 1st solution still farther than the target,
                     //   use the nearer solution and also increase theta.
@@ -147,8 +146,9 @@ PitchAngleSolver::Solve(double min_theta, double max_theta, double max_error, un
                     result = &solutions[0];
                     min_theta = mid_theta;
                     error = target_x - result->x.x();
-                    DLOG(INFO) << "iter: " << n << ", type: LOB C, theta: " << mid_theta
-                               << ", x: " << result->x.x() << ", error: " << error << ".";
+                    DLOG_IF(INFO, TRAJECTORY_SOLVER_LOG_DETAILS)
+                                    << "iter: " << n << ", type: LOB C, theta: " << mid_theta
+                                    << ", x: " << result->x.x() << ", error: " << error << ".";
                 }
                     // The target is between the 2 solutions,
                     //   use the nearer solution (to reduce the error) and decrease theta.
@@ -156,8 +156,9 @@ PitchAngleSolver::Solve(double min_theta, double max_theta, double max_error, un
                     result = &solutions[0];
                     max_theta = mid_theta;
                     error = target_x - result->x.x();
-                    DLOG(INFO) << "iter: " << n << ", type: LOB B, theta: " << mid_theta
-                               << ", x: " << result->x.x() << ", error: " << error << ".";
+                    DLOG_IF(INFO, TRAJECTORY_SOLVER_LOG_DETAILS)
+                                    << "iter: " << n << ", type: LOB B, theta: " << mid_theta
+                                    << ", x: " << result->x.x() << ", error: " << error << ".";
                 }
             }
                 // The target is lower, only get one solution.
@@ -171,8 +172,9 @@ PitchAngleSolver::Solve(double min_theta, double max_theta, double max_error, un
                     min_theta = mid_theta;
                 else
                     max_theta = mid_theta;
-                DLOG(INFO) << "iter: " << n << ", type: FLAT, theta: " << mid_theta
-                           << ", x: " << result->x.x() << ", error: " << error << ".";
+                DLOG_IF(INFO, TRAJECTORY_SOLVER_LOG_DETAILS)
+                                << "iter: " << n << ", type: FLAT, theta: " << mid_theta
+                                << ", x: " << result->x.x() << ", error: " << error << ".";
             }
             if (abs(error) < abs(min_error)) {
                 min_error = error;
@@ -183,12 +185,14 @@ PitchAngleSolver::Solve(double min_theta, double max_theta, double max_error, un
             // The target is higher and max height is still lower than the target, so get no solution.
         else {
             min_theta = mid_theta;
-            DLOG(WARNING) << "iter: " << n << ", type: LOB D, theta: " << mid_theta
-                          << ", x: " << solutions[0].x.x() << ", error: " << error << ".";
+            DLOG_IF(WARNING, TRAJECTORY_SOLVER_LOG_DETAILS)
+                            << "iter: " << n << ", type: LOB D, theta: " << mid_theta
+                            << ", x: " << solutions[0].x.x() << ", error: " << error
+                            << ".";
         }
     } while ((error > max_error || error < -max_error) && n++ < max_iter);
-    DLOG(INFO) << "Selected theta: " << min_error_theta << ", error: " << min_error << ".";
-    if (abs(error) / target_x > 0.01)
+    DLOG(INFO) << "iter: " << --n << ", theta: " << min_error_theta << ", error: " << min_error << ".";
+    if (abs(min_error) / target_x > 0.01)
         LOG(WARNING) << "Error of pitch solution is more than 1%, the solution should not be trusted.";
-    return {min_error_theta, min_error_result.t, abs(error) / target_x};
+    return {min_error_theta, min_error_result.t, abs(min_error) / target_x};
 }

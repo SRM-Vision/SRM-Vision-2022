@@ -308,8 +308,10 @@ BuffObject RuneDetectorNetwork::ModelRun(const cv::Mat &image)
     time_gap_ = (static_cast<std::chrono::duration<double, std::milli>>(
             current_time_chrono - last_time_)).count();
     last_time_ = current_time_chrono;
+    current_time_ /= 1000;
 
     roi_point_tl_ = cv::Point2i(
+            // Fixme adapt ROI into reasonable area
             std::max(0, int(energy_center_r_.x - 200)),
             std::max(0, int(energy_center_r_.y - 200)) );
     cv::Mat image_ = image.clone();
@@ -322,13 +324,12 @@ BuffObject RuneDetectorNetwork::ModelRun(const cv::Mat &image)
         image_ = image(ROI_rect);  // Use ROI
     }
 
-    cv::GaussianBlur(image_, image_, cv::Size(7, 7), 0);
+    // cv::GaussianBlur(image_, image_, cv::Size(7, 7), 0);
 
     // Pre-process. [resize]
     float fx = (float) image_.cols / 416.f; float fy = (float) image_.rows / 416.f;
     if (image.cols != 416 || image.rows != 416)
         cv::resize(image_, image_, {416, 416});
-    cv::imshow("resized image", image_);
     image_.convertTo(image_, CV_32F);
 
     cv::Mat image_split[3];
@@ -372,14 +373,9 @@ BuffObject RuneDetectorNetwork::ModelRun(const cv::Mat &image)
 
     qsort_descent_inplace(results);
 
-    std::cout << "results nums is " << results.size() << std::endl;
 
     if (results.size() >= TOPK)
         results.resize(TOPK);
-    std::vector<int> picked;
-    nms_sorted_bboxes(results, picked, NMS_THRESH);
-    int count = picked.size();
-    results.resize(count);
 
     std::vector<BuffObject> filtered;
     for (int i=0; i<results.size(); i++)
@@ -390,6 +386,13 @@ BuffObject RuneDetectorNetwork::ModelRun(const cv::Mat &image)
         }
     }
     results = filtered;
+
+    std::vector<int> picked;
+    nms_sorted_bboxes(results, picked, NMS_THRESH);
+    int count = picked.size();
+    results.resize(count);
+
+
 
     for (int i = 0; i < count; i++)
     {
@@ -423,8 +426,6 @@ BuffObject RuneDetectorNetwork::ModelRun(const cv::Mat &image)
         // (*object).area = (int)(calcTetragonArea((*object).apex));
     }
 
-    cv::Mat draw_image = image.clone();
-    std::cout << "results size's" << results.size() << std::endl;
 
     // if vector is empty, return empty point.
     if (results.empty())
@@ -434,25 +435,7 @@ BuffObject RuneDetectorNetwork::ModelRun(const cv::Mat &image)
         return a.prob > b.prob;
     });
 
-    std::array<cv::Scalar_<double>, 5> color = {
-            cv::Scalar(0, 255, 255),
-            cv::Scalar(0, 255, 255),
-            cv::Scalar(0, 255, 0),
-            cv::Scalar(0, 255, 255),
-            cv::Scalar(0, 255, 255)
-    };
-    for (auto result : results)
-    {
-        int i=0;
-        for (auto apex : result.apex)
-        {
-            cv::circle(draw_image, apex, 2, color[i], 3);
-            i++;
-        }
-        break;
-    }
-
-    cv::imshow("detector rune network", draw_image);
+    delete [] input_data;
 
     return results.at(0);
 }
@@ -577,25 +560,23 @@ void RuneDetectorNetwork::FindRotateDirection() {
 PowerRune RuneDetectorNetwork::Run(Entity::Colors color, Frame &frame) {
     BuffObject buff_from_model = ModelRun(frame.image);
 
-    if (abs(energy_center_r_.x - buff_from_model.apex[2].x) < kMaxDeviation &&
-        abs(energy_center_r_.y - buff_from_model.apex[2].y) < kMaxDeviation)
-        energy_center_r_ = buff_from_model.apex[2] / 2 + energy_center_r_ / 2; // Mean filter.
+    // mean filter to get stable center R
+    if(abs(buff_from_model.apex[2].x - energy_center_r_.x) < 100)
+        energy_center_r_ = buff_from_model.apex[2] /2 + energy_center_r_ / 2;
     else
         energy_center_r_ = buff_from_model.apex[2];
 
-    armor_center_p_ = cv::Point2f(0, 0);  // Update last armor_center_p
-    for (int i = 0; i < 5; i++) {
+    for (int i=0; i<5; i++)
+    {
         if (i == 2)
             continue;
         armor_center_p_ += buff_from_model.apex[i];
     }
-    armor_center_p_ /= 4;
-
+    armor_center_p_ /= 5;
     rtp_vec_ = armor_center_p_ - energy_center_r_;
 
     if (!clockwise_)
         FindRotateDirection();
-    cv::waitKey(0);
 
     return {color,
             clockwise_,

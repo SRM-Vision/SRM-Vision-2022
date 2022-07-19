@@ -97,7 +97,7 @@ bool HikCamera::OpenCamera(const std::string &serial_number, const std::string &
             LOG(ERROR) << "Failed to close device with error " << "0x" << std::hex << status_code << ".";
         status_code = MV_CC_DestroyHandle(device_);
         if (MV_OK != status_code)
-            LOG(ERROR) << "Failed to destroy device handle with error " << ")x" << std::hex << status_code << ".";
+            LOG(ERROR) << "Failed to destroy device handle with error " << "0x" << std::hex << status_code << ".";
         return false;
     } else {
         DLOG(INFO) << "Registered " << serial_number_ << "'s capture callback.";

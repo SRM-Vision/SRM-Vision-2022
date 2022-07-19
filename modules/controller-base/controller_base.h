@@ -58,7 +58,7 @@ protected:
         }
 
         if (!image_provider_->GetFrame(frame_)) {
-            LOG(WARNING) << "Image provider is disconnected. Wait for camera or press ctrl-c to quit.";
+            LOG(WARNING) << "Cannot get frame from image provider. Wait for camera or press ctrl-c to quit.";
 #if NDEBUG
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
 #else

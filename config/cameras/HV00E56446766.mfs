@@ -51,14 +51,14 @@ FrameSpecInfo	0
 FrameSpecInfoSelector	Timestamp
 AcquisitionMode	Continuous
 AcquisitionBurstFrameCount	1
-AcquisitionFrameRate	2020
+AcquisitionFrameRate	100
 AcquisitionFrameRateEnable	1
 TriggerSelector	FrameBurstStart
 TriggerSelector	FrameBurstStart
-TriggerMode	Off
+TriggerMode	On
 TriggerSelector	FrameBurstStart
 TriggerSelector	FrameBurstStart
-TriggerSource	Line0
+TriggerSource	Line2
 TriggerSelector	FrameBurstStart
 TriggerSelector	FrameBurstStart
 TriggerActivation	RisingEdge
@@ -68,7 +68,7 @@ TriggerDelay	0
 TriggerSelector	FrameBurstStart
 TriggerCacheEnable	0
 ExposureMode	Timed
-ExposureTime	4000
+ExposureTime	10000
 ExposureAuto	Off
 AutoExposureTimeLowerLimit	65
 AutoExposureTimeUpperLimit	10759
@@ -95,8 +95,6 @@ HDRSelector	0
 LineSelector	Line0
 LineSelector	Line1
 LineMode	Strobe
-LineSelector	Line2
-LineMode	Input
 LineSelector	Line0
 LineSelector	Line1
 LineInverter	0
@@ -131,7 +129,7 @@ CounterSelector	Counter0
 CounterSelector	Counter0
 CounterValue	1
 CounterSelector	Counter0
-Gain	15.0062
+Gain	0
 GainAuto	Off
 AutoGainLowerLimit	0
 AutoGainUpperLimit	15.0062

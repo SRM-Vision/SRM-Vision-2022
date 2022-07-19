@@ -389,7 +389,7 @@ SendPacket ArmorPredictor::GenerateSendPacket(float pitch_right, double bullet_s
         distance_filter_.Reset();
     distance = distance_filter_(last_target_->Distance());
 
-    DLOG(INFO) << "filtered distance： " << distance;
+    DLOG(INFO) << "filtered distance: " << distance;
 
     pitch = -Compensator::Instance().PitchOffset(pitch_right,bullet_speed,distance,AimModes::kNormal);
 
