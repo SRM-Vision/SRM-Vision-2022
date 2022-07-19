@@ -12,16 +12,6 @@
 #include <glog/logging.h>
 #include <Eigen/Eigen>
 
-static constexpr int INPUT_W = 416;    // Width of input
-static constexpr int INPUT_H = 416;    // Height of input
-static constexpr int NUM_CLASSES = 2;  // Number of classes
-static constexpr int NUM_COLORS = 2;   // Number of color
-static constexpr int TOPK = 32;       // TopK
-static constexpr float NMS_THRESH  = 0.1;
-static constexpr float BBOX_CONF_THRESH = 0.95;
-static constexpr float MERGE_CONF_ERROR = 0.15;
-static constexpr float MERGE_MIN_IOU = 0.2;
-
 #define TRT_ASSERT(expr)                                              \
     if(!(expr)) {                                                     \
         LOG(ERROR) << "TensorRT assertion failed: " << #expr << ".";  \
@@ -43,12 +33,6 @@ static inline size_t get_dims_size(const nvinfer1::Dims &dims) {
     return sz;
 }
 
-struct GridAndStride
-{
-    int grid0;
-    int grid1;
-    int stride;
-};
 
 void RuneDetectorNetwork::Initialize(const std::string &onnx_file) {
     std::filesystem::path onnx_file_path(onnx_file);
@@ -199,13 +183,12 @@ PowerRune RuneDetectorNetwork::Run(Entity::Colors color, Frame &frame) {
  * @param strides A vector of stride.
  * @param grid_strides Grid stride generated in this function.
  */
-static void generate_grids_and_stride(const int target_w, const int target_h,
-                                      std::vector<int>& strides, std::vector<GridAndStride>& grid_strides)
+void RuneDetectorNetwork::generate_grids_and_stride(std::vector<int>& strides, std::vector<GridAndStride>& grid_strides)
 {
     for (auto stride : strides)
     {
-        int num_grid_w = target_w / stride;
-        int num_grid_h = target_h / stride;
+        int num_grid_w = INPUT_W / stride;
+        int num_grid_h = INPUT_H / stride;
 
         for (int g1 = 0; g1 < num_grid_h; g1++)
         {
@@ -225,9 +208,8 @@ static void generate_grids_and_stride(const int target_w, const int target_h,
  * @param prob_threshold Confidence Threshold.
  * @param objects Objects proposed.
  */
-static void generateYoloxProposals(
+void RuneDetectorNetwork::generateYoloxProposals(
         std::vector<GridAndStride> grid_strides, const float* feat_ptr,
-        float prob_threshold,
         std::vector<BuffObject>& objects)
 {
 
@@ -267,7 +249,7 @@ static void generateYoloxProposals(
         // float box_prob = (box_objectness + cls_conf + color_conf) / 3.0;
         float box_prob = box_objectness;
 
-        if (box_prob >= prob_threshold)
+        if (box_prob >= BBOX_CONF_THRESH)
         {
             BuffObject obj;
 
@@ -300,7 +282,7 @@ static void generateYoloxProposals(
     } // point anchor loop
 }
 
-static void qsort_descent_inplace(std::vector<BuffObject>& faceobjects, int left, int right)
+void RuneDetectorNetwork::qsort_descent_inplace(std::vector<BuffObject>& faceobjects, int left, int right)
 {
     int i = left;
     int j = right;
@@ -337,7 +319,7 @@ static void qsort_descent_inplace(std::vector<BuffObject>& faceobjects, int left
     }
 }
 
-static void qsort_descent_inplace(std::vector<BuffObject>& objects)
+void RuneDetectorNetwork::qsort_descent_inplace(std::vector<BuffObject>& objects)
 {
     if (objects.empty())
         return;
@@ -346,8 +328,7 @@ static void qsort_descent_inplace(std::vector<BuffObject>& objects)
 }
 
 
-static void nms_sorted_bboxes(std::vector<BuffObject>& faceobjects, std::vector<int>& picked,
-                              float nms_threshold)
+void RuneDetectorNetwork::nms_sorted_bboxes(std::vector<BuffObject>& faceobjects, std::vector<int>& picked)
 {
     picked.clear();
     const int n = faceobjects.size();
@@ -378,7 +359,7 @@ static void nms_sorted_bboxes(std::vector<BuffObject>& faceobjects, std::vector<
             float union_area = areas[i] + areas[picked[j]] - inter_area;
             float iou = inter_area / union_area;
 
-            if (iou > nms_threshold || isnan(iou))
+            if (iou > NMS_THRESH || isnan(iou))
             {
                 keep = 0;
                 //Stored for Merge
@@ -467,8 +448,8 @@ BuffObject RuneDetectorNetwork::ModelRun(const cv::Mat &image)
     std::vector<int> strides = {8, 16, 32};
     std::vector<GridAndStride> grid_strides;
 
-    generate_grids_and_stride(INPUT_W, INPUT_H, strides, grid_strides);
-    generateYoloxProposals(grid_strides, output_buffer_, BBOX_CONF_THRESH, results);
+    generate_grids_and_stride(strides, grid_strides);
+    generateYoloxProposals(grid_strides, output_buffer_,  results);
 
     qsort_descent_inplace(results);
 
@@ -487,11 +468,9 @@ BuffObject RuneDetectorNetwork::ModelRun(const cv::Mat &image)
     results = filtered;
 
     std::vector<int> picked;
-    nms_sorted_bboxes(results, picked, NMS_THRESH);
+    nms_sorted_bboxes(results, picked);
     int count = picked.size();
     results.resize(count);
-
-
 
     for (int i = 0; i < count; i++)
     {

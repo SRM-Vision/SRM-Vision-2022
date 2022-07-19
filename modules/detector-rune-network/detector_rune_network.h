@@ -25,6 +25,15 @@ struct BuffObject
 class RuneDetectorNetwork : NO_COPY, NO_MOVE {
     static constexpr int kTopkNum = 128;
     static constexpr float kKeepThreshold = 0.1f;
+    static constexpr int INPUT_W = 416;    // Width of input
+    static constexpr int INPUT_H = 416;    // Height of input
+    static constexpr int NUM_CLASSES = 2;  // Number of classes
+    static constexpr int NUM_COLORS = 2;   // Number of color
+    static constexpr int TOPK = 32;       // TopK
+    static constexpr float NMS_THRESH  = 0.1;
+    static constexpr float BBOX_CONF_THRESH = 0.95;
+    static constexpr float MERGE_CONF_ERROR = 0.15;
+    static constexpr float MERGE_MIN_IOU = 0.2;
 
 public:
     RuneDetectorNetwork() : engine_(),
@@ -56,6 +65,13 @@ public:
 
     // model part
 private:
+    struct GridAndStride
+    {
+        int grid0;
+        int grid1;
+        int stride;
+    };
+
     void BuildEngineFromONNX(const std::string &);
 
     void BuildEngineFromCache(const std::string &);
@@ -64,6 +80,16 @@ private:
 
     BuffObject ModelRun(const cv::Mat &image);
 
+    static void generate_grids_and_stride(std::vector<int>& strides, std::vector<GridAndStride>& grid_strides);
+
+    static void generateYoloxProposals(std::vector<GridAndStride> grid_strides, const float* feat_ptr,
+                                std::vector<BuffObject>& objects);
+
+    void qsort_descent_inplace(std::vector<BuffObject>& faceobjects, int left, int right);
+
+    void qsort_descent_inplace(std::vector<BuffObject>& objects);
+
+    static void nms_sorted_bboxes(std::vector<BuffObject>& faceobjects, std::vector<int>& picked);
     nvinfer1::ICudaEngine *engine_;         ///< CUDA engine handle.
     nvinfer1::IExecutionContext *context_;  ///< CUDA execution context handle.
 
