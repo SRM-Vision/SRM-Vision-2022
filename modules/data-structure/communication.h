@@ -37,7 +37,7 @@ struct ReceivePacket {
             armor_kind(0),
             prior_enemy(0),
             color(Entity::Colors::kBlue),
-            bullet_speed(0),
+            bullet_speed(15),
             yaw_pitch_roll{0, 0, 0} {}
 
     explicit ReceivePacket(const SerialReceivePacket &serial_receive_packet) :

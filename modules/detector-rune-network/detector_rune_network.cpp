@@ -12,19 +12,6 @@
 #include <glog/logging.h>
 #include <Eigen/Eigen>
 
-
-/// FIXME blue armor
-
-static constexpr int INPUT_W = 416;    // Width of input
-static constexpr int INPUT_H = 416;    // Height of input
-static constexpr int NUM_CLASSES = 2;  // Number of classes
-static constexpr int NUM_COLORS = 2;   // Number of color
-static constexpr int TOPK = 32;       // TopK
-static constexpr float NMS_THRESH  = 0.1;
-static constexpr float BBOX_CONF_THRESH = 0.95;
-static constexpr float MERGE_CONF_ERROR = 0.15;
-static constexpr float MERGE_MIN_IOU = 0.2;
-
 #define TRT_ASSERT(expr)                                              \
     if(!(expr)) {                                                     \
         LOG(ERROR) << "TensorRT assertion failed: " << #expr << ".";  \
@@ -46,232 +33,6 @@ static inline size_t get_dims_size(const nvinfer1::Dims &dims) {
     return sz;
 }
 
-struct GridAndStride
-{
-    int grid0;
-    int grid1;
-    int stride;
-};
-
-/**
- * @brief Generate grids and stride.
- * @param target_w Width of input.
- * @param target_h Height of input.
- * @param strides A vector of stride.
- * @param grid_strides Grid stride generated in this function.
- */
-static void generate_grids_and_stride(const int target_w, const int target_h,
-                                      std::vector<int>& strides, std::vector<GridAndStride>& grid_strides)
-{
-    for (auto stride : strides)
-    {
-        int num_grid_w = target_w / stride;
-        int num_grid_h = target_h / stride;
-
-        for (int g1 = 0; g1 < num_grid_h; g1++)
-        {
-            for (int g0 = 0; g0 < num_grid_w; g0++)
-            {
-                grid_strides.push_back((GridAndStride){g0, g1, stride});
-            }
-        }
-    }
-}
-
-
-/**
- * @brief Generate Proposal
- * @param grid_strides Grid strides
- * @param feat_ptr Original predition result.
- * @param prob_threshold Confidence Threshold.
- * @param objects Objects proposed.
- */
-static void generateYoloxProposals(
-        std::vector<GridAndStride> grid_strides, const float* feat_ptr,
-        float prob_threshold,
-        std::vector<BuffObject>& objects)
-{
-
-    const int num_anchors = grid_strides.size();
-    //Travel all the anchors
-    for (int anchor_idx = 0; anchor_idx < num_anchors; anchor_idx++)
-    {
-        const int grid0 = grid_strides[anchor_idx].grid0;
-        const int grid1 = grid_strides[anchor_idx].grid1;
-        const int stride = grid_strides[anchor_idx].stride;
-
-        const int basic_pos = anchor_idx * (11 + NUM_COLORS + NUM_CLASSES);
-
-        // yolox/models/yolo_head.py decode logic
-        //  outputs[..., :2] = (outputs[..., :2] + grids) * strides
-        //  outputs[..., 2:4] = torch.exp(outputs[..., 2:4]) * strides
-        float x_1 = (feat_ptr[basic_pos + 0] + grid0) * stride;
-        float y_1 = (feat_ptr[basic_pos + 1] + grid1) * stride;
-        float x_2 = (feat_ptr[basic_pos + 2] + grid0) * stride;
-        float y_2 = (feat_ptr[basic_pos + 3] + grid1) * stride;
-        float x_3 = (feat_ptr[basic_pos + 4] + grid0) * stride;
-        float y_3 = (feat_ptr[basic_pos + 5] + grid1) * stride;
-        float x_4 = (feat_ptr[basic_pos + 6] + grid0) * stride;
-        float y_4 = (feat_ptr[basic_pos + 7] + grid1) * stride;
-        float x_5 = (feat_ptr[basic_pos + 8] + grid0) * stride;
-        float y_5 = (feat_ptr[basic_pos + 9] + grid1) * stride;
-
-        int box_color = argmax(feat_ptr + basic_pos + 11, NUM_COLORS);
-        int box_class = argmax(feat_ptr + basic_pos + 11 + NUM_COLORS, NUM_CLASSES);
-
-        float box_objectness = (feat_ptr[basic_pos + 10]);
-
-        float color_conf = (feat_ptr[basic_pos + 11 + box_color]);
-        float cls_conf = (feat_ptr[basic_pos + 11 + NUM_COLORS + box_class]);
-
-        // cout<<box_objectness<<endl;
-        // float box_prob = (box_objectness + cls_conf + color_conf) / 3.0;
-        float box_prob = box_objectness;
-
-        if (box_prob >= prob_threshold)
-        {
-            BuffObject obj;
-
-            Eigen::Matrix<float,3,5> apex_norm;
-            Eigen::Matrix<float,3,5> apex_dst;
-
-            apex_norm << x_1,x_2,x_3,x_4,x_5,
-                    y_1,y_2,y_3,y_4,y_5,
-                    1,1,1,1,1;
-
-            apex_dst = apex_norm;
-
-            for (int i = 0; i < 5; i++)
-                obj.apex[i] = cv::Point2f(apex_dst(0,i),apex_dst(1,i));
-            for (int i = 0; i < 5; i++)
-            {
-                obj.apex[i] = cv::Point2f(apex_dst(0,i),apex_dst(1,i));
-                obj.pts.push_back(obj.apex[i]);
-            }
-            std::vector<cv::Point2f> tmp(obj.apex,obj.apex + 5);
-            obj.rect = cv::boundingRect(tmp);
-
-            obj.cls = box_class;
-            obj.color = box_color;
-            obj.prob = box_prob;
-
-            objects.push_back(obj);
-        }
-
-    } // point anchor loop
-}
-
-static void qsort_descent_inplace(std::vector<BuffObject>& faceobjects, int left, int right)
-{
-    int i = left;
-    int j = right;
-    float p = faceobjects[(left + right) / 2].prob;
-
-    while (i <= j)
-    {
-        while (faceobjects[i].prob > p)
-            i++;
-
-        while (faceobjects[j].prob < p)
-            j--;
-
-        if (i <= j)
-        {
-            // swap
-            std::swap(faceobjects[i], faceobjects[j]);
-
-            i++;
-            j--;
-        }
-    }
-
-#pragma omp parallel sections
-    {
-#pragma omp section
-        {
-            if (left < j) qsort_descent_inplace(faceobjects, left, j);
-        }
-#pragma omp section
-        {
-            if (i < right) qsort_descent_inplace(faceobjects, i, right);
-        }
-    }
-}
-
-static void qsort_descent_inplace(std::vector<BuffObject>& objects)
-{
-    if (objects.empty())
-        return;
-
-    qsort_descent_inplace(objects, 0, objects.size() - 1);
-}
-
-
-static void nms_sorted_bboxes(std::vector<BuffObject>& faceobjects, std::vector<int>& picked,
-                              float nms_threshold)
-{
-    picked.clear();
-    const int n = faceobjects.size();
-
-    std::vector<float> areas(n);
-    for (int i = 0; i < n; i++)
-    {
-        std::vector<cv::Point2f> object_apex_tmp(faceobjects[i].apex, faceobjects[i].apex + 5);
-        areas[i] = contourArea(object_apex_tmp);
-        // areas[i] = faceobjects[i].rect.area();
-    }
-
-    for (int i = 0; i < n; i++)
-    {
-        BuffObject& a = faceobjects[i];
-        std::vector<cv::Point2f> apex_a(a.apex, a.apex + 5);
-        int keep = 1;
-        for (int j = 0; j < (int)picked.size(); j++)
-        {
-            BuffObject& b = faceobjects[picked[j]];
-            std::vector<cv::Point2f> apex_b(b.apex, b.apex + 5);
-            std::vector<cv::Point2f> apex_inter;
-            // intersection over union
-            // float inter_area = intersection_area(a, b);
-            // float union_area = areas[i] + areas[picked[j]] - inter_area;
-            //TODO:此处耗时较长，大约1ms，可以尝试使用其他方法计算IOU与多边形面积
-            float inter_area = intersectConvexConvex(apex_a,apex_b,apex_inter);
-            float union_area = areas[i] + areas[picked[j]] - inter_area;
-            float iou = inter_area / union_area;
-
-            if (iou > nms_threshold || isnan(iou))
-            {
-                keep = 0;
-                //Stored for Merge
-                if (iou > MERGE_MIN_IOU && abs(a.prob - b.prob) < MERGE_CONF_ERROR
-                    && a.cls == b.cls && a.color == b.color)
-                {
-                    for (int i = 0; i < 5; i++)
-                    {
-                        b.pts.push_back(a.apex[i]);
-                    }
-                }
-                // cout<<b.pts_x.size()<<endl;
-            }
-        }
-
-        if (keep)
-            picked.push_back(i);
-    }
-}
-
-
-
-
-RuneDetectorNetwork::~RuneDetectorNetwork() {
-    delete[] output_buffer_;
-
-    cudaStreamDestroy(stream_);
-    cudaFree(device_buffer_[output_index_]);
-    cudaFree(device_buffer_[input_index_]);
-
-    engine_->destroy();
-}
 
 void RuneDetectorNetwork::Initialize(const std::string &onnx_file) {
     std::filesystem::path onnx_file_path(onnx_file);
@@ -303,134 +64,14 @@ void RuneDetectorNetwork::Initialize(const std::string &onnx_file) {
     TRT_ASSERT(output_buffer_ != nullptr)
 }
 
-BuffObject RuneDetectorNetwork::ModelRun(const cv::Mat &image)
-{
-    auto current_time_chrono = std::chrono::high_resolution_clock::now();
-    current_time_ = double(std::chrono::duration_cast<std::chrono::milliseconds>(
-            std::chrono::system_clock::now().time_since_epoch()).count());
-    time_gap_ = (static_cast<std::chrono::duration<double, std::milli>>(
-            current_time_chrono - last_time_)).count();
-    last_time_ = current_time_chrono;
-    current_time_ /= 1000;
+RuneDetectorNetwork::~RuneDetectorNetwork() {
+    delete[] output_buffer_;
 
-    cv::Mat image_ = image.clone();
-    cv::Rect roi_rect = cv::Rect(0, 0, image.cols, image.rows);
-    // last detection is valid.
-    if (energy_center_r_ != cv::Point2f(0, 0)) {
-        roi_point_tl_ = cv::Point2i(std::max(0, int(energy_center_r_.x - 213)), std::max(0, int(energy_center_r_.y - 213)));
-        roi_rect = cv::Rect(roi_point_tl_.x, roi_point_tl_.y, 2 * 213, 2 * 213) &
-                            cv::Rect(0, 0, image.cols, image.rows);
-    }
-    image_ = image(roi_rect);  // Use ROI
+    cudaStreamDestroy(stream_);
+    cudaFree(device_buffer_[output_index_]);
+    cudaFree(device_buffer_[input_index_]);
 
-    // Pre-process. [resize]
-    float fx = (float) image_.cols / 416.f; float fy = (float) image_.rows / 416.f;
-    if (image.cols != 416 || image.rows != 416)
-        cv::resize(image_, image_, {416, 416});
-    image_.convertTo(image_, CV_32F);
-
-    cv::Mat image_splits[3];
-    cv::split(image_, image_splits);
-//    cv::cvtColor(image_, image_, cv::COLOR_BGR2RGB);
-
-    auto *input_data = new float[416*416*3];
-    //Copy img into blob
-    for(auto & image_split : image_splits)
-    {
-        memcpy(input_data, image_split.data, INPUT_W * INPUT_H * sizeof(float));
-        input_data += INPUT_W * INPUT_H;
-    }
-    input_data -= INPUT_W * INPUT_H * 3;
-
-    // Run model.
-    std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
-
-    cudaMemcpyAsync(device_buffer_[input_index_], input_data, input_size_ * sizeof(float), cudaMemcpyHostToDevice, stream_);
-    context_->enqueue(1, device_buffer_, stream_, nullptr);
-    cudaMemcpyAsync(output_buffer_, device_buffer_[output_index_], output_size_ * sizeof(float), cudaMemcpyDeviceToHost,
-                    stream_);
-    cudaStreamSynchronize(stream_);
-
-    std::chrono::system_clock::time_point end = std::chrono::system_clock::now();
-    auto dur = end - start;
-    auto time = std::chrono::duration_cast<std::chrono::microseconds>(dur);
-    DLOG(INFO) << "rune model detection time cost:" << time.count();
-
-    // Post-process. [nms]
-    std::vector<BuffObject> results;
-    results.reserve(kTopkNum);
-
-    std::vector<int> strides = {8, 16, 32};
-    std::vector<GridAndStride> grid_strides;
-
-    generate_grids_and_stride(INPUT_W, INPUT_H, strides, grid_strides);
-    generateYoloxProposals(grid_strides, output_buffer_, BBOX_CONF_THRESH, results);
-    qsort_descent_inplace(results);
-
-    if (results.size() >= TOPK)
-        results.resize(TOPK);
-
-    std::vector<BuffObject> filtered;
-    for (int i=0; i<results.size(); i++)
-    {
-        if (results[i].cls == 1)
-        {
-            filtered.push_back(results[i]);
-        }
-    }
-    results = filtered;
-
-    std::vector<int> picked;
-    nms_sorted_bboxes(results, picked, NMS_THRESH);
-    int count = picked.size();
-    results.resize(count);
-
-
-
-    for (int i = 0; i < count; i++)
-    {
-        results[i] = results[picked[i]];
-    }
-
-    for (auto object = results.begin(); object != results.end(); ++object)
-    {
-        if ((*object).pts.size() >= 10)
-        {
-            auto N = (*object).pts.size();
-            cv::Point2f pts_final[5];
-
-            for (int i = 0; i < N; i++)
-            {
-                pts_final[i % 5]+=(*object).pts[i];
-            }
-
-            for (int i = 0; i < 5; i++)
-            {
-                pts_final[i].x = pts_final[i].x / (N / 5) * fx + roi_point_tl_.x;
-                pts_final[i].y = pts_final[i].y / (N / 5) * fy + roi_point_tl_.y;
-            }
-
-            (*object).apex[0] = pts_final[0];
-            (*object).apex[1] = pts_final[1];
-            (*object).apex[2] = pts_final[2];
-            (*object).apex[3] = pts_final[3];
-            (*object).apex[4] = pts_final[4];
-        }
-        // (*object).area = (int)(calcTetragonArea((*object).apex));
-    }
-
-
-    // if vector is empty, return empty point.
-    if (results.empty())
-        return {};
-
-    std::sort(results.begin(), results.end(), [](BuffObject a, BuffObject b){
-        return a.prob > b.prob;
-    });
-
-    delete [] input_data;
-
-    return results.at(0);
+    engine_->destroy();
 }
 
 void RuneDetectorNetwork::BuildEngineFromONNX(const std::string &onnx_file) {
@@ -503,6 +144,370 @@ void RuneDetectorNetwork::CacheEngine(const std::string &cache_file) {
     engine_buffer->destroy();
 }
 
+PowerRune RuneDetectorNetwork::Run(Entity::Colors color, Frame &frame) {
+    BuffObject buff_from_model = ModelRun(frame.image);
+
+    // mean filter to get stable center R
+    if(abs(buff_from_model.apex[2].x - energy_center_r_.x) < 100)
+        energy_center_r_ = buff_from_model.apex[2] /2 + energy_center_r_ / 2;
+    else
+        energy_center_r_ = buff_from_model.apex[2];
+
+    for (int i=0; i<5; i++)
+    {
+        if (i == 2)
+            continue;
+        armor_center_p_ += buff_from_model.apex[i];
+    }
+    armor_center_p_ /= 5;
+    rtp_vec_ = armor_center_p_ - energy_center_r_;
+
+    if (!clockwise_)
+        FindRotateDirection();
+
+    return {color,
+            clockwise_,
+            time_gap_,
+            current_time_,
+            rtp_vec_,
+            energy_center_r_,
+            armor_center_p_,
+            cv::Point2f(float(frame.image.cols >> 1), float(frame.image.rows >> 1))};
+}
+
+
+/**
+ * @brief Generate grids and stride.
+ * @param target_w Width of input.
+ * @param target_h Height of input.
+ * @param strides A vector of stride.
+ * @param grid_strides Grid stride generated in this function.
+ */
+void RuneDetectorNetwork::generate_grids_and_stride(std::vector<int>& strides, std::vector<GridAndStride>& grid_strides)
+{
+    for (auto stride : strides)
+    {
+        int num_grid_w = INPUT_W / stride;
+        int num_grid_h = INPUT_H / stride;
+
+        for (int g1 = 0; g1 < num_grid_h; g1++)
+        {
+            for (int g0 = 0; g0 < num_grid_w; g0++)
+            {
+                grid_strides.push_back((GridAndStride){g0, g1, stride});
+            }
+        }
+    }
+}
+
+
+/**
+ * @brief Generate Proposal
+ * @param grid_strides Grid strides
+ * @param feat_ptr Original predition result.
+ * @param prob_threshold Confidence Threshold.
+ * @param objects Objects proposed.
+ */
+void RuneDetectorNetwork::generateYoloxProposals(
+        std::vector<GridAndStride> grid_strides, const float* feat_ptr,
+        std::vector<BuffObject>& objects)
+{
+
+    const int num_anchors = grid_strides.size();
+    //Travel all the anchors
+    for (int anchor_idx = 0; anchor_idx < num_anchors; anchor_idx++)
+    {
+        const int grid0 = grid_strides[anchor_idx].grid0;
+        const int grid1 = grid_strides[anchor_idx].grid1;
+        const int stride = grid_strides[anchor_idx].stride;
+
+        const int basic_pos = anchor_idx * (11 + NUM_COLORS + NUM_CLASSES);
+
+        // yolox/models/yolo_head.py decode logic
+        //  outputs[..., :2] = (outputs[..., :2] + grids) * strides
+        //  outputs[..., 2:4] = torch.exp(outputs[..., 2:4]) * strides
+        float x_1 = (feat_ptr[basic_pos + 0] + grid0) * stride;
+        float y_1 = (feat_ptr[basic_pos + 1] + grid1) * stride;
+        float x_2 = (feat_ptr[basic_pos + 2] + grid0) * stride;
+        float y_2 = (feat_ptr[basic_pos + 3] + grid1) * stride;
+        float x_3 = (feat_ptr[basic_pos + 4] + grid0) * stride;
+        float y_3 = (feat_ptr[basic_pos + 5] + grid1) * stride;
+        float x_4 = (feat_ptr[basic_pos + 6] + grid0) * stride;
+        float y_4 = (feat_ptr[basic_pos + 7] + grid1) * stride;
+        float x_5 = (feat_ptr[basic_pos + 8] + grid0) * stride;
+        float y_5 = (feat_ptr[basic_pos + 9] + grid1) * stride;
+
+        int box_color = argmax(feat_ptr + basic_pos + 11, NUM_COLORS);
+        int box_class = argmax(feat_ptr + basic_pos + 11 + NUM_COLORS, NUM_CLASSES);
+
+        float box_objectness = (feat_ptr[basic_pos + 10]);
+
+        float color_conf = (feat_ptr[basic_pos + 11 + box_color]);
+        float cls_conf = (feat_ptr[basic_pos + 11 + NUM_COLORS + box_class]);
+
+        // cout<<box_objectness<<endl;
+        // float box_prob = (box_objectness + cls_conf + color_conf) / 3.0;
+        float box_prob = box_objectness;
+
+        if (box_prob >= BBOX_CONF_THRESH)
+        {
+            BuffObject obj;
+
+            Eigen::Matrix<float,3,5> apex_norm;
+            Eigen::Matrix<float,3,5> apex_dst;
+
+            apex_norm << x_1,x_2,x_3,x_4,x_5,
+                    y_1,y_2,y_3,y_4,y_5,
+                    1,1,1,1,1;
+
+            apex_dst = apex_norm;
+
+            for (int i = 0; i < 5; i++)
+                obj.apex[i] = cv::Point2f(apex_dst(0,i),apex_dst(1,i));
+            for (int i = 0; i < 5; i++)
+            {
+                obj.apex[i] = cv::Point2f(apex_dst(0,i),apex_dst(1,i));
+                obj.pts.push_back(obj.apex[i]);
+            }
+            std::vector<cv::Point2f> tmp(obj.apex,obj.apex + 5);
+            obj.rect = cv::boundingRect(tmp);
+
+            obj.cls = box_class;
+            obj.color = box_color;
+            obj.prob = box_prob;
+
+            objects.push_back(obj);
+        }
+
+    } // point anchor loop
+}
+
+void RuneDetectorNetwork::qsort_descent_inplace(std::vector<BuffObject>& faceobjects, int left, int right)
+{
+    int i = left;
+    int j = right;
+    float p = faceobjects[(left + right) / 2].prob;
+
+    while (i <= j)
+    {
+        while (faceobjects[i].prob > p)
+            i++;
+
+        while (faceobjects[j].prob < p)
+            j--;
+
+        if (i <= j)
+        {
+            // swap
+            std::swap(faceobjects[i], faceobjects[j]);
+
+            i++;
+            j--;
+        }
+    }
+
+#pragma omp parallel sections
+    {
+#pragma omp section
+        {
+            if (left < j) qsort_descent_inplace(faceobjects, left, j);
+        }
+#pragma omp section
+        {
+            if (i < right) qsort_descent_inplace(faceobjects, i, right);
+        }
+    }
+}
+
+void RuneDetectorNetwork::qsort_descent_inplace(std::vector<BuffObject>& objects)
+{
+    if (objects.empty())
+        return;
+
+    qsort_descent_inplace(objects, 0, objects.size() - 1);
+}
+
+
+void RuneDetectorNetwork::nms_sorted_bboxes(std::vector<BuffObject>& faceobjects, std::vector<int>& picked)
+{
+    picked.clear();
+    const int n = faceobjects.size();
+
+    std::vector<float> areas(n);
+    for (int i = 0; i < n; i++)
+    {
+        std::vector<cv::Point2f> object_apex_tmp(faceobjects[i].apex, faceobjects[i].apex + 5);
+        areas[i] = contourArea(object_apex_tmp);
+        // areas[i] = faceobjects[i].rect.area();
+    }
+
+    for (int i = 0; i < n; i++)
+    {
+        BuffObject& a = faceobjects[i];
+        std::vector<cv::Point2f> apex_a(a.apex, a.apex + 5);
+        int keep = 1;
+        for (int j = 0; j < (int)picked.size(); j++)
+        {
+            BuffObject& b = faceobjects[picked[j]];
+            std::vector<cv::Point2f> apex_b(b.apex, b.apex + 5);
+            std::vector<cv::Point2f> apex_inter;
+            // intersection over union
+            // float inter_area = intersection_area(a, b);
+            // float union_area = areas[i] + areas[picked[j]] - inter_area;
+            //TODO:此处耗时较长，大约1ms，可以尝试使用其他方法计算IOU与多边形面积
+            float inter_area = intersectConvexConvex(apex_a,apex_b,apex_inter);
+            float union_area = areas[i] + areas[picked[j]] - inter_area;
+            float iou = inter_area / union_area;
+
+            if (iou > NMS_THRESH || isnan(iou))
+            {
+                keep = 0;
+                //Stored for Merge
+                if (iou > MERGE_MIN_IOU && abs(a.prob - b.prob) < MERGE_CONF_ERROR
+                    && a.cls == b.cls && a.color == b.color)
+                {
+                    for (int i = 0; i < 5; i++)
+                    {
+                        b.pts.push_back(a.apex[i]);
+                    }
+                }
+                // cout<<b.pts_x.size()<<endl;
+            }
+        }
+
+        if (keep)
+            picked.push_back(i);
+    }
+}
+
+BuffObject RuneDetectorNetwork::ModelRun(const cv::Mat &image)
+{
+    auto current_time_chrono = std::chrono::high_resolution_clock::now();
+    current_time_ = double(std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::system_clock::now().time_since_epoch()).count());
+    time_gap_ = (static_cast<std::chrono::duration<double, std::milli>>(
+            current_time_chrono - last_time_)).count();
+    last_time_ = current_time_chrono;
+    current_time_ /= 1000;
+
+    cv::Mat image_ = image.clone();
+    cv::Rect roi_rect = cv::Rect(0, 0, image.cols, image.rows);
+    // last detection is valid.
+    if (energy_center_r_ != cv::Point2f(0, 0)) {
+        roi_point_tl_ = cv::Point2i(std::max(0, int(energy_center_r_.x - 213)), std::max(0, int(energy_center_r_.y - 213)));
+        roi_rect = cv::Rect(roi_point_tl_.x, roi_point_tl_.y, 2 * 213, 2 * 213) &
+                            cv::Rect(0, 0, image.cols, image.rows);
+    }
+    image_ = image(roi_rect);  // Use ROI
+
+    // Pre-process. [resize]
+    float fx = (float) image_.cols / 416.f; float fy = (float) image_.rows / 416.f;
+    if (image.cols != 416 || image.rows != 416)
+        cv::resize(image_, image_, {416, 416});
+    image_.convertTo(image_, CV_32F);
+
+    cv::Mat image_splits[3];
+    cv::split(image_, image_splits);
+//    cv::cvtColor(image_, image_, cv::COLOR_BGR2RGB);
+
+    auto *input_data = new float[416*416*3];
+    //Copy img into blob
+    for(auto & image_split : image_splits)
+    {
+        memcpy(input_data, image_split.data, INPUT_W * INPUT_H * sizeof(float));
+        input_data += INPUT_W * INPUT_H;
+    }
+    input_data -= INPUT_W * INPUT_H * 3;
+
+    // Run model.
+    std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
+
+    cudaMemcpyAsync(device_buffer_[input_index_], input_data, input_size_ * sizeof(float), cudaMemcpyHostToDevice, stream_);
+    context_->enqueue(1, device_buffer_, stream_, nullptr);
+    cudaMemcpyAsync(output_buffer_, device_buffer_[output_index_], output_size_ * sizeof(float), cudaMemcpyDeviceToHost,
+                    stream_);
+    cudaStreamSynchronize(stream_);
+
+    std::chrono::system_clock::time_point end = std::chrono::system_clock::now();
+    auto dur = end - start;
+    auto time = std::chrono::duration_cast<std::chrono::microseconds>(dur);
+    DLOG(INFO) << "rune model detection time cost:" << time.count();
+
+    // Post-process. [nms]
+    std::vector<BuffObject> results;
+    results.reserve(kTopkNum);
+
+    std::vector<int> strides = {8, 16, 32};
+    std::vector<GridAndStride> grid_strides;
+
+    generate_grids_and_stride(strides, grid_strides);
+    generateYoloxProposals(grid_strides, output_buffer_,  results);
+
+    qsort_descent_inplace(results);
+
+    if (results.size() >= TOPK)
+        results.resize(TOPK);
+
+    std::vector<BuffObject> filtered;
+    for (int i=0; i<results.size(); i++)
+    {
+        if (results[i].cls == 1)
+        {
+            filtered.push_back(results[i]);
+        }
+    }
+    results = filtered;
+
+    std::vector<int> picked;
+    nms_sorted_bboxes(results, picked);
+    int count = picked.size();
+    results.resize(count);
+
+    for (int i = 0; i < count; i++)
+    {
+        results[i] = results[picked[i]];
+    }
+
+    for (auto object = results.begin(); object != results.end(); ++object)
+    {
+        if ((*object).pts.size() >= 10)
+        {
+            auto N = (*object).pts.size();
+            cv::Point2f pts_final[5];
+
+            for (int i = 0; i < N; i++)
+            {
+                pts_final[i % 5]+=(*object).pts[i];
+            }
+
+            for (int i = 0; i < 5; i++)
+            {
+                pts_final[i].x = pts_final[i].x / (N / 5) * fx + roi_point_tl_.x;
+                pts_final[i].y = pts_final[i].y / (N / 5) * fy + roi_point_tl_.y;
+            }
+
+            (*object).apex[0] = pts_final[0];
+            (*object).apex[1] = pts_final[1];
+            (*object).apex[2] = pts_final[2];
+            (*object).apex[3] = pts_final[3];
+            (*object).apex[4] = pts_final[4];
+        }
+        // (*object).area = (int)(calcTetragonArea((*object).apex));
+    }
+
+
+    // if vector is empty, return empty point.
+    if (results.empty())
+        return {};
+
+    std::sort(results.begin(), results.end(), [](BuffObject a, BuffObject b){
+        return a.prob > b.prob;
+    });
+
+    delete [] input_data;
+
+    return results.at(0);
+}
 
 
 void RuneDetectorNetwork::FindRotateDirection() {
@@ -550,34 +555,5 @@ void RuneDetectorNetwork::FindRotateDirection() {
     }
 }
 
-PowerRune RuneDetectorNetwork::Run(Entity::Colors color, Frame &frame) {
-    BuffObject buff_from_model = ModelRun(frame.image);
 
-    // mean filter to get stable center R
-    if(abs(buff_from_model.apex[2].x - energy_center_r_.x) < 100)
-        energy_center_r_ = buff_from_model.apex[2] /2 + energy_center_r_ / 2;
-    else
-        energy_center_r_ = buff_from_model.apex[2];
-
-    for (int i=0; i<5; i++)
-    {
-        if (i == 2)
-            continue;
-        armor_center_p_ += buff_from_model.apex[i];
-    }
-    armor_center_p_ /= 5;
-    rtp_vec_ = armor_center_p_ - energy_center_r_;
-
-    if (!clockwise_)
-        FindRotateDirection();
-
-    return {color,
-            clockwise_,
-            time_gap_,
-            current_time_,
-            rtp_vec_,
-            energy_center_r_,
-            armor_center_p_,
-            cv::Point2f(float(frame.image.cols >> 1), float(frame.image.rows >> 1))};
-}
 
