@@ -118,8 +118,6 @@ Eigen::Vector3d CompensatorTraj::AnyTargetOffset(double bullet_speed, const Armo
 
     // Calculate the real horizontal distance.
     // f(x) = A + Bx + Cx^2 + Dx^3
-    // TODO [@screw-44] [Refactor] Move this switch & case to armor.h.
-    // FIXME Replace this method to the one calculating HORIZONTAL distance.
     double target_x = 0, pnp_distance = armor.Distance(), temp_pnp_distance = 1;
     switch (armor.Size()) {
         case Armor::SIZE:
