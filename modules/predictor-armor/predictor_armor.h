@@ -11,7 +11,7 @@
 #include "debug-tools/painter.h"
 #include "predictor-spin/spin_predictor.h"
 #include "math-tools/ekf.h"
-#include "filter.h"
+#include "trajectory-compensator/trajectory-compensator.h"
 
 class ArmorPredictor: NO_COPY, NO_MOVE {
 public:
@@ -47,7 +47,7 @@ public:
      * \brief Initialized the predictor before using. If enter a car name in constructor, initialization is not necessary.
      * \param car_name [IN] car name for read configuration file.
      */
-    static void Initialize(const std::string& car_name);
+    void Initialize(const std::string& car_name);
 
     /**
      * \brief run to predict shooting point and get send packet.
@@ -56,14 +56,14 @@ public:
      * \param bullet_speed The speed of the bullet provided by the electronic controller.
      * \return the sending packet to serials.
      */
-    SendPacket Run(const Battlefield &battlefield, const cv::MatSize &size, double bullet_speed = 15);
+    SendPacket Run(const Battlefield &battlefield, const cv::MatSize &size, Entity::Colors color);
 
     /**
     * \brief Generate a packet according to data inside.
     * \return Send packet to serial port.
     */
     [[nodiscard]] inline SendPacket
-    GenerateSendPacket(float pitch_right, double bullet_speed, bool is_same_target);
+    GenerateSendPacket(float target_pitch, float current_pitch);
 
 private:
     Entity::Colors enemy_color_;  ///< Target's color.
@@ -87,7 +87,7 @@ private:
 
     uint64_t last_time_{0};
 
-    FilterDTMean<float, 6> distance_filter_{};
+    compensator::CompensatorTraj compensator_traj_;
 
     /**
      * \brief a method to find the same armor to target by picture distance.
@@ -120,7 +120,7 @@ private:
     inline void UpdateShootPointAndPredictCam(const std::array<float, 3>& yaw_pitch_roll);
 
     /// predict ekf
-    void Predict(const Armor& armor,double delta_t,double bullet_speed,const std::array<float, 3>& yaw_pitch_roll,double shoot_delay);
+    void Predict(const Armor& armor, double delta_t, double flight_duration, const std::array<float, 3>& yaw_pitch_roll, double shoot_delay);
 
     /// copy the new armor information
     inline void Update(const Armor& armor);

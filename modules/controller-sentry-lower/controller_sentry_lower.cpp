@@ -48,11 +48,7 @@ void SentryLowerController::Run() {
 
         DLOG(INFO) << "cY: " << battlefield_.YawPitchRoll()[0] << ", cP: " << battlefield_.YawPitchRoll()[1];
 
-        if (CmdlineArgParser::Instance().RunWithSerial()) {
-            armor_predictor.SetColor(receive_packet_.color);
-            send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size, receive_packet_.bullet_speed);
-        } else
-            send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size);
+        send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size, receive_packet_.color);
 
         double delta_pitch = 0;
         if (!armors_.empty()) {
