@@ -1,0 +1,19 @@
+%YAML:1.0
+---
+
+# PnP map to real horizontal distance, m->m.
+# f(x) = a + bx + cx^2 + dx^3
+A: -0.494436
+B: 1.36971
+C: -0.0988656
+D: 0.00539253
+
+# Current latitude, DEG.
+L: 31
+# Current air pressure (hPa).
+P: 997
+# Current air temperature (C)
+T: 36
+
+# Bullet type, must exist in bullet-data.yaml.
+BULLET_TYPE: "SMALL_BULLET"

@@ -94,10 +94,10 @@ private:  ///< predictor armor debug
     // Trackbar value cache.
     double p_xz_noise_ = 0.1;
     double p_y_noise_ = 0.1;
-    double p_x_speed_noise_ = 100;
-    double p_x_acceleration_noise_ = 1000;
-    double p_y_speed_noise_ = 100;
-    double p_y_acceleration_noise_ = 1000;
+    double p_x_speed_noise_ = 10;
+    double p_x_acceleration_noise_ = 100;
+    double p_y_speed_noise_ = 10;
+    double p_y_acceleration_noise_ = 100;
     double m_x_noise_ = 1;
     double m_y_noise_ = 1;
     double m_z_noise_ = 800;
