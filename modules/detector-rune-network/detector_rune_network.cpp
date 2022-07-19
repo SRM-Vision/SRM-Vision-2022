@@ -50,6 +50,148 @@ struct GridAndStride
     int stride;
 };
 
+void RuneDetectorNetwork::Initialize(const std::string &onnx_file) {
+    std::filesystem::path onnx_file_path(onnx_file);
+    auto cache_file_path = onnx_file_path;
+    cache_file_path.replace_extension("cache");
+
+    if (std::filesystem::exists(cache_file_path)) {
+        BuildEngineFromCache(cache_file_path.c_str());
+    } else {
+        BuildEngineFromONNX(onnx_file_path.c_str());
+        CacheEngine(cache_file_path.c_str());
+    }
+
+    TRT_ASSERT((context_ = engine_->createExecutionContext()) != nullptr)
+    TRT_ASSERT((input_index_ = engine_->getBindingIndex("input")) == 0)
+    TRT_ASSERT((output_index_ = engine_->getBindingIndex("output")) == 1)
+
+    auto input_dims = engine_->getBindingDimensions(input_index_);
+    auto output_dims = engine_->getBindingDimensions(output_index_);
+    input_size_ = get_dims_size(input_dims);
+    output_size_ = get_dims_size(output_dims);
+
+    TRT_ASSERT(cudaMalloc(&device_buffer_[input_index_], input_size_ * sizeof(float)) == 0)
+    TRT_ASSERT(cudaMalloc(&device_buffer_[output_index_], output_size_ * sizeof(float)) == 0)
+    TRT_ASSERT(cudaStreamCreate(&stream_) == 0)
+
+    output_buffer_ = new float[output_size_];
+
+    TRT_ASSERT(output_buffer_ != nullptr)
+}
+
+RuneDetectorNetwork::~RuneDetectorNetwork() {
+    delete[] output_buffer_;
+
+    cudaStreamDestroy(stream_);
+    cudaFree(device_buffer_[output_index_]);
+    cudaFree(device_buffer_[input_index_]);
+
+    engine_->destroy();
+}
+
+void RuneDetectorNetwork::BuildEngineFromONNX(const std::string &onnx_file) {
+    LOG(INFO) << "Engine will be built from ONNX.";
+    auto builder = nvinfer1::createInferBuilder(sample::gLogger);
+    TRT_ASSERT(builder != nullptr)
+
+    const auto explicitBatch =
+            1U << static_cast<uint32_t>(nvinfer1::NetworkDefinitionCreationFlag::kEXPLICIT_BATCH);
+    auto network = builder->createNetworkV2(explicitBatch);
+    TRT_ASSERT(network != nullptr)
+
+    auto parser = nvonnxparser::createParser(*network, sample::gLogger);
+    TRT_ASSERT(parser != nullptr)
+
+    parser->parseFromFile(onnx_file.c_str(),
+                          static_cast<int>(nvinfer1::ILogger::Severity::kINFO));
+
+
+    network->getInput(0)->setName("input");
+    network->getOutput(0)->setName("output");
+
+    auto config = builder->createBuilderConfig();
+
+    if (builder->platformHasFastFp16()) {
+        LOG(INFO) << "Platform supports fp16, fp16 is enabled.";
+        config->setFlag(nvinfer1::BuilderFlag::kFP16);
+    } else {
+        LOG(INFO) << "Platform does not support fp16, enable fp32 instead.";
+    }
+
+    size_t free, total;
+    cuMemGetInfo(&free, &total);
+
+    LOG(INFO) << "GPU memory total: " << (total >> 20) << "MB, free: " << (free >> 20) << "MB.";
+    LOG(INFO) << "Max workspace size will use all of free GPU memory.";
+
+    config->setMaxWorkspaceSize(free >> 1);
+
+    TRT_ASSERT((engine_ = builder->buildEngineWithConfig(*network, *config)) != nullptr)
+
+    config->destroy();
+    parser->destroy();
+    network->destroy();
+    builder->destroy();
+}
+
+void RuneDetectorNetwork::BuildEngineFromCache(const std::string &cache_file) {
+    LOG(INFO) << "Engine will be built from cache.";
+    std::ifstream ifs(cache_file, std::ios::binary);
+    ifs.seekg(0, std::ios::end);
+    size_t sz = ifs.tellg();
+    ifs.seekg(0, std::ios::beg);
+    auto buffer = std::make_unique<char[]>(sz);
+    ifs.read(buffer.get(), (std::streamsize) sz);
+    auto runtime = nvinfer1::createInferRuntime(sample::gLogger);
+
+    TRT_ASSERT(runtime != nullptr)
+    TRT_ASSERT((engine_ = runtime->deserializeCudaEngine(buffer.get(), sz)) != nullptr)
+
+    runtime->destroy();
+}
+
+void RuneDetectorNetwork::CacheEngine(const std::string &cache_file) {
+    auto engine_buffer = engine_->serialize();
+    TRT_ASSERT(engine_buffer != nullptr)
+
+    std::ofstream ofs(cache_file, std::ios::binary);
+    ofs.write(static_cast<const char *>(engine_buffer->data()), (std::streamsize) engine_buffer->size());
+    engine_buffer->destroy();
+}
+
+PowerRune RuneDetectorNetwork::Run(Entity::Colors color, Frame &frame) {
+    BuffObject buff_from_model = ModelRun(frame.image);
+
+    // mean filter to get stable center R
+    if(abs(buff_from_model.apex[2].x - energy_center_r_.x) < 100)
+        energy_center_r_ = buff_from_model.apex[2] /2 + energy_center_r_ / 2;
+    else
+        energy_center_r_ = buff_from_model.apex[2];
+
+    for (int i=0; i<5; i++)
+    {
+        if (i == 2)
+            continue;
+        armor_center_p_ += buff_from_model.apex[i];
+    }
+    armor_center_p_ /= 5;
+    rtp_vec_ = armor_center_p_ - energy_center_r_;
+
+    if (!clockwise_)
+        FindRotateDirection();
+
+    return {color,
+            clockwise_,
+            time_gap_,
+            current_time_,
+            rtp_vec_,
+            energy_center_r_,
+            armor_center_p_,
+            cv::Point2f(float(frame.image.cols >> 1), float(frame.image.rows >> 1))};
+}
+
+
 /**
  * @brief Generate grids and stride.
  * @param target_w Width of input.
@@ -257,49 +399,6 @@ static void nms_sorted_bboxes(std::vector<BuffObject>& faceobjects, std::vector<
     }
 }
 
-
-
-
-RuneDetectorNetwork::~RuneDetectorNetwork() {
-    delete[] output_buffer_;
-
-    cudaStreamDestroy(stream_);
-    cudaFree(device_buffer_[output_index_]);
-    cudaFree(device_buffer_[input_index_]);
-
-    engine_->destroy();
-}
-
-void RuneDetectorNetwork::Initialize(const std::string &onnx_file) {
-    std::filesystem::path onnx_file_path(onnx_file);
-    auto cache_file_path = onnx_file_path;
-    cache_file_path.replace_extension("cache");
-
-    if (std::filesystem::exists(cache_file_path)) {
-        BuildEngineFromCache(cache_file_path.c_str());
-    } else {
-        BuildEngineFromONNX(onnx_file_path.c_str());
-        CacheEngine(cache_file_path.c_str());
-    }
-
-    TRT_ASSERT((context_ = engine_->createExecutionContext()) != nullptr)
-    TRT_ASSERT((input_index_ = engine_->getBindingIndex("input")) == 0)
-    TRT_ASSERT((output_index_ = engine_->getBindingIndex("output")) == 1)
-
-    auto input_dims = engine_->getBindingDimensions(input_index_);
-    auto output_dims = engine_->getBindingDimensions(output_index_);
-    input_size_ = get_dims_size(input_dims);
-    output_size_ = get_dims_size(output_dims);
-
-    TRT_ASSERT(cudaMalloc(&device_buffer_[input_index_], input_size_ * sizeof(float)) == 0)
-    TRT_ASSERT(cudaMalloc(&device_buffer_[output_index_], output_size_ * sizeof(float)) == 0)
-    TRT_ASSERT(cudaStreamCreate(&stream_) == 0)
-
-    output_buffer_ = new float[output_size_];
-
-    TRT_ASSERT(output_buffer_ != nullptr)
-}
-
 BuffObject RuneDetectorNetwork::ModelRun(const cv::Mat &image)
 {
     auto current_time_chrono = std::chrono::high_resolution_clock::now();
@@ -440,77 +539,6 @@ BuffObject RuneDetectorNetwork::ModelRun(const cv::Mat &image)
     return results.at(0);
 }
 
-void RuneDetectorNetwork::BuildEngineFromONNX(const std::string &onnx_file) {
-    LOG(INFO) << "Engine will be built from ONNX.";
-    auto builder = nvinfer1::createInferBuilder(sample::gLogger);
-    TRT_ASSERT(builder != nullptr)
-
-    const auto explicitBatch =
-            1U << static_cast<uint32_t>(nvinfer1::NetworkDefinitionCreationFlag::kEXPLICIT_BATCH);
-    auto network = builder->createNetworkV2(explicitBatch);
-    TRT_ASSERT(network != nullptr)
-
-    auto parser = nvonnxparser::createParser(*network, sample::gLogger);
-    TRT_ASSERT(parser != nullptr)
-
-    parser->parseFromFile(onnx_file.c_str(),
-                          static_cast<int>(nvinfer1::ILogger::Severity::kINFO));
-
-
-    network->getInput(0)->setName("input");
-    network->getOutput(0)->setName("output");
-
-    auto config = builder->createBuilderConfig();
-
-    if (builder->platformHasFastFp16()) {
-        LOG(INFO) << "Platform supports fp16, fp16 is enabled.";
-        config->setFlag(nvinfer1::BuilderFlag::kFP16);
-    } else {
-        LOG(INFO) << "Platform does not support fp16, enable fp32 instead.";
-    }
-
-    size_t free, total;
-    cuMemGetInfo(&free, &total);
-
-    LOG(INFO) << "GPU memory total: " << (total >> 20) << "MB, free: " << (free >> 20) << "MB.";
-    LOG(INFO) << "Max workspace size will use all of free GPU memory.";
-
-    config->setMaxWorkspaceSize(free >> 1);
-
-    TRT_ASSERT((engine_ = builder->buildEngineWithConfig(*network, *config)) != nullptr)
-
-    config->destroy();
-    parser->destroy();
-    network->destroy();
-    builder->destroy();
-}
-
-void RuneDetectorNetwork::BuildEngineFromCache(const std::string &cache_file) {
-    LOG(INFO) << "Engine will be built from cache.";
-    std::ifstream ifs(cache_file, std::ios::binary);
-    ifs.seekg(0, std::ios::end);
-    size_t sz = ifs.tellg();
-    ifs.seekg(0, std::ios::beg);
-    auto buffer = std::make_unique<char[]>(sz);
-    ifs.read(buffer.get(), (std::streamsize) sz);
-    auto runtime = nvinfer1::createInferRuntime(sample::gLogger);
-
-    TRT_ASSERT(runtime != nullptr)
-    TRT_ASSERT((engine_ = runtime->deserializeCudaEngine(buffer.get(), sz)) != nullptr)
-
-    runtime->destroy();
-}
-
-void RuneDetectorNetwork::CacheEngine(const std::string &cache_file) {
-    auto engine_buffer = engine_->serialize();
-    TRT_ASSERT(engine_buffer != nullptr)
-
-    std::ofstream ofs(cache_file, std::ios::binary);
-    ofs.write(static_cast<const char *>(engine_buffer->data()), (std::streamsize) engine_buffer->size());
-    engine_buffer->destroy();
-}
-
-
 
 void RuneDetectorNetwork::FindRotateDirection() {
     static std::vector<cv::Point2f> r_to_p_vec;  ///< Vector Used for deciding rotation direction.
@@ -557,34 +585,5 @@ void RuneDetectorNetwork::FindRotateDirection() {
     }
 }
 
-PowerRune RuneDetectorNetwork::Run(Entity::Colors color, Frame &frame) {
-    BuffObject buff_from_model = ModelRun(frame.image);
 
-    // mean filter to get stable center R
-    if(abs(buff_from_model.apex[2].x - energy_center_r_.x) < 100)
-        energy_center_r_ = buff_from_model.apex[2] /2 + energy_center_r_ / 2;
-    else
-        energy_center_r_ = buff_from_model.apex[2];
-
-    for (int i=0; i<5; i++)
-    {
-        if (i == 2)
-            continue;
-        armor_center_p_ += buff_from_model.apex[i];
-    }
-    armor_center_p_ /= 5;
-    rtp_vec_ = armor_center_p_ - energy_center_r_;
-
-    if (!clockwise_)
-        FindRotateDirection();
-
-    return {color,
-            clockwise_,
-            time_gap_,
-            current_time_,
-            rtp_vec_,
-            energy_center_r_,
-            armor_center_p_,
-            cv::Point2f(float(frame.image.cols >> 1), float(frame.image.rows >> 1))};
-}
 
