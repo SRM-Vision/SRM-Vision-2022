@@ -98,6 +98,7 @@ private:
     cudaStream_t stream_;
     int input_index_, output_index_;
     size_t input_size_, output_size_;
+    const int roi_half_width = 213;  ///< 213 is corresponding to the 416*416 model input size.
 
     // traditional part
 private:
