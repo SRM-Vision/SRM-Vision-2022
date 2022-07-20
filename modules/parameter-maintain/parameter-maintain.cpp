@@ -130,7 +130,9 @@ bool ParameterMaintain::initPredictorOutpostParameters() {
         LOG(ERROR) << "Failed to open outpost predictor config file " << outpost_predictor_config_path << ".";
         return false;
     }
-    config_["SHOOT_DELAY"] >> outpost_shoot_delay_;
+    config_["SHOOT_DELAY_3M"] >> outpost_shoot_delay_3m_;
+    config_["SHOOT_DELAY_5M"] >> outpost_shoot_delay_5m_;
+    config_["SHOOT_DELAY_6M"] >> outpost_shoot_delay_6m_;
     config_["DELTA_PITCH_UP"] >> delta_pitch_up_;
     config_["DELTA_PITCH_DOWN"] >> delta_pitch_down_;
     config_["DELTA_YAW_LEFT"] >> delta_yaw_left_;
@@ -147,7 +149,9 @@ bool ParameterMaintain::savePredictorOutpostParameters() {
     }
 
     // Write config data.
-    config_ << "SHOOT_DELAY" << outpost_shoot_delay_;
+    config_ << "SHOOT_DELAY_3M" << outpost_shoot_delay_3m_;
+    config_ << "SHOOT_DELAY_5M" << outpost_shoot_delay_5m_;
+    config_ << "SHOOT_DELAY_6M" << outpost_shoot_delay_6m_;
     config_ << "DELTA_PITCH_UP" << delta_pitch_up_;
     config_ << "DELTA_PITCH_DOWN" << delta_pitch_down_;
     config_ << "DELTA_YAW_LEFT" << delta_yaw_left_;

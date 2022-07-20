@@ -8,6 +8,7 @@
 #include "predictor-armor/predictor_armor.h"
 #include "controller_infantry.h"
 #include "controller_infantry_debug.h"
+#include "compensator/compensator.h"
 
 /**
  * \warning Controller registry will be initialized before the program entering the main function!
@@ -73,9 +74,14 @@ void InfantryController::Run() {
                                                           frame_.image.size,
                                                           "Infantry Run",
                                                           1);
+
+            Compensator::Instance().Offset(send_packet_.pitch, battlefield_.BulletSpeed(), send_packet_.check_sum,
+                                           armor_predictor.GetTargetDistance(), kNormal);
         }
 
-        if (ControllerInfantryDebug::GetKey(1) == 'q')
+
+
+        if (ControllerInfantryDebug::GetKey() == 'q')
             break;
 
         SendSerialData();

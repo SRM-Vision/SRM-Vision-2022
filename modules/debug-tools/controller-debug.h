@@ -41,7 +41,7 @@ public:
 
 public:
     /**
-     * \brief Update the image for showing, Remember to update every time you want to draw sth..
+     * \brief UpdateLastArmor the image for showing, Remember to update every time you want to draw sth..
      * \param image
      */
     inline void UpdateImage(const cv::Mat& image) const
