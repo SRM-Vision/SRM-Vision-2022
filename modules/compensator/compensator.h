@@ -19,7 +19,7 @@ public:
     void InitModel(double bullet_speed, const std::string& robot_name);
     void Offset(float &pitch, float & yaw, double bullet_speed, float &check_sum, double distance, AimModes mode = AimModes::kNormal);
     double PitchOffset(float &pitch, double bullet_speed, double distance, AimModes mode = AimModes::kNormal);
-
+    double GetPlaneDistance(double distance, AimModes mode = AimModes::kNormal);
 private:
     trajectory_solver::PitchAngleSolver angle_solver_{};
     double bullet_speed_{};

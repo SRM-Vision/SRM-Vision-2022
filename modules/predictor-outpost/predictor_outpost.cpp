@@ -247,27 +247,19 @@ void OutpostPredictor::IsClockwise() {
     }
 }
 
-cv::Rect OutpostPredictor::GetROI(const cv::Mat &src_image) {
-    cv::Rect roi_rect = {};
-    if (outpost_.BottomArmors().empty()) {
-        ++roi_buff_;
-        if (roi_buff_ > 30) {
-            return roi_rect;
-        }
-    } else roi_buff_ = 0;
-    int width = abs(roi_corners_[0].x - roi_corners_[1].x) < abs(roi_corners_[1].x - roi_corners_[2].x) ?
-                int(abs(roi_corners_[1].x - roi_corners_[2].x)) : int(abs(roi_corners_[0].x - roi_corners_[1].x));
-    int height = abs(roi_corners_[0].y - roi_corners_[1].y) < abs(roi_corners_[1].y - roi_corners_[2].y) ?
-                 int(abs(roi_corners_[1].y - roi_corners_[2].y)) : int(abs(roi_corners_[0].y - roi_corners_[1].y));
-    int x = int(cv::min(cv::min(roi_corners_[0].x, roi_corners_[1].x), cv::min(roi_corners_[2].x, roi_corners_[3].x)));
-    int y = int(cv::min(cv::min(roi_corners_[0].y, roi_corners_[1].y), cv::min(roi_corners_[2].y, roi_corners_[3].y)));
-    cv::Rect target_right{x, y, width, height};
-    auto zoom_size = cv::Size(target_right.width * kZoomRatio.width,
-                              target_right.height * kZoomRatio.height);
-    roi_rect = target_right + zoom_size;
-    roi_rect -= cv::Point((zoom_size.width >> 1), (zoom_size.height >> 1));
-    roi_rect = roi_rect & cv::Rect(0, 0, src_image.cols, src_image.rows);
-    return roi_rect;
+void OutpostPredictor::GetROI(const Armor &armor, const double &plane_distance) {
+    int length = 600, weight = 800;
+    if (plane_distance < 5) {
+        length = 600;
+        weight = 800;
+    } else if (5 < plane_distance && plane_distance < 6) {
+        length = 480;
+        weight = 640;
+    } else if (6 < plane_distance) {
+        length = 360;
+        weight = 480;
+    }
+    roi_rect = {int(armor.Center().x - length * 0.5), int(armor.Center().y - weight * 0.3), length, weight};
 
 }
 
@@ -308,38 +300,47 @@ OutpostPredictor::NewRun(Battlefield battlefield, const float &bullet_speed, int
                          const std::chrono::steady_clock::time_point &time) {
     outpost_.ClearBottomArmor();
     SendPacket send_packet{0, 0, 0,
+                           10, 0,
                            0, 0,
                            0, 0,
                            0, 0,
-                           0, 0,
-                           0, 0, 0};
-    send_packet.distance_mode = 10;
+                           0, 0, 10};
+
 
     /*
-     * Collect armors.
-     * TODO Add height judgment.
+     * 收集armors
      */
     auto facilities = battlefield.Facilities();
     auto robots = battlefield.Robots();
     for (auto &robot: robots[enemy_color_]) {
-        for (auto &armor: robot.second->Armors())
-            outpost_.AddBottomArmor(armor);
+        for (auto &armor: robot.second->Armors()) {
+            if (GetOutpostHeight(armor, e_yaw_pitch_roll[1]) > 0.5)
+                outpost_.AddBottomArmor(armor);
+        }
     }
     for (auto &facility: facilities[enemy_color_]) {
-        for (auto &armor: facility.second->BottomArmors())
-            outpost_.AddBottomArmor(armor);
+        for (auto &armor: facility.second->BottomArmors()) {
+            if (GetOutpostHeight(armor, e_yaw_pitch_roll[1]) > 0.5)
+                outpost_.AddBottomArmor(armor);
+        }
     }
 
-    if (outpost_.BottomArmors().empty()) return send_packet;
-//    if (clockwise_ <= 7 && clockwise_ >= -7 && !checked_clockwise_)
-//        IsClockwise();
-//    else
-//        DecideComingGoing();
 
+    /*
+     * 15帧未有目标再更新roi
+     */
+    if (outpost_.BottomArmors().empty()) {
+        ++roi_buff_;
+        if (roi_buff_ > 15)
+            roi_rect = {};
+        return send_packet;
+    }
 
-    // 寻找高度
+    /*
+     * 寻找最大目标计算pitch
+     * yaw由操作手控制
+     */
     int biggest_armor = FindBiggestArmor(outpost_.BottomArmors());
-    UpdateROICorners(outpost_.BottomArmors()[biggest_armor]);
     auto shoot_point = coordinate::transform::WorldToCamera(
             outpost_.BottomArmors()[biggest_armor].TranslationVectorWorld(),
             coordinate::transform::EulerAngleToRotationMatrix(e_yaw_pitch_roll),
@@ -347,52 +348,42 @@ OutpostPredictor::NewRun(Battlefield battlefield, const float &bullet_speed, int
             Eigen::Matrix3d::Identity());
     auto shoot_point_spherical = coordinate::convert::Rectangular2Spherical(
             shoot_point);
-
-//    send_packet.yaw = 0, send_packet.pitch = shoot_point_spherical(1, 0);
-
-    auto distance = distance_filter_(outpost_.BottomArmors()[biggest_armor].Distance());
-    // auto pitch_time = GetPitchFlyTime(bullet_speed, outpost_.BottomArmors()[biggest_armor]);
     send_packet.yaw = shoot_point_spherical(0, 0);
+    send_packet.yaw = 0;
     send_packet.pitch = shoot_point_spherical(1, 0);
 
 
-    // 补偿
-    //    if (send_packet.pitch != 0)
-    //    send_packet.pitch = -Compensator::Instance().PitchOffset(send_packet.pitch,16,7,AimModes::kOutPost);
-    //    send_packet.pitch -= float(pitch_time[0] - e_yaw_pitch_roll[1]);
+    /*
+     * 根据平面距离画roi
+     */
+    auto distance = distance_filter_(outpost_.BottomArmors()[biggest_armor].Distance());
+    GetROI(outpost_.BottomArmors()[biggest_armor], Compensator::Instance().GetPlaneDistance(distance));
     DLOG(INFO) << "distance" << distance;
-    auto height = distance * sin( e_yaw_pitch_roll[1]);
+    auto height = GetOutpostHeight(outpost_.BottomArmors()[biggest_armor], e_yaw_pitch_roll[1]);
     DLOG(INFO) << "outpost height" << height;
 
-    // 测补偿
-    if(send_packet.yaw != 0 &&send_packet.pitch!=0){
-        send_packet.pitch = send_packet.pitch + OutpostPredictorDebug::Instance().DeltaPitchDown() -
-                            OutpostPredictorDebug::Instance().DeltaPitchUp();
-        send_packet.yaw = send_packet.yaw + OutpostPredictorDebug::Instance().DeltaYawRight() -
-                          OutpostPredictorDebug::Instance().DeltaYawLeft();
-       // send_packet.pitch = -Compensator::Instance().PitchOffset(send_packet.pitch,16,7,AimModes::kOutPost);
-    }
 
 
+// 测补偿
+//    send_packet.distance_mode = 0;
+//    if (send_packet.yaw != 0 && send_packet.pitch != 0) {
+//        send_packet.pitch = send_packet.pitch + OutpostPredictorDebug::Instance().DeltaPitchDown() -
+//                            OutpostPredictorDebug::Instance().DeltaPitchUp();
+//        send_packet.yaw = send_packet.yaw + OutpostPredictorDebug::Instance().DeltaYawRight() -
+//                          OutpostPredictorDebug::Instance().DeltaYawLeft();
+//        send_packet.pitch = -Compensator::Instance().PitchOffset(send_packet.pitch,16,7,AimModes::kOutPost);
+//    }
 
-    DLOG(INFO) << "send pitch" << send_packet.pitch;
-    DLOG(INFO) << "real pitch" << e_yaw_pitch_roll[1];
 
-//    auto height = outpost_.BottomArmors()[biggest_armor].Distance() * cos(coordinate::convert::Rectangular2Spherical(
-//            outpost_.BottomArmors()[biggest_armor].TranslationVectorCam())(1, 0) + e_yaw_pitch_roll[1]);
-
-    DLOG(INFO) << "distance" << distance;
-    DLOG(INFO) << "outpost height" << height;
-
-    // return send_packet;
 
 //    DLOG(INFO) << "outpost distance： " << outpost_.BottomArmors()[biggest_armor].Distance();
 //    DLOG(INFO) << "armor length： " << norm(outpost_.BottomArmors()[biggest_armor].Corners()[0] -
 //                                           outpost_.BottomArmors()[biggest_armor].Corners()[1]);
 
-    // 计算补偿和飞行时间
-    // auto pitch_time = GetPitchFlyTime(bullet_speed, outpost_.BottomArmors()[biggest_armor]);
-    //send_packet.pitch -= (pitch_time[0] - real_pitch);
+    /*
+     * 在目标装甲板穿过线时read_fire_
+     * 之后根据射击延迟射击
+     */
     int mid_x = width / 2;
     if (!ready_fire_ &&
         ThrowLine(outpost_.BottomArmors(), mid_x)) {
@@ -403,13 +394,6 @@ OutpostPredictor::NewRun(Battlefield battlefield, const float &bullet_speed, int
         auto current_time = std::chrono::high_resolution_clock::now();
         double time_gap = (static_cast<std::chrono::duration<double, std::milli>>(current_time -
                                                                                   ready_time_)).count();
-//        auto cost_time = double(
-//                std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - time).count()) *
-//                         1e-6;
-//        auto delay_time = pitch_time[1] + cost_time * 1e-3;
-//        shoot_delay_time_ = 5.0 / 6.0 - delay_time + OutpostPredictorDebug::Instance().ShootDelay();
-//        if (shoot_delay_time_ < 0)
-//            shoot_delay_time_ += 5.0 / 6.0;
         shoot_delay_time_ = OutpostPredictorDebug::Instance().ShootDelay();
         LOG(INFO) << "shoot_delay_time_" << shoot_delay_time_;
         if (shoot_delay_time_ < time_gap * 1e-3) {
@@ -418,8 +402,12 @@ OutpostPredictor::NewRun(Battlefield battlefield, const float &bullet_speed, int
         }
     }
 
+    if (send_packet.pitch != 0)
+        send_packet.pitch -= 0.015;
+//    Compensator::Instance().Offset(send_packet.pitch, send_packet.yaw, 16, send_packet.check_sum, distance,
+//                                   AimModes::kOutPost);
 
-    fire_ = send_packet.fire;
+    fire_ = send_packet.fire;   // fire_只用于图像显示
     send_packet.check_sum = send_packet.yaw + send_packet.pitch + send_packet.delay +
                             float(send_packet.fire) + float(send_packet.distance_mode) +
                             float(send_packet.point1_x) + float(send_packet.point1_y) +
@@ -428,6 +416,22 @@ OutpostPredictor::NewRun(Battlefield battlefield, const float &bullet_speed, int
                             float(send_packet.point4_x) + float(send_packet.point4_y);
     return send_packet;
 }
+
+cv::Rect OutpostPredictor::GetROI(const cv::Mat &src_image) {
+    cv::Rect roi;
+    roi = roi_rect & cv::Rect(0, 0, src_image.cols, src_image.rows);
+    return roi;
+}
+
+double OutpostPredictor::GetOutpostHeight(const Armor &armor, const float &pitch) {
+    auto height = Compensator::Instance().GetPlaneDistance(armor.Distance()) *
+                  tan(pitch + coordinate::convert::Rectangular2Spherical(
+                          armor.TranslationVectorCam())[0] + 0.104);
+    LOG(INFO) << "Outpost Height" << height;
+    return height;
+}
+
+
 
 //SendPacket OutpostPredictor::Run(Battlefield battlefield, const float &bullet_speed, cv::MatSize frame_size,
 //                                 const float &real_pitch,

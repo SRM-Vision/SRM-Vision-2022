@@ -46,8 +46,9 @@ public:
      */
     SendPacket OldRun(Battlefield battlefield);
 
-    SendPacket NewRun(Battlefield battlefield, const float &bullet_speed, int width,const std::array<float, 3> e_yaw_pitch_roll,
-                      const std::chrono::steady_clock::time_point &time);
+    SendPacket
+    NewRun(Battlefield battlefield, const float &bullet_speed, int width, const std::array<float, 3> e_yaw_pitch_roll,
+           const std::chrono::steady_clock::time_point &time);
 
 //    SendPacket Run(Battlefield battlefield, const float &bullet_speed, cv::MatSize frame_size,
 //                   const float &real_pitch,
@@ -81,6 +82,8 @@ public:
     * \param [out]roi_rect.
     * \param src_image the image;
     */
+    void GetROI(const Armor &armor, const double &plane_distance);
+
     cv::Rect GetROI(const cv::Mat &src_image);
 
     ATTR_READER(outpost_center_, OutpostCenter);
@@ -123,19 +126,22 @@ private:
      */
     Eigen::Vector3d GetPitchFlyTime(const float &bullet_speed, const Armor &armor);
 
+    double GetOutpostHeight(const Armor &armor, const float &pitch);
+
 private:
     const double kFindBiggestArmorTime = 4;  ///< during this time try to find the the front of the target.
     const double kAreaThreshold = 0.93;  ///< when area is biggest than area threshold * biggest armor it is the front of the target.
     const double kAreaThresholdLow = 0.9;  ///< lower threshold to avoid can't find the front of the target.
     const double kAimBuff = 20;  ///< The num frame number to ensure the result.
 
+    cv::Rect roi_rect = {};
     Outpost outpost_{};
     cv::Point2f outpost_center_{};  ///< only used to show the point in the image when debug
     std::chrono::high_resolution_clock::time_point start_time_{};
     std::chrono::high_resolution_clock::time_point ready_time_{};
 
 
-    FilterDTMean<double,6> distance_filter_;
+    FilterDTMean<double, 6> distance_filter_;
 
     Entity::Colors enemy_color_{};
     bool checked_clockwise_{false};

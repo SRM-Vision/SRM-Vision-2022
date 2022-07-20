@@ -45,7 +45,8 @@ void HeroController::Run() {
 
         boxes_ = armor_detector_(frame_.image);
 
-        if (CmdlineArgParser::Instance().RunModeOutpost() ) {
+        if (CmdlineArgParser::Instance().RunModeOutpost() ||
+            receive_packet_.mode == AimModes::kOutPost) {
 
             BboxToArmor(Armor::ArmorSize::kSmall);
             for (auto &armor: armors_) {
@@ -61,7 +62,7 @@ void HeroController::Run() {
             outpost_predictor_.SetColor(receive_packet_.color);
 //            send_packet_ = outpost_predictor_.OldRun(battlefield_);
             send_packet_ = outpost_predictor_.NewRun(battlefield_, receive_packet_.bullet_speed,
-                                                     frame_.image.size().width, receive_packet_.yaw_pitch_roll,time);
+                                                     frame_.image.size().width, receive_packet_.yaw_pitch_roll, time);
             auto roi = outpost_predictor_.GetROI(frame_.image);
             armor_detector_.UpdateROI(roi);
             controller_hero_debug_.DrawOutpostData(frame_.image,
@@ -83,7 +84,13 @@ void HeroController::Run() {
             battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.yaw_pitch_roll,
                                        armors_);
             send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size, receive_packet_.color);
-
+            /*
+             *  hero don't auto fire except shooting spin outpost
+             */
+            if (send_packet_.fire == 1) {
+                send_packet_.fire = 0;
+                send_packet_.check_sum -= 1;
+            }
 
             controller_hero_debug_.DrawArmorDetection(frame_.image,
                                                       {},
@@ -93,7 +100,6 @@ void HeroController::Run() {
                                                       frame_.image.size,
                                                       "Hero Run",
                                                       1);
-            send_packet_.fire = 0;
         }
 //
 
