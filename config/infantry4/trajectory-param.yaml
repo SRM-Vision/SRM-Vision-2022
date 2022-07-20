@@ -5,10 +5,10 @@
 # f(x) = a + bx + cx^2 + dx^3
 PNP_MAP:
   SMALL_ARMOR:
-    A: -0.494436
-    B: 1.36971
-    C: -0.0988656
-    D: 0.00539253
+    A: -0.209
+    B: 1.281
+    C: -0.09129
+    D: 0.007428
 
   # TODO Measure and fit PnP map for big armors.
   BIG_ARMOR:
