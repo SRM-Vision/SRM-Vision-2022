@@ -37,9 +37,6 @@ public:
      */
     [[nodiscard]] cv::Point2f ShootPointInPic(const cv::Mat& intrinsic_matrix, cv::MatSize size);
 
-    /// used to offset
-    [[nodiscard]] double GetTargetDistance();
-
     /// target center in picture.
     [[nodiscard]] cv::Point2f TargetCenter();
 
@@ -47,7 +44,7 @@ public:
      * \brief Initialized the predictor before using. If enter a car name in constructor, initialization is not necessary.
      * \param car_name [IN] car name for read configuration file.
      */
-    void Initialize(const std::string& car_name);
+    static void Initialize(const std::string& car_name);
 
     /**
      * \brief run to predict shooting point and get send packet.
@@ -63,7 +60,7 @@ public:
     * \return Send packet to serial port.
     */
     [[nodiscard]] inline SendPacket
-    GenerateSendPacket(float target_pitch, float current_pitch);
+    GenerateSendPacket();
 
 private:
     Entity::Colors enemy_color_;  ///< Target's color.
@@ -86,8 +83,6 @@ private:
     int fire_{0}; ///< to judge whether fire.
 
     uint64_t last_time_{0};
-
-    compensator::CompensatorTraj compensator_traj_;
 
     /**
      * \brief a method to find the same armor to target by picture distance.
@@ -116,14 +111,14 @@ private:
     void InitializeEKF(const std::array<float, 3> &yaw_pitch_roll,
                        const coordinate::TranslationVector &translation_vector_world);
 
-    /// Update shoot point and predict camera vector.
+    /// UpdateLastArmor shoot point and predict camera vector.
     inline void UpdateShootPointAndPredictCam(const std::array<float, 3>& yaw_pitch_roll);
 
     /// predict ekf
-    void Predict(const Armor& armor, double delta_t, double flight_duration, const std::array<float, 3>& yaw_pitch_roll, double shoot_delay);
+    void Predict(const Armor& armor, double delta_t, double bullet_speed, const std::array<float, 3>& yaw_pitch_roll, double shoot_delay);
 
     /// copy the new armor information
-    inline void Update(const Armor& armor);
+    inline void UpdateLastArmor(const Armor& armor);
 
 };
 
