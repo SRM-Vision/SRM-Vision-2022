@@ -27,9 +27,9 @@ GND_TGT_OFFSET:
 
 # Current latitude, DEG.
 L: 31
-# Current air pressure (hPa).
+# Current air pressure, hPa.
 P: 997
-# Current air temperature (C)
+# Current air temperature, C.
 T: 30
 
 # Bullet type, must exist in bullet-data.yaml.

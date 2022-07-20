@@ -222,6 +222,8 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, const cv::MatSize
         predict_acc_ << 0, 0;
     }
 
+
+    return GenerateSendPacket(battlefield.YawPitchRoll()[1], battlefield.YawPitchRoll()[1]);
     return GenerateSendPacket(float(compensation_result.x()), battlefield.YawPitchRoll()[1]);
 }
 

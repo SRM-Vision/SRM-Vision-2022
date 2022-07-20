@@ -10,9 +10,10 @@
 
 #include "data-structure/frame.h"
 #include "data-structure/buffer.h"
+#include "serial/serial.h"
 
 /// Buffer size for image provider and camera.
-#define CAMERA_BUFFER_SIZE 2
+#define CAMERA_BUFFER_SIZE 4
 
 /**
  * @brief Camera base class.
@@ -25,7 +26,8 @@ class Camera : NO_COPY, NO_MOVE {
 public:
     Camera() : stream_running_(false),
                daemon_thread_id_(0),
-               stop_daemon_thread_flag_(false) {}
+               stop_daemon_thread_flag_(false),
+               serial_handle_(nullptr) {}
 
     virtual ~Camera() = default;
 
@@ -87,6 +89,13 @@ public:
     virtual bool ExportConfigurationFile(const std::string &file_path) = 0;
 
     /**
+     * @brief Set serial handle to get data when callback function is called.
+     * @param serial_handle Serial handle pointer.
+     * @attention Once serial handle is set, it will never be check if it is valid.
+     */
+    void SetSerialHandle(Serial *serial_handle) { serial_handle_ = serial_handle; }
+
+    /**
      * @brief Set exposure time.
      * @param exposure_time Exposure time, automatically converted to corresponding data type.
      * @return Whether exposure time is set.
@@ -106,6 +115,7 @@ protected:
     pthread_t daemon_thread_id_;    ///< Daemon thread id.
     bool stop_daemon_thread_flag_;  ///< Flag to stop daemon thread.
     CircularBuffer<Frame, CAMERA_BUFFER_SIZE> buffer_;  ///< A ring buffer to store images.
+    Serial *serial_handle_;  ///< Serial handle pointer.
 };
 
 #undef CAMERA_BUFFER_SIZE

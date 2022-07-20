@@ -1,9 +1,6 @@
-#include <thread>
-#include <ctime>
 #include <opencv2/videoio.hpp>
 #include "camera-base/camera-factory.h"
 #include "image-provider-base/image-provider-factory.h"
-#include "image-provider-camera-record.h"
 #include "image-provider-camera.h"
 
 /**
@@ -15,11 +12,6 @@
         ImageProviderRegistry<ImageProviderCamera>("camera");
 
 ImageProviderCamera::~ImageProviderCamera() {
-    if (rec_) {
-        rec_->release();
-        delete rec_;
-        rec_ = nullptr;
-    }
     if (camera_) {
         camera_->StopStream();
         camera_->CloseCamera();

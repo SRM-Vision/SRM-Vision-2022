@@ -255,9 +255,13 @@ void DHCamera::DefaultCaptureCallback(GX_FRAME_CALLBACK_PARAM *frame_callback) {
                             frame_callback->nWidth,
                             CV_8UC3,
                             self->raw_8_to_rgb_24_cache_);
-    cv::cvtColor(image, image, cv::COLOR_RGB2BGR);
 
-    self->buffer_.Push(Frame(image, frame_callback->nTimestamp));
+    if (self->serial_handle_ && self->serial_handle_->IsOpened()) {
+        SerialReceivePacket serial_receive_packet{};
+        self->serial_handle_->GetData(serial_receive_packet, std::chrono::milliseconds(5));
+        self->buffer_.Push(std::move(Frame(image, frame_callback->nTimestamp, ReceivePacket(serial_receive_packet))));
+    } else
+        self->buffer_.Push(std::move(Frame(image, frame_callback->nTimestamp, {})));
 }
 
 bool DHCamera::Raw8Raw16ToRGB24(GX_FRAME_CALLBACK_PARAM *frame_callback) {
@@ -270,15 +274,15 @@ bool DHCamera::Raw8Raw16ToRGB24(GX_FRAME_CALLBACK_PARAM *frame_callback) {
         case GX_PIXEL_FORMAT_BAYER_GB8:
         case GX_PIXEL_FORMAT_BAYER_BG8: {
             // Convert to the RGB image.
-            dx_status_code = DxRaw8toRGB24((unsigned char *) frame_callback->pImgBuf,
-                                           raw_8_to_rgb_24_cache_,
-                                           frame_callback->nWidth,
-                                           frame_callback->nHeight,
-                                           RAW2RGB_NEIGHBOUR,
-                                           DX_PIXEL_COLOR_FILTER(color_filter_),
-                                           false);
+            dx_status_code = DxRaw8toRGB24Ex((unsigned char *) frame_callback->pImgBuf,
+                                             raw_8_to_rgb_24_cache_,
+                                             frame_callback->nWidth,
+                                             frame_callback->nHeight,
+                                             RAW2RGB_NEIGHBOUR,
+                                             DX_PIXEL_COLOR_FILTER(color_filter_),
+                                             false, DX_ORDER_BGR);
             if (dx_status_code != DX_OK) {
-                LOG(ERROR) << "DxRaw8toRGB24 failed with error " << std::to_string(dx_status_code) << ".";
+                LOG(ERROR) << "DxRaw8toRGB24Ex failed with error " << std::to_string(dx_status_code) << ".";
                 return false;
             }
             break;
@@ -303,15 +307,15 @@ bool DHCamera::Raw8Raw16ToRGB24(GX_FRAME_CALLBACK_PARAM *frame_callback) {
             }
 
             // Convert to the RGB24 image.
-            dx_status_code = DxRaw8toRGB24(raw_16_to_8_cache_,
-                                           raw_8_to_rgb_24_cache_,
-                                           frame_callback->nWidth,
-                                           frame_callback->nHeight,
-                                           RAW2RGB_NEIGHBOUR,
-                                           DX_PIXEL_COLOR_FILTER(color_filter_),
-                                           false);
+            dx_status_code = DxRaw8toRGB24Ex(raw_16_to_8_cache_,
+                                             raw_8_to_rgb_24_cache_,
+                                             frame_callback->nWidth,
+                                             frame_callback->nHeight,
+                                             RAW2RGB_NEIGHBOUR,
+                                             DX_PIXEL_COLOR_FILTER(color_filter_),
+                                             false, DX_ORDER_BGR);
             if (dx_status_code != DX_OK) {
-                LOG(ERROR) << "DxRaw8toRGB24 failed with error " << std::to_string(dx_status_code) << ".";
+                LOG(ERROR) << "DxRaw8toRGB24Ex failed with error " << std::to_string(dx_status_code) << ".";
                 return false;
             }
             break;

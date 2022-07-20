@@ -11,6 +11,7 @@
 #include "lang-feature-extension/attr-reader.h"
 #include "lang-feature-extension/disable-constructors.h"
 #include "data-structure/frame.h"
+#include "serial/serial.h"
 
 /**
  * \brief Image provider base class.
@@ -35,7 +36,7 @@ public:
      * \param record Record video and save to ../cache.
      * \return Whether initialization succeeded.
      */
-    virtual bool Initialize(const std::string &file_path, bool record = false) = 0;
+    virtual bool Initialize(const std::string &file_path, bool record) = 0;
 
     /**
      * \brief Get a frame.
@@ -44,7 +45,11 @@ public:
      */
     virtual bool GetFrame(Frame &frame) = 0;
 
-    virtual bool IsConnected() = 0;
+    /**
+     * \brief Set serial handle for cameras, no use to video provider.
+     * \param serial Serial handle pointer.
+     */
+    virtual void SetSerialHandle(Serial* serial) {}
 
 protected:
     cv::Mat intrinsic_matrix_;   ///< Intrinsic matrix for solving PnP.

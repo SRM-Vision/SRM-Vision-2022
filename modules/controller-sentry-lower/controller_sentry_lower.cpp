@@ -51,6 +51,7 @@ void SentryLowerController::Run() {
         send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size, receive_packet_.color);
 
         double delta_pitch = 0;
+
         if (!armors_.empty()) {
             double current_pitch = battlefield_.YawPitchRoll()[1];
             auto pitch_solution = pitch_solver.AnyTargetOffset(30, armors_[0]);
@@ -60,6 +61,9 @@ void SentryLowerController::Run() {
                        << ", cP: " << battlefield_.YawPitchRoll()[1]
                        << ", dP: " << delta_pitch;
         }
+
+        delta_pitch = pitch_solver.GroundTargetOffset(30, armors_[0]);
+
         send_packet_.pitch -= static_cast<float>(delta_pitch);
 
         controller_sentry_lower_debug_.DrawAutoAimArmor(
