@@ -29,7 +29,7 @@ const double kObliqueThresholdInSpin = 1;
 const double kShootDelay = 0.15;
 
 /// The maximum acceleration allowed to fire
-const double kFireAccelerationThreshold = 1.0;
+const double kFireAccelerationThreshold = 0.15;
 
 /// Predicting function template structure.
 struct PredictFunction {
@@ -196,10 +196,11 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, const cv::MatSize
             }else if(algorithm::NanoSecondsToSeconds(spin_predictor_.LastJumpTime(), battlefield.TimeStamp()) /
                spin_predictor_.JumpPeriod() < kAllowFollowRange){
                 DLOG(INFO) << "anti-spin mode, allow to fire.";
-                fire_ = true;
+                fire_ = 1;
             }else{
                 // if spinning, Swing head in advance.
                 DLOG(INFO) << "anti-spin mode, head shake.";
+                fire_ = 0;
                 predict_world_vector_ << spin_predictor_.LastJumpPosition();
                 UpdateShootPointAndPredictCam(battlefield.YawPitchRoll());
             }
@@ -329,9 +330,9 @@ void ArmorPredictor::Predict(const Armor &armor, double delta_t, double bullet_s
         ArmorPredictorDebug::Instance().AlterPredictCovMeasureCov(ekf_);
 # endif
 
-        Eigen::Matrix<double, 7, 1> x_predict = ekf_.Predict(predict);
-        Eigen::Matrix<double, 7, 1> x_estimate = ekf_.Update(measure, y_real);
-
+        ekf_.Predict(predict);
+        auto x_estimate = ekf_.Update(measure, y_real);
+        Eigen::Matrix<double,7,1> x_predict;
         /// add ballistic delay
         auto delta_t_predict = armor.TranslationVectorWorld().norm() / bullet_speed + shoot_delay;
         predict.delta_t = delta_t_predict;
@@ -353,9 +354,10 @@ void ArmorPredictor::Predict(const Armor &armor, double delta_t, double bullet_s
     UpdateLastArmor(armor);
 
     DLOG(INFO) << "acceleration: " << (new_speed - predict_speed_).norm() / delta_t;
+    DLOG(INFO) << "predicted acceleration: " << new_acc.norm();
 
     // if acceleration is higher than threshold, fire.
-    if((new_speed - predict_speed_).norm() / delta_t < kFireAccelerationThreshold)
+    if(new_acc.norm() < kFireAccelerationThreshold)
         fire_ = 1;
     else
         fire_ = 0;
@@ -418,4 +420,10 @@ cv::Point2f ArmorPredictor::ShootPointInPic(const cv::Mat &intrinsic_matrix, cv:
     if(last_target_)
         return coordinate::transform::CameraToPicture(intrinsic_matrix,predict_cam_vector_);
     return {float(size().width / 2.0), float(size().height / 2.0)};
+}
+
+double ArmorPredictor::GetTargetDistance() {
+    if(last_target_)
+        return last_target_->Distance();
+    return 0;
 }

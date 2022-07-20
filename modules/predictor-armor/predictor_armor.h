@@ -55,6 +55,8 @@ public:
      */
     SendPacket Run(const Battlefield &battlefield, const cv::MatSize &size, Entity::Colors color);
 
+    double GetTargetDistance();
+
     /**
     * \brief Generate a packet according to data inside.
     * \return Send packet to serial port.
