@@ -50,7 +50,8 @@ protected:
         static bool show_warning = true;  // Avoid too many warnings' suppressing other information.
 
         if (!image_provider_->GetFrame(frame_)) {
-            LOG(WARNING) << "Cannot get frame from image provider. Wait for camera or press ctrl-c to quit.";
+            if (show_warning)
+                LOG(WARNING) << "Cannot get frame from image provider. Wait for camera or press ctrl-c to quit.";
             show_warning = false;
 #if NDEBUG
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
