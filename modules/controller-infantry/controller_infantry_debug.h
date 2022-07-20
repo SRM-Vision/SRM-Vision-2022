@@ -78,10 +78,10 @@ public:
      * \brief Integrate opencv's waitkey
      * \return 's' for saving, 'q' for quit, 'h' for normal
      */
-    static inline char GetKey()
+    static inline char GetKey(int waitkey_time = 1)
     {
 #if !NDEBUG
-        char key = char(cv::waitKey(1) & 0xff);
+        char key = char(cv::waitKey(waitkey_time) & 0xff);
         if (key == 's')
         {
             ArmorPredictorDebug::Instance().Save();

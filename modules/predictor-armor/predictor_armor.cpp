@@ -29,7 +29,7 @@ const double kObliqueThresholdInSpin = 1;
 const double kShootDelay = 0.15;
 
 /// The maximum acceleration allowed to fire
-const double kFireAccelerationThreshold = 2.0;
+const double kFireAccelerationThreshold = 0.15;
 
 /// Predicting function template structure.
 struct PredictFunction {
@@ -46,9 +46,9 @@ struct PredictFunction {
     void operator()(const T x_0[7], T x[7]) {
         x[0] = x_0[0] + delta_t * x_0[1];  // 0.1
         x[1] = x_0[1] + delta_t * x_0[2];  // 100
-        x[2] = x_0[2];  // 0.1
-        x[3] = x_0[3] + delta_t * x_0[4];  // 100
-        x[4] = x_0[4] + delta_t * x_0[5];  // 0.01
+        x[2] = x_0[2];
+        x[3] = x_0[3] + delta_t * x_0[4];  // 0.1
+        x[4] = x_0[4] + delta_t * x_0[5];  // 100
         x[5] = x_0[5];
         x[6] = x_0[6];
     }
@@ -73,10 +73,9 @@ struct MeasureFunction {
 
 void ArmorPredictor::Initialize(const std::string &controller_type_name) {
     ArmorPredictorDebug::Instance().Initialize(controller_type_name);
-    compensator_traj_.Initialize(controller_type_name);
-//#if !NDEBUG
+#if !NDEBUG
     ArmorPredictorDebug::Instance().addTrackbar();
-//#endif
+#endif
 }
 
 SendPacket ArmorPredictor::Run(const Battlefield &battlefield, const cv::MatSize &size, Entity::Colors color) {
@@ -164,16 +163,10 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, const cv::MatSize
     // update spin detector
     spin_predictor_.Update(*target_current, battlefield.TimeStamp());
 
-    Eigen::Vector3d compensation_result;
-
     if(locked_same_target){
         DLOG(INFO) << "locked the same armor.";
-
-        // theta, flight duration
-        compensation_result = compensator_traj_.AnyTargetOffset(battlefield.BulletSpeed(),*target_current);
-
         // EKF Predict
-        Predict(*target_current, delta_t, compensation_result.y(),
+        Predict(*target_current, delta_t, battlefield.BulletSpeed(),
                 battlefield.YawPitchRoll(), ArmorPredictorDebug::Instance().ShootDelay());
 
         // anti spinning
@@ -197,17 +190,17 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, const cv::MatSize
                 ekf_.x_estimate_(2,0) = predict_acc_(0,0);
                 ekf_.x_estimate_(5,0) = -predict_acc_(1,0);
 
-                compensation_result = compensator_traj_.AnyTargetOffset(battlefield.BulletSpeed(),*target_current);
-                Predict(*another_armor,delta_t,compensation_result.y(),
+                Predict(*another_armor,delta_t,battlefield.BulletSpeed(),
                         battlefield.YawPitchRoll(),ArmorPredictorDebug::Instance().ShootDelay());
                 DLOG(INFO) << "anti-spin mode, switch to another spinning armor.";
             }else if(algorithm::NanoSecondsToSeconds(spin_predictor_.LastJumpTime(), battlefield.TimeStamp()) /
                spin_predictor_.JumpPeriod() < kAllowFollowRange){
                 DLOG(INFO) << "anti-spin mode, allow to fire.";
-                fire_ = true;
+                fire_ = 1;
             }else{
                 // if spinning, Swing head in advance.
                 DLOG(INFO) << "anti-spin mode, head shake.";
+                fire_ = 0;
                 predict_world_vector_ << spin_predictor_.LastJumpPosition();
                 UpdateShootPointAndPredictCam(battlefield.YawPitchRoll());
             }
@@ -222,9 +215,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, const cv::MatSize
         predict_acc_ << 0, 0;
     }
 
-
-    return GenerateSendPacket(battlefield.YawPitchRoll()[1], battlefield.YawPitchRoll()[1]);
-    return GenerateSendPacket(float(compensation_result.x()), battlefield.YawPitchRoll()[1]);
+    return GenerateSendPacket();
 }
 
 auto ArmorPredictor::SameArmorByPictureDistance(const cv::Point2f &target_center,
@@ -321,7 +312,7 @@ void ArmorPredictor::UpdateShootPointAndPredictCam(const std::array<float, 3> &y
             coordinate::camera_to_imu_rotation_matrix);
 }
 
-void ArmorPredictor::Predict(const Armor &armor, double delta_t, double flight_duration,
+void ArmorPredictor::Predict(const Armor &armor, double delta_t, double bullet_speed,
                              const std::array<float, 3> &yaw_pitch_roll, double shoot_delay) {
     Eigen::Vector2d new_speed;
     Eigen::Vector2d new_acc;
@@ -339,11 +330,11 @@ void ArmorPredictor::Predict(const Armor &armor, double delta_t, double flight_d
         ArmorPredictorDebug::Instance().AlterPredictCovMeasureCov(ekf_);
 # endif
 
-        Eigen::Matrix<double, 7, 1> x_predict = ekf_.Predict(predict);
-        Eigen::Matrix<double, 7, 1> x_estimate = ekf_.Update(measure, y_real);
-
+        ekf_.Predict(predict);
+        auto x_estimate = ekf_.Update(measure, y_real);
+        Eigen::Matrix<double,7,1> x_predict;
         /// add ballistic delay
-        auto delta_t_predict = flight_duration + shoot_delay;
+        auto delta_t_predict = armor.TranslationVectorWorld().norm() / bullet_speed + shoot_delay;
         predict.delta_t = delta_t_predict;
         predict(x_estimate.data(), x_predict.data());
         predict_world_vector_ << x_predict(0, 0), x_predict(3, 0), x_predict(6, 0);
@@ -357,11 +348,16 @@ void ArmorPredictor::Predict(const Armor &armor, double delta_t, double flight_d
     }else {
         predict_world_vector_ = armor.TranslationVectorWorld();
         new_speed << 0, 0;
+        new_acc << 0, 0;
     }
     UpdateShootPointAndPredictCam(yaw_pitch_roll);
-    Update(armor);
+    UpdateLastArmor(armor);
+
+    DLOG(INFO) << "acceleration: " << (new_speed - predict_speed_).norm() / delta_t;
+    DLOG(INFO) << "predicted acceleration: " << new_acc.norm();
+
     // if acceleration is higher than threshold, fire.
-    if((new_speed - predict_speed_).norm() / delta_t < kFireAccelerationThreshold)
+    if(new_acc.norm() < kFireAccelerationThreshold)
         fire_ = 1;
     else
         fire_ = 0;
@@ -369,7 +365,7 @@ void ArmorPredictor::Predict(const Armor &armor, double delta_t, double flight_d
     predict_acc_ = new_acc;
 }
 
-void ArmorPredictor::Update(const Armor &armor) {
+void ArmorPredictor::UpdateLastArmor(const Armor &armor) {
     unsigned int id(last_target_->ID());
     if(armor.Area() > last_target_->Area())   // only update id when armor`s area become larger.
         id = armor.ID();
@@ -377,10 +373,9 @@ void ArmorPredictor::Update(const Armor &armor) {
     last_target_->SetID(id);
 }
 
-SendPacket ArmorPredictor::GenerateSendPacket(float target_pitch, float current_pitch) {
+SendPacket ArmorPredictor::GenerateSendPacket() {
     auto shoot_point_spherical = coordinate::convert::Rectangular2Spherical(shoot_point_vector_);
     auto yaw = shoot_point_spherical(0,0),pitch = shoot_point_spherical(1,0);
-    auto delta_pitch = current_pitch - target_pitch;
     auto delay = 0.f;
     int distance_mode = 0;
     if (0 <= last_target_->Distance() && last_target_->Distance() < 2) distance_mode = 1;
@@ -397,13 +392,13 @@ SendPacket ArmorPredictor::GenerateSendPacket(float target_pitch, float current_
 //        auto point1_x = short(show_point.x);
 //        auto point1_y = short(show_point.y);
 
-    return {float(yaw + ArmorPredictorDebug::Instance().DeltaYaw()), float(delta_pitch - ArmorPredictorDebug::Instance().DeltaPitch()),
+    return {float(yaw + ArmorPredictorDebug::Instance().DeltaYaw()), float(pitch - ArmorPredictorDebug::Instance().DeltaPitch()),
             delay, distance_mode, fire_,
             0,0,
             0,0,
             0,0,
             0,0,
-            float(yaw + delta_pitch + distance_mode + delay + fire_ - ArmorPredictorDebug::Instance().DeltaPitch()
+            float(yaw + pitch + distance_mode + delay + fire_ - ArmorPredictorDebug::Instance().DeltaPitch()
                   + ArmorPredictorDebug::Instance().DeltaYaw())};
 }
 
@@ -418,12 +413,6 @@ cv::Point2f ArmorPredictor::TargetCenter() {
     return {-1,-1};
 }
 
-double ArmorPredictor::GetTargetDistance() {
-    if(last_target_)
-        return last_target_->Distance();
-    return 0;
-}
-
 cv::Point2f ArmorPredictor::ShootPointInPic(const cv::Mat &intrinsic_matrix, cv::MatSize size) {
     DLOG(INFO) << "shooting point in picture: " << (last_target_ ?
             coordinate::transform::CameraToPicture(intrinsic_matrix,predict_cam_vector_)
@@ -431,4 +420,10 @@ cv::Point2f ArmorPredictor::ShootPointInPic(const cv::Mat &intrinsic_matrix, cv:
     if(last_target_)
         return coordinate::transform::CameraToPicture(intrinsic_matrix,predict_cam_vector_);
     return {float(size().width / 2.0), float(size().height / 2.0)};
+}
+
+double ArmorPredictor::GetTargetDistance() {
+    if(last_target_)
+        return last_target_->Distance();
+    return 0;
 }
