@@ -37,7 +37,11 @@ public:
 
     ATTR_READER(parameter_maintain_.delta_yaw_right_, DeltaYawRight);
 
-    ATTR_READER(parameter_maintain_.outpost_shoot_delay_, ShootDelay);
+    ATTR_READER(parameter_maintain_.outpost_shoot_delay_3m_, ShootDelay3M);
+
+    ATTR_READER(parameter_maintain_.outpost_shoot_delay_5m_, ShootDelay5M);
+
+    ATTR_READER(parameter_maintain_.outpost_shoot_delay_6m_, ShootDelay6M);
 
 public:
     void addTrackbar();

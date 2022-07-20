@@ -111,7 +111,9 @@ private:  ///< predictor outpost debug
     bool savePredictorOutpostParameters();
 
     // Trackbar value cache.
-    double outpost_shoot_delay_ = 0.02;
+    double outpost_shoot_delay_3m_ = 0.2;
+    double outpost_shoot_delay_5m_ = 0.02;
+    double outpost_shoot_delay_6m_ = 0;
     double delta_pitch_up_ = 0.0;
     double delta_pitch_down_ = 0.0;
     double delta_yaw_left_ = 0.0;
