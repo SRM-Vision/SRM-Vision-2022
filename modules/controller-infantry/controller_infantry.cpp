@@ -75,7 +75,7 @@ void InfantryController::Run() {
                                                           1);
         }
 
-        if (ControllerInfantryDebug::GetKey() == 'q')
+        if (ControllerInfantryDebug::GetKey(1) == 'q')
             break;
 
         SendSerialData();

@@ -159,7 +159,7 @@ PowerRune RuneDetectorNetwork::Run(Entity::Colors color, Frame &frame) {
             continue;
         armor_center_p_ += buff_from_model.apex[i];
     }
-    armor_center_p_ /= 5;
+    armor_center_p_ /= 4;
     rtp_vec_ = armor_center_p_ - energy_center_r_;
 
     if (!clockwise_)
@@ -394,8 +394,8 @@ BuffObject RuneDetectorNetwork::ModelRun(const cv::Mat &image)
     cv::Rect roi_rect = cv::Rect(0, 0, image.cols, image.rows);
     // last detection is valid.
     if (energy_center_r_ != cv::Point2f(0, 0)) {
-        roi_point_tl_ = cv::Point2i(std::max(0, int(energy_center_r_.x - 213)), std::max(0, int(energy_center_r_.y - 213)));
-        roi_rect = cv::Rect(roi_point_tl_.x, roi_point_tl_.y, 2 * 213, 2 * 213) &
+        roi_point_tl_ = cv::Point2i(std::max(0, int(energy_center_r_.x - 500)), std::max(0, int(energy_center_r_.y - 500)));
+        roi_rect = cv::Rect(roi_point_tl_.x, roi_point_tl_.y, 2 * 500, 2 * 500) &
                             cv::Rect(0, 0, image.cols, image.rows);
     }
     image_ = image(roi_rect);  // Use ROI
@@ -442,7 +442,6 @@ BuffObject RuneDetectorNetwork::ModelRun(const cv::Mat &image)
 
     generate_grids_and_stride(strides, grid_strides);
     generateYoloxProposals(grid_strides, output_buffer_,  results);
-
     qsort_descent_inplace(results);
 
     if (results.size() >= TOPK)
@@ -453,6 +452,7 @@ BuffObject RuneDetectorNetwork::ModelRun(const cv::Mat &image)
     {
         if (results[i].cls == 1)
         {
+            std::cout << results[i].color << "color's is " << std::endl;
             filtered.push_back(results[i]);
         }
     }
@@ -498,7 +498,11 @@ BuffObject RuneDetectorNetwork::ModelRun(const cv::Mat &image)
 
     // if vector is empty, return empty point.
     if (results.empty())
+    {
         return {};
+    }
+    energy_center_r_ = cv::Point2f(0, 0);
+    armor_center_p_ = cv::Point2f(0, 0);
 
     std::sort(results.begin(), results.end(), [](BuffObject a, BuffObject b){
         return a.prob > b.prob;
