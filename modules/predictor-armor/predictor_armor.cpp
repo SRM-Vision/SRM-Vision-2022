@@ -31,6 +31,9 @@ const double kShootDelay = 0.15;
 /// The maximum acceleration allowed to fire
 const double kFireAccelerationThreshold = 0.15;
 
+/// When the same armor is detected for more than 10 frames of time, we consider it`s detecting.
+const int kDetectThreshold = 10;
+
 /// Predicting function template structure.
 struct PredictFunction {
     PredictFunction() : delta_t(0) {}
@@ -165,6 +168,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, const cv::MatSize
 
     if(locked_same_target){
         DLOG(INFO) << "locked the same armor.";
+        ++detect_count_;
         // EKF Predict
         Predict(*target_current, delta_t, battlefield.BulletSpeed(),
                 battlefield.YawPitchRoll(), ArmorPredictorDebug::Instance().ShootDelay());
@@ -173,17 +177,17 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, const cv::MatSize
         if (spin_predictor_.IsSpin()){
             DLOG(INFO) << "It`s spin.";
             // find another armor in the robot
-            std::shared_ptr<Armor> another_armor{nullptr};
+            Armor* another_armor{nullptr};
             for(auto &armor:armors){
                 if(armor.ID() == last_target_->ID() && armor.Center() != target_current->Center())
-                    another_armor = std::make_shared<Armor>(armor);
+                    another_armor = &armor;
             }
             if(another_armor
             && spin_predictor_.Clockwise() != -1
             && another_armor->Area() > last_target_->Area() * kSwitchByAreaThreshold
             && (spin_predictor_.Clockwise() ^ (last_target_->Center().x > another_armor->Center().x))){
                 // Update speed in ekf, to speed up fitting.
-                last_target_ = another_armor;
+                UpdateLastArmor(*another_armor);
                 InitializeEKF(battlefield.YawPitchRoll(),another_armor->TranslationVectorWorld());
                 ekf_.x_estimate_(1,0) = predict_speed_(0,0);
                 ekf_.x_estimate_(4,0) = -predict_speed_(1,0);
@@ -204,10 +208,16 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, const cv::MatSize
                 predict_world_vector_ << spin_predictor_.LastJumpPosition();
                 UpdateShootPointAndPredictCam(battlefield.YawPitchRoll());
             }
+
+            if(detect_count_ < kDetectThreshold){
+                predict_world_vector_ << target_current->TranslationVectorWorld();
+                UpdateShootPointAndPredictCam(battlefield.YawPitchRoll());
+            }
         }
 
     }else {
         DLOG(INFO) << "locked a new armor, initialize ekf.";
+        detect_count_ = 0;
         // locked a new armor
         last_target_ = target_current;
         InitializeEKF(battlefield.YawPitchRoll(), target_current->TranslationVectorWorld());
