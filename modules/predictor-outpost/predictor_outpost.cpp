@@ -18,7 +18,7 @@ SendPacket OutpostPredictor::StaticOutpostRun(const Battlefield &battlefield, st
                            0, 0,
                            0, 0,
                            0, 0,
-                           0, 0, 0};
+                           0, 0};
 
 
     /*
@@ -144,7 +144,7 @@ OutpostPredictor::SpinningOutpostRun(const Battlefield &battlefield, const float
                            0, 0,
                            0, 0,
                            0, 0,
-                           0, 0, 10};
+                           0, 0};
 
 
     /*

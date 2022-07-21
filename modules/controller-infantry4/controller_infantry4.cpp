@@ -67,6 +67,7 @@ void Infantry4Controller::Run() {
             battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.yaw_pitch_roll,
                                        armors_);
             send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size, receive_packet_.color);
+
             controller_infantry4_debug_.DrawAutoAimArmor(frame_.image,
                                                           boxes_,
                                                           &armor_predictor,
@@ -75,8 +76,8 @@ void Infantry4Controller::Run() {
                                                           "Infantry Run",
                                                           1);
 
-            Compensator::Instance().Offset(send_packet_.pitch, battlefield_.BulletSpeed(), send_packet_.check_sum,
-                                           armor_predictor.GetTargetDistance(), kNormal);
+//            Compensator::Instance().Offset(send_packet_.pitch, battlefield_.BulletSpeed(), send_packet_.check_sum,
+//                                           armor_predictor.GetTargetDistance(), kNormal);
         }
 
         if (ControllerInfantry4Debug::GetKey() == 'q')

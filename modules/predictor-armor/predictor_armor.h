@@ -44,7 +44,7 @@ public:
      * \brief Initialized the predictor before using. If enter a car name in constructor, initialization is not necessary.
      * \param car_name [IN] car name for read configuration file.
      */
-    static void Initialize(const std::string& car_name);
+    void Initialize(const std::string& car_name);
 
     /**
      * \brief run to predict shooting point and get send packet.
@@ -61,8 +61,7 @@ public:
     * \brief Generate a packet according to data inside.
     * \return Send packet to serial port.
     */
-    [[nodiscard]] inline SendPacket
-    GenerateSendPacket();
+    [[nodiscard]] inline SendPacket GenerateSendPacket(const Battlefield &battlefield, float current_pitch);
 
 private:
     Entity::Colors enemy_color_;  ///< Target's color.
@@ -81,6 +80,8 @@ private:
     coordinate::TranslationVector predict_world_vector_, predict_cam_vector_, shoot_point_vector_;
     Eigen::Vector2d predict_speed_;   ///< x_v,y_v ; norm() = (x_v^2 + y_v^2)^(1/2)
     Eigen::Vector2d predict_acc_;
+
+    compensator::CompensatorTraj compensator_traj_;
 
     ExtendedKalmanFilter<7,3> ekf_;
 

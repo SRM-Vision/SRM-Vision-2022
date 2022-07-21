@@ -18,7 +18,7 @@ const double kSwitchByAreaThreshold = 0.7;
 const double kAllowFollowRange = 0.3;
 
 /// the threshold to consider a armor is oblique.
-const double kObliqueThreshold = 1.4;
+const double kObliqueThreshold = 1.5;
 
 /// the threshold to consider a armor is oblique in anti-spin mode.
 const double kObliqueThresholdInSpin = 1;
@@ -76,6 +76,7 @@ struct MeasureFunction {
 
 void ArmorPredictor::Initialize(const std::string &controller_type_name) {
     ArmorPredictorDebug::Instance().Initialize(controller_type_name);
+    compensator_traj_.Initialize(controller_type_name);
 #if !NDEBUG
     ArmorPredictorDebug::Instance().addTrackbar();
 #endif
@@ -154,7 +155,11 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, const cv::MatSize
     if(!target_current){
         Clear();
         DLOG(INFO) << "NO TARGET!";
-        return {0, 0, 0, 0, 0};
+        return {battlefield.YawPitchRoll()[0], battlefield.YawPitchRoll()[1], 0, 0, 0,
+                0, 0,
+                0, 0,
+                0, 0,
+                0, 0};
     }
 
     // update grey buffer
@@ -178,7 +183,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, const cv::MatSize
             DLOG(INFO) << "It`s spin.";
             // find another armor in the robot
             Armor* another_armor{nullptr};
-            for(auto &armor:armors){
+            for(auto &&armor:armors){
                 if(armor.ID() == last_target_->ID() && armor.Center() != target_current->Center())
                     another_armor = &armor;
             }
@@ -208,11 +213,11 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, const cv::MatSize
                 predict_world_vector_ << spin_predictor_.LastJumpPosition();
                 UpdateShootPointAndPredictCam(battlefield.YawPitchRoll());
             }
+        }
 
-            if(detect_count_ < kDetectThreshold){
-                predict_world_vector_ << target_current->TranslationVectorWorld();
-                UpdateShootPointAndPredictCam(battlefield.YawPitchRoll());
-            }
+        if(detect_count_ < kDetectThreshold){
+            predict_world_vector_ << target_current->TranslationVectorWorld();
+            UpdateShootPointAndPredictCam(battlefield.YawPitchRoll());
         }
 
     }else {
@@ -225,7 +230,9 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, const cv::MatSize
         predict_acc_ << 0, 0;
     }
 
-    return GenerateSendPacket();
+    auto compensator_result = compensator_traj_.AnyTargetOffset(battlefield.BulletSpeed(), *last_target_);
+
+    return GenerateSendPacket(battlefield, (float)compensator_result.x());
 }
 
 auto ArmorPredictor::SameArmorByPictureDistance(const cv::Point2f &target_center,
@@ -383,9 +390,9 @@ void ArmorPredictor::UpdateLastArmor(const Armor &armor) {
     last_target_->SetID(id);
 }
 
-SendPacket ArmorPredictor::GenerateSendPacket() {
+SendPacket ArmorPredictor::GenerateSendPacket(const Battlefield &battlefield, float current_pitch) {
     auto shoot_point_spherical = coordinate::convert::Rectangular2Spherical(shoot_point_vector_);
-    auto yaw = shoot_point_spherical(0,0),pitch = shoot_point_spherical(1,0);
+    auto delta_yaw = shoot_point_spherical(0, 0),delta_pitch = shoot_point_spherical(1, 0);
     auto delay = 0.f;
     int distance_mode = 0;
     if (0 <= last_target_->Distance() && last_target_->Distance() < 2) distance_mode = 1;
@@ -402,14 +409,13 @@ SendPacket ArmorPredictor::GenerateSendPacket() {
 //        auto point1_x = short(show_point.x);
 //        auto point1_y = short(show_point.y);
 
-    return {float(yaw + ArmorPredictorDebug::Instance().DeltaYaw()), float(pitch - ArmorPredictorDebug::Instance().DeltaPitch()),
+    return {float(- delta_yaw + battlefield.YawPitchRoll()[0] + ArmorPredictorDebug::Instance().DeltaYaw()),
+            float(- current_pitch - ArmorPredictorDebug::Instance().DeltaPitch()),
             delay, distance_mode, fire_,
-            0,0,
-            0,0,
-            0,0,
-            0,0,
-            float(yaw + pitch + distance_mode + delay + fire_ - ArmorPredictorDebug::Instance().DeltaPitch()
-                  + ArmorPredictorDebug::Instance().DeltaYaw())};
+            0, 0,
+            0, 0,
+            0, 0,
+            0, 0};
 }
 
 void ArmorPredictor::Clear() {
