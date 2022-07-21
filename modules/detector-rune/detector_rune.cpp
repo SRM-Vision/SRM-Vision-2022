@@ -27,7 +27,7 @@ bool RuneDetector::Initialize(const std::string &config_path) {
     rune_radius_ = 120;
 
 #if !NDEBUG
-    RuneDetectorDebug::Instance().addTrackbar();
+    //RuneDetectorDebug::Instance().addTrackbar();
     debug_ = true;
 #endif
     return true;

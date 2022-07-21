@@ -4,6 +4,8 @@
 
 #include "spin_predictor.h"
 
+#define SPIN_PREDICTOR_LOG_DETAILS true
+
 /// when not jump, yaw/x delta must opposite of jumping direction.
 const int kMaxYawReverseSpinBuffer{25};
 
@@ -21,7 +23,7 @@ bool PredictorSpin::Update(const Armor &armor, const uint64_t current_time) {
         is_quick_spin_ = false;
     }
 
-    DLOG(INFO) << "jump period: " << jump_period_;
+    DLOG_IF(INFO, SPIN_PREDICTOR_LOG_DETAILS) << "jump period: " << jump_period_;
 
     double current_yaw_x, yaw_x_delta;
     if(mode_ == Mode::kSpherical){
@@ -33,12 +35,13 @@ bool PredictorSpin::Update(const Armor &armor, const uint64_t current_time) {
         yaw_x_delta = current_yaw_x - last_yaw_x_;
     }
 
-    DLOG(INFO) << "clockwise (0:anticlockwise): " << clockwise_;
+    DLOG_IF(INFO, SPIN_PREDICTOR_LOG_DETAILS) << "clockwise (0:anticlockwise): " << clockwise_;
 
     if(abs(yaw_x_delta) > min_jump_yaw_x_){
+        DLOG_IF(INFO, SPIN_PREDICTOR_LOG_DETAILS)  << "spinning jump!";
         reverse_buffer = 0;
         ++jump_count_;
-        if(jump_count_ > 1 && std::signbit(last_yaw_x_delta_) == std::signbit(yaw_x_delta)){
+        if(jump_count_ > 2 && std::signbit(last_yaw_x_delta_) == std::signbit(yaw_x_delta)){
             if(time_after_last_jump > quick_jump_period_max_ && time_after_last_jump < slow_jump_period_max_) {
                 is_slow_spin_ = true;
                 is_quick_spin_ = false;
@@ -59,7 +62,7 @@ bool PredictorSpin::Update(const Armor &armor, const uint64_t current_time) {
         ++reverse_buffer;
         if((reverse_buffer > kMaxYawReverseSpinBuffer && mode_ == Mode::kSpherical) ||
             (reverse_buffer > kMaxXReverseSpinBuffer && mode_ == Mode::kPlane)){
-            DLOG(INFO) << "reverse buffer full, refresh the spin predictor.";
+            DLOG_IF(INFO, SPIN_PREDICTOR_LOG_DETAILS)  << "reverse buffer full, refresh the spin predictor.";
             reverse_buffer = 0;
             jump_count_ = 0;
             is_quick_spin_ = is_slow_spin_ = false;

@@ -27,8 +27,18 @@ void OutpostPredictorDebug::addTrackbar() {
                                                     parameter_maintain_.delta_yaw_right_,
                                                     kMax_delta_yaw_right);
 
-    debug::Trackbar<double>::Instance().AddTrackbar("shoot_delay:",
+    debug::Trackbar<double>::Instance().AddTrackbar("shoot_delay_3m:",
                                                     trackbar_windows_name_,
-                                                    parameter_maintain_.outpost_shoot_delay_,
+                                                    parameter_maintain_.outpost_shoot_delay_3m_,
+                                                    kMax_shoot_delay_);
+
+    debug::Trackbar<double>::Instance().AddTrackbar("shoot_delay_5m:",
+                                                    trackbar_windows_name_,
+                                                    parameter_maintain_.outpost_shoot_delay_5m_,
+                                                    kMax_shoot_delay_);
+
+    debug::Trackbar<double>::Instance().AddTrackbar("shoot_delay_6m:",
+                                                    trackbar_windows_name_,
+                                                    parameter_maintain_.outpost_shoot_delay_6m_,
                                                     kMax_shoot_delay_);
 }

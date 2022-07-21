@@ -52,7 +52,7 @@ bool Compensator::Initialize(const std::string &robot_name, double bullet_speed)
 }
 
 void
-Compensator::Offset(float &pitch, float &yaw, double bullet_speed, float &check_sum, double distance, AimModes mode) {
+Compensator::Offset(float &pitch, double bullet_speed, float &check_sum, double distance, AimModes mode) {
     // TODO more mode
     if (pitch == 0 || bullet_speed == 0 || distance == 0)
         return;
@@ -112,9 +112,7 @@ Compensator::Offset(float &pitch, float &yaw, double bullet_speed, float &check_
             }
             if (distance < 2) delta_pitch = 0.065;
         }
-        delta_yaw = 0.0085;
         pitch -= delta_pitch;
-        yaw -= delta_yaw;
         check_sum -= (delta_pitch + delta_yaw);
         DLOG(INFO) << "after offset pitch: " << pitch;
     } else if (robot_name_[0] == 'i') {   // 首字母是i是步兵
@@ -178,7 +176,7 @@ double Compensator::PitchOffset(float &pitch, double bullet_speed, double distan
                                    offset2d_[3]);
         }
         DLOG(INFO) << "plane_distance: " << plane_distance;
-        angle_solver_.UpdateParam(1.33, plane_distance);
+        angle_solver_.UpdateParam(1.3, plane_distance);
         auto res = angle_solver_.Solve(-CV_PI / 6, CV_PI / 3, 0.01, 16);
         delta_pitch = float(res.x()) - pitch;
 
@@ -186,10 +184,15 @@ double Compensator::PitchOffset(float &pitch, double bullet_speed, double distan
         return delta_pitch;
     } else if (robot_name_ == "hero") {
         if (mode == AimModes::kOutPost) {
-            plane_distance = float(offset0d_[0] * distance * distance * distance +
-                                   offset0d_[1] * distance * distance +
-                                   offset0d_[2] * distance +
-                                   offset0d_[3]);
+            plane_distance = float(offset2d_[0] * distance * distance * distance +
+                                   offset2d_[1] * distance * distance +
+                                   offset2d_[2] * distance +
+                                   offset2d_[3]);
+        }else if(mode == AimModes::kNormal){
+            plane_distance = float(offset1d_[0] * distance * distance * distance +
+                                   offset1d_[1] * distance * distance +
+                                   offset1d_[2] * distance +
+                                   offset1d_[3]);
         }
         angle_solver_.UpdateParam(1.2, plane_distance);
         auto res = angle_solver_.Solve(-CV_PI / 6, CV_PI / 3, 0.01, 16);
@@ -207,7 +210,7 @@ void Compensator::InitModel(double bullet_speed, const std::string &robot_name) 
         auto a = trajectory_solver::BallisticModel();
         a.SetParam(f, 31);
         angle_solver_ = trajectory_solver::PitchAngleSolver();
-        angle_solver_.SetParam(a, bullet_speed, 0.50, 0.18, 1);
+        angle_solver_.SetParam(a, bullet_speed, 0.32, 0.18, 1);
         return;
     } else if (robot_name == "hero") {
         auto f = trajectory_solver::AirResistanceModel();
@@ -219,5 +222,17 @@ void Compensator::InitModel(double bullet_speed, const std::string &robot_name) 
         return;
     }
 }
+
+double Compensator::GetPlaneDistance(double distance, AimModes mode) {
+    if(mode == AimModes::kOutPost) {
+        auto plane_distance = float(offset0d_[0] * distance * distance * distance +
+                                    offset0d_[1] * distance * distance +
+                                    offset0d_[2] * distance +
+                                    offset0d_[3]);
+        return plane_distance;
+    }
+    return 0;
+}
+
 
 

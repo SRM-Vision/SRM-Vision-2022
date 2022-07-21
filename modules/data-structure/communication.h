@@ -36,15 +36,15 @@ struct ReceivePacket {
             mode(kNormal),
             armor_kind(0),
             prior_enemy(0),
-            color(Entity::Colors::kBlue),
-            bullet_speed(0),
+            color(Entity::kBlue),
+            bullet_speed(15),
             yaw_pitch_roll{0, 0, 0} {}
 
     explicit ReceivePacket(const SerialReceivePacket &serial_receive_packet) :
             mode(static_cast<AimModes>(serial_receive_packet.mode)),
             armor_kind(serial_receive_packet.armor_kind),
             prior_enemy(serial_receive_packet.prior_enemy),
-            color(Entity::Colors::kBlue),
+            color(Entity::kBlue),
             bullet_speed(serial_receive_packet.bullet_speed),
             yaw_pitch_roll{serial_receive_packet.yaw, serial_receive_packet.pitch, serial_receive_packet.roll} {
         if (serial_receive_packet.color == 23)

@@ -100,8 +100,8 @@ bool Serial::Receive() {
     while (read_count < int(sizeof(SerialReceivePacket))) {
         auto t2 = std::chrono::high_resolution_clock::now();
 
-        // 10ms time limit.
-        if (std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count() > 10) {
+        // 40ms time limit.
+        if (std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count() > 40) {
             DLOG(ERROR) << "Failed to receive " << sizeof(SerialReceivePacket) - read_count
                         << " bytes of data for time out.";
             return false;

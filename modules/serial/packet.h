@@ -40,6 +40,17 @@ struct SerialSendPacket {
     int point3_x, point3_y;
     int point4_x, point4_y;
     float check_sum;
+
+    SerialSendPacket() = default;
+
+    SerialSendPacket(float yaw, float pitch, float delay, int distance_mode, int fire, int point1_x,
+                     int point1_y, int point2_x, int point2_y, int point3_x, int point3_y, int point4_x,
+                     int point4_y):yaw(yaw),pitch(pitch),delay(delay),distance_mode(distance_mode),fire(fire),
+                     point1_x(point1_x),point1_y(point1_y),point2_x(point2_x),point2_y(point2_y),point3_x(point3_x),
+                     point3_y(point3_y),point4_x(point4_x),point4_y(point4_y){
+        check_sum = yaw + pitch + delay + float(distance_mode + fire + point1_x + point1_y + point2_x + point2_y +
+                    point3_x + point3_y + point4_x + point4_y);
+    }
 };
 
 inline std::ostream &operator<<(std::ostream &str, const SerialSendPacket &send_packet) {

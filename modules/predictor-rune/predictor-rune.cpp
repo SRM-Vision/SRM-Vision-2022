@@ -63,8 +63,8 @@ SendPacket predictor::rune::RunePredictor::Run(const PowerRune &power_rune, AimM
 
     DLOG(INFO) << "Predicted angle: " << predicted_angle_ << "   Predicted point: " << predicted_point_;
     DLOG(INFO) << "Fixed point: " << fixed_point_;
-    return {output_data_.yaw, output_data_.pitch, output_data_.delay, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            static_cast<float>(output_data_.yaw + output_data_.pitch + output_data_.delay)};
+    return {output_data_.yaw, output_data_.pitch, output_data_.delay, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0};
 }
 
 /// Update current palstance and collect palstance and time data.

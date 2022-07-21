@@ -8,6 +8,7 @@
 #include "predictor-armor/predictor_armor.h"
 #include "controller_infantry.h"
 #include "controller_infantry_debug.h"
+#include "compensator/compensator.h"
 
 /**
  * \warning Controller registry will be initialized before the program entering the main function!
@@ -45,7 +46,6 @@ void InfantryController::Run() {
     sleep(2);
     ArmorPredictor armor_predictor{Entity::kBlue, "infantry"};
     while (!exit_signal_) {
-        auto time = std::chrono::steady_clock::now();
         if (!GetImage<true>())
             continue;
 
@@ -66,11 +66,8 @@ void InfantryController::Run() {
             BboxToArmor();
             battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.yaw_pitch_roll,
                                        armors_);
-            if (CmdlineArgParser::Instance().RunWithSerial()) {
-                armor_predictor.SetColor(receive_packet_.color);
-                send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size, receive_packet_.bullet_speed);
-            } else
-                send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size);
+
+            send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size, receive_packet_.color);
             controller_infantry_debug_.DrawAutoAimArmor(frame_.image,
                                                           boxes_,
                                                           &armor_predictor,
@@ -78,7 +75,12 @@ void InfantryController::Run() {
                                                           frame_.image.size,
                                                           "Infantry Run",
                                                           1);
+
+            Compensator::Instance().Offset(send_packet_.pitch, battlefield_.BulletSpeed(), send_packet_.check_sum,
+                                           armor_predictor.GetTargetDistance(), kNormal);
         }
+
+
 
         if (ControllerInfantryDebug::GetKey() == 'q')
             break;
@@ -89,12 +91,6 @@ void InfantryController::Run() {
         armors_.clear();
 
         CountPerformanceData();
-
-        auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - time);
-        if(10 - double(duration.count()) / 1e9  > 1){
-            cv::waitKey(int(10 - double(duration.count()) / 1e9));
-        }
-
     }
 
     // Exit.

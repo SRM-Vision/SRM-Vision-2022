@@ -4,11 +4,7 @@
 #include "controller_base.h"
 
 void Controller::ReceiveSerialData() {
-    if (CmdlineArgParser::Instance().RunWithSerial()) {
-        SerialReceivePacket serial_receive_packet{};
-        serial_->GetData(serial_receive_packet, std::chrono::milliseconds(5));
-        receive_packet_ = ReceivePacket(serial_receive_packet);
-    }
+    receive_packet_ = frame_.receive_packet;
 }
 
 void Controller::SendSerialData() {
@@ -45,6 +41,7 @@ bool Controller::Initialize(const std::string &type) {
             // So, there's no need to reset it manually.
             return false;
         }
+        image_provider_->SetSerialHandle(serial_.get());
     }
 
     if (Compensator::Instance().Initialize(type, 15))

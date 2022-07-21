@@ -30,6 +30,7 @@ public:
 
     ~OutpostPredictor() = default;
 
+
     /**
      * \Brief Load params and choice debug or not.
      * \param config_path the config path of outpost params data file.
@@ -38,20 +39,33 @@ public:
      */
     bool Initialize();
 
+
     /**
      * \Brief Collect armors, get center points and decide auto-shoot signal.
      * \param battlefield
-     * \param bullet_speed
+     * \param yaw_pitch_roll data form gyroscope.
      * \return 'SendPacket' to send information to EC.
      */
-    SendPacket OldRun(Battlefield battlefield);
+    SendPacket StaticOutpostRun(const Battlefield &battlefield, std::array<float, 3> yaw_pitch_roll);
 
-    SendPacket NewRun(Battlefield battlefield, const float &bullet_speed, int width,const std::array<float, 3> e_yaw_pitch_roll,
-                      const std::chrono::steady_clock::time_point &time);
+
+    /**
+     * \Brief Control the pitch of Hero and auto fire in appropriate time;
+     * \param battlefield
+     * \param bullet_speed
+     * \param width the width of the image.
+     * \param yaw_pitch_roll data form gyroscope.
+     * \param time used to calculate the cost time of calculating.
+     * \return 'SendPacket' to send information to EC.
+     */
+    SendPacket SpinningOutpostRun(const Battlefield &battlefield, const float &bullet_speed, int width,
+                                  const std::array<float, 3> &yaw_pitch_roll,
+                                  const std::chrono::steady_clock::time_point &time);
 
 //    SendPacket Run(Battlefield battlefield, const float &bullet_speed, cv::MatSize frame_size,
 //                   const float &real_pitch,
 //                   const std::chrono::steady_clock::time_point &time);
+
 
     /**
     * \Brief Set the color of outpost.
@@ -59,27 +73,22 @@ public:
     */
     inline void SetColor(const Entity::Colors &enemy_color) { enemy_color_ = enemy_color; }
 
+
     /**
     * \Brief Clear the information in OutpostPredictor.
     */
     void Clear() {
-        checked_clockwise_ = false;
-        clockwise_ = 0;  ///< 1 (rotate left) or -1 (rotate right)
-        last_armor_x_ = 0;
         ready_fire_ = false;
-        prepared_ = false;
-        need_init_ = true;
         fire_ = false;  ///< only used to show the image in the image when debug
-        biggest_area_ = 0;
         shoot_delay_time_ = 0;
         roi_buff_ = 0;
-        aim_buff_ = 0;
     };
+
 
     /**
     * \Brief get the roi.
-    * \param [out]roi_rect.
     * \param src_image the image;
+    * \return roi.
     */
     cv::Rect GetROI(const cv::Mat &src_image);
 
@@ -94,67 +103,51 @@ private:
      * \param [in] armors. All detected armors.
      * \return index of the armor with biggest area.
      */
-    int FindBiggestArmor(const std::vector<Armor> &armors);
+    static int FindBiggestArmor(const std::vector<Armor> &armors);
 
     /**
-     * \Brief Decide the coming/going armor in different rotating cases.
-     * \Details In one or two armors cases, compare 'armor center x' with 'outpost center x' to decide coming/going.
+     * \Brief Get the height of outpost.
+     * \param armor the main armor of outpost.
+     * \param pitch the pitch data from gyroscope.
+     * \return the height of outpost.
      */
-    void DecideComingGoing();
+    static double GetOutpostHeight(const Armor &armor, const float &pitch);
 
     /**
-     * \Brief Judge rotate direction.
-     * \Details Calculate difference value of contiguous armor centers' x.
-     * \Note Variable 'clockwise' is ought to be valued as 1 (rotate left) or -1 (rotate right).
+     * \Brief Use plane distance to ensure the shoot delay.
+     * \param plane_distance the plane distance of outpost.
+     * \return the shoot delay.
      */
-    void IsClockwise();
-
-
-    /**
-     * \Brief get the center of ROI.
-     * \param armor the main armor.
-     */
-    void UpdateROICorners(const Armor &armor);
+    static double GetShootDelay(const double &plane_distance);
 
     /**
-     * \Brief get flying time of bullet.
-     * \param bullet_speed bullet speed.
-     * \param armor the target.
+     * \Brief Choice the roi.
+     * \param armor the main armor of outpost.
+     * \param plane_distance the plane distance of outpost.
+     * \return roi
      */
-    Eigen::Vector3d GetPitchFlyTime(const float &bullet_speed, const Armor &armor);
+    void GetROI(const Armor &armor, const double &plane_distance);
+
+    void Offset(float &pitch,double distance);
+
 
 private:
-    const double kFindBiggestArmorTime = 4;  ///< during this time try to find the the front of the target.
-    const double kAreaThreshold = 0.93;  ///< when area is biggest than area threshold * biggest armor it is the front of the target.
-    const double kAreaThresholdLow = 0.9;  ///< lower threshold to avoid can't find the front of the target.
-    const double kAimBuff = 20;  ///< The num frame number to ensure the result.
-
-    Outpost outpost_{};
-    cv::Point2f outpost_center_{};  ///< only used to show the point in the image when debug
-    std::chrono::high_resolution_clock::time_point start_time_{};
-    std::chrono::high_resolution_clock::time_point ready_time_{};
-
-
-    FilterDTMean<double,6> distance_filter_;
+    const double  kHeightThreshold = 0.4;  ///< the lowest height of outpost
 
     Entity::Colors enemy_color_{};
-    bool checked_clockwise_{false};
-    int clockwise_{0};  ///< 1 (rotate left) or -1 (rotate right)
+    Outpost outpost_{};
+    cv::Rect roi_rect = {};
+    cv::Point2f outpost_center_{};  ///< only used to show the point in the image when debug
 
-    double last_armor_x_{0};
+    std::chrono::high_resolution_clock::time_point ready_time_{};
+    FilterDTMean<double, 10> distance_filter_;
 
     bool ready_fire_{false};
-    bool prepared_{false};
-    bool need_init_{true};
     bool fire_{false};  ///< only used to show the image in the image when debug
 
-    double biggest_area_{0};
-    double shoot_delay_time_{0.52};
+    double shoot_delay_time_{0.125};
+    int roi_buff_{15};
 
-    int roi_buff_;
-    cv::Point2f roi_corners_[4];
-
-    int aim_buff_{0};
 };
 
-#endif //PREDICTOR_OUTPOST_H_
+#endif //PREDICTOR_OUTPOST_NEW_H_

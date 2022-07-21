@@ -48,22 +48,22 @@ void SentryLowerController::Run() {
 
         DLOG(INFO) << "cY: " << battlefield_.YawPitchRoll()[0] << ", cP: " << battlefield_.YawPitchRoll()[1];
 
-        if (CmdlineArgParser::Instance().RunWithSerial()) {
-            armor_predictor.SetColor(receive_packet_.color);
-            send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size, receive_packet_.bullet_speed);
-        } else
-            send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size);
+        send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size, receive_packet_.color);
 
         double delta_pitch = 0;
+
         if (!armors_.empty()) {
             double current_pitch = battlefield_.YawPitchRoll()[1];
-            auto pitch_solution = pitch_solver.Solve(30, armors_[0]);
+            auto pitch_solution = pitch_solver.AnyTargetOffset(30, armors_[0]);
             delta_pitch = pitch_solution.x() - current_pitch;
 
             DLOG(INFO) << "cY: " << battlefield_.YawPitchRoll()[0]
                        << ", cP: " << battlefield_.YawPitchRoll()[1]
                        << ", dP: " << delta_pitch;
         }
+
+        delta_pitch = pitch_solver.GroundTargetOffset(30, armors_[0]);
+
         send_packet_.pitch -= static_cast<float>(delta_pitch);
 
         controller_sentry_lower_debug_.DrawAutoAimArmor(

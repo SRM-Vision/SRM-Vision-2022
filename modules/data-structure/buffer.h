@@ -45,7 +45,7 @@ public:
      * \brief Push an element.
      * \param [in] obj Input element.
      */
-    inline void Push(const T &obj) {
+    inline void Push(T &&obj) {
         std::lock_guard<std::mutex> lock(lock_[tail_]);
         data_[tail_] = obj;
         ++tail_;
@@ -61,7 +61,7 @@ public:
     /**
      * \brief Pop an element.
      * \param [out] obj Output element.
-     * \return Whether buffer is not empty.
+     * \return If buffer is not empty.
      */
     inline bool Pop(T &obj) {
         if (head_ == tail_)

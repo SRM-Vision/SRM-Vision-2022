@@ -170,21 +170,30 @@ void HikCamera::ImageCallbackEx(unsigned char *image_data, MV_FRAME_OUT_INFO_EX 
     auto self = (HikCamera *) obj;
     cv::Mat image;
 
-    if (frame_info->enPixelType == PixelType_Gvsp_RGB8_Packed) {
-        auto time_stamp = (uint64_t) frame_info->nDevTimeStampHigh;
-        time_stamp <<= 32;
-        time_stamp += frame_info->nDevTimeStampLow;
-        image = cv::Mat(frame_info->nHeight, frame_info->nWidth, CV_8UC3, image_data);
-        self->buffer_.Push(Frame(image, time_stamp));
-    } else if (frame_info->enPixelType == PixelType_Gvsp_BayerRG8) {
-        auto time_stamp = (uint64_t) frame_info->nDevTimeStampHigh;
-        time_stamp <<= 32;
-        time_stamp += frame_info->nDevTimeStampLow;
-        image = cv::Mat(frame_info->nHeight, frame_info->nWidth, CV_8UC1, image_data);
-        cv::cvtColor(image, image, cv::COLOR_BayerRG2RGB);
+    auto time_stamp = (uint64_t) frame_info->nDevTimeStampHigh;
+    time_stamp <<= 32;
+    time_stamp += frame_info->nDevTimeStampLow;
 
-        self->buffer_.Push(Frame(image, time_stamp));
+    switch (frame_info->enPixelType) {
+        case PixelType_Gvsp_BayerRG8:
+            image = cv::Mat(frame_info->nHeight, frame_info->nWidth, CV_8UC1, image_data);
+            cv::cvtColor(image, image, cv::COLOR_BayerRG2RGB);
+            break;
+        case PixelType_Gvsp_BGR8_Packed:
+            image = cv::Mat(frame_info->nHeight, frame_info->nWidth, CV_8UC3, image_data);
+            break;
+        default:
+            LOG(WARNING) << "Unsupported pixel type 0x" << std::hex << frame_info->enPixelType << " detected.";
+            return;
     }
+
+    // trigger_mode.nCurValue: 1 means HW trigger, 0 means SW trigger.
+    if (self->serial_handle_ && self->serial_handle_->IsOpened()) {
+        SerialReceivePacket serial_receive_packet{};
+        self->serial_handle_->GetData(serial_receive_packet, std::chrono::milliseconds(5));
+        self->buffer_.Push(Frame(image, time_stamp, ReceivePacket(serial_receive_packet)));
+    } else
+        self->buffer_.Push(Frame(image, time_stamp, {}));
 }
 
 bool HikCamera::StopStream() {

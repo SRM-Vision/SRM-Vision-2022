@@ -11,7 +11,7 @@
 #include "debug-tools/painter.h"
 #include "predictor-spin/spin_predictor.h"
 #include "math-tools/ekf.h"
-#include "filter.h"
+#include "trajectory-compensator/trajectory-compensator.h"
 
 class ArmorPredictor: NO_COPY, NO_MOVE {
 public:
@@ -37,9 +37,6 @@ public:
      */
     [[nodiscard]] cv::Point2f ShootPointInPic(const cv::Mat& intrinsic_matrix, cv::MatSize size);
 
-    /// used to offset
-    [[nodiscard]] double GetTargetDistance();
-
     /// target center in picture.
     [[nodiscard]] cv::Point2f TargetCenter();
 
@@ -47,7 +44,7 @@ public:
      * \brief Initialized the predictor before using. If enter a car name in constructor, initialization is not necessary.
      * \param car_name [IN] car name for read configuration file.
      */
-    static void Initialize(const std::string& car_name);
+    void Initialize(const std::string& car_name);
 
     /**
      * \brief run to predict shooting point and get send packet.
@@ -56,14 +53,15 @@ public:
      * \param bullet_speed The speed of the bullet provided by the electronic controller.
      * \return the sending packet to serials.
      */
-    SendPacket Run(const Battlefield &battlefield, const cv::MatSize &size, double bullet_speed = 15);
+    SendPacket Run(const Battlefield &battlefield, const cv::MatSize &size, Entity::Colors color);
+
+    double GetTargetDistance();
 
     /**
     * \brief Generate a packet according to data inside.
     * \return Send packet to serial port.
     */
-    [[nodiscard]] inline SendPacket
-    GenerateSendPacket(float pitch_right, double bullet_speed, bool is_same_target);
+    [[nodiscard]] inline SendPacket GenerateSendPacket(const Battlefield &battlefield, float current_pitch);
 
 private:
     Entity::Colors enemy_color_;  ///< Target's color.
@@ -72,8 +70,10 @@ private:
 
     int grey_buffer_{0};   ///< times of gray armors appearing in succession
 
+    int detect_count_{0};
+
     /// used to detect spin.
-    PredictorSpin spin_predictor_{PredictorSpin::kSpherical, 0.05, 1.2,
+    PredictorSpin spin_predictor_{PredictorSpin::kSpherical, 0.05, 1,
                                   0.625, 0.125};
 
     ///target information.
@@ -81,13 +81,13 @@ private:
     Eigen::Vector2d predict_speed_;   ///< x_v,y_v ; norm() = (x_v^2 + y_v^2)^(1/2)
     Eigen::Vector2d predict_acc_;
 
+    compensator::CompensatorTraj compensator_traj_;
+
     ExtendedKalmanFilter<7,3> ekf_;
 
     int fire_{0}; ///< to judge whether fire.
 
     uint64_t last_time_{0};
-
-    FilterDTMean<float, 6> distance_filter_{};
 
     /**
      * \brief a method to find the same armor to target by picture distance.
@@ -116,14 +116,14 @@ private:
     void InitializeEKF(const std::array<float, 3> &yaw_pitch_roll,
                        const coordinate::TranslationVector &translation_vector_world);
 
-    /// Update shoot point and predict camera vector.
+    /// UpdateLastArmor shoot point and predict camera vector.
     inline void UpdateShootPointAndPredictCam(const std::array<float, 3>& yaw_pitch_roll);
 
     /// predict ekf
-    void Predict(const Armor& armor,double delta_t,double bullet_speed,const std::array<float, 3>& yaw_pitch_roll,double shoot_delay);
+    void Predict(const Armor& armor, double delta_t, double bullet_speed, const std::array<float, 3>& yaw_pitch_roll, double shoot_delay);
 
     /// copy the new armor information
-    inline void Update(const Armor& armor);
+    inline void UpdateLastArmor(const Armor& armor);
 
 };
 

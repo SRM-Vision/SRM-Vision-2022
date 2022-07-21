@@ -15,7 +15,7 @@ OffsetY	0
 RegionSelector	Region0
 ReverseX	0
 ReverseY	0
-PixelFormat	BayerRG8
+PixelFormat	BGR8Packed
 TestPatternGeneratorSelector	Region0
 TestPatternGeneratorSelector	Region0
 TestPattern	Off
@@ -51,14 +51,14 @@ FrameSpecInfo	0
 FrameSpecInfoSelector	Timestamp
 AcquisitionMode	Continuous
 AcquisitionBurstFrameCount	1
-AcquisitionFrameRate	100
+AcquisitionFrameRate	200
 AcquisitionFrameRateEnable	1
 TriggerSelector	FrameBurstStart
 TriggerSelector	FrameBurstStart
-TriggerMode	On
+TriggerMode	Off
 TriggerSelector	FrameBurstStart
 TriggerSelector	FrameBurstStart
-TriggerSource	Line2
+TriggerSource	Line0
 TriggerSelector	FrameBurstStart
 TriggerSelector	FrameBurstStart
 TriggerActivation	RisingEdge
@@ -68,7 +68,7 @@ TriggerDelay	0
 TriggerSelector	FrameBurstStart
 TriggerCacheEnable	0
 ExposureMode	Timed
-ExposureTime	10000
+ExposureTime	2313
 ExposureAuto	Off
 AutoExposureTimeLowerLimit	65
 AutoExposureTimeUpperLimit	10759
@@ -95,6 +95,8 @@ HDRSelector	0
 LineSelector	Line0
 LineSelector	Line1
 LineMode	Strobe
+LineSelector	Line2
+LineMode	Input
 LineSelector	Line0
 LineSelector	Line1
 LineInverter	0
@@ -129,7 +131,7 @@ CounterSelector	Counter0
 CounterSelector	Counter0
 CounterValue	1
 CounterSelector	Counter0
-Gain	0
+Gain	15.0062
 GainAuto	Off
 AutoGainLowerLimit	0
 AutoGainUpperLimit	15.0062
@@ -140,6 +142,8 @@ BalanceWhiteAuto	Continuous
 BalanceColorTempMode	NarrowMode
 GammaSelector	User
 GammaEnable	0
+HueEnable	0
+SaturationEnable	0
 AutoFunctionAOISelector	AOI1
 AutoFunctionAOISelector	AOI1
 AutoFunctionAOIWidth	1280
