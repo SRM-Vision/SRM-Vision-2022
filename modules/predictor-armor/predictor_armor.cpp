@@ -215,7 +215,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, const cv::MatSize
             }
         }
 
-        if(detect_count_ < kDetectThreshold){
+        if(detect_count_ < kDetectThreshold && !spin_predictor_.IsSpin()){
             predict_world_vector_ << target_current->TranslationVectorWorld();
             UpdateShootPointAndPredictCam(battlefield.YawPitchRoll());
         }
