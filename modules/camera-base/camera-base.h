@@ -13,7 +13,7 @@
 #include "serial/serial.h"
 
 /// Buffer size for image provider and camera.
-#define CAMERA_BUFFER_SIZE 4
+#define CAMERA_BUFFER_SIZE 2
 
 /**
  * @brief Camera base class.

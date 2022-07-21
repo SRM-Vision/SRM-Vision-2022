@@ -390,6 +390,10 @@ BuffObject RuneDetectorNetwork::ModelRun(const cv::Mat &image)
     last_time_ = current_time_chrono;
     current_time_ /= 1000;
 
+
+//    energy_center_r_ = cv::Point2f(0, 0);
+    armor_center_p_ = cv::Point2f(0, 0);
+
     cv::Mat image_ = image.clone();
     cv::Rect roi_rect = cv::Rect(0, 0, image.cols, image.rows);
     // last detection is valid.
@@ -499,11 +503,9 @@ BuffObject RuneDetectorNetwork::ModelRun(const cv::Mat &image)
     // if vector is empty, return empty point.
     if (results.empty())
     {
+        energy_center_r_ = cv::Point2f(0, 0);
         return {};
     }
-    energy_center_r_ = cv::Point2f(0, 0);
-    armor_center_p_ = cv::Point2f(0, 0);
-
     std::sort(results.begin(), results.end(), [](BuffObject a, BuffObject b){
         return a.prob > b.prob;
     });

@@ -19,6 +19,7 @@ ImageProviderCamera::~ImageProviderCamera() {
         camera_ = nullptr;
         intrinsic_matrix_.release();
         distortion_matrix_.release();
+        video_writer_.release();
     }
 }
 
@@ -115,6 +116,13 @@ bool ImageProviderCamera::Initialize(const std::string &file_path, bool record) 
         distortion_matrix_.release();
         return false;
     }
+
+    // open record
+    if (true)
+    {
+        initRecord();
+    }
+
 
     return true;
 }
