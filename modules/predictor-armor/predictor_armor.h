@@ -71,6 +71,8 @@ private:
 
     int grey_buffer_{0};   ///< times of gray armors appearing in succession
 
+    int detect_count_{0};
+
     /// used to detect spin.
     PredictorSpin spin_predictor_{PredictorSpin::kSpherical, 0.05, 1,
                                   0.625, 0.125};
