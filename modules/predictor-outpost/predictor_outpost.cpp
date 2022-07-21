@@ -8,7 +8,7 @@ bool OutpostPredictor::Initialize() {
 }
 
 
-SendPacket OutpostPredictor::StaticOutpostRun(const Battlefield &battlefield, std::array<float, 3> e_yaw_pitch_roll) {
+SendPacket OutpostPredictor::StaticOutpostRun(const Battlefield &battlefield, std::array<float, 3> yaw_pitch_roll) {
     /*
      * Initialize
      */
@@ -28,13 +28,13 @@ SendPacket OutpostPredictor::StaticOutpostRun(const Battlefield &battlefield, st
     auto robots = battlefield.Robots();
     for (auto &robot: robots[enemy_color_]) {
         for (auto &armor: robot.second->Armors()) {
-            if (GetOutpostHeight(armor, e_yaw_pitch_roll[1]) > 0.5)
+            if (GetOutpostHeight(armor, yaw_pitch_roll[1]) > 0.5)
                 outpost_.AddBottomArmor(armor);
         }
     }
     for (auto &facility: facilities[enemy_color_]) {
         for (auto &armor: facility.second->BottomArmors()) {
-            if (GetOutpostHeight(armor, e_yaw_pitch_roll[1]) > 0.5)
+            if (GetOutpostHeight(armor, yaw_pitch_roll[1]) > 0.5)
                 outpost_.AddBottomArmor(armor);
         }
     }
@@ -57,7 +57,7 @@ SendPacket OutpostPredictor::StaticOutpostRun(const Battlefield &battlefield, st
     int biggest_armor = FindBiggestArmor(outpost_.BottomArmors());
     auto shoot_point = coordinate::transform::WorldToCamera(
             outpost_.BottomArmors()[biggest_armor].TranslationVectorWorld(),
-            coordinate::transform::EulerAngleToRotationMatrix(e_yaw_pitch_roll),
+            coordinate::transform::EulerAngleToRotationMatrix(yaw_pitch_roll),
             Eigen::Vector3d::Zero(),
             Eigen::Matrix3d::Identity());
     auto shoot_point_spherical = coordinate::convert::Rectangular2Spherical(
@@ -73,7 +73,7 @@ SendPacket OutpostPredictor::StaticOutpostRun(const Battlefield &battlefield, st
     auto plane_distance = Compensator::Instance().GetPlaneDistance(distance);
     GetROI(outpost_.BottomArmors()[biggest_armor], plane_distance);
     DLOG(INFO) << "distance" << distance;
-    auto height = GetOutpostHeight(outpost_.BottomArmors()[biggest_armor], e_yaw_pitch_roll[1]);
+    auto height = GetOutpostHeight(outpost_.BottomArmors()[biggest_armor], yaw_pitch_roll[1]);
     DLOG(INFO) << "outpost height" << height;
 
     if (send_packet.pitch != 0)
@@ -136,7 +136,7 @@ bool ThrowLine(const std::vector<Armor> &armors, double mid_x) {
 
 SendPacket
 OutpostPredictor::SpinningOutpostRun(const Battlefield &battlefield, const float &bullet_speed, int width,
-                                     const std::array<float, 3> &e_yaw_pitch_roll,
+                                     const std::array<float, 3> &yaw_pitch_roll,
                                      const std::chrono::steady_clock::time_point &time) {
     outpost_.ClearBottomArmor();
     SendPacket send_packet{0, 0, 0,
@@ -154,13 +154,13 @@ OutpostPredictor::SpinningOutpostRun(const Battlefield &battlefield, const float
     auto robots = battlefield.Robots();
     for (auto &robot: robots[enemy_color_]) {
         for (auto &armor: robot.second->Armors()) {
-            if (GetOutpostHeight(armor, e_yaw_pitch_roll[1]) > kHeightThreshold)
+            if (GetOutpostHeight(armor, yaw_pitch_roll[1]) > kHeightThreshold)
                 outpost_.AddBottomArmor(armor);
         }
     }
     for (auto &facility: facilities[enemy_color_]) {
         for (auto &armor: facility.second->BottomArmors()) {
-            if (GetOutpostHeight(armor, e_yaw_pitch_roll[1]) > kHeightThreshold)
+            if (GetOutpostHeight(armor, yaw_pitch_roll[1]) > kHeightThreshold)
                 outpost_.AddBottomArmor(armor);
         }
     }
@@ -183,14 +183,14 @@ OutpostPredictor::SpinningOutpostRun(const Battlefield &battlefield, const float
     int biggest_armor = FindBiggestArmor(outpost_.BottomArmors());
     auto shoot_point = coordinate::transform::WorldToCamera(
             outpost_.BottomArmors()[biggest_armor].TranslationVectorWorld(),
-            coordinate::transform::EulerAngleToRotationMatrix(e_yaw_pitch_roll),
+            coordinate::transform::EulerAngleToRotationMatrix(yaw_pitch_roll),
             Eigen::Vector3d::Zero(),
             Eigen::Matrix3d::Identity());
     auto shoot_point_spherical = coordinate::convert::Rectangular2Spherical(
             shoot_point);
-    send_packet.yaw = shoot_point_spherical(0, 0);
+    send_packet.yaw = float(shoot_point_spherical(0, 0));
     send_packet.yaw = 0;
-    send_packet.pitch = shoot_point_spherical(1, 0);
+    send_packet.pitch = float(shoot_point_spherical(1, 0));
 
 
     /*
@@ -198,12 +198,10 @@ OutpostPredictor::SpinningOutpostRun(const Battlefield &battlefield, const float
      */
     auto distance = distance_filter_(outpost_.BottomArmors()[biggest_armor].Distance());
     auto plane_distance = Compensator::Instance().GetPlaneDistance(distance);
-    auto height = GetOutpostHeight(outpost_.BottomArmors()[biggest_armor], e_yaw_pitch_roll[1]);
+    auto height = GetOutpostHeight(outpost_.BottomArmors()[biggest_armor], yaw_pitch_roll[1]);
     DLOG(INFO) << "distance" << distance;
     DLOG(INFO) << "outpost height" << height;
     GetROI(outpost_.BottomArmors()[biggest_armor], plane_distance);
-
-
 
 
 // 测补偿
@@ -236,7 +234,7 @@ OutpostPredictor::SpinningOutpostRun(const Battlefield &battlefield, const float
         auto current_time = std::chrono::high_resolution_clock::now();
         double time_gap = (static_cast<std::chrono::duration<double, std::milli>>(current_time -
                                                                                   ready_time_)).count();
-        shoot_delay_time_ = GetShootDelay(2);
+        shoot_delay_time_ = GetShootDelay(3);
         LOG(INFO) << "shoot_delay_time_" << shoot_delay_time_;
         if (shoot_delay_time_ < time_gap * 1e-3) {
             send_packet.fire = 1;
@@ -248,8 +246,7 @@ OutpostPredictor::SpinningOutpostRun(const Battlefield &battlefield, const float
     /*
      * 补偿
      */
-    if (send_packet.pitch != 0)
-        send_packet.pitch -= 0.015;
+    Offset(send_packet.pitch, distance);
 //    Compensator::Instance().Offset(send_packet.pitch, send_packet.yaw, 16, send_packet.check_sum, distance,
 //                                   AimModes::kOutPost);
 
@@ -270,21 +267,33 @@ cv::Rect OutpostPredictor::GetROI(const cv::Mat &src_image) {
 }
 
 double OutpostPredictor::GetOutpostHeight(const Armor &armor, const float &pitch) {
-    auto height = Compensator::Instance().GetPlaneDistance(armor.Distance()) *
-                  tan(pitch + coordinate::convert::Rectangular2Spherical(
-                          armor.TranslationVectorCam())[0] + 0.104);
+    auto height = armor.Distance() *
+                  sin(pitch + coordinate::convert::Rectangular2Spherical(
+                          armor.TranslationVectorCam())[1]  + 0.104);
     LOG(INFO) << "Armor Height" << height;
     return height;
 }
 
 double OutpostPredictor::GetShootDelay(const double &plane_distance) {
-    if (plane_distance <= 4)
+    if (plane_distance <= 4.7)
         return OutpostPredictorDebug::Instance().ShootDelay3M();
-    else if (4 < plane_distance && plane_distance <= 5.5)
+    else if (4.7 < plane_distance && plane_distance <= 5.5)
         return OutpostPredictorDebug::Instance().ShootDelay5M();
     else if (plane_distance > 5.5)
         return OutpostPredictorDebug::Instance().ShootDelay6M();
 }
+
+void OutpostPredictor::Offset(float &pitch, double distance) {
+    if (pitch == 0) return;
+    if (distance <= 4.7)
+        pitch += 0.01;
+    else if (4.7 < distance && distance <= 5.5)
+        pitch -= 0.015;
+    else if (distance > 5.5)
+        pitch -= OutpostPredictorDebug::Instance().DeltaPitchUp();
+}
+
+
 
 
 
