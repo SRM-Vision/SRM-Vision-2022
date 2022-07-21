@@ -176,7 +176,7 @@ double Compensator::PitchOffset(float &pitch, double bullet_speed, double distan
                                    offset2d_[3]);
         }
         DLOG(INFO) << "plane_distance: " << plane_distance;
-        angle_solver_.UpdateParam(0.13, plane_distance);
+        angle_solver_.UpdateParam(1.3, plane_distance);
         auto res = angle_solver_.Solve(-CV_PI / 6, CV_PI / 3, 0.01, 16);
         delta_pitch = float(res.x()) - pitch;
 
@@ -184,10 +184,15 @@ double Compensator::PitchOffset(float &pitch, double bullet_speed, double distan
         return delta_pitch;
     } else if (robot_name_ == "hero") {
         if (mode == AimModes::kOutPost) {
-            plane_distance = float(offset0d_[0] * distance * distance * distance +
-                                   offset0d_[1] * distance * distance +
-                                   offset0d_[2] * distance +
-                                   offset0d_[3]);
+            plane_distance = float(offset2d_[0] * distance * distance * distance +
+                                   offset2d_[1] * distance * distance +
+                                   offset2d_[2] * distance +
+                                   offset2d_[3]);
+        }else if(mode == AimModes::kNormal){
+            plane_distance = float(offset1d_[0] * distance * distance * distance +
+                                   offset1d_[1] * distance * distance +
+                                   offset1d_[2] * distance +
+                                   offset1d_[3]);
         }
         angle_solver_.UpdateParam(1.2, plane_distance);
         auto res = angle_solver_.Solve(-CV_PI / 6, CV_PI / 3, 0.01, 16);

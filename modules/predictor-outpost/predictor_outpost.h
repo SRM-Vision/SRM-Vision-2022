@@ -30,6 +30,7 @@ public:
 
     ~OutpostPredictor() = default;
 
+
     /**
      * \Brief Load params and choice debug or not.
      * \param config_path the config path of outpost params data file.
@@ -38,27 +39,40 @@ public:
      */
     bool Initialize();
 
+
     /**
      * \Brief Collect armors, get center points and decide auto-shoot signal.
      * \param battlefield
-     * \param bullet_speed
+     * \param yaw_pitch_roll data form gyroscope.
      * \return 'SendPacket' to send information to EC.
      */
-    SendPacket StaticOutpostRun(const Battlefield& battlefield, std::array<float, 3> e_yaw_pitch_roll);
+    SendPacket StaticOutpostRun(const Battlefield &battlefield, std::array<float, 3> yaw_pitch_roll);
 
-    SendPacket SpinningOutpostRun(const Battlefield& battlefield, const float &bullet_speed, int width,
-                                  const std::array<float, 3> &e_yaw_pitch_roll,
+
+    /**
+     * \Brief Control the pitch of Hero and auto fire in appropriate time;
+     * \param battlefield
+     * \param bullet_speed
+     * \param width the width of the image.
+     * \param yaw_pitch_roll data form gyroscope.
+     * \param time used to calculate the cost time of calculating.
+     * \return 'SendPacket' to send information to EC.
+     */
+    SendPacket SpinningOutpostRun(const Battlefield &battlefield, const float &bullet_speed, int width,
+                                  const std::array<float, 3> &yaw_pitch_roll,
                                   const std::chrono::steady_clock::time_point &time);
 
 //    SendPacket Run(Battlefield battlefield, const float &bullet_speed, cv::MatSize frame_size,
 //                   const float &real_pitch,
 //                   const std::chrono::steady_clock::time_point &time);
 
+
     /**
     * \Brief Set the color of outpost.
     * \param enemy_color Enemy color.
     */
     inline void SetColor(const Entity::Colors &enemy_color) { enemy_color_ = enemy_color; }
+
 
     /**
     * \Brief Clear the information in OutpostPredictor.
@@ -70,13 +84,12 @@ public:
         roi_buff_ = 0;
     };
 
+
     /**
     * \Brief get the roi.
-    * \param [out]roi_rect.
     * \param src_image the image;
+    * \return roi.
     */
-    void GetROI(const Armor &armor, const double &plane_distance);
-
     cv::Rect GetROI(const cv::Mat &src_image);
 
     ATTR_READER(outpost_center_, OutpostCenter);
@@ -93,29 +106,33 @@ private:
     static int FindBiggestArmor(const std::vector<Armor> &armors);
 
     /**
-     * \Brief Decide the coming/going armor in different rotating cases.
-     * \Details In one or two armors cases, compare 'armor center x' with 'outpost center x' to decide coming/going.
+     * \Brief Get the height of outpost.
+     * \param armor the main armor of outpost.
+     * \param pitch the pitch data from gyroscope.
+     * \return the height of outpost.
      */
-
-    /**
-     * \Brief Judge rotate direction.
-     * \Details Calculate difference value of contiguous armor centers' x.
-     * \Note Variable 'clockwise' is ought to be valued as 1 (rotate left) or -1 (rotate right).
-     */
-
-
-    /**
-     * \Brief get the center of ROI.
-     * \param armor the main armor.
-     */
-
-
     static double GetOutpostHeight(const Armor &armor, const float &pitch);
 
+    /**
+     * \Brief Use plane distance to ensure the shoot delay.
+     * \param plane_distance the plane distance of outpost.
+     * \return the shoot delay.
+     */
     static double GetShootDelay(const double &plane_distance);
 
+    /**
+     * \Brief Choice the roi.
+     * \param armor the main armor of outpost.
+     * \param plane_distance the plane distance of outpost.
+     * \return roi
+     */
+    void GetROI(const Armor &armor, const double &plane_distance);
+
+    void Offset(float &pitch,double distance);
+
+
 private:
-    const double kHeightThreshold = 0.4;  ///< the lowest height of outpost
+    const double  kHeightThreshold = 0.4;  ///< the lowest height of outpost
 
     Entity::Colors enemy_color_{};
     Outpost outpost_{};
@@ -123,8 +140,7 @@ private:
     cv::Point2f outpost_center_{};  ///< only used to show the point in the image when debug
 
     std::chrono::high_resolution_clock::time_point ready_time_{};
-    FilterDTMean<double, 6> distance_filter_;
-
+    FilterDTMean<double, 10> distance_filter_;
 
     bool ready_fire_{false};
     bool fire_{false};  ///< only used to show the image in the image when debug
