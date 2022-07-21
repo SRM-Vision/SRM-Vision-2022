@@ -88,6 +88,38 @@ bool HikCamera::OpenCamera(const std::string &serial_number, const std::string &
         return false;
     }
 
+    // Set camera exposure time and gain
+    // FIXME 在相机线拔出后相机配置被重置
+    // 以下为临时解决，将参数写死
+    float fExposureTime = 8000.0;
+    status_code = MV_CC_SetFloatValue(device_, "ExposureTime", fExposureTime);
+    if (MV_OK == status_code)
+    {
+        LOG(INFO) << "set exposure time OK!";
+    }
+    else
+    {
+        LOG(INFO) << "set exposure time failed! status_code " << status_code;
+    }
+    float fGainValue = 14.0;
+    status_code = MV_CC_SetFloatValue(device_, "Gain", fGainValue);
+    if (MV_OK != status_code)
+    {
+        LOG(INFO) << "Set Gain fail! status_code ", status_code;
+        return false;
+    }
+
+    // Set frame rate
+    float fFrameRate = 100.0;
+    status_code = MV_CC_SetFloatValue(device_, "AcquisitionFrameRate", fFrameRate);
+    if (MV_OK != status_code)
+    {
+        LOG(INFO) << "Set AcquisitionFrameRate fail! nRet " << status_code;
+        return false;
+    }
+
+
+
     // Register image callback.
     status_code = MV_CC_RegisterImageCallBackEx(device_, ImageCallbackEx, this);
     if (MV_OK != status_code) {
