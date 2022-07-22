@@ -81,7 +81,7 @@ private:
     Eigen::Vector2d predict_speed_;   ///< x_v,y_v ; norm() = (x_v^2 + y_v^2)^(1/2)
     Eigen::Vector2d predict_acc_;
 
-    compensator::CompensatorTraj compensator_traj_;
+    compensator::CompensatorTraj compensator_traj_{};
 
     ExtendedKalmanFilter<7,3> ekf_;
 
@@ -96,9 +96,9 @@ private:
      * \param threshold the allowed longest distance between last armor and new armor.
      * \return the iterator of the new target in armors.
      */
-    static auto SameArmorByPictureDistance(const cv::Point2f &target_center,
-                                                             std::vector<Armor> &armors,
-                                                             double threshold);
+    static auto SameArmorByPixelDistance(const cv::Point2f &target_center,
+                                         std::vector<Armor> &armors,
+                                         double threshold) -> decltype(armors.cend());
 
     /**
      * \brief find the best matched armor which is closest to the last one and is not too oblique.
@@ -116,7 +116,7 @@ private:
     void InitializeEKF(const std::array<float, 3> &yaw_pitch_roll,
                        const coordinate::TranslationVector &translation_vector_world);
 
-    /// UpdateLastArmor shoot point and predict camera vector.
+    /// Update shoot point and predict camera vector by predicted world vector.
     inline void UpdateShootPointAndPredictCam(const std::array<float, 3>& yaw_pitch_roll);
 
     /// predict ekf
