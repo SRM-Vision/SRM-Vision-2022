@@ -155,7 +155,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, const cv::MatSize
     if(!target_current){
         Clear();
         DLOG(INFO) << "NO TARGET!";
-        return {battlefield.YawPitchRoll()[0], battlefield.YawPitchRoll()[1], 0, 0, 0,
+        return {0, 0, 0, 0, 0,
                 0, 0,
                 0, 0,
                 0, 0,
