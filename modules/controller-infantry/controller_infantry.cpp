@@ -2,7 +2,6 @@
 #include "cmdline-arg-parser/cmdline_arg_parser.h"
 #include "image-provider-base/image-provider-factory.h"
 #include "controller-base/controller_factory.h"
-#include "detector-rune/detector_rune.h"
 #include "detector-rune-network/detector_rune_network.h"
 #include "predictor-rune/predictor-rune.h"
 #include "predictor-armor/predictor_armor.h"
@@ -29,14 +28,13 @@ bool InfantryController::Initialize() {
     // Initialize Rune module.
     Frame init_frame;
     image_provider_->GetFrame(init_frame);
-    if (rune_detector_.Initialize("../config/infantry/rune-detector-param.yaml"))
+    if (rune_detector_network_.Initialize("../assets/models/rune_detector_model.onnx"))
         LOG(INFO) << "Rune detector initialize successfully!";
     else {
         LOG(ERROR) << "Rune detector initialize failed.";
         return false;
     }
-    rune_detector_network_.Initialize("../assets/models/rune_detector_model.onnx");
-    rune_predictor_.Initialize("../config/infantry/rune-predictor-param.yaml");
+    RunePredictor::Initialize();
 
     LOG(INFO) << "Infantry controller is ready.";
     return true;
@@ -55,8 +53,7 @@ void InfantryController::Run() {
         || receive_packet_.mode == AimModes::kSmallRune
         || receive_packet_.mode == AimModes::kBigRune) {
             power_rune_ = rune_detector_network_.Run(receive_packet_.color, frame_);
-//            power_rune_ = rune_detector_.Run(receive_packet_.color, frame_);
-            send_packet_ = rune_predictor_.Run(power_rune_, kBigRune, 30);
+            send_packet_ = rune_predictor_.Run(power_rune_, kSmallRune, 30);
             controller_infantry_debug_.DrawAutoAimRune(frame_.image, &rune_predictor_, "detector rune network", 1);
         }
 

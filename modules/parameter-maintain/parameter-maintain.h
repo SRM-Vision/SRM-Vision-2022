@@ -71,8 +71,9 @@ private:   ///< detector rune debug
     double max_armor_wh_ratio_;  ///< Maximum armor weight / height ratio.
     double min_fan_wh_ratio_;  ///< Minimum fan rect weight / height ratio.
     double max_fan_wh_ratio_;  ///< Maximum fan rect weight / height ratio.
-    int delta_u_;  ///< Horizontal ballistic compensation
-    int delta_v_;  ///< Vertical ballistic compensation
+    int delta_u_;  ///< Horizontal ballistic compensation.
+    int delta_v_;  ///< Vertical ballistic compensation.
+    int compensate_time_;
 
 private:  ///< predictor rune debug
     std::string rune_predictor_config_path;

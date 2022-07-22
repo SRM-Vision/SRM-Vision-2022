@@ -9,23 +9,22 @@
 
 #include "lang-feature-extension/disable-constructors.h"
 #include "trajectory-solver/trajectory-solver.h"
-#include "data-structure/communication.h"
 #include "digital-twin/facilities/power_rune.h"
+#include "data-structure/communication.h"
 #include "data-structure/buffer.h"
-#include "queue"
+#include <queue>
+#include "predictor-armor/filter.h"
 
 namespace predictor::rune {
     constexpr int kFirstFitPalstanceDataNum = 150; // 200;   ///< Amount of data collected for fitting.
     constexpr int kPreparePalstanceDataNum = 50;  ///< Amount of data required before fitting.
-    constexpr int kObservationDataNum      = 150; // 300;  ///< Amount of data observed in one circle.
-    constexpr int kBufferDataNum           = 150;   ///< Updated data num in every fit period.
-    constexpr double kCompensateTime       = 0.02; ///< Communication, program process and etc delay.
-    constexpr int kMaxNumIterations         = 300;
+    constexpr int kObservationDataNum = 300; // 300;  ///< Amount of data observed in one circle.
+    constexpr int kBufferDataNum = 150;   ///< Updated data num in every fit period.
+    constexpr int kMaxNumIterations = 300;
 
-    constexpr int kAutoFireTimeGap         = 1000;
-    constexpr bool kAutoFireFlag           = false;
+    constexpr int kAutoFireTimeGap = 1000;
+    constexpr bool kAutoFireFlag = false;
 
-//    trajectory_solver::PitchAngleSolver pitch_solver_{};
     constexpr int kP_pitch = 3000;
     constexpr int kP_yaw = 3000;
 
@@ -94,15 +93,15 @@ namespace predictor::rune {
                     const cv::Point2f &predicted_point,
                     cv::Point2f &fixed_point);
 
-        float yaw;
-        float pitch;
-        float delay;
+        float yaw{};
+        float pitch{};
+        float delay{};
         int fire = 0;
     };
 
     /// @brief Data and function package for fitting palstance curve.
     struct FittingData {
-        FittingData() : ready(false), first_fit(true){}
+        FittingData() : ready(false), first_fit(true) {}
 
         /**
          * @brief Fit the rotational speed curve only if meet the data num condition.
@@ -136,13 +135,11 @@ namespace predictor::rune {
         bool UpdatePalstance(const PowerRune &rune,
                              FittingData &fitting_data);
 
-        float CalcVectorsAngle(const cv::Point2f &first_vector, const cv::Point2f &second_vector);
-        float CalcPointsDistance(const cv::Point2f &point1, const cv::Point2f &point2);
+        static float CalcVectorsAngle(const cv::Point2f &first_vector, const cv::Point2f &second_vector);
+
         /// @brief Check if the rune predicting mode changed.
         bool FanChanged();
 
-        double current_time;  ///< Current time, made double for calculations.
-        std::chrono::high_resolution_clock::time_point last_time;
         std::chrono::high_resolution_clock::time_point fan_changed_time_chrono;
         double current_angle;
         double current_palstance;
@@ -173,7 +170,7 @@ namespace predictor::rune {
          * @param [in] debug Whether use debug.
          * @return Whether initialize successfully.
          */
-        bool Initialize(const std::string &config_path);
+        static bool Initialize();
 
         /**
          * @brief Use rune predictor to get predicted point.
@@ -189,12 +186,11 @@ namespace predictor::rune {
 
         void PredictPoint();
 
-//        void InitModel(double bullet_speed);
-
         void AutoFire();
+
         PowerRune rune_;  ///< It is initiated by package conveyed by rune detector.
         State state_;
-        RotationalSpeed rotational_speed_;
+        RotationalSpeed rotational_speed_{};
         FittingData fitting_data_;  ///< Data for fit.
         OutputData output_data_;  ///< Contain yaw, pitch, delay.
 

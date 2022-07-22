@@ -52,7 +52,7 @@ public:
      * \brief Load and initialize model.
      * \param [in] onnx_file ONNX file path.
      */
-    void Initialize(const std::string &onnx_file);
+    bool Initialize(const std::string &onnx_file);
 
 
 

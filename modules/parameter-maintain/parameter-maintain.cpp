@@ -28,8 +28,6 @@ bool ParameterMaintain::initDetectorRuneParameters() {
     config_["MAX_FAN_WH_RATIO"] >> max_fan_wh_ratio_;
     config_["MAX_R_WH_DEVIATION"] >> max_R_wh_deviation_;
     config_["KERNEL_SIZE"] >> kernel_size_;
-    config_["DELTA_U"] >> delta_u_;
-    config_["DELTA_V"] >> delta_v_;
     config_.release();
     return true;
 }
@@ -57,8 +55,6 @@ bool ParameterMaintain::saveDetectorRuneParameters() {
     config_ << "MAX_FAN_WH_RATIO" << max_fan_wh_ratio_;
     config_ << "MAX_R_WH_DEVIATION" << max_R_wh_deviation_;
     config_ << "KERNEL_SIZE" << kernel_size_;
-    config_ << "DELTA_U" << delta_u_;
-    config_ << "DELTA_V" << delta_v_;
     config_.release();
     DLOG(INFO) << "Config of rune detector is updated.";
     return true;
@@ -71,16 +67,26 @@ bool ParameterMaintain::initPredictorRuneParameters() {
         LOG(ERROR) << "Failed to open rune predictor config file " << rune_predictor_config_path << ".";
         return false;
     }
-    config_["AMPLITUDE"] >> rotational_speed_.a;
-    config_["PALSTANCE"] >> rotational_speed_.w;
-    config_["PHASE"] >> rotational_speed_.p;
-    rotational_speed_.b = 2.090 - rotational_speed_.a;
+    config_["DELTA_U"] >> delta_u_;
+    config_["DELTA_V"] >> delta_v_;
+    config_["COMPENSATE_TIME"] >> compensate_time_;
     config_.release();
     return true;
 }
 
-// doesn't need to save
-bool ParameterMaintain::savePredictorRuneParameters() { return true; }
+bool ParameterMaintain::savePredictorRuneParameters() {
+    // Open config file.
+    config_.open(rune_predictor_config_path, cv::FileStorage::READ);
+    if (!config_.isOpened()) {
+        LOG(ERROR) << "Failed to open rune predictor config file " << rune_predictor_config_path << ".";
+        return false;
+    }
+    config_ << "DELTA_U" << delta_u_;
+    config_ << "DELTA_V" << delta_v_;
+    config_ << "COMPENSATE_TIME" << compensate_time_;
+    config_.release();
+    return true;
+}
 
 bool ParameterMaintain::initPredictorArmorParameters() {
     config_.open(armor_predictor_config_path, cv::FileStorage::READ);
