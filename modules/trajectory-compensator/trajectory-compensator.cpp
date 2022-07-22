@@ -47,22 +47,6 @@ bool CompensatorTraj::Initialize(const std::string &type) {
     config["PNP_MAP"]["BIG_ARMOR"]["C"] >> big_pnp_map[2];
     config["PNP_MAP"]["BIG_ARMOR"]["D"] >> big_pnp_map[3];
 
-    if (config["GND_TGT_OFFSET"].empty()) {
-        LOG(ERROR) << "Ground target offset config is not found in trajectory config file "
-                   << "../config/" + type + "/trajectory-param.yaml.";
-    }
-
-    if (config["GND_TGT_OFFSET"]["A"].empty() || config["GND_TGT_OFFSET"]["B"].empty() ||
-        config["GND_TGT_OFFSET"]["C"].empty() || config["GND_TGT_OFFSET"]["D"].empty()) {
-        LOG(ERROR) << "Invalid ground target offset data in trajectory config file.";
-        return false;
-    }
-
-    config["GND_TGT_OFFSET"]["A"] >> gnd_tgt_offset[0];
-    config["GND_TGT_OFFSET"]["B"] >> gnd_tgt_offset[1];
-    config["GND_TGT_OFFSET"]["C"] >> gnd_tgt_offset[2];
-    config["GND_TGT_OFFSET"]["D"] >> gnd_tgt_offset[3];
-
     if (config["L"].empty() || config["P"].empty() || config["T"].empty()) {
         LOG(ERROR) << "Invalid environment data in trajectory config file.";
         return false;
@@ -114,32 +98,33 @@ bool CompensatorTraj::Initialize(const std::string &type) {
 Eigen::Vector3d CompensatorTraj::AnyTargetOffset(double bullet_speed, const Armor &armor,
                                                  double min_theta, double max_theta,
                                                  double max_error, unsigned int max_iter) const {
-    double target_pitch = coordinate::convert::Rectangular2Spherical(armor.TranslationVectorWorld()).y();
+    auto &tvw = armor.TranslationVectorWorld();
+    double target_pitch = atan(-tvw.y()/tvw.z());
 
     // Calculate the real horizontal distance.
     // f(x) = A + Bx + Cx^2 + Dx^3
-    double target_x = 0, pnp_distance = armor.Distance(), temp_pnp_distance = 1;
+    double target_d = 0, pnp_d = armor.Distance(), temp_pnp_d = 1;
     switch (armor.Size()) {
         case Armor::SIZE:
             LOG(WARNING) << "Wrong armor size (Armor::SIZE) detected, fallback to kAuto.";
         case Armor::kAuto:
-        case Armor::kSmall: {
+        case Armor::kSmall:
             for (auto &&pnp_map_coefficient: small_pnp_map) {
-                target_x += pnp_map_coefficient * temp_pnp_distance;
-                temp_pnp_distance *= pnp_distance;
+                target_d += pnp_map_coefficient * temp_pnp_d;
+                temp_pnp_d *= pnp_d;
             }
             break;
-        }
-        case Armor::kBig: {
+        case Armor::kBig:
             for (auto &&pnp_map_coefficient: big_pnp_map) {
-                target_x += pnp_map_coefficient * temp_pnp_distance;
-                temp_pnp_distance *= pnp_distance;
+                target_d += pnp_map_coefficient * temp_pnp_d;
+                temp_pnp_d *= pnp_d;
             }
             break;
-        }
     }
 
-    double delta_h = target_x * tan(target_pitch), start_h, target_h;
+    double delta_h = target_d * sin(target_pitch), start_h, target_h;
+    double target_x = target_d * cos(target_pitch);
+
     if (delta_h < 0) {
         start_h = -2 * delta_h;
         target_h = -delta_h;
@@ -152,18 +137,8 @@ Eigen::Vector3d CompensatorTraj::AnyTargetOffset(double bullet_speed, const Armo
     solver.SetParam(ballistic_model, bullet_speed, start_h, target_h, target_x);
     auto result = solver.Solve(min_theta, max_theta, max_error, max_iter);
 
-    DLOG(INFO) << "tX: " << target_x << ", dH: " << delta_h << ", tP: " << target_pitch
-               << ", theta: " << result.x() << ", time: " << result.y() << ".";
+    DLOG(INFO) << "tD: " << target_d << ", tX: " << target_x << ", dH: " << delta_h
+               << ", tP: " << target_pitch << ", theta: " << result.x() << ", time: " << result.y() << ".";
 
     return result;
-}
-
-double CompensatorTraj::GroundTargetOffset(double bullet_speed, const Armor &armor) const {
-    double offset = 0, temp_x = 1;
-    for (double coefficient: gnd_tgt_offset) {
-        offset += temp_x * coefficient;
-        // FIXME Replace this method to the one calculating HORIZONTAL distance.
-        temp_x *= armor.Distance();
-    }
-    return offset;
 }

@@ -6,33 +6,33 @@
 #include "compensator/compensator.h"
 
 /// When an armor lasts gray for time below this value, it will be considered as hit.
-const unsigned int kMaxGreyCount = 20;
+constexpr unsigned int kMaxGreyCount = 20;
 
 /// Picture Distance threshold to judge whether a target is too far.
-const double kPicDistanceThreshold = 100;
+constexpr double kPicDistanceThreshold = 100;
 
 /// Switch target in anti-top When new armor bigger than 0.7 * old armor.
-const double kSwitchByAreaThreshold = 0.7;
+constexpr double kSwitchByAreaThreshold = 0.7;
 
 /// used for anti-spin, allow to follow for fire.
-const double kAllowFollowRange = 0.3;
+constexpr double kAllowFollowRange = 0.3;
 
 /// the threshold to consider a armor is oblique.
-const double kObliqueThreshold = 1.5;
+constexpr double kObliqueThreshold = 1.5;
 
 /// the threshold to consider a armor is oblique in anti-spin mode.
-const double kObliqueThresholdInSpin = 1;
+constexpr double kObliqueThresholdInSpin = 1;
 
 // TODO Calibrate shoot delay and acceleration threshold.
 
 /// shooting delay
-const double kShootDelay = 0.15;
+constexpr double kShootDelay = 0.15;
 
 /// The maximum acceleration allowed to fire
-const double kFireAccelerationThreshold = 0.15;
+constexpr double kFireAccelerationThreshold = 0.15;
 
 /// When the same armor is detected for more than 10 frames of time, we consider it`s detecting.
-const int kDetectThreshold = 10;
+constexpr int kDetectThreshold = 10;
 
 /// Predicting function template structure.
 struct PredictFunction {

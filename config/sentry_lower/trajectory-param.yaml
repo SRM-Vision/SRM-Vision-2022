@@ -1,14 +1,14 @@
 %YAML:1.0
 ---
 
-# PnP map to real horizontal distance for armors, m->m.
+# PnP map to real distance for armors, m->m.
 # f(x) = a + bx + cx^2 + dx^3
 PNP_MAP:
   SMALL_ARMOR:
-    A: -0.494436
-    B: 1.36971
-    C: -0.0988656
-    D: 0.00539253
+    A: -0.135566
+    B: 1.24778
+    C: -0.0808771
+    D: 0.00445679
 
   # TODO Measure and fit PnP map for big armors.
   BIG_ARMOR:
@@ -16,14 +16,6 @@ PNP_MAP:
     B: 1
     C: 0
     D: 0
-
-# Offset function to hit ground targets, rad->m.
-# f(x) = a + bx + cx^2 + dx^3
-GND_TGT_OFFSET:
-  A: -0.000326573
-  B: 0.00569623
-  C: 0.000029529
-  D: 0.00000244395
 
 # Current latitude, DEG.
 L: 31

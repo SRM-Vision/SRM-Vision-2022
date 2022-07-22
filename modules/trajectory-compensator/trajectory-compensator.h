@@ -15,11 +15,9 @@ namespace compensator {
                 double min_theta = -CV_PI / 2, double max_theta = CV_PI / 2,
                 double max_error = 0.01, unsigned int max_iter = 16) const;
 
-        [[nodiscard]] double GroundTargetOffset(double bullet_speed, const Armor &armor) const;
-
     private:
         trajectory_solver::BallisticModel ballistic_model;
-        double small_pnp_map[4], big_pnp_map[4], gnd_tgt_offset[4];
+        double small_pnp_map[4], big_pnp_map[4];
     };
 }
 

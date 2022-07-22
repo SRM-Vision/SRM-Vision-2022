@@ -91,34 +91,32 @@ bool HikCamera::OpenCamera(const std::string &serial_number, const std::string &
     // Set camera exposure time and gain
     // FIXME 在相机线拔出后相机配置被重置
     // 以下为临时解决，将参数写死
-    float fExposureTime = 8000.0;
-    status_code = MV_CC_SetFloatValue(device_, "ExposureTime", fExposureTime);
-    if (MV_OK == status_code)
-    {
-        LOG(INFO) << "set exposure time OK!";
+    constexpr float exposure_time = 8000.0;
+    status_code = MV_CC_SetFloatValue(device_, "ExposureTime", exposure_time);
+    if (MV_OK == status_code) {
+        LOG(INFO) << "Set exposure time to " << exposure_time << ".";
+    } else {
+        LOG(WARNING) << "Failed to set exposure time to " << exposure_time << " with error 0x"
+                     << std::hex << status_code << ".";
     }
-    else
-    {
-        LOG(INFO) << "set exposure time failed! status_code " << status_code;
-    }
-    float fGainValue = 14.0;
-    status_code = MV_CC_SetFloatValue(device_, "Gain", fGainValue);
-    if (MV_OK != status_code)
-    {
-        LOG(INFO) << "Set Gain fail! status_code ", status_code;
-        return false;
+    constexpr float gain_value = 14.0;
+    status_code = MV_CC_SetFloatValue(device_, "Gain", gain_value);
+    if (MV_OK == status_code) {
+        LOG(INFO) << "Set gain value to " << gain_value << ".";
+    } else {
+        LOG(WARNING) << "Failed to set gain value to " << gain_value << " with error 0x"
+                     << std::hex << status_code << ".";
     }
 
     // Set frame rate
-    float fFrameRate = 100.0;
-    status_code = MV_CC_SetFloatValue(device_, "AcquisitionFrameRate", fFrameRate);
-    if (MV_OK != status_code)
-    {
-        LOG(INFO) << "Set AcquisitionFrameRate fail! nRet " << status_code;
-        return false;
+    constexpr float frame_rate = 100.0;
+    status_code = MV_CC_SetFloatValue(device_, "AcquisitionFrameRate", frame_rate);
+    if (MV_OK == status_code) {
+        LOG(INFO) << "Set frame rate to " << frame_rate << ".";
+    } else {
+        LOG(WARNING) << "Failed to set frame rate to " << frame_rate << " with error 0x"
+                     << std::hex << status_code << ".";
     }
-
-
 
     // Register image callback.
     status_code = MV_CC_RegisterImageCallBackEx(device_, ImageCallbackEx, this);
@@ -177,6 +175,7 @@ void HikCamera::ImageCallbackEx(unsigned char *image_data, MV_FRAME_OUT_INFO_EX 
     switch (frame_info->enPixelType) {
         case PixelType_Gvsp_BayerRG8:
             image = cv::Mat(frame_info->nHeight, frame_info->nWidth, CV_8UC1, image_data);
+            // Due to a bug in HV API, use BayerRG2RGB to convert to BGR format.
             cv::cvtColor(image, image, cv::COLOR_BayerRG2RGB);
             break;
         case PixelType_Gvsp_BGR8_Packed:
@@ -187,7 +186,6 @@ void HikCamera::ImageCallbackEx(unsigned char *image_data, MV_FRAME_OUT_INFO_EX 
             return;
     }
 
-    // trigger_mode.nCurValue: 1 means HW trigger, 0 means SW trigger.
     if (self->serial_handle_ && self->serial_handle_->IsOpened()) {
         SerialReceivePacket serial_receive_packet{};
         self->serial_handle_->GetData(serial_receive_packet, std::chrono::milliseconds(5));
