@@ -91,4 +91,7 @@ void ArmorPredictorDebug::AlterPredictCovMeasureCov(ExtendedKalmanFilter<7,3>& e
     ekf.measure_cov_ << MeasureXNoise(), 0, 0,
                         0, MeasureYNoise(), 0,
                         0, 0, MeasureZNoise();
+
+    DLOG(INFO) << "predict cov: " << ekf.predict_cov_ << '\n'
+                << "measure cov: " << ekf.predict_cov_ << '\n';
 }

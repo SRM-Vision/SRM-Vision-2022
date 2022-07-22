@@ -324,10 +324,11 @@ void ArmorPredictor::Predict(const Armor &armor, double delta_t, double bullet_s
         PredictFunction predict;  ///< Predicting function.
         MeasureFunction measure;  ///< Measuring function.
         predict.delta_t = delta_t;
-
+        DLOG(INFO) << "delta_t: " << delta_t;
         /// translate measured value to the format of ekf
         Eigen::Matrix<double, 3, 1> y_real;
         coordinate::convert::Rectangular2Spherical(armor.TranslationVectorWorld().data(), y_real.data());
+        DLOG(INFO) << "translation world vector of target: " << armor.TranslationVectorWorld() << '\n';
 
 # if !NDEBUG
         // update trackbar param
@@ -340,6 +341,7 @@ void ArmorPredictor::Predict(const Armor &armor, double delta_t, double bullet_s
         /// add ballistic delay
         auto delta_t_predict = armor.TranslationVectorWorld().norm() / bullet_speed + shoot_delay;
         predict.delta_t = delta_t_predict;
+        DLOG(INFO) << "delta_t_predict: " << delta_t_predict;
         predict(x_estimate.data(), x_predict.data());
         predict_world_vector_ << x_predict(0, 0), x_predict(3, 0), x_predict(6, 0);
         DLOG(INFO) << "speed:        " << x_predict(1,0) << "   " << x_predict(4,0);
