@@ -119,36 +119,23 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, const cv::MatSize
     // find armor which is the same as the last target or nearest to the picture center.
     if(last_target_){
         DLOG(INFO) << "exist historical armor.";
-        if(spin_predictor_.IsSpin())
-            locked_same_target = FindMatchArmor(target_current,
-                                                last_target_->Center(),
-                                                armors,
-                                                kPicDistanceThreshold,
-                                                kObliqueThresholdInSpin);
-        else
-            locked_same_target = FindMatchArmor(target_current,
-                                                last_target_->Center(),
-                                                armors,
-                                                kPicDistanceThreshold,
-                                                kObliqueThreshold);
+        locked_same_target = FindMatchArmor(target_current,
+                                            last_target_->Center(),
+                                            armors,
+                                            kPicDistanceThreshold,
+                                            (spin_predictor_.IsSpin() ? kObliqueThresholdInSpin : kObliqueThreshold));
     }
 
     //not find current armor
     if(!target_current) {
         DLOG(INFO) << "not found last armor, try to switch new one.";
         locked_same_target = false;
-        if(spin_predictor_.IsSpin())    // oblique threshold is higher than oblique threshold in anti-spin mode.
-            FindMatchArmor(target_current,
-                           picture_center,
-                           armors,
-                           DBL_MAX,
-                           kObliqueThresholdInSpin);
-        else
-            FindMatchArmor(target_current,
-                           picture_center,
-                           armors,
-                           DBL_MAX,
-                           kObliqueThreshold);
+        // oblique threshold is higher than oblique threshold in anti-spin mode.
+        FindMatchArmor(target_current,
+                       picture_center,
+                       armors,
+                       DBL_MAX,
+                       (spin_predictor_.IsSpin() ? kObliqueThresholdInSpin : kObliqueThreshold));
     }
 
     // Do nothing if nothing is found.
@@ -194,6 +181,8 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, const cv::MatSize
                 // Update speed in ekf, to speed up fitting.
                 UpdateLastArmor(*another_armor);
                 InitializeEKF(battlefield.YawPitchRoll(),another_armor->TranslationVectorWorld());
+                predict_world_vector_ = another_armor->TranslationVectorWorld();
+                UpdateShootPointAndPredictCam(battlefield.YawPitchRoll());
                 ekf_.x_estimate_(1,0) = predict_speed_(0,0);
                 ekf_.x_estimate_(4,0) = -predict_speed_(1,0);
                 ekf_.x_estimate_(2,0) = predict_acc_(0,0);
@@ -226,6 +215,8 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, const cv::MatSize
         // locked a new armor
         last_target_ = target_current;
         InitializeEKF(battlefield.YawPitchRoll(), target_current->TranslationVectorWorld());
+        predict_world_vector_ = target_current->TranslationVectorWorld();
+        UpdateShootPointAndPredictCam(battlefield.YawPitchRoll());
         predict_speed_ << 0, 0;
         predict_acc_ << 0, 0;
     }
@@ -235,9 +226,9 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, const cv::MatSize
     return GenerateSendPacket(battlefield, (float)compensator_result.x());
 }
 
-auto ArmorPredictor::SameArmorByPictureDistance(const cv::Point2f &target_center,
-                                                                  std::vector<Armor> &armors,
-                                                                  double threshold) {
+auto ArmorPredictor::SameArmorByPixelDistance(const cv::Point2f &target_center,
+                                              std::vector<Armor> &armors,
+                                              double threshold) -> decltype(armors.cend()) {
     double distance_min{DBL_MAX};
     auto same_armor{armors.cend()};
     for(auto begin{armors.cbegin()};begin < armors.cend();++begin){
@@ -256,7 +247,7 @@ bool ArmorPredictor::FindMatchArmor(std::shared_ptr<Armor> &target, const cv::Po
                                     double oblique_threshold) {
     bool is_same_armor{true};
     while(true){
-        auto same_armor = SameArmorByPictureDistance(target_center, armors, distance_threshold);
+        auto same_armor = SameArmorByPixelDistance(target_center, armors, distance_threshold);
         if(same_armor != armors.cend()){
             DLOG(INFO) << "find a same armor by distance in picture.";
             double armor_height_pixel = std::max(
@@ -310,10 +301,6 @@ void ArmorPredictor::InitializeEKF(const std::array<float, 3> &yaw_pitch_roll,
                    0, 0, ArmorPredictorDebug::Instance().MeasureZNoise();
 
     ekf_.Initialize(x_real,predict_cov, measure_cov);
-
-    predict_world_vector_ = translation_vector_world;
-
-    UpdateShootPointAndPredictCam(yaw_pitch_roll);
 }
 
 void ArmorPredictor::UpdateShootPointAndPredictCam(const std::array<float, 3> &yaw_pitch_roll) {
@@ -361,7 +348,7 @@ void ArmorPredictor::Predict(const Armor &armor, double delta_t, double bullet_s
         predict_world_spherical_vector[1] = y_real[1];  // not predict pitch
         predict_world_vector_ = coordinate::convert::Spherical2Rectangular(predict_world_spherical_vector);
         new_speed << x_predict(1,0), x_predict(4,0);
-        new_acc << x_predict(2,0),x_predict(5,0);
+        new_acc << x_predict(2,0), x_predict(5,0);
     }else {
         predict_world_vector_ = armor.TranslationVectorWorld();
         new_speed << 0, 0;
