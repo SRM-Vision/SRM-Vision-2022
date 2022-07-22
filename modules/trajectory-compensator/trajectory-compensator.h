@@ -11,7 +11,7 @@ namespace compensator {
         bool Initialize(const std::string &type);
 
         [[nodiscard]] Eigen::Vector3d AnyTargetOffset(
-                double bullet_speed, const Armor &armor,
+                double bullet_speed, const Armor &armor, double current_pitch,
                 double min_theta = -CV_PI / 2, double max_theta = CV_PI / 2,
                 double max_error = 0.01, unsigned int max_iter = 16) const;
 

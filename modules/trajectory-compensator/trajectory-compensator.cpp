@@ -95,11 +95,12 @@ bool CompensatorTraj::Initialize(const std::string &type) {
     return true;
 }
 
-Eigen::Vector3d CompensatorTraj::AnyTargetOffset(double bullet_speed, const Armor &armor,
+Eigen::Vector3d CompensatorTraj::AnyTargetOffset(double bullet_speed, const Armor &armor, double current_pitch,
                                                  double min_theta, double max_theta,
                                                  double max_error, unsigned int max_iter) const {
-    auto &tvw = armor.TranslationVectorWorld();
-    double target_pitch = atan(-tvw.y()/tvw.z());
+    auto &tvc = armor.TranslationVectorCam();
+    DLOG(INFO) << tvc;
+    double target_pitch = atan(-tvc.y()/tvc.z()) + current_pitch;
 
     // Calculate the real horizontal distance.
     // f(x) = A + Bx + Cx^2 + Dx^3
@@ -124,6 +125,8 @@ Eigen::Vector3d CompensatorTraj::AnyTargetOffset(double bullet_speed, const Armo
 
     double delta_h = target_d * sin(target_pitch), start_h, target_h;
     double target_x = target_d * cos(target_pitch);
+    // delta_h = -0.9;
+
 
     if (delta_h < 0) {
         start_h = -2 * delta_h;

@@ -29,7 +29,7 @@ constexpr double kObliqueThresholdInSpin = 1;
 constexpr double kShootDelay = 0.15;
 
 /// The maximum acceleration allowed to fire
-constexpr double kFireAccelerationThreshold = 0.15;
+constexpr double kFireAccelerationThreshold = 0.4;
 
 /// When the same armor is detected for more than 10 frames of time, we consider it`s detecting.
 constexpr int kDetectThreshold = 10;
@@ -221,7 +221,7 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, const cv::MatSize
         predict_acc_ << 0, 0;
     }
 
-    auto compensator_result = compensator_traj_.AnyTargetOffset(battlefield.BulletSpeed(), *last_target_);
+    auto compensator_result = compensator_traj_.AnyTargetOffset(battlefield.BulletSpeed(), *last_target_, battlefield.YawPitchRoll()[1]);
 
     return GenerateSendPacket(battlefield, (float)compensator_result.x());
 }
