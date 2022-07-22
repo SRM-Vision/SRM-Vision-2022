@@ -3,6 +3,7 @@
 //
 
 #include "predictor_armor.h"
+#include "math-tools/exponential-filter.h"
 #include "compensator/compensator.h"
 
 /// When an armor lasts gray for time below this value, it will be considered as hit.
@@ -388,6 +389,7 @@ SendPacket ArmorPredictor::GenerateSendPacket(const Battlefield &battlefield, fl
     if (4 <= last_target_->Distance() && last_target_->Distance() < 6) distance_mode = 2;
     if (6 <= last_target_->Distance() && last_target_->Distance() < 8) distance_mode = 3;
     DLOG(INFO) << "pnp distance: " << last_target_->Distance();
+    DLOG(INFO) << "Filtered distance is : " << distance_filter_.Filter(last_target_->Distance());
 
     // 图传点
 //        cv::Mat3d camera_mat;

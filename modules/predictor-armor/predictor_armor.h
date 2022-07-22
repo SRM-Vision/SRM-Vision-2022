@@ -89,6 +89,8 @@ private:
 
     uint64_t last_time_{0};
 
+    ExponentialFilter<double> distance_filter_{10};
+
     /**
      * \brief a method to find the same armor to target by picture distance.
      * \param target_center [IN] center of locked last target.
