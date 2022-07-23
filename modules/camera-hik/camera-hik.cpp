@@ -91,7 +91,7 @@ bool HikCamera::OpenCamera(const std::string &serial_number, const std::string &
     // Set camera exposure time and gain
     // FIXME 在相机线拔出后相机配置被重置
     // 以下为临时解决，将参数写死
-    constexpr float exposure_time = 8000.0;
+    constexpr float exposure_time = 10000.0;
     status_code = MV_CC_SetFloatValue(device_, "ExposureTime", exposure_time);
     if (MV_OK == status_code) {
         LOG(INFO) << "Set exposure time to " << exposure_time << ".";
@@ -99,7 +99,7 @@ bool HikCamera::OpenCamera(const std::string &serial_number, const std::string &
         LOG(WARNING) << "Failed to set exposure time to " << exposure_time << " with error 0x"
                      << std::hex << status_code << ".";
     }
-    constexpr float gain_value = 14.0;
+    constexpr float gain_value = 15.0;
     status_code = MV_CC_SetFloatValue(device_, "Gain", gain_value);
     if (MV_OK == status_code) {
         LOG(INFO) << "Set gain value to " << gain_value << ".";
