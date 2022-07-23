@@ -9,6 +9,7 @@
 #define CONTROLLER_BASE_H_
 
 #include <opencv2/highgui.hpp>
+#include <chrono>
 #include "lang-feature-extension/disable-constructors.h"
 #include "serial/serial.h"
 #include "digital-twin/battlefield.h"
@@ -49,6 +50,7 @@ protected:
     [[nodiscard]] bool GetImage() {
         static bool show_warning = true;  // Avoid too many warnings' suppressing other information.
 
+        auto time_1 = std::chrono::system_clock::now();
         if (!image_provider_->GetFrame(frame_)) {
             if (show_warning)
                 LOG(WARNING) << "Cannot get frame from image provider. Wait for camera or press ctrl-c to quit.";
@@ -60,6 +62,8 @@ protected:
 #endif
             return false;
         }
+        auto time_2 = std::chrono::system_clock::now();
+        DLOG(INFO) << "Get image time: " << std::chrono::duration_cast<std::chrono::milliseconds>(time_2 - time_1).count();
 
         // Flip image when using camera.
         if (flip && CmdlineArgParser::Instance().RunWithCamera()) {

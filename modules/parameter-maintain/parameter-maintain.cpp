@@ -136,13 +136,12 @@ bool ParameterMaintain::initPredictorOutpostParameters() {
         LOG(ERROR) << "Failed to open outpost predictor config file " << outpost_predictor_config_path << ".";
         return false;
     }
-    config_["SHOOT_DELAY_3M"] >> outpost_shoot_delay_3m_;
-    config_["SHOOT_DELAY_5M"] >> outpost_shoot_delay_5m_;
-    config_["SHOOT_DELAY_6M"] >> outpost_shoot_delay_6m_;
-    config_["DELTA_PITCH_UP"] >> delta_pitch_up_;
-    config_["DELTA_PITCH_DOWN"] >> delta_pitch_down_;
-    config_["DELTA_YAW_LEFT"] >> delta_yaw_left_;
-    config_["DELTA_YAW_RIGHT"] >> delta_yaw_right_;
+    config_["SHOOT_DELAY_0cm5M"] >> outpost_shoot_delay_0cm5m_;
+    config_["SHOOT_DELAY_20cm5M"] >> outpost_shoot_delay_20cm5m_;
+    config_["SHOOT_DELAY_60cm6M"] >> outpost_shoot_delay_60cm6m_;
+    config_["DELTA_PITCH_0cm5M"] >> delta_pitch_0cm5m_;
+    config_["DELTA_PITCH_20cm5M"] >> delta_pitch_20cm5m_;
+    config_["DELTA_PITCH_60cm6M"] >> delta_pitch_60cm6m_;
     config_.release();
     return true;
 }
@@ -155,13 +154,12 @@ bool ParameterMaintain::savePredictorOutpostParameters() {
     }
 
     // Write config data.
-    config_ << "SHOOT_DELAY_3M" << outpost_shoot_delay_3m_;
-    config_ << "SHOOT_DELAY_5M" << outpost_shoot_delay_5m_;
-    config_ << "SHOOT_DELAY_6M" << outpost_shoot_delay_6m_;
-    config_ << "DELTA_PITCH_UP" << delta_pitch_up_;
-    config_ << "DELTA_PITCH_DOWN" << delta_pitch_down_;
-    config_ << "DELTA_YAW_LEFT" << delta_yaw_left_;
-    config_ << "DELTA_YAW_RIGHT" << delta_yaw_right_;
+    config_ << "SHOOT_DELAY_0cm5M" << outpost_shoot_delay_0cm5m_;
+    config_ << "SHOOT_DELAY_20cm5M" << outpost_shoot_delay_20cm5m_;
+    config_ << "SHOOT_DELAY_60cm6M" << outpost_shoot_delay_60cm6m_;
+    config_ << "DELTA_PITCH_0cm5M" << delta_pitch_0cm5m_;
+    config_ << "DELTA_PITCH_20cm5M" << delta_pitch_20cm5m_;
+    config_ << "DELTA_PITCH_60cm6M" << delta_pitch_60cm6m_;
     config_.release();
 
     DLOG(INFO) << "Config of outpost is updated.";
