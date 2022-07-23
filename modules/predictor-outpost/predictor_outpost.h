@@ -20,6 +20,14 @@
 #include "compensator/compensator.h"
 #include "predictor-armor/filter.h"
 
+
+enum OutpostModes {
+    k0cm5m = 10,
+    k20cm5m = 30,
+    k60cm6m = 40,
+    size = 6
+};
+
 /**
  * \Brief Find the center shooting point of outpost, auto-shoot after a time_delay.
  * @Details Set color first, then run predictor to auto-shoot and clear all parameters in controller if the mode changes.
@@ -39,6 +47,10 @@ public:
      */
     bool Initialize();
 
+    SendPacket Run(const Battlefield &battlefield, const float &bullet_speed, const cv::MatSize &size,
+                   const std::array<float, 3> &yaw_pitch_roll,
+                   const std::chrono::steady_clock::time_point &time,
+                   int outpost_mode);
 
     /**
      * \Brief Collect armors, get center points and decide auto-shoot signal.
@@ -46,7 +58,9 @@ public:
      * \param yaw_pitch_roll data form gyroscope.
      * \return 'SendPacket' to send information to EC.
      */
-    SendPacket StaticOutpostRun(const Battlefield &battlefield, std::array<float, 3> yaw_pitch_roll);
+    SendPacket StaticOutpostRun(const Battlefield &battlefield,
+                                std::array<float, 3> yaw_pitch_roll,
+                                const cv::MatSize &size);
 
 
     /**
@@ -58,9 +72,10 @@ public:
      * \param time used to calculate the cost time of calculating.
      * \return 'SendPacket' to send information to EC.
      */
-    SendPacket SpinningOutpostRun(const Battlefield &battlefield, const float &bullet_speed, int width,
+    SendPacket SpinningOutpostRun(const Battlefield &battlefield, const float &bullet_speed,
                                   const std::array<float, 3> &yaw_pitch_roll,
-                                  const std::chrono::steady_clock::time_point &time);
+                                  const std::chrono::steady_clock::time_point &time,
+                                  int outpost_mode, const cv::MatSize &size);
 
 //    SendPacket Run(Battlefield battlefield, const float &bullet_speed, cv::MatSize frame_size,
 //                   const float &real_pitch,
@@ -99,6 +114,13 @@ public:
 private:
 
     /**
+     * \Brief Through the outpost mode choice the armors in apposite height.
+     * \param battlefield.
+     * \param pitch. Used to get the height.
+     */
+    void SelectOutpostArmors(const Battlefield &battlefield, const double &pitch, const cv::MatSize &size);
+
+    /**
      * \Brief Find the armor with the biggest area.
      * \param [in] armors. All detected armors.
      * \return index of the armor with biggest area.
@@ -118,7 +140,7 @@ private:
      * \param plane_distance the plane distance of outpost.
      * \return the shoot delay.
      */
-    static double GetShootDelay(const double &plane_distance);
+    double GetShootDelay(const double &plane_distance);
 
     /**
      * \Brief Choice the roi.
@@ -128,11 +150,15 @@ private:
      */
     void GetROI(const Armor &armor, const double &plane_distance);
 
-    void Offset(float &pitch,double distance);
+    void Offset(float &pitch, const double &distance);
 
 
 private:
-    const double  kHeightThreshold = 0.4;  ///< the lowest height of outpost
+    const double kHeightThreshold0cm = 0.3;  ///< the lowest height of outpost
+    const double kHeightThreshold20cm = 0.1;  ///< the lowest height of outpost
+    const double kHeightThreshold60cm = 0;  ///< the lowest height of outpost
+
+    OutpostModes outpost_mode_;
 
     Entity::Colors enemy_color_{};
     Outpost outpost_{};

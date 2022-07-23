@@ -12,6 +12,7 @@
 #include "predictor-spin/spin_predictor.h"
 #include "math-tools/ekf.h"
 #include "trajectory-compensator/trajectory-compensator.h"
+#include "math-tools/exponential-filter.h"
 
 class ArmorPredictor: NO_COPY, NO_MOVE {
 public:
@@ -88,6 +89,8 @@ private:
     int fire_{0}; ///< to judge whether fire.
 
     uint64_t last_time_{0};
+
+    ExponentialFilter<double> distance_filter_{10};
 
     /**
      * \brief a method to find the same armor to target by picture distance.

@@ -3,6 +3,7 @@
 //
 
 #include "predictor_armor.h"
+#include "math-tools/exponential-filter.h"
 #include "compensator/compensator.h"
 
 /// When an armor lasts gray for time below this value, it will be considered as hit.
@@ -29,7 +30,7 @@ constexpr double kObliqueThresholdInSpin = 1;
 constexpr double kShootDelay = 0.15;
 
 /// The maximum acceleration allowed to fire
-constexpr double kFireAccelerationThreshold = 0.4;
+constexpr double kFireAccelerationThreshold = 0.8;
 
 /// When the same armor is detected for more than 10 frames of time, we consider it`s detecting.
 constexpr int kDetectThreshold = 10;
@@ -384,10 +385,11 @@ SendPacket ArmorPredictor::GenerateSendPacket(const Battlefield &battlefield, fl
     auto delta_yaw = shoot_point_spherical(0, 0),delta_pitch = shoot_point_spherical(1, 0);
     auto delay = 0.f;
     int distance_mode = 0;
-    if (0 <= last_target_->Distance() && last_target_->Distance() < 2) distance_mode = 1;
-    if (2 <= last_target_->Distance() && last_target_->Distance() < 4) distance_mode = 2;
-    if (4 <= last_target_->Distance() && last_target_->Distance() < 6) distance_mode = 3;
+    if (0 <= last_target_->Distance() && last_target_->Distance() < 4) distance_mode = 1;
+    if (4 <= last_target_->Distance() && last_target_->Distance() < 6) distance_mode = 2;
+    if (6 <= last_target_->Distance() && last_target_->Distance() < 8) distance_mode = 3;
     DLOG(INFO) << "pnp distance: " << last_target_->Distance();
+    DLOG(INFO) << "Filtered distance is : " << distance_filter_.Filter(last_target_->Distance());
 
     // 图传点
 //        cv::Mat3d camera_mat;

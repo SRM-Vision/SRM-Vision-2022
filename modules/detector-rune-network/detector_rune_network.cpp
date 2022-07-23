@@ -34,7 +34,7 @@ static inline size_t get_dims_size(const nvinfer1::Dims &dims) {
 }
 
 
-void RuneDetectorNetwork::Initialize(const std::string &onnx_file) {
+bool RuneDetectorNetwork::Initialize(const std::string &onnx_file) {
     std::filesystem::path onnx_file_path(onnx_file);
     auto cache_file_path = onnx_file_path;
     cache_file_path.replace_extension("cache");
@@ -62,6 +62,8 @@ void RuneDetectorNetwork::Initialize(const std::string &onnx_file) {
     output_buffer_ = new float[output_size_];
 
     TRT_ASSERT(output_buffer_ != nullptr)
+
+    return true;
 }
 
 RuneDetectorNetwork::~RuneDetectorNetwork() {
@@ -456,7 +458,6 @@ BuffObject RuneDetectorNetwork::ModelRun(const cv::Mat &image)
     {
         if (results[i].cls == 1)
         {
-            std::cout << results[i].color << "color's is " << std::endl;
             filtered.push_back(results[i]);
         }
     }

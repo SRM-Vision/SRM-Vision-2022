@@ -29,19 +29,17 @@ private:
     ParameterMaintain parameter_maintain_{"hero"};
 
 public:
-    ATTR_READER(parameter_maintain_.delta_pitch_up_, DeltaPitchUp);
+    ATTR_READER(parameter_maintain_.delta_pitch_60cm6m_, DeltaPitch60CM6M);
 
-    ATTR_READER(parameter_maintain_.delta_pitch_down_, DeltaPitchDown);
+    ATTR_READER(parameter_maintain_.delta_pitch_20cm5m_, DeltaPitch20CM5M);
 
-    ATTR_READER(parameter_maintain_.delta_yaw_left_, DeltaYawLeft);
+    ATTR_READER(parameter_maintain_.delta_pitch_0cm5m_, DeltaPitch0CM5M);
 
-    ATTR_READER(parameter_maintain_.delta_yaw_right_, DeltaYawRight);
+    ATTR_READER(parameter_maintain_.outpost_shoot_delay_60cm6m_, ShootDelay60CM6M);
 
-    ATTR_READER(parameter_maintain_.outpost_shoot_delay_3m_, ShootDelay3M);
+    ATTR_READER(parameter_maintain_.outpost_shoot_delay_20cm5m_, ShootDelay20CM5M);
 
-    ATTR_READER(parameter_maintain_.outpost_shoot_delay_5m_, ShootDelay5M);
-
-    ATTR_READER(parameter_maintain_.outpost_shoot_delay_6m_, ShootDelay6M);
+    ATTR_READER(parameter_maintain_.outpost_shoot_delay_0cm5m_, ShootDelay0CM5M);
 
 public:
     void addTrackbar();
@@ -51,9 +49,7 @@ private:
     // Maximum trackbar values.
     const double kMax_shoot_delay_ = 1;
     const double kMax_delta_pitch_up = 1;
-    const double kMax_delta_pitch_down = 1;
-    const double kMax_delta_yaw_left = 0.5;
-    const double kMax_delta_yaw_right = 0.5;
+
 
 };
 

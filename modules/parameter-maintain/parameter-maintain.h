@@ -71,8 +71,9 @@ private:   ///< detector rune debug
     double max_armor_wh_ratio_;  ///< Maximum armor weight / height ratio.
     double min_fan_wh_ratio_;  ///< Minimum fan rect weight / height ratio.
     double max_fan_wh_ratio_;  ///< Maximum fan rect weight / height ratio.
-    int delta_u_;  ///< Horizontal ballistic compensation
-    int delta_v_;  ///< Vertical ballistic compensation
+    int delta_u_;  ///< Horizontal ballistic compensation.
+    int delta_v_;  ///< Vertical ballistic compensation.
+    int compensate_time_;
 
 private:  ///< predictor rune debug
     std::string rune_predictor_config_path;
@@ -111,13 +112,12 @@ private:  ///< predictor outpost debug
     bool savePredictorOutpostParameters();
 
     // Trackbar value cache.
-    double outpost_shoot_delay_3m_ = 0.2;
-    double outpost_shoot_delay_5m_ = 0.02;
-    double outpost_shoot_delay_6m_ = 0;
-    double delta_pitch_up_ = 0.0;
-    double delta_pitch_down_ = 0.0;
-    double delta_yaw_left_ = 0.0;
-    double delta_yaw_right_ = 0.0;
+    double outpost_shoot_delay_0cm5m_ = 0.2;
+    double outpost_shoot_delay_20cm5m_ = 0.02;
+    double outpost_shoot_delay_60cm6m_ = 0;
+    double delta_pitch_0cm5m_ = 0.0;
+    double delta_pitch_20cm5m_ = 0.0;
+    double delta_pitch_60cm6m_ = 0.0;
 };
 
 #endif

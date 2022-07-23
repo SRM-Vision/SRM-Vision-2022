@@ -28,8 +28,6 @@ bool ParameterMaintain::initDetectorRuneParameters() {
     config_["MAX_FAN_WH_RATIO"] >> max_fan_wh_ratio_;
     config_["MAX_R_WH_DEVIATION"] >> max_R_wh_deviation_;
     config_["KERNEL_SIZE"] >> kernel_size_;
-    config_["DELTA_U"] >> delta_u_;
-    config_["DELTA_V"] >> delta_v_;
     config_.release();
     return true;
 }
@@ -57,8 +55,6 @@ bool ParameterMaintain::saveDetectorRuneParameters() {
     config_ << "MAX_FAN_WH_RATIO" << max_fan_wh_ratio_;
     config_ << "MAX_R_WH_DEVIATION" << max_R_wh_deviation_;
     config_ << "KERNEL_SIZE" << kernel_size_;
-    config_ << "DELTA_U" << delta_u_;
-    config_ << "DELTA_V" << delta_v_;
     config_.release();
     DLOG(INFO) << "Config of rune detector is updated.";
     return true;
@@ -71,16 +67,26 @@ bool ParameterMaintain::initPredictorRuneParameters() {
         LOG(ERROR) << "Failed to open rune predictor config file " << rune_predictor_config_path << ".";
         return false;
     }
-    config_["AMPLITUDE"] >> rotational_speed_.a;
-    config_["PALSTANCE"] >> rotational_speed_.w;
-    config_["PHASE"] >> rotational_speed_.p;
-    rotational_speed_.b = 2.090 - rotational_speed_.a;
+    config_["DELTA_U"] >> delta_u_;
+    config_["DELTA_V"] >> delta_v_;
+    config_["COMPENSATE_TIME"] >> compensate_time_;
     config_.release();
     return true;
 }
 
-// doesn't need to save
-bool ParameterMaintain::savePredictorRuneParameters() { return true; }
+bool ParameterMaintain::savePredictorRuneParameters() {
+    // Open config file.
+    config_.open(rune_predictor_config_path, cv::FileStorage::READ);
+    if (!config_.isOpened()) {
+        LOG(ERROR) << "Failed to open rune predictor config file " << rune_predictor_config_path << ".";
+        return false;
+    }
+    config_ << "DELTA_U" << delta_u_;
+    config_ << "DELTA_V" << delta_v_;
+    config_ << "COMPENSATE_TIME" << compensate_time_;
+    config_.release();
+    return true;
+}
 
 bool ParameterMaintain::initPredictorArmorParameters() {
     config_.open(armor_predictor_config_path, cv::FileStorage::READ);
@@ -130,13 +136,12 @@ bool ParameterMaintain::initPredictorOutpostParameters() {
         LOG(ERROR) << "Failed to open outpost predictor config file " << outpost_predictor_config_path << ".";
         return false;
     }
-    config_["SHOOT_DELAY_3M"] >> outpost_shoot_delay_3m_;
-    config_["SHOOT_DELAY_5M"] >> outpost_shoot_delay_5m_;
-    config_["SHOOT_DELAY_6M"] >> outpost_shoot_delay_6m_;
-    config_["DELTA_PITCH_UP"] >> delta_pitch_up_;
-    config_["DELTA_PITCH_DOWN"] >> delta_pitch_down_;
-    config_["DELTA_YAW_LEFT"] >> delta_yaw_left_;
-    config_["DELTA_YAW_RIGHT"] >> delta_yaw_right_;
+    config_["SHOOT_DELAY_0cm5M"] >> outpost_shoot_delay_0cm5m_;
+    config_["SHOOT_DELAY_20cm5M"] >> outpost_shoot_delay_20cm5m_;
+    config_["SHOOT_DELAY_60cm6M"] >> outpost_shoot_delay_60cm6m_;
+    config_["DELTA_PITCH_0cm5M"] >> delta_pitch_0cm5m_;
+    config_["DELTA_PITCH_20cm5M"] >> delta_pitch_20cm5m_;
+    config_["DELTA_PITCH_60cm6M"] >> delta_pitch_60cm6m_;
     config_.release();
     return true;
 }
@@ -149,13 +154,12 @@ bool ParameterMaintain::savePredictorOutpostParameters() {
     }
 
     // Write config data.
-    config_ << "SHOOT_DELAY_3M" << outpost_shoot_delay_3m_;
-    config_ << "SHOOT_DELAY_5M" << outpost_shoot_delay_5m_;
-    config_ << "SHOOT_DELAY_6M" << outpost_shoot_delay_6m_;
-    config_ << "DELTA_PITCH_UP" << delta_pitch_up_;
-    config_ << "DELTA_PITCH_DOWN" << delta_pitch_down_;
-    config_ << "DELTA_YAW_LEFT" << delta_yaw_left_;
-    config_ << "DELTA_YAW_RIGHT" << delta_yaw_right_;
+    config_ << "SHOOT_DELAY_0cm5M" << outpost_shoot_delay_0cm5m_;
+    config_ << "SHOOT_DELAY_20cm5M" << outpost_shoot_delay_20cm5m_;
+    config_ << "SHOOT_DELAY_60cm6M" << outpost_shoot_delay_60cm6m_;
+    config_ << "DELTA_PITCH_0cm5M" << delta_pitch_0cm5m_;
+    config_ << "DELTA_PITCH_20cm5M" << delta_pitch_20cm5m_;
+    config_ << "DELTA_PITCH_60cm6M" << delta_pitch_60cm6m_;
     config_.release();
 
     DLOG(INFO) << "Config of outpost is updated.";
