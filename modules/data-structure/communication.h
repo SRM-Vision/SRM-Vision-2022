@@ -40,7 +40,7 @@ struct ReceivePacket {
             color(Entity::kBlue),
             bullet_speed(15),
             yaw_pitch_roll{0, 0, 0},
-            self_speed{2, 0, 0} {}
+            self_speed{0, 0, 0} {}
 
     explicit ReceivePacket(const SerialReceivePacket &serial_receive_packet) :
             mode(static_cast<AimModes>(serial_receive_packet.mode)),
