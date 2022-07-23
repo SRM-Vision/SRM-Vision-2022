@@ -71,7 +71,7 @@ SendPacket OutpostPredictor::StaticOutpostRun(const Battlefield &battlefield, st
     /*
      * 根据平面距离画roi
      */
-    auto distance = distance_filter_(outpost_.BottomArmors()[biggest_armor].Distance());
+    auto distance = distance_filter_.Filter(outpost_.BottomArmors()[biggest_armor].Distance());
     auto plane_distance = Compensator::Instance().GetPlaneDistance(distance);
     GetROI(outpost_.BottomArmors()[biggest_armor], plane_distance);
     DLOG(INFO) << "distance" << distance;
@@ -184,7 +184,7 @@ SendPacket OutpostPredictor::SpinningOutpostRun(const Battlefield &battlefield, 
     /*
      * 根据平面距离画roi
      */
-    auto distance = distance_filter_(outpost_.BottomArmors()[biggest_armor].Distance());
+    auto distance = distance_filter_.Filter(outpost_.BottomArmors()[biggest_armor].Distance());
     auto plane_distance = Compensator::Instance().GetPlaneDistance(distance);
     auto height = GetOutpostHeight(outpost_.BottomArmors()[biggest_armor], yaw_pitch_roll[1]);
     DLOG(INFO) << "distance" << distance;

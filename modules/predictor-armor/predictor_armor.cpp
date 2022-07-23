@@ -159,11 +159,18 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, const cv::MatSize
     // update spin detector
     spin_predictor_.Update(*target_current, battlefield.TimeStamp());
 
+    Eigen::Matrix<double,3,1> compensator_result;
+
     if(locked_same_target){
         DLOG(INFO) << "locked the same armor.";
         ++detect_count_;
+
+        compensator_result = compensator_traj_.AnyTargetOffset(battlefield.BulletSpeed(),
+                                                               *target_current,
+                                                               battlefield.YawPitchRoll()[1]);
+
         // EKF Predict
-        Predict(*target_current, delta_t, battlefield.BulletSpeed(),
+        Predict(*target_current, delta_t, compensator_result.y(),
                 battlefield.YawPitchRoll(), ArmorPredictorDebug::Instance().ShootDelay());
 
         // anti spinning
@@ -182,14 +189,17 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, const cv::MatSize
                 // Update speed in ekf, to speed up fitting.
                 UpdateLastArmor(*another_armor);
                 InitializeEKF(battlefield.YawPitchRoll(),another_armor->TranslationVectorWorld());
-                predict_world_vector_ = another_armor->TranslationVectorWorld();
-                UpdateShootPointAndPredictCam(battlefield.YawPitchRoll());
+
                 ekf_.x_estimate_(1,0) = predict_speed_(0,0);
                 ekf_.x_estimate_(4,0) = -predict_speed_(1,0);
                 ekf_.x_estimate_(2,0) = predict_acc_(0,0);
                 ekf_.x_estimate_(5,0) = -predict_acc_(1,0);
 
-                Predict(*another_armor,delta_t,battlefield.BulletSpeed(),
+                compensator_result = compensator_traj_.AnyTargetOffset(battlefield.BulletSpeed(),
+                                                                       *target_current,
+                                                                       battlefield.YawPitchRoll()[1]);
+
+                Predict(*another_armor,delta_t,compensator_result.y(),
                         battlefield.YawPitchRoll(),ArmorPredictorDebug::Instance().ShootDelay());
                 DLOG(INFO) << "anti-spin mode, switch to another spinning armor.";
             }else if(algorithm::NanoSecondsToSeconds(spin_predictor_.LastJumpTime(), battlefield.TimeStamp()) /
@@ -221,8 +231,6 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, const cv::MatSize
         predict_speed_ << 0, 0;
         predict_acc_ << 0, 0;
     }
-
-    auto compensator_result = compensator_traj_.AnyTargetOffset(battlefield.BulletSpeed(), *last_target_, battlefield.YawPitchRoll()[1]);
 
     return GenerateSendPacket(battlefield, (float)compensator_result.x());
 }
@@ -317,7 +325,7 @@ void ArmorPredictor::UpdateShootPointAndPredictCam(const std::array<float, 3> &y
             coordinate::camera_to_imu_rotation_matrix);
 }
 
-void ArmorPredictor::Predict(const Armor &armor, double delta_t, double bullet_speed,
+void ArmorPredictor::Predict(const Armor &armor, double delta_t, double flight_duration,
                              const std::array<float, 3> &yaw_pitch_roll, double shoot_delay) {
     Eigen::Vector2d new_speed;
     Eigen::Vector2d new_acc;
@@ -340,7 +348,7 @@ void ArmorPredictor::Predict(const Armor &armor, double delta_t, double bullet_s
         auto x_estimate = ekf_.Update(measure, y_real);
         Eigen::Matrix<double,7,1> x_predict;
         /// add ballistic delay
-        auto delta_t_predict = armor.TranslationVectorWorld().norm() / bullet_speed + shoot_delay;
+        auto delta_t_predict = flight_duration + shoot_delay;
         predict.delta_t = delta_t_predict;
         DLOG(INFO) << "delta_t_predict: " << delta_t_predict;
         predict(x_estimate.data(), x_predict.data());
@@ -401,7 +409,7 @@ SendPacket ArmorPredictor::GenerateSendPacket(const Battlefield &battlefield, fl
 //        auto point1_y = short(show_point.y);
 
     return {float(- delta_yaw + battlefield.YawPitchRoll()[0] + ArmorPredictorDebug::Instance().DeltaYaw()),
-            float(- current_pitch - ArmorPredictorDebug::Instance().DeltaPitch()),
+            float(current_pitch - ArmorPredictorDebug::Instance().DeltaPitch()),
             delay, distance_mode, fire_,
             0, 0,
             0, 0,

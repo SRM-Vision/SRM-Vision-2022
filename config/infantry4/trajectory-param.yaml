@@ -10,12 +10,11 @@ PNP_MAP:
     C: -0.09129
     D: 0.007428
 
-  # TODO Measure and fit PnP map for big armors.
   BIG_ARMOR:
-    A: 0
-    B: 1
-    C: 0
-    D: 0
+    A: 0.04253
+    B: 0.9515
+    C: 0.039
+    D: -0.006053
 
 # Offset function to hit ground targets, rad->m.
 # f(x) = a + bx + cx^2 + dx^3

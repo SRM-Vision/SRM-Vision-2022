@@ -109,6 +109,47 @@ Eigen::Vector3d CompensatorTraj::AnyTargetOffset(double bullet_speed, const Armo
         case Armor::SIZE:
             LOG(WARNING) << "Wrong armor size (Armor::SIZE) detected, fallback to kAuto.";
         case Armor::kAuto:
+            switch (armor.ID()) {
+                case 0:  // Sentry.
+                case 1:  // Hero.
+                case 6:  // Base.
+                    for (auto &&pnp_map_coefficient: big_pnp_map) {
+                        target_d += pnp_map_coefficient * temp_pnp_d;
+                        temp_pnp_d *= pnp_d;
+                    }
+                    break;
+                case 2:  // Engineer.
+                    for (auto &&pnp_map_coefficient: small_pnp_map) {
+                        target_d += pnp_map_coefficient * temp_pnp_d;
+                        temp_pnp_d *= pnp_d;
+                    }
+                    break;
+                case 3:
+                case 4:
+                case 5:
+                    double armor_height_pixel = std::max(
+                            abs(armor.Corners()[0].y - armor.Corners()[1].y),
+                            abs(armor.Corners()[1].y - armor.Corners()[2].y)
+                    ), armor_width_pixel = std::max(
+                            abs(armor.Corners()[0].x - armor.Corners()[1].x),
+                            abs(armor.Corners()[1].x - armor.Corners()[2].x)
+                    );
+                    // TODO Value armor_width_pixel / armor_height_pixel depends on camera and lens' chose.
+                    //   Further testing is required.
+                    if (armor_width_pixel / armor_height_pixel > 3.8) {
+                        for (auto &&pnp_map_coefficient: big_pnp_map) {
+                            target_d += pnp_map_coefficient * temp_pnp_d;
+                            temp_pnp_d *= pnp_d;
+                        }
+                    } else {
+                        for (auto &&pnp_map_coefficient: small_pnp_map) {
+                            target_d += pnp_map_coefficient * temp_pnp_d;
+                            temp_pnp_d *= pnp_d;
+                        }
+                    }
+                    break;
+            }
+            break;
         case Armor::kSmall:
             for (auto &&pnp_map_coefficient: small_pnp_map) {
                 target_d += pnp_map_coefficient * temp_pnp_d;
@@ -125,8 +166,6 @@ Eigen::Vector3d CompensatorTraj::AnyTargetOffset(double bullet_speed, const Armo
 
     double delta_h = target_d * sin(target_pitch), start_h, target_h;
     double target_x = target_d * cos(target_pitch);
-    // delta_h = -0.9;
-
 
     if (delta_h < 0) {
         start_h = -2 * delta_h;

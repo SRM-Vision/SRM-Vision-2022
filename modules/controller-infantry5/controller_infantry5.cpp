@@ -56,7 +56,7 @@ void Infantry5Controller::Run() {
         || receive_packet_.mode == AimModes::kBigRune) {
             power_rune_ = rune_detector_network_.Run(receive_packet_.color, frame_);
 //            power_rune_ = rune_detector_.Run(receive_packet_.color, frame_);
-            send_packet_ = rune_predictor_.Run(power_rune_, kBigRune, 30);
+            send_packet_ = rune_predictor_.Run(power_rune_, kBigRune, receive_packet_.bullet_speed);
             controller_infantry5_debug_.DrawAutoAimRune(frame_.image, &rune_predictor_, "detector rune network", 1);
         }
 

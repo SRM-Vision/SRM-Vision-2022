@@ -162,29 +162,11 @@ public:
                && translation_vector_world_ == armor.translation_vector_world_
                && distance_ == armor.distance_
                && confidence_ == armor.confidence_;
-    };
+    }
 
     bool operator!=(const Armor &armor) const {
         return !(SELF == armor);
-    };
-
-    bool operator==(const Armor &armor) {
-        return id_ == armor.id_
-               && corners_[0] == armor.corners_[0]
-               && corners_[1] == armor.corners_[1]
-               && corners_[2] == armor.corners_[2]
-               && corners_[3] == armor.corners_[3]
-               && rotation_vector_cam_ == armor.rotation_vector_cam_
-               && translation_vector_cam_ == armor.translation_vector_cam_
-               && rotation_vector_world_ == armor.rotation_vector_world_
-               && translation_vector_world_ == armor.translation_vector_world_
-               && distance_ == armor.distance_
-               && confidence_ == armor.confidence_;
-    };
-
-    bool operator!=(const Armor &armor) {
-        return !(*this == armor);
-    };
+    }
 
     /**
      * \brief Calculate area of quadrangle.

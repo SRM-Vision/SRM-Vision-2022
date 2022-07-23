@@ -123,7 +123,7 @@ private:
     inline void UpdateShootPointAndPredictCam(const std::array<float, 3>& yaw_pitch_roll);
 
     /// predict ekf
-    void Predict(const Armor& armor, double delta_t, double bullet_speed, const std::array<float, 3>& yaw_pitch_roll, double shoot_delay);
+    void Predict(const Armor& armor, double delta_t, double flight_duration, const std::array<float, 3>& yaw_pitch_roll, double shoot_delay);
 
     /// copy the new armor information
     inline void UpdateLastArmor(const Armor& armor);

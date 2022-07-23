@@ -18,7 +18,7 @@
 #include "lang-feature-extension/attr-reader.h"
 #include "trajectory-solver/trajectory-solver.h"
 #include "compensator/compensator.h"
-#include "predictor-armor/filter.h"
+#include "math-tools/exponential-filter.h"
 
 
 enum OutpostModes {
@@ -166,7 +166,7 @@ private:
     cv::Point2f outpost_center_{};  ///< only used to show the point in the image when debug
 
     std::chrono::high_resolution_clock::time_point ready_time_{};
-    FilterDTMean<double, 10> distance_filter_;
+    ExponentialFilter<double> distance_filter_{10};
 
     bool ready_fire_{false};
     bool fire_{false};  ///< only used to show the image in the image when debug

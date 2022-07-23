@@ -13,7 +13,6 @@
 #include "data-structure/communication.h"
 #include "data-structure/buffer.h"
 #include <queue>
-#include "predictor-armor/filter.h"
 
 namespace predictor::rune {
     constexpr int kFirstFitPalstanceDataNum = 150; // 200;   ///< Amount of data collected for fitting.

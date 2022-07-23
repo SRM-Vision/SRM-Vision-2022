@@ -11,7 +11,7 @@ struct ExponentialFilter {
     T alfa;
 
 
-    ExponentialFilter(T filter_size_) {
+    explicit ExponentialFilter(T filter_size_) {
         alfa = 1 / filter_size_;
     }
 
