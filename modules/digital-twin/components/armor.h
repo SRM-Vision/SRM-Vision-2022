@@ -142,12 +142,19 @@ public:
         center_ = (corners_[0] + corners_[1] + corners_[2] + corners_[3]) / 4;
         distance_ = (float) translation_vector_cam_.norm();
 
+        DLOG(INFO) << "CAM WORLD: " << translation_vector_cam_;
+        DLOG(INFO) << "YAW PITCH ROLL: " << yaw_pitch_roll[0] << "\n"
+                   << yaw_pitch_roll[1] << "\n"
+                   << yaw_pitch_roll[2] << "\n";
+
         translation_vector_world_ = coordinate::transform::CameraToWorld(
                 translation_vector_cam_,
                 coordinate::transform::EulerAngleToRotationMatrix(yaw_pitch_roll),
                 coordinate::camera_to_imu_translation_matrix,
                 coordinate::camera_to_imu_rotation_matrix
         );
+
+        DLOG(INFO) << "WORLD : " << translation_vector_world_ << "\n";
     }
 
     bool operator==(const Armor &armor) const {

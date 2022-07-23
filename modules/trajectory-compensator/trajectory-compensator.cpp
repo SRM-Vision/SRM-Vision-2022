@@ -99,7 +99,7 @@ Eigen::Vector3d CompensatorTraj::AnyTargetOffset(double bullet_speed, const Armo
                                                  double min_theta, double max_theta,
                                                  double max_error, unsigned int max_iter) const {
     auto &tvc = armor.TranslationVectorCam();
-    DLOG(INFO) << tvc;
+
     double target_pitch = atan(-tvc.y()/tvc.z()) + current_pitch;
 
     // Calculate the real horizontal distance.
@@ -165,6 +165,7 @@ Eigen::Vector3d CompensatorTraj::AnyTargetOffset(double bullet_speed, const Armo
     }
 
     double delta_h = target_d * sin(target_pitch), start_h, target_h;
+//    delta_h = - armor.TranslationVectorCam().y() + target_d * sin(current_pitch)
     double target_x = target_d * cos(target_pitch);
 
     if (delta_h < 0) {

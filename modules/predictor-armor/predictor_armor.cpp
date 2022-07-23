@@ -338,7 +338,6 @@ void ArmorPredictor::Predict(const Armor &armor, double delta_t, double flight_d
         /// translate measured value to the format of ekf
         Eigen::Matrix<double, 3, 1> y_real;
         coordinate::convert::Rectangular2Spherical(armor.TranslationVectorWorld().data(), y_real.data());
-        DLOG(INFO) << "translation world vector of target: " << armor.TranslationVectorWorld() << '\n';
 
 # if !NDEBUG
         // update trackbar param
@@ -369,6 +368,7 @@ void ArmorPredictor::Predict(const Armor &armor, double delta_t, double flight_d
     UpdateShootPointAndPredictCam(yaw_pitch_roll);
     UpdateLastArmor(armor);
 
+    // TODO choose a acceleration.
     DLOG(INFO) << "acceleration: " << (new_speed - predict_speed_).norm() / delta_t;
     DLOG(INFO) << "predicted acceleration: " << new_acc.norm();
 
@@ -412,7 +412,7 @@ SendPacket ArmorPredictor::GenerateSendPacket(const Battlefield &battlefield, fl
 //        auto point1_x = short(show_point.x);
 //        auto point1_y = short(show_point.y);
 
-    return {float(- delta_yaw + battlefield.YawPitchRoll()[0] + ArmorPredictorDebug::Instance().DeltaYaw()),
+    return {float(delta_yaw - battlefield.YawPitchRoll()[0] + ArmorPredictorDebug::Instance().DeltaYaw()),
             float(current_pitch - ArmorPredictorDebug::Instance().DeltaPitch()),
             delay, distance_mode, fire_,
             0, 0,
