@@ -112,8 +112,9 @@ file(GLOB THIRD_PARTY_SRC ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/*/*.c*)
 add_executable(${EXECUTABLE_NAME} main.cpp ${SRC} ${THIRD_PARTY_SRC} ${TensorRT_SOURCE})
 target_link_libraries(${EXECUTABLE_NAME} ${NVIDIA_LIBS} ${CAM_LIBS} ${COMMON_LIBS})
 
-if (NOT DEFINED DO_NOT_BUILD_COMPONENTS)
+if (DEFINED BUILD_COMPONENTS)
     add_subdirectory(benchmark)
     add_subdirectory(test)
-    add_subdirectory(tools)
 endif ()
+
+add_subdirectory(tools)
