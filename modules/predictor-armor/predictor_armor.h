@@ -12,6 +12,7 @@
 #include "predictor-spin/spin_predictor.h"
 #include "math-tools/ekf.h"
 #include "trajectory-compensator/trajectory-compensator.h"
+#include "math-tools/exponential-filter.h"
 
 class ArmorPredictor: NO_COPY, NO_MOVE {
 public:
