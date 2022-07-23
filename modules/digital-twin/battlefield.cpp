@@ -1,5 +1,7 @@
 #include "battlefield.h"
 
+#include <utility>
+
 #define ARMOR_CONFIDENCE_HIGH_THRESH 0.8
 #define ARMOR_CONFIDENCE_LOW_THRESH 0.7
 #define ARMOR_SQUARED_CENTER_DISTANCE_THRESH 144
@@ -76,12 +78,14 @@
 Battlefield::Battlefield(uint64_t time_stamp,
                          float bullet_speed,
                          const std::array<float, 3> yaw_pitch_roll,
-                         const std::vector<Armor> &armors) :
+                         const std::vector<Armor> &armors,
+                         Eigen::Vector3f self_speed) :
         time_stamp_(time_stamp),
         bullet_speed_(bullet_speed),
         yaw_pitch_roll_{yaw_pitch_roll[0], yaw_pitch_roll[1], yaw_pitch_roll[2]},
         robots_(),
-        facilities_() {
+        facilities_(),
+        self_speed_(std::move(self_speed)) {
 
     /// Store last battlefield data for eliminating shakes.
     static Battlefield last_battlefield_data_;

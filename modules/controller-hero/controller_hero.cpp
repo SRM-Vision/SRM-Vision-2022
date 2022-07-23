@@ -57,7 +57,7 @@ void HeroController::Run() {
             battlefield_ = Battlefield(frame_.time_stamp,
                                        receive_packet_.bullet_speed,
                                        receive_packet_.yaw_pitch_roll,
-                                       armors_);
+                                       armors_, receive_packet_.self_speed);
 
             outpost_predictor_.SetColor(receive_packet_.color);
 //            send_packet_ = outpost_predictor_.OldRun(battlefield_);
@@ -83,7 +83,7 @@ void HeroController::Run() {
                 DLOG(INFO) << armor.TranslationVectorWorld();
             }
             battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.yaw_pitch_roll,
-                                       armors_);
+                                       armors_, receive_packet_.self_speed);
             send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size, receive_packet_.color);
             /*
              *  hero don't auto fire except shooting spin outpost

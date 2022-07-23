@@ -62,7 +62,7 @@ void InfantryController::Run() {
 
             BboxToArmor();
             battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.yaw_pitch_roll,
-                                       armors_);
+                                       armors_, receive_packet_.self_speed);
 
             send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size, receive_packet_.color);
             controller_infantry_debug_.DrawAutoAimArmor(frame_.image,

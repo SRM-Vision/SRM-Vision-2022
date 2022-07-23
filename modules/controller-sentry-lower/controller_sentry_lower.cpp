@@ -44,7 +44,8 @@ void SentryLowerController::Run() {
         battlefield_ = Battlefield(frame_.time_stamp,
                                    receive_packet_.bullet_speed,
                                    receive_packet_.yaw_pitch_roll,
-                                   armors_);
+                                   armors_,
+                                   receive_packet_.self_speed);
 
         DLOG(INFO) << "cY: " << battlefield_.YawPitchRoll()[0] << ", cP: " << battlefield_.YawPitchRoll()[1];
 

@@ -62,7 +62,7 @@ public:
     * \brief Generate a packet according to data inside.
     * \return Send packet to serial port.
     */
-    [[nodiscard]] inline SendPacket GenerateSendPacket(const Battlefield &battlefield, float current_pitch);
+    [[nodiscard]] inline SendPacket GenerateSendPacket(const Battlefield &battlefield, float current_pitch, double current_vx);
 
 private:
     Entity::Colors enemy_color_;  ///< Target's color.

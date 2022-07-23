@@ -31,12 +31,15 @@ public:
 
     ATTR_READER_REF(facilities_, Facilities)
 
+    ATTR_READER_REF(self_speed_, SelfSpeed)
+
     Battlefield() :
             time_stamp_(0),
             bullet_speed_(15),
             yaw_pitch_roll_{0, 0, 0},
             robots_(),
-            facilities_() {}
+            facilities_(),
+            self_speed_() {}
 
     /**
      * \brief Constructor with complete battlefield information.
@@ -46,11 +49,15 @@ public:
     Battlefield(uint64_t time_stamp,
                 float bullet_speed,
                 std::array<float, 3> yaw_pitch_roll,
-                const std::vector<Armor> &armors);
+                const std::vector<Armor> &armors,
+                Eigen::Vector3f self_speed = {});
 
 private:
     uint64_t time_stamp_;  ///< Time stamp from its source for tracking.
     float bullet_speed_;
+
+    Eigen::Vector3f self_speed_;
+
     std::array<float, 3> yaw_pitch_roll_;  ///< Gyroscope attitude Euler angle
     std::unordered_map<Entity::Colors,
             std::unordered_map<Robot::RobotTypes,

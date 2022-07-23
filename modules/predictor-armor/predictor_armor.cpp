@@ -231,8 +231,9 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, const cv::MatSize
         predict_speed_ << 0, 0;
         predict_acc_ << 0, 0;
     }
-
-    return GenerateSendPacket(battlefield, (float)compensator_result.x());
+    double vx = battlefield.SelfSpeed().x() * cos(battlefield.YawPitchRoll()[0]);
+    double dx = compensator_result.y() * vx;
+    return GenerateSendPacket(battlefield, (float)compensator_result.x(), dx);
 }
 
 auto ArmorPredictor::SameArmorByPixelDistance(const cv::Point2f &target_center,
@@ -388,7 +389,7 @@ void ArmorPredictor::UpdateLastArmor(const Armor &armor) {
     last_target_->SetID(id);
 }
 
-SendPacket ArmorPredictor::GenerateSendPacket(const Battlefield &battlefield, float current_pitch) {
+SendPacket ArmorPredictor::GenerateSendPacket(const Battlefield &battlefield, float current_pitch, double current_dx) {
     auto shoot_point_spherical = coordinate::convert::Rectangular2Spherical(shoot_point_vector_);
     auto delta_yaw = shoot_point_spherical(0, 0),delta_pitch = shoot_point_spherical(1, 0);
     auto delay = 0.f;
@@ -398,6 +399,9 @@ SendPacket ArmorPredictor::GenerateSendPacket(const Battlefield &battlefield, fl
     if (6 <= last_target_->Distance() && last_target_->Distance() < 8) distance_mode = 3;
     DLOG(INFO) << "pnp distance: " << last_target_->Distance();
     DLOG(INFO) << "Filtered distance is : " << distance_filter_.Filter(last_target_->Distance());
+
+    delta_yaw -= atan2(current_dx, last_target_->Distance());
+    DLOG(INFO) << "Self speed: " << battlefield.SelfSpeed() << ", delta yaw: " << delta_yaw;
 
     // 图传点
 //        cv::Mat3d camera_mat;

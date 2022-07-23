@@ -18,12 +18,13 @@ struct SerialReceivePacket {
     float yaw;
     float pitch;
     float roll;
+    float chassis_speed;
 };
 
 inline std::ostream &operator<<(std::ostream &str, const SerialReceivePacket &receive_packet) {
     str << receive_packet.mode << " | " << receive_packet.armor_kind << " | " << receive_packet.prior_enemy
         << " | " << receive_packet.color << " | " << receive_packet.bullet_speed << " | " << receive_packet.yaw
-        << " | " << receive_packet.pitch << " | " << receive_packet.roll;
+        << " | " << receive_packet.pitch << " | " << receive_packet.roll << " | " << receive_packet.chassis_speed;
     return str;
 }
 

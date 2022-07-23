@@ -6,7 +6,7 @@ set(EXECUTABLE_NAME srm-vision)
 
 # Custom library path.
 if (CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "x86_64")
-    set(TensorRT_PATH /opt/TensorRT-7.2.3.4)
+    set(TensorRT_PATH /opt/TensorRT-8.2.5.1)
 elseif (CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "aarch64")
     set(TensorRT_PATH /usr/src/tensorrt)
     set(TensorRT_LIB_PATH /usr/lib/aarch64-linux-gnu)

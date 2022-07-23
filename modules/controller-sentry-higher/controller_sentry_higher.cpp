@@ -46,7 +46,7 @@ void SentryHigherController::Run() {
 
             BboxToArmor();
             battlefield_ = Battlefield(frame_.time_stamp, receive_packet_.bullet_speed, receive_packet_.yaw_pitch_roll,
-                                       armors_);
+                                       armors_, receive_packet_.self_speed);
             DLOG(INFO) << "battlefield pitch" << battlefield_.YawPitchRoll()[0] << ' ' << battlefield_.YawPitchRoll()[1];
         send_packet_ = armor_predictor.Run(battlefield_, frame_.image.size, receive_packet_.color);
 
