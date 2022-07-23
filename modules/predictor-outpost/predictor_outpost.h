@@ -22,10 +22,10 @@
 
 
 enum OutpostModes {
-    k0cm5m = 10,
-    k20cm5m = 30,
-    k60cm6m = 40,
-    size = 6
+    k0cm5m = 5,
+    k20cm5m = 205,
+    k60cm6m = 606,
+    size = 700
 };
 
 /**
@@ -167,6 +167,7 @@ private:
 
     std::chrono::high_resolution_clock::time_point ready_time_{};
     ExponentialFilter<double> distance_filter_{10};
+    ExponentialFilter<double> x_filter_{10};
 
     bool ready_fire_{false};
     bool fire_{false};  ///< only used to show the image in the image when debug
