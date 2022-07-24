@@ -15,11 +15,17 @@
 #include <queue>
 
 namespace predictor::rune {
-    constexpr int kFirstFitPalstanceDataNum = 150; // 200;   ///< Amount of data collected for fitting.
-    constexpr int kPreparePalstanceDataNum = 50;  ///< Amount of data required before fitting.
-    constexpr int kObservationDataNum = 300; // 300;  ///< Amount of data observed in one circle.
-    constexpr int kBufferDataNum = 150;   ///< Updated data num in every fit period.
+    constexpr int kFirstFitPalstanceDataNum = 150; ///< Amount of data collected for fitting.
+    constexpr int kPreparePalstanceDataNum = 50;   ///< Amount of data required before fitting.
+    constexpr int kObservationDataNum = 300;       ///< Amount of data observed in one circle.
+    constexpr int kBufferDataNum = 150;            ///< Updated data num in every fit period.
     constexpr int kMaxNumIterations = 300;
+
+
+    constexpr double kCompensateTime30       = 0.019; ///< Communication, program process and etc delay.
+    constexpr double kCompensateTime18       = 0.08; ///< Communication, program process and etc delay.
+    constexpr double kCompensateTime15       = 0.099; ///< Communication, program process and etc delay.
+
 
     constexpr int kAutoFireTimeGap = 1000;
     constexpr bool kAutoFireFlag = false;
@@ -90,7 +96,8 @@ namespace predictor::rune {
         void Update(const PowerRune &rune,
                     double predicted_angle,
                     const cv::Point2f &predicted_point,
-                    cv::Point2f &fixed_point);
+                    cv::Point2f &fixed_point,
+                    float bullet_speed);
 
         float yaw{};
         float pitch{};
@@ -135,6 +142,7 @@ namespace predictor::rune {
                              FittingData &fitting_data);
 
         static float CalcVectorsAngle(const cv::Point2f &first_vector, const cv::Point2f &second_vector);
+        static float CalcPointsDistance(const cv::Point2f &point1, const cv::Point2f &point2);
 
         /// @brief Check if the rune predicting mode changed.
         bool FanChanged();
@@ -169,7 +177,7 @@ namespace predictor::rune {
          * @param [in] debug Whether use debug.
          * @return Whether initialize successfully.
          */
-        static bool Initialize();
+        bool Initialize(const std::string &config_path);
 
         /**
          * @brief Use rune predictor to get predicted point.
@@ -178,7 +186,11 @@ namespace predictor::rune {
          * @param [in] bullet_speed Bullet speed from electronic controller.
          * @return Processed data which will be sent to electronic controller.
          */
-        [[nodiscard]]SendPacket Run(const PowerRune &power_rune, AimModes aim_mode, float bullet_speed);
+        [[nodiscard]]SendPacket Run(const PowerRune &power_rune,
+                                    AimModes aim_mode,
+                                    float bullet_speed,
+                                    float yaw,
+                                    float pitch);
 
     private:
         void PredictAngle(AimModes aim_mode);
@@ -196,6 +208,7 @@ namespace predictor::rune {
         double predicted_angle_;  ///< Predicted angle according to fitted palstance.
         float bullet_speed_;
         bool auto_fire_signal_ = false;
+        bool fan_changed = false;
         cv::Point2f predicted_point_;
         cv::Point2f fixed_point_;  ///< Final point which contains all compensation.
     };

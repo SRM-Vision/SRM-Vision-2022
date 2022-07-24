@@ -22,9 +22,12 @@
 
 
 enum OutpostModes {
-    k0cm5m = 5,
-    k20cm5m = 205,
-    k60cm6m = 606,
+    kStatic0cm5m = 5,
+    kStatic20cm5m = 205,
+    kStatic60cm6m = 606,
+    kSpin0cm5m = 1005,
+    kSpin20cm5m = 1205,
+    kSpin60cm6m = 1606,
     size = 700
 };
 
@@ -60,7 +63,7 @@ public:
      */
     SendPacket StaticOutpostRun(const Battlefield &battlefield,
                                 std::array<float, 3> yaw_pitch_roll,
-                                const cv::MatSize &size);
+                                int outpost_mode,const cv::MatSize &size);
 
 
     /**
@@ -133,6 +136,9 @@ private:
      * \param pitch the pitch data from gyroscope.
      * \return the height of outpost.
      */
+
+    bool ThrowLine(const std::vector<Armor> &armors, double mid_x);
+
     static double GetOutpostHeight(const Armor &armor, const float &pitch);
 
     /**
@@ -151,6 +157,7 @@ private:
     void GetROI(const Armor &armor, const double &plane_distance);
 
     void Offset(float &pitch, const double &distance);
+
 
 
 private:
