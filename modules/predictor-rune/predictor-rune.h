@@ -186,7 +186,11 @@ namespace predictor::rune {
          * @param [in] bullet_speed Bullet speed from electronic controller.
          * @return Processed data which will be sent to electronic controller.
          */
-        [[nodiscard]]SendPacket Run(const PowerRune &power_rune, AimModes aim_mode, float bullet_speed);
+        [[nodiscard]]SendPacket Run(const PowerRune &power_rune,
+                                    AimModes aim_mode,
+                                    float bullet_speed,
+                                    float yaw,
+                                    float pitch);
 
     private:
         void PredictAngle(AimModes aim_mode);

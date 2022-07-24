@@ -40,10 +40,10 @@ DecimationVertical	1
 AcquisitionMode	Continuous
 TriggerSelector	FrameStart
 TriggerSelector	FrameStart
-TriggerMode	Off
+TriggerMode	On
 TriggerSelector	FrameStart
 TriggerSelector	FrameStart
-TriggerSource	Software
+TriggerSource	Line2
 TriggerSelector	FrameStart
 TriggerSelector	FrameStart
 TriggerActivation	RisingEdge

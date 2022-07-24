@@ -34,7 +34,11 @@ bool predictor::rune::RunePredictor::Initialize(const std::string &config_path) 
     return true;
 }
 
-SendPacket predictor::rune::RunePredictor::Run(const PowerRune &power_rune, AimModes aim_mode, float bullet_speed) {
+SendPacket predictor::rune::RunePredictor::Run(const PowerRune &power_rune,
+                                               AimModes aim_mode,
+                                               float bullet_speed,
+                                               float yaw,
+                                               float pitch) {
     rune_ = power_rune;
     bullet_speed_ = bullet_speed;
 
@@ -68,7 +72,7 @@ SendPacket predictor::rune::RunePredictor::Run(const PowerRune &power_rune, AimM
 
     DLOG(INFO) << "Predicted angle: " << predicted_angle_ ;
     DLOG(INFO) << "Predicted point: " << predicted_point_ << "Fixed point: " << fixed_point_;
-    return {output_data_.yaw, output_data_.pitch, output_data_.delay, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    return {output_data_.yaw, output_data_.pitch,  output_data_.delay, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 }
 
 /// Update current palstance and collect palstance and time data.
@@ -95,8 +99,8 @@ bool predictor::rune::State::UpdatePalstance(const PowerRune &rune, FittingData 
 
 
 
-//        DLOG(INFO) << "angle: " << angle;
-//        DLOG(INFO) << "Current time: " << rune.CurrentTime() << " time gap: " << rune.TimeGap();
+        DLOG(INFO) << "angle: " << angle;
+        DLOG(INFO) << "Current time: " << rune.CurrentTime() << " time gap: " << rune.TimeGap();
         DLOG(INFO) << "Current palstance: " << current_palstance;
         fitting_data.palstance.push_back(current_palstance);
         fitting_data.time.push_back(rune.CurrentTime());
@@ -258,11 +262,22 @@ void predictor::rune::OutputData::Update(const PowerRune &rune,
             delta_u -= 5;
         }
     }
-
+    if(bullet_speed == 30)
+    {
+        if(predicted_angle >= 180 && predicted_angle <= 360)
+        {
+            delta_u -= 5;
+//            delta_v += 5;
+        }
+        if(predicted_angle >90 && predicted_angle < 180)
+        {
+//            delta_u -= 5;
+        }
+    }
 
     fixed_point = predicted_point + cv::Point2f(static_cast<float>(delta_u), static_cast<float>(delta_v));
 
-//    DLOG(WARNING) << "delta_u: " << delta_u << " delta_v" << delta_v;
+    DLOG(WARNING) << "delta_u: " << delta_u << " delta_v" << delta_v;
 //    DLOG(WARNING) << "predicted_point.x: " << predicted_point.x << " predicted point.y: " << predicted_point.y;
 //    DLOG(WARNING) << "fixed_point.x: " << fixed_point.x << " fixed point.y: " << fixed_point.y;
 //    DLOG(WARNING) << "rune.ImageCenter.x: " << rune.ImageCenter().x << " rune.ImageCenter.y: " << rune.ImageCenter().y;
@@ -274,7 +289,7 @@ void predictor::rune::OutputData::Update(const PowerRune &rune,
             z[4] = {0};
     algorithm::Atan2FloatX4(y, x, z);
 
-    yaw = abs(z[0]) < .1f ? z[0] : .00005f, pitch = abs(z[1]) < .1f ?  z[1] : .00005f;  // Avoid excessive offset
+    yaw = abs(z[0]) < .1f ? z[0] : 0, pitch = abs(z[1]) < .1f ?  z[1] : 0;  // Avoid excessive offset
 
 //    DLOG(INFO) << "Output yaw: " << yaw << ", pitch: " << pitch << ".";
     delay = 1.f;
