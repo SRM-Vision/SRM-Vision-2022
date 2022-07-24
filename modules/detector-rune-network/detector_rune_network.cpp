@@ -169,8 +169,9 @@ PowerRune RuneDetectorNetwork::Run(Entity::Colors color, Frame &frame) {
 
     if (armor_center_p_ != cv::Point2f(0, 0))
     {
-        time_gap_ = current_time_ - static_cast<double>(frame.time_stamp * 10^-6);
-        current_time_ = static_cast<double>(frame.time_stamp * 10^-6);
+        time_gap_ = static_cast<double>(frame.time_stamp * 1e-6) - current_time_;
+        current_time_ = static_cast<double>(frame.time_stamp * 1e-6);
+        DLOG(INFO) << "current time" << current_time_;
     }
 
     return {color,
@@ -399,7 +400,7 @@ BuffObject RuneDetectorNetwork::ModelRun(const cv::Mat &image)
     if (energy_center_r_ != cv::Point2f(0, 0)) {
         roi_point_tl_ = cv::Point2i(std::max(0, int(energy_center_r_.x - 500)), std::max(0, int(energy_center_r_.y - 500)));
         roi_rect = cv::Rect(roi_point_tl_.x, roi_point_tl_.y, 2 * 500, 2 * 500) &
-                            cv::Rect(0, 0, image.cols, image.rows);
+                   cv::Rect(0, 0, image.cols, image.rows);
     }
     image_ = image(roi_rect);  // Use ROI
 
@@ -558,6 +559,3 @@ void RuneDetectorNetwork::FindRotateDirection() {
         rune_radius_ = final_radius;
     }
 }
-
-
-

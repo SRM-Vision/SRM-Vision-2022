@@ -36,7 +36,7 @@ bool Infantry5Controller::Initialize() {
         return false;
     }
     rune_detector_network_.Initialize("../assets/models/rune_detector_model.onnx");
-    rune_predictor_.Initialize();
+    rune_predictor_.Initialize("../config/infantry/rune-predictor-param.yaml");
 
     LOG(INFO) << "Infantry controller is ready.";
     return true;
