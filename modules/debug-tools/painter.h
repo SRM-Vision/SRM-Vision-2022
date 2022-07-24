@@ -67,11 +67,7 @@ namespace debug {
                               int wait_time = 1) final {
             cv::imshow(window_name, image_);
             auto key = cv::waitKey(1) & 0xff;
-
-            if (key == 'q')
-                cv::waitKey(wait_time);
-//            else if (key == 's')
-//                OLDRuneDetectorDebug::Instance().Save();
+            cv::waitKey(wait_time);
         }
 
         inline void DrawRotatedBox(const cv::RotatedRect &rect,

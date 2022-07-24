@@ -167,6 +167,12 @@ PowerRune RuneDetectorNetwork::Run(Entity::Colors color, Frame &frame) {
     if (!clockwise_)
         FindRotateDirection();
 
+    if (armor_center_p_ != cv::Point2f(0, 0))
+    {
+        time_gap_ = current_time_ - static_cast<double>(frame.time_stamp * 10^-6);
+        current_time_ = static_cast<double>(frame.time_stamp * 10^-6);
+    }
+
     return {color,
             clockwise_,
             time_gap_,
@@ -384,15 +390,6 @@ void RuneDetectorNetwork::nms_sorted_bboxes(std::vector<BuffObject>& faceobjects
 
 BuffObject RuneDetectorNetwork::ModelRun(const cv::Mat &image)
 {
-    auto current_time_chrono = std::chrono::high_resolution_clock::now();
-    current_time_ = double(std::chrono::duration_cast<std::chrono::milliseconds>(
-            std::chrono::system_clock::now().time_since_epoch()).count());
-    time_gap_ = (static_cast<std::chrono::duration<double, std::milli>>(
-            current_time_chrono - last_time_)).count();
-    last_time_ = current_time_chrono;
-    current_time_ /= 1000;
-
-
 //    energy_center_r_ = cv::Point2f(0, 0);
     armor_center_p_ = cv::Point2f(0, 0);
 

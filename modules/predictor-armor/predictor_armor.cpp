@@ -102,18 +102,18 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, const cv::MatSize
 
     // add armors to vector.
     if(robots.find(enemy_color_) != robots.end())
-        for(auto&& [_,robot]:robots.at(enemy_color_))
-            armors.insert(armors.end(),robot->Armors().begin(),robot->Armors().end());
+        for(auto&& [_, robot] : robots.at(enemy_color_))
+            armors.insert(armors.end(), robot->Armors().begin(), robot->Armors().end());
     if(robots.find(Entity::kGrey) != robots.end() && grey_buffer_ < kMaxGreyCount)
-        for(auto&& [_,robot]:robots.at(Entity::kGrey))
-            armors.insert(armors.end(),robot->Armors().begin(),robot->Armors().end());
+        for(auto&& [_, robot] : robots.at(Entity::kGrey))
+            armors.insert(armors.end(), robot->Armors().begin(), robot->Armors().end());
 
     if(facilities.find(enemy_color_) != facilities.end())
-        for(auto&& [_,facility]:facilities.at(enemy_color_))
-            armors.insert(armors.end(),facility->BottomArmors().begin(),facility->BottomArmors().end());
+        for(auto&& [_, facility]:facilities.at(enemy_color_))
+            armors.insert(armors.end(), facility->BottomArmors().begin(), facility->BottomArmors().end());
     if(facilities.find(Entity::kGrey) != facilities.end() && grey_buffer_ < kMaxGreyCount)
-        for(auto&& [_,facility]:facilities.at(Entity::kGrey))
-            armors.insert(armors.end(),facility->BottomArmors().begin(),facility->BottomArmors().end());
+        for(auto&& [_, facility]:facilities.at(Entity::kGrey))
+            armors.insert(armors.end(), facility->BottomArmors().begin(), facility->BottomArmors().end());
 
     DLOG(INFO) << "find " << armors.size() << " armors.";
 
@@ -199,8 +199,8 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, const cv::MatSize
                                                                        *target_current,
                                                                        battlefield.YawPitchRoll()[1]);
 
-                Predict(*another_armor,delta_t,compensator_result.y(),
-                        battlefield.YawPitchRoll(),ArmorPredictorDebug::Instance().ShootDelay());
+                Predict(*another_armor, delta_t, compensator_result.y(),
+                        battlefield.YawPitchRoll(), ArmorPredictorDebug::Instance().ShootDelay());
                 DLOG(INFO) << "anti-spin mode, switch to another spinning armor.";
             }else if(algorithm::NanoSecondsToSeconds(spin_predictor_.LastJumpTime(), battlefield.TimeStamp()) /
                spin_predictor_.JumpPeriod() < kAllowFollowRange){

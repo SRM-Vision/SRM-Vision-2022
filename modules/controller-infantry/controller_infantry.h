@@ -25,6 +25,7 @@ private:
 
     RuneDetectorNetwork rune_detector_network_;
     RunePredictor rune_predictor_;
+    RunePredictorKalman rune_predictor_kalman_;
     PowerRune power_rune_;
 
     ControllerInfantryDebug controller_infantry_debug_;
