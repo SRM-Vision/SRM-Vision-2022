@@ -37,14 +37,14 @@ class RuneDetectorNetwork : NO_COPY, NO_MOVE {
 
 public:
     RuneDetectorNetwork() : engine_(),
-                      context_(),
-                      device_buffer_(),
-                      output_buffer_(),
-                      stream_(),
-                      input_index_(),
-                      output_index_(),
-                      input_size_(),
-                      output_size_() {}
+                            context_(),
+                            device_buffer_(),
+                            output_buffer_(),
+                            stream_(),
+                            input_index_(),
+                            output_index_(),
+                            input_size_(),
+                            output_size_() {}
 
     ~RuneDetectorNetwork();
 
@@ -83,7 +83,7 @@ private:
     static void generate_grids_and_stride(std::vector<int>& strides, std::vector<GridAndStride>& grid_strides);
 
     static void generateYoloxProposals(std::vector<GridAndStride> grid_strides, const float* feat_ptr,
-                                std::vector<BuffObject>& objects);
+                                       std::vector<BuffObject>& objects);
 
     void qsort_descent_inplace(std::vector<BuffObject>& faceobjects, int left, int right);
 
