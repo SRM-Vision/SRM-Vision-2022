@@ -4,6 +4,7 @@
 #include "controller-base/controller_factory.h"
 #include "detector-rune-network/detector_rune_network.h"
 #include "predictor-rune/predictor-rune.h"
+#include "predictor-rune-kalman/predictor_rune_kalman.h"
 #include "predictor-armor/predictor_armor.h"
 #include "controller_infantry.h"
 #include "controller_infantry_debug.h"
@@ -24,6 +25,7 @@ bool InfantryController::Initialize() {
 
     // Initialize painter.
     controller_infantry_debug_.Initialize(CmdlineArgParser::Instance().DebugShowImage());
+    rune_predictor_kalman_.Initialize();
 
     // Initialize Rune module.
     Frame init_frame;
@@ -53,7 +55,11 @@ void InfantryController::Run() {
         || receive_packet_.mode == AimModes::kSmallRune
         || receive_packet_.mode == AimModes::kBigRune) {
             power_rune_ = rune_detector_network_.Run(receive_packet_.color, frame_);
-            send_packet_ = rune_predictor_.Run(power_rune_, kSmallRune, receive_packet_.bullet_speed);
+//            send_packet_ = rune_predictor_kalman_.Run(power_rune_, kSmallRune, 30);
+//            cv::Mat draw_image = frame_.image.clone();
+//            cv::circle(draw_image, cv::Point2f(send_packet_.yaw, send_packet_.pitch), 2, {255}, 4);
+//            cv::imshow("image", draw_image);
+            send_packet_ = rune_predictor_.Run(power_rune_, kSmallRune, 30);
             controller_infantry_debug_.DrawAutoAimRune(frame_.image, &rune_predictor_, "detector rune network", 1);
         }
 
