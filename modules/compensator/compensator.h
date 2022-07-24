@@ -5,10 +5,14 @@
 #ifndef COMPENSATOR_H_
 #define COMPENSATOR_H_
 
-#include "trajectory-solver/trajectory-solver.h"
-#include <data-structure/communication.h>
 #include <opencv2/core/persistence.hpp>
-#include "glog/logging.h"
+#include <glog/logging.h>
+#include "data-structure/communication.h"
+#include "trajectory-solver/trajectory-solver.h"
+
+#include "compensator-approximate/compensator-approximate.h"
+#include "compensator-model/compensator-model.h"
+
 class Compensator{
 public:
     inline static Compensator &Instance() {
