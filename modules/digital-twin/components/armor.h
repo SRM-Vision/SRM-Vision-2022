@@ -65,11 +65,40 @@ public:
                 {0.115,  0.029,  0.}
         };
 
-        for (auto i = 0; i < 4; ++i)
-            corners_[i] = box.points[i];
+        cv::Point2f center_point = cv::Point2f(0, 0);
+        for (const auto & point : box.points)
+            center_point += point;
+        center_point /= 4;
+
+        for (const auto & point : box.points)
+        {
+            if (point.x < center_point.x && point.y > center_point.y)  ///< top left point
+                corners_[0] = point;
+            if (point.x > center_point.x && point.y > center_point.y)  ///< top right point
+                corners_[1] = point;
+            if (point.x > center_point.x && point.y < center_point.y)  ///< bottom right point
+                corners_[2] = point;
+            if (point.x < center_point.x && point.y < center_point.y)  ///< bottom left point
+                corners_[3] = point;
+        }
+
+
 
         cv::Mat rv_cam, tv_cam;
         std::vector<cv::Point2f> image_points(corners_, corners_ + 4);
+
+        // TODO Value armor_width_pixel / armor_height_pixel depends on camera and lens' chose.
+        //   Further testing is required.
+        double armor_height_pixel = std::max(
+                abs(corners_[0].y - corners_[1].y),
+                abs(corners_[1].y - corners_[2].y)
+        ), armor_width_pixel = std::max(
+                abs(corners_[0].x - corners_[1].x),
+                abs(corners_[1].x - corners_[2].x)
+        );
+        if (armor_width_pixel / armor_height_pixel > 3.8)
+            size = ArmorSize::kBig;
+        // DLOG(INFO) << "armor_width_pixel / armor_height_pixel: " << armor_width_pixel / armor_height_pixel;
 
         if (size == ArmorSize::kAuto) {
             switch (id_) {
@@ -84,40 +113,15 @@ public:
                                  tv_cam);
                     break;
                 case 2:  // Engineer.
-                    cv::solvePnP(small_armor_pc,
-                                 image_points,
-                                 intrinsic_mat,
-                                 distortion_mat,
-                                 rv_cam,
-                                 tv_cam);
-                    break;
                 case 3:
                 case 4:
                 case 5:
-                    double armor_height_pixel = std::max(
-                            abs(corners_[0].y - corners_[1].y),
-                            abs(corners_[1].y - corners_[2].y)
-                    ), armor_width_pixel = std::max(
-                            abs(corners_[0].x - corners_[1].x),
-                            abs(corners_[1].x - corners_[2].x)
-                    );
-                    // TODO Value armor_width_pixel / armor_height_pixel depends on camera and lens' chose.
-                    //   Further testing is required.
-                    if (armor_width_pixel / armor_height_pixel > 3.8) {
-                        cv::solvePnP(big_armor_pc,
-                                     image_points,
-                                     intrinsic_mat,
-                                     distortion_mat,
-                                     rv_cam,
-                                     tv_cam);
-                    } else {
                         cv::solvePnP(small_armor_pc,
                                      image_points,
                                      intrinsic_mat,
                                      distortion_mat,
                                      rv_cam,
                                      tv_cam);
-                    }
                     break;
             }
         } else if (size == ArmorSize::kBig) {
