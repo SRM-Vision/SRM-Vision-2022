@@ -82,8 +82,6 @@ public:
                 corners_[3] = point;
         }
 
-
-
         cv::Mat rv_cam, tv_cam;
         std::vector<cv::Point2f> image_points(corners_, corners_ + 4);
 
