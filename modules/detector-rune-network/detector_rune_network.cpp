@@ -147,9 +147,6 @@ void RuneDetectorNetwork::CacheEngine(const std::string &cache_file) {
 }
 
 PowerRune RuneDetectorNetwork::Run(Entity::Colors color, Frame &frame) {
-    time_gap_ = current_time_ - static_cast<double>(frame.time_stamp * 10^-6);
-    current_time_ = static_cast<double>(frame.time_stamp * 10^-6);
-
     BuffObject buff_from_model = ModelRun(frame.image);
 
     // mean filter to get stable center R
@@ -169,6 +166,12 @@ PowerRune RuneDetectorNetwork::Run(Entity::Colors color, Frame &frame) {
 
     if (!clockwise_)
         FindRotateDirection();
+
+    if (armor_center_p_ != cv::Point2f(0, 0))
+    {
+        time_gap_ = current_time_ - static_cast<double>(frame.time_stamp * 10^-6);
+        current_time_ = static_cast<double>(frame.time_stamp * 10^-6);
+    }
 
     return {color,
             clockwise_,
