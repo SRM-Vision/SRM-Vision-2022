@@ -400,7 +400,7 @@ SendPacket ArmorPredictor::GenerateSendPacket(const Battlefield &battlefield, fl
     DLOG(INFO) << "pnp distance: " << last_target_->Distance();
     DLOG(INFO) << "Filtered distance is : " << distance_filter_.Filter(last_target_->Distance());
 
-    delta_yaw -= atan2(current_dx, last_target_->Distance());
+    delta_yaw -= atan2(current_dx, last_target_->Distance())*2.05;
     DLOG(INFO) << "Self speed: " << battlefield.SelfSpeed() << ", delta yaw: " << delta_yaw;
 
     // 图传点
