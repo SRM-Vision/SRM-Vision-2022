@@ -159,7 +159,7 @@ SendPacket OutpostPredictor::SpinningOutpostRun(const Battlefield &battlefield, 
      */
     if (outpost_.BottomArmors().empty()) {
         ++roi_buff_;
-        if (roi_buff_ > 15)
+        if (roi_buff_ > 30)
             roi_rect = {};
         return send_packet;
     }
@@ -255,22 +255,31 @@ double OutpostPredictor::GetOutpostHeight(const Armor &armor, const float &pitch
 }
 
 double OutpostPredictor::GetShootDelay(const double &plane_distance) {
-    if (outpost_mode_ == OutpostModes::k60cm6m)
+    if (outpost_mode_ == OutpostModes::k60cm6m) {
+        DLOG(INFO) << "ShootDelay60CM6M" << OutpostPredictorDebug::Instance().ShootDelay60CM6M();
         return OutpostPredictorDebug::Instance().ShootDelay60CM6M();
-    else if (outpost_mode_ == OutpostModes::k20cm5m)
+    } else if (outpost_mode_ == OutpostModes::k20cm5m) {
+        DLOG(INFO) << "ShootDelay20CM5M" << OutpostPredictorDebug::Instance().ShootDelay20CM5M();
         return OutpostPredictorDebug::Instance().ShootDelay20CM5M();
-    else if (outpost_mode_ == OutpostModes::k0cm5m)
+    } else if (outpost_mode_ == OutpostModes::k0cm5m) {
+        DLOG(INFO) << "ShootDelay0CM5M" << OutpostPredictorDebug::Instance().ShootDelay0CM5M();
         return OutpostPredictorDebug::Instance().ShootDelay0CM5M();
+    }
+
 }
 
 void OutpostPredictor::Offset(float &pitch, const double &distance) {
     if (pitch == 0) return;
-    if (outpost_mode_ == OutpostModes::k60cm6m)
+    if (outpost_mode_ == OutpostModes::k60cm6m) {
+        DLOG(INFO) << "DeltaPitch60CM6M" << OutpostPredictorDebug::Instance().DeltaPitch60CM6M();
         pitch += float(OutpostPredictorDebug::Instance().DeltaPitch60CM6M());
-    else if (outpost_mode_ == OutpostModes::k20cm5m)
+    } else if (outpost_mode_ == OutpostModes::k20cm5m) {
+        DLOG(INFO) << "DeltaPitch20CM5M" << OutpostPredictorDebug::Instance().DeltaPitch20CM5M();
         pitch += float(OutpostPredictorDebug::Instance().DeltaPitch20CM5M());
-    else if (outpost_mode_ == OutpostModes::k0cm5m)
+    } else if (outpost_mode_ == OutpostModes::k0cm5m) {
+        DLOG(INFO) << "DeltaPitch0CM5M" << OutpostPredictorDebug::Instance().DeltaPitch0CM5M();
         pitch += float(OutpostPredictorDebug::Instance().DeltaPitch0CM5M());
+    }
 }
 
 void
