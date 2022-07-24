@@ -8,72 +8,78 @@
 #define ARMOR_SQUARED_TRANSLATION_VECTOR_WORLD_DISTANCE_THRESH 0.125
 
 #define ADD_ARMOR_TO_ROBOT(_type, _class)                                                          \
-    if (robots_[armor.Color()][_type].get() == nullptr)                                            \
-        robots_[armor.Color()][_type] = std::make_shared<_class>(armor.Color(), 0);                \
-    if (armor.Confidence() > ARMOR_CONFIDENCE_HIGH_THRESH) {                                       \
-        robots_[armor.Color()][_type].get()->AddArmor(armor);                                      \
-    } else if (last_battlefield_data_.robots_[armor.Color()][_type].get() != nullptr               \
-                && armor.Confidence() > ARMOR_CONFIDENCE_LOW_THRESH) {                             \
-        for (auto &armor_last:                                                                     \
-                last_battlefield_data_.robots_[armor.Color()][_type].get()->Armors()) {            \
-            auto center_delta = armor.Center() - armor_last.Center();                              \
-            auto tv_world_delta = armor.TranslationVectorWorld() -                                 \
-                                  armor_last.TranslationVectorWorld();                             \
-            if (center_delta.dot(center_delta) < ARMOR_SQUARED_CENTER_DISTANCE_THRESH &&           \
-                tv_world_delta.norm() < ARMOR_SQUARED_TRANSLATION_VECTOR_WORLD_DISTANCE_THRESH) {  \
-                robots_[armor.Color()][_type].get()->AddArmor(armor);                              \
-            }                                                                                      \
-        }                                                                                          \
-    }                                                                                              \
-    if (robots_[armor.Color()][_type].get()->Armors().empty())                                     \
-        robots_[armor.Color()].erase(_type);                                                       \
-    if (robots_[armor.Color()].empty())                                                            \
-        robots_.erase(armor.Color());                                                              \
-    break;
+    do {                                                                                           \
+        if (robots_[armor.Color()][_type].get() == nullptr)                                            \
+            robots_[armor.Color()][_type] = std::make_shared<_class>(armor.Color(), 0);                \
+        if (armor.Confidence() > ARMOR_CONFIDENCE_HIGH_THRESH) {                                       \
+            robots_[armor.Color()][_type].get()->AddArmor(armor);                                      \
+        } else if (last_battlefield_data_.robots_[armor.Color()][_type].get() != nullptr               \
+                    && armor.Confidence() > ARMOR_CONFIDENCE_LOW_THRESH) {                             \
+            for (auto &armor_last:                                                                     \
+                    last_battlefield_data_.robots_[armor.Color()][_type].get()->Armors()) {            \
+                auto center_delta = armor.Center() - armor_last.Center();                              \
+                auto tv_world_delta = armor.TranslationVectorWorld() -                                 \
+                                      armor_last.TranslationVectorWorld();                             \
+                if (center_delta.dot(center_delta) < ARMOR_SQUARED_CENTER_DISTANCE_THRESH &&           \
+                    tv_world_delta.norm() < ARMOR_SQUARED_TRANSLATION_VECTOR_WORLD_DISTANCE_THRESH) {  \
+                    robots_[armor.Color()][_type].get()->AddArmor(armor);                              \
+                }                                                                                      \
+            }                                                                                          \
+        }                                                                                              \
+        if (robots_[armor.Color()][_type].get()->Armors().empty())                                     \
+            robots_[armor.Color()].erase(_type);                                                       \
+        if (robots_[armor.Color()].empty())                                                            \
+            robots_.erase(armor.Color());                                                              \
+        break;                                                                                         \
+    } while(0);
 
-#define ADD_ARMOR_TO_INFANTRY(_type, _class)                                                       \
-    if (robots_[armor.Color()][_type].get() == nullptr)                                            \
-        robots_[armor.Color()][_type] = std::make_shared<_class>(armor.Color(), 0, _type);         \
-    if (armor.Confidence() > ARMOR_CONFIDENCE_HIGH_THRESH) {                                       \
-        robots_[armor.Color()][_type].get()->AddArmor(armor);                                      \
-    } else if (last_battlefield_data_.robots_[armor.Color()][_type].get() != nullptr               \
-                && armor.Confidence() > ARMOR_CONFIDENCE_LOW_THRESH) {                             \
-        for (auto &armor_last:                                                                     \
-                last_battlefield_data_.robots_[armor.Color()][_type].get()->Armors()) {            \
-            auto center_delta = armor.Center() - armor_last.Center();                              \
-            auto tv_world_delta = armor.TranslationVectorWorld() -                                 \
-                                  armor_last.TranslationVectorWorld();                             \
-            if (center_delta.dot(center_delta) < ARMOR_SQUARED_CENTER_DISTANCE_THRESH &&           \
-                tv_world_delta.norm() < ARMOR_SQUARED_TRANSLATION_VECTOR_WORLD_DISTANCE_THRESH) {  \
-                robots_[armor.Color()][_type].get()->AddArmor(armor);                              \
-            }                                                                                      \
-        }                                                                                          \
-    }                                                                                              \
-    if (robots_[armor.Color()][_type].get()->Armors().empty())                                     \
-        robots_[armor.Color()].erase(_type);                                                       \
-    if (robots_[armor.Color()].empty())                                                            \
-        robots_.erase(armor.Color());                                                              \
-    break;
+#define ADD_ARMOR_TO_INFANTRY(_type, _class) \
+    do {                                                                                           \
+        if (robots_[armor.Color()][_type].get() == nullptr)                                            \
+            robots_[armor.Color()][_type] = std::make_shared<_class>(armor.Color(), 0, _type);         \
+        if (armor.Confidence() > ARMOR_CONFIDENCE_HIGH_THRESH) {                                       \
+            robots_[armor.Color()][_type].get()->AddArmor(armor);                                      \
+        } else if (last_battlefield_data_.robots_[armor.Color()][_type].get() != nullptr               \
+                    && armor.Confidence() > ARMOR_CONFIDENCE_LOW_THRESH) {                             \
+            for (auto &armor_last:                                                                     \
+                    last_battlefield_data_.robots_[armor.Color()][_type].get()->Armors()) {            \
+                auto center_delta = armor.Center() - armor_last.Center();                              \
+                auto tv_world_delta = armor.TranslationVectorWorld() -                                 \
+                                      armor_last.TranslationVectorWorld();                             \
+                if (center_delta.dot(center_delta) < ARMOR_SQUARED_CENTER_DISTANCE_THRESH &&           \
+                    tv_world_delta.norm() < ARMOR_SQUARED_TRANSLATION_VECTOR_WORLD_DISTANCE_THRESH) {  \
+                    robots_[armor.Color()][_type].get()->AddArmor(armor);                              \
+                }                                                                                      \
+            }                                                                                          \
+        }                                                                                              \
+        if (robots_[armor.Color()][_type].get()->Armors().empty())                                     \
+            robots_[armor.Color()].erase(_type);                                                       \
+        if (robots_[armor.Color()].empty())                                                            \
+            robots_.erase(armor.Color());                                                              \
+        break;                                                                                         \
+    } while(0);
 
 // TODO! Add classification of bottom and top armors.
 #define ADD_ARMOR_TO_FACILITY_WITH_HEALTH(_type, _class)                                                          \
-    if (facilities_[armor.Color()][_type].get() == nullptr)                                                       \
-        facilities_[armor.Color()][_type] = std::make_shared<_class>(armor.Color(), 0);                           \
-    if (armor.Confidence() > ARMOR_CONFIDENCE_HIGH_THRESH) {                                                      \
-        facilities_[armor.Color()][_type].get()->AddBottomArmor(armor);                                           \
-    } else if (last_battlefield_data_.facilities_[armor.Color()][_type].get() != nullptr                          \
-                && armor.Confidence() > ARMOR_CONFIDENCE_LOW_THRESH) {                                            \
-        for (auto &armor_last: last_battlefield_data_.facilities_[armor.Color()][_type].get()->BottomArmors()) {  \
-            auto center_delta = armor.Center() - armor_last.Center();                                             \
-            auto tv_world_delta = armor.TranslationVectorWorld() -                                                \
-                                  armor_last.TranslationVectorWorld();                                            \
-            if (center_delta.dot(center_delta) < ARMOR_SQUARED_CENTER_DISTANCE_THRESH &&                          \
-                tv_world_delta.norm() < ARMOR_SQUARED_TRANSLATION_VECTOR_WORLD_DISTANCE_THRESH) {                 \
-                facilities_[armor.Color()][_type].get()->AddBottomArmor(armor);                                   \
-            }                                                                                                     \
-        }                                                                                                         \
-    }                                                                                                             \
-    break;
+    do {                                                                                                          \
+        if (facilities_[armor.Color()][_type].get() == nullptr)                                                       \
+            facilities_[armor.Color()][_type] = std::make_shared<_class>(armor.Color(), 0);                           \
+        if (armor.Confidence() > ARMOR_CONFIDENCE_HIGH_THRESH) {                                                      \
+            facilities_[armor.Color()][_type].get()->AddBottomArmor(armor);                                           \
+        } else if (last_battlefield_data_.facilities_[armor.Color()][_type].get() != nullptr                          \
+                    && armor.Confidence() > ARMOR_CONFIDENCE_LOW_THRESH) {                                            \
+            for (auto &armor_last: last_battlefield_data_.facilities_[armor.Color()][_type].get()->BottomArmors()) {  \
+                auto center_delta = armor.Center() - armor_last.Center();                                             \
+                auto tv_world_delta = armor.TranslationVectorWorld() -                                                \
+                                      armor_last.TranslationVectorWorld();                                            \
+                if (center_delta.dot(center_delta) < ARMOR_SQUARED_CENTER_DISTANCE_THRESH &&                          \
+                    tv_world_delta.norm() < ARMOR_SQUARED_TRANSLATION_VECTOR_WORLD_DISTANCE_THRESH) {                 \
+                    facilities_[armor.Color()][_type].get()->AddBottomArmor(armor);                                   \
+                }                                                                                                     \
+            }                                                                                                         \
+        }                                                                                                             \
+        break;                                                                                                        \
+    } while(0);
 
 Battlefield::Battlefield(uint64_t time_stamp,
                          float bullet_speed,
