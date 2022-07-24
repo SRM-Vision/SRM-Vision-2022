@@ -67,7 +67,6 @@ SendPacket OutpostPredictor::StaticOutpostRun(const Battlefield &battlefield, st
     send_packet.yaw = float(shoot_point_spherical(0, 0));
     send_packet.pitch = float(shoot_point_spherical(1, 0));
 
-
     /*
      * 根据平面距离画roi
      */
@@ -80,7 +79,6 @@ SendPacket OutpostPredictor::StaticOutpostRun(const Battlefield &battlefield, st
 
 //    Compensator::Instance().Offset(send_packet.pitch, send_packet.yaw, 16, send_packet.check_sum, distance,
 //                                   AimModes::kOutPost);
-
 
     send_packet.check_sum = send_packet.yaw + send_packet.pitch + send_packet.delay +
                             float(send_packet.fire) + float(send_packet.distance_mode) +
@@ -191,11 +189,6 @@ SendPacket OutpostPredictor::SpinningOutpostRun(const Battlefield &battlefield, 
     DLOG(INFO) << "outpost height" << height;
     GetROI(outpost_.BottomArmors()[biggest_armor], plane_distance);
 
-
-
-
-
-
 //    DLOG(INFO) << "outpost distance： " << outpost_.BottomArmors()[biggest_armor].Distance();
 //    DLOG(INFO) << "armor length： " << norm(outpost_.BottomArmors()[biggest_armor].Corners()[0] -
 //                                           outpost_.BottomArmors()[biggest_armor].Corners()[1]);
@@ -221,7 +214,6 @@ SendPacket OutpostPredictor::SpinningOutpostRun(const Battlefield &battlefield, 
             ready_fire_ = false;
         }
     }
-
 
     /*
      * 补偿
@@ -282,8 +274,7 @@ void OutpostPredictor::Offset(float &pitch, const double &distance) {
     }
 }
 
-void
-OutpostPredictor::SelectOutpostArmors(const Battlefield &battlefield, const double &pitch, const cv::MatSize &size) {
+void OutpostPredictor::SelectOutpostArmors(const Battlefield &battlefield, const double &pitch, const cv::MatSize &size) {
     double height_threshold;
     cv::Point2f picture_center{float(size().width / 2.0), float(size().height / 2.0)};
     if (outpost_mode_ == OutpostModes::k0cm5m) height_threshold = kHeightThreshold0cm;
@@ -315,11 +306,3 @@ SendPacket OutpostPredictor::Run(const Battlefield &battlefield, const float &bu
     send_packet = SpinningOutpostRun(battlefield, bullet_speed, yaw_pitch_roll, time, outpost_mode, size);
     return send_packet;
 }
-
-
-
-
-
-
-
-
