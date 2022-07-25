@@ -1,7 +1,9 @@
 #include "predictor_outpost.h"
 
-bool OutpostPredictor::Initialize() {
+bool OutpostPredictor::Initialize(const std::string &controller_type_name) {
+    OutpostPredictorDebug::Instance().Initialize(controller_type_name);
 #if !NDEBUG
+
     OutpostPredictorDebug::Instance().addTrackbar();
 #endif
     return true;
@@ -37,7 +39,7 @@ SendPacket OutpostPredictor::StaticOutpostRun(const Battlefield &battlefield, st
             roi_rect = {};
         return send_packet;
     }
-
+    send_packet.distance_mode = 10;
 
     /*
      * 寻找最大目标计算pitch
@@ -50,18 +52,17 @@ SendPacket OutpostPredictor::StaticOutpostRun(const Battlefield &battlefield, st
             Eigen::Matrix3d::Identity());
     auto shoot_point_spherical = coordinate::convert::Rectangular2Spherical(
             shoot_point);
-    send_packet.yaw = yaw_pitch_roll[0] - float(shoot_point_spherical(0, 0));
-    send_packet.pitch = yaw_pitch_roll[1] - float(shoot_point_spherical(1, 0));
+    send_packet.yaw = float(shoot_point_spherical(0, 0)) - yaw_pitch_roll[0]  ;
+    send_packet.pitch = yaw_pitch_roll[1] + float(shoot_point_spherical(1, 0));
 
     /*
      * 根据平面距离画roi
      */
     auto distance = distance_filter_.Filter(outpost_.BottomArmors()[biggest_armor].Distance());
-    auto plane_distance = Compensator::Instance().GetPlaneDistance(distance);
     auto height = GetOutpostHeight(outpost_.BottomArmors()[biggest_armor], yaw_pitch_roll[1]);
     DLOG(INFO) << "distance" << distance;
     DLOG(INFO) << "outpost height" << height;
-    GetROI(outpost_.BottomArmors()[biggest_armor], plane_distance);
+    GetROI(outpost_.BottomArmors()[biggest_armor], 1);
 
     /*
      * 补偿
@@ -95,15 +96,15 @@ int OutpostPredictor::FindBiggestArmor(const std::vector<Armor> &armors) {
 
 void OutpostPredictor::GetROI(const Armor &armor, const double &plane_distance) {
     int length = 600, weight = 800;
-    if (outpost_mode_ == OutpostModes::kSpin0cm5m) {
+    if (outpost_mode_ == OutpostModes::kSpin0cm5m || outpost_mode_ == OutpostModes::kStatic0cm5m) {
+        length = 560;
+        weight = 420;
+    } else if (outpost_mode_ == OutpostModes::kSpin20cm5m || outpost_mode_ == OutpostModes::kStatic20cm5m) {
+        length = 560;
+        weight = 420;
+    } else if (outpost_mode_ == OutpostModes::kSpin60cm6m || outpost_mode_ == OutpostModes::kStatic60cm6m) {
         length = 480;
         weight = 360;
-    } else if (outpost_mode_ == OutpostModes::kSpin20cm5m) {
-        length = 480;
-        weight = 360;
-    } else if (outpost_mode_ == OutpostModes::kSpin60cm6m) {
-        length = 400;
-        weight = 300;
     }
     auto x = x_filter_.Filter(armor.Center().x);
     roi_rect = {int(x - length * 0.5), int(armor.Center().y - weight * 0.3), length, weight};
@@ -134,7 +135,7 @@ SendPacket OutpostPredictor::SpinningOutpostRun(const Battlefield &battlefield, 
      */
     if (outpost_.BottomArmors().empty()) {
         ++roi_buff_;
-        if (roi_buff_ > 20)
+        if (roi_buff_ > 50)
             roi_rect = {};
         return send_packet;
     }
@@ -154,17 +155,17 @@ SendPacket OutpostPredictor::SpinningOutpostRun(const Battlefield &battlefield, 
     auto shoot_point_spherical = coordinate::convert::Rectangular2Spherical(
             shoot_point);
     send_packet.yaw = 0;
-    send_packet.pitch = yaw_pitch_roll[1] - float(shoot_point_spherical(1, 0));
+    send_packet.pitch = yaw_pitch_roll[1] + float(shoot_point_spherical(1, 0));
 
     /*
      * 根据平面距离画roi
      */
     auto distance = distance_filter_.Filter(outpost_.BottomArmors()[biggest_armor].Distance());
-    auto plane_distance = Compensator::Instance().GetPlaneDistance(distance);
+//    auto plane_distance = Compensator::Instance().GetPlaneDistance(distance);
     auto height = GetOutpostHeight(outpost_.BottomArmors()[biggest_armor], yaw_pitch_roll[1]);
     DLOG(INFO) << "distance" << distance;
     DLOG(INFO) << "outpost height" << height;
-    GetROI(outpost_.BottomArmors()[biggest_armor], plane_distance);
+    GetROI(outpost_.BottomArmors()[biggest_armor], 1);
 
 
 
@@ -217,17 +218,17 @@ double OutpostPredictor::GetOutpostHeight(const Armor &armor, const float &pitch
                   sin(pitch + coordinate::convert::Rectangular2Spherical(
                           armor.TranslationVectorCam())[1] + 0.104);
     DLOG(INFO) << "Armor Height" << height;
-    return height;
+    return -height;
 }
 
 double OutpostPredictor::GetShootDelay(const double &plane_distance) {
-    if (outpost_mode_ == OutpostModes::kSpin60cm6m) {
+    if (outpost_mode_ == OutpostModes::kSpin60cm6m || outpost_mode_ == OutpostModes::kStatic60cm6m) {
         DLOG(INFO) << "ShootDelay60CM6M" << OutpostPredictorDebug::Instance().ShootDelay60CM6M();
         return OutpostPredictorDebug::Instance().ShootDelay60CM6M();
-    } else if (outpost_mode_ == OutpostModes::kSpin20cm5m) {
+    } else if (outpost_mode_ == OutpostModes::kSpin20cm5m || outpost_mode_ == OutpostModes::kStatic20cm5m) {
         DLOG(INFO) << "ShootDelay20CM5M" << OutpostPredictorDebug::Instance().ShootDelay20CM5M();
         return OutpostPredictorDebug::Instance().ShootDelay20CM5M();
-    } else if (outpost_mode_ == OutpostModes::kSpin0cm5m) {
+    } else if (outpost_mode_ == OutpostModes::kSpin0cm5m || outpost_mode_ == OutpostModes::kStatic0cm5m) {
         DLOG(INFO) << "ShootDelay0CM5M" << OutpostPredictorDebug::Instance().ShootDelay0CM5M();
         return OutpostPredictorDebug::Instance().ShootDelay0CM5M();
     }
@@ -236,41 +237,46 @@ double OutpostPredictor::GetShootDelay(const double &plane_distance) {
 
 void OutpostPredictor::Offset(float &pitch, const double &distance) {
     if (pitch == 0) return;
+
     if (outpost_mode_ == OutpostModes::kSpin60cm6m || outpost_mode_ == OutpostModes::kStatic60cm6m) {
         DLOG(INFO) << "DeltaPitch60CM6M" << OutpostPredictorDebug::Instance().DeltaPitch60CM6M();
-        pitch += float(OutpostPredictorDebug::Instance().DeltaPitch60CM6M());
+        pitch -= float(OutpostPredictorDebug::Instance().DeltaPitch60CM6M());
     } else if (outpost_mode_ == OutpostModes::kSpin20cm5m || outpost_mode_ == OutpostModes::kStatic20cm5m) {
         DLOG(INFO) << "DeltaPitch20CM5M" << OutpostPredictorDebug::Instance().DeltaPitch20CM5M();
-        pitch += float(OutpostPredictorDebug::Instance().DeltaPitch20CM5M());
+        pitch -= float(OutpostPredictorDebug::Instance().DeltaPitch20CM5M());
     } else if (outpost_mode_ == OutpostModes::kSpin0cm5m || outpost_mode_ == OutpostModes::kStatic0cm5m) {
         DLOG(INFO) << "DeltaPitch0CM5M" << OutpostPredictorDebug::Instance().DeltaPitch0CM5M();
-        pitch += float(OutpostPredictorDebug::Instance().DeltaPitch0CM5M());
+        pitch -=  float(OutpostPredictorDebug::Instance().DeltaPitch0CM5M());
     }
 }
 
-void
-OutpostPredictor::SelectOutpostArmors(const Battlefield &battlefield, const double &pitch, const cv::MatSize &size) {
-    double height_threshold;
-    cv::Point2f picture_center{float(size().width / 2.0), float(size().height / 2.0)};
-    if (outpost_mode_ == OutpostModes::kSpin60cm6m || outpost_mode_ == OutpostModes::kStatic60cm6m)
-        height_threshold = kHeightThreshold0cm;
-    else if (outpost_mode_ == OutpostModes::kSpin20cm5m || outpost_mode_ == OutpostModes::kStatic20cm5m)
-        height_threshold = kHeightThreshold20cm;
-    else if (outpost_mode_ == OutpostModes::kSpin60cm6m || outpost_mode_ == OutpostModes::kStatic60cm6m)
-        height_threshold = kHeightThreshold60cm;
+void OutpostPredictor::SelectOutpostArmors(const Battlefield &battlefield, const double &pitch, const cv::MatSize &size) {
+
     auto facilities = battlefield.Facilities();
     auto robots = battlefield.Robots();
+    cv::Point2f picture_center{float(size().width / 2.0), float(size().height / 2.0)};
+
+
+    double height_threshold;
+    if (outpost_mode_ == OutpostModes::kSpin60cm6m || outpost_mode_ == OutpostModes::kStatic60cm6m)
+        height_threshold = kHeightThreshold60cm;
+    else if (outpost_mode_ == OutpostModes::kSpin20cm5m || outpost_mode_ == OutpostModes::kStatic20cm5m)
+        height_threshold = kHeightThreshold20cm;
+    else if (outpost_mode_ == OutpostModes::kSpin0cm5m || outpost_mode_ == OutpostModes::kStatic0cm5m)
+        height_threshold = kHeightThreshold0cm;
+
+
     for (auto &robot: robots[enemy_color_]) {
         for (auto &armor: robot.second->Armors()) {
             if (GetOutpostHeight(armor, pitch) > height_threshold &&
-                norm(picture_center - armor.Center()) < 100000)
+                norm(picture_center - armor.Center()) < 300)
                 outpost_.AddBottomArmor(armor);
         }
     }
     for (auto &facility: facilities[enemy_color_]) {
         for (auto &armor: facility.second->BottomArmors()) {
             if (GetOutpostHeight(armor, pitch) > height_threshold &&
-                norm(picture_center - armor.Center()) < 100000)
+                norm(picture_center - armor.Center()) < 300)
                 outpost_.AddBottomArmor(armor);
         }
     }
@@ -289,13 +295,13 @@ SendPacket OutpostPredictor::Run(const Battlefield &battlefield, const float &bu
     return send_packet;
 }
 
+
 bool OutpostPredictor::ThrowLine(const std::vector<Armor> &armors, double mid_x) {
     for (auto &armor: armors) {
         if ((armor.Corners()[0].x < mid_x && mid_x < armor.Corners()[1].x) ||
             (armor.Corners()[1].x < mid_x && mid_x < armor.Corners()[0].x) ||
             (armor.Corners()[1].x < mid_x && mid_x < armor.Corners()[2].x) ||
             (armor.Corners()[2].x < mid_x && mid_x < armor.Corners()[1].x))
-//        if (abs(armor.Center().x - mid_x) < 13)
             return true;
     }
     return false;

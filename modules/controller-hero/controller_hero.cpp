@@ -22,7 +22,7 @@ bool HeroController::Initialize() {
         return false;
     controller_hero_debug_.Initialize(CmdlineArgParser::Instance().DebugShowImage());
     // Initialize the outpost detector.
-    if (outpost_predictor_.Initialize())
+    if (outpost_predictor_.Initialize("hero"))
         LOG(INFO) << "Outpost predictor initialize successfully!";
     else
         LOG(ERROR) << "Outpost predictor initialize unsuccessfully!";
@@ -61,9 +61,9 @@ void HeroController::Run() {
 
             outpost_predictor_.SetColor(receive_packet_.color);
 //            send_packet_ = outpost_predictor_.OldRun(battlefield_);
-            send_packet_ = outpost_predictor_.SpinningOutpostRun(battlefield_, receive_packet_.bullet_speed,
-                                                                 receive_packet_.yaw_pitch_roll, time,
-                                                                 receive_packet_.armor_kind, frame_.image.size);
+            send_packet_ = outpost_predictor_.Run(battlefield_, receive_packet_.bullet_speed,frame_.image.size,
+                                                  receive_packet_.yaw_pitch_roll, time,
+                                                                 receive_packet_.armor_kind);
             auto roi = outpost_predictor_.GetROI(frame_.image);
             armor_detector_.UpdateROI(roi);
             controller_hero_debug_.DrawOutpostData(frame_.image,

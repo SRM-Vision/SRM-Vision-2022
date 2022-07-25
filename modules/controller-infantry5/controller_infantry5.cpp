@@ -79,8 +79,8 @@ void Infantry5Controller::Run() {
                                                           "Infantry Run",
                                                           1);
 
-            Compensator::Instance().Offset(send_packet_.pitch, battlefield_.BulletSpeed(), send_packet_.check_sum,
-                                           armor_predictor.GetTargetDistance(), kNormal);
+//            Compensator::Instance().Offset(send_packet_.pitch, battlefield_.BulletSpeed(), send_packet_.check_sum,
+//                                           armor_predictor.GetTargetDistance(), kNormal);
         }
 
         if (ControllerInfantry5Debug::GetKey() == 'q')

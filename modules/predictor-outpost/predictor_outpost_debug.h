@@ -20,6 +20,12 @@ public:
         return _;
     }
 
+    bool Initialize(const std::string &controller_type_name)
+    {
+        parameter_maintain_.ManualInit(controller_type_name);
+        return true;
+    }
+
     /**
      * \Brief Save the data in the param file.
      */

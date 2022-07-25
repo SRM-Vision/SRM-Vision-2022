@@ -48,7 +48,7 @@ public:
      * \param debug Choice debug or not.
      * \return Whether initialized successfully.
      */
-    bool Initialize();
+    bool Initialize(const std::string &controller_type_name);
 
     SendPacket Run(const Battlefield &battlefield, const float &bullet_speed, const cv::MatSize &size,
                    const std::array<float, 3> &yaw_pitch_roll,
@@ -161,9 +161,9 @@ private:
 
 
 private:
-    const double kHeightThreshold0cm = 0.3;  ///< the lowest height of outpost
-    const double kHeightThreshold20cm = 0.1;  ///< the lowest height of outpost
-    const double kHeightThreshold60cm = 0;  ///< the lowest height of outpost
+    const double kHeightThreshold0cm = 0.4;  ///< the lowest height of outpost
+    const double kHeightThreshold20cm = 0.3;  ///< the lowest height of outpost
+    const double kHeightThreshold60cm = 0.2;  ///< the lowest height of outpost
 
     OutpostModes outpost_mode_;
 
