@@ -66,9 +66,7 @@ void InfantryController::Run() {
 //            cv::circle(draw_image, cv::Point2f(send_packet_.yaw, send_packet_.pitch), 2, {255, 255}, 4);
 //            cv::imshow("image", draw_image);
             controller_infantry_debug_.DrawAutoAimRune(frame_.image, &rune_predictor_, "detector rune network", 1);
-        }
-
-        else {
+        }else{
             boxes_ = armor_detector_(frame_.image);
 
             BboxToArmor();

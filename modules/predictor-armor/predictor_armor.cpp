@@ -195,12 +195,8 @@ SendPacket ArmorPredictor::Run(const Battlefield &battlefield, const cv::MatSize
                 ekf_.x_estimate_(2,0) = predict_acc_(0,0);
                 ekf_.x_estimate_(5,0) = -predict_acc_(1,0);
 
-                compensator_result = compensator_traj_.AnyTargetOffset(battlefield.BulletSpeed(),
-                                                                       *target_current,
-                                                                       battlefield.YawPitchRoll()[1]);
-
-                Predict(*another_armor, delta_t, compensator_result.y(),
-                        battlefield.YawPitchRoll(), ArmorPredictorDebug::Instance().ShootDelay());
+                Predict(*another_armor,delta_t,compensator_result.y(),
+                        battlefield.YawPitchRoll(),ArmorPredictorDebug::Instance().ShootDelay());
                 DLOG(INFO) << "anti-spin mode, switch to another spinning armor.";
             }else if(algorithm::NanoSecondsToSeconds(spin_predictor_.LastJumpTime(), battlefield.TimeStamp()) /
                spin_predictor_.JumpPeriod() < kAllowFollowRange){
@@ -423,7 +419,6 @@ SendPacket ArmorPredictor::GenerateSendPacket(const Battlefield &battlefield, fl
 
 void ArmorPredictor::Clear() {
     last_target_ = nullptr;
-    spin_predictor_.Reset();
 }
 
 cv::Point2f ArmorPredictor::TargetCenter() {

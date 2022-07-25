@@ -62,9 +62,7 @@ void Infantry5Controller::Run() {
                                                receive_packet_.yaw_pitch_roll[0],
                                                receive_packet_.yaw_pitch_roll[1]);
             controller_infantry5_debug_.DrawAutoAimRune(frame_.image, &rune_predictor_, "detector rune network", 1);
-        }
-
-        if (!CmdlineArgParser::Instance().RuneModeRune()) {
+        }else{
             boxes_ = armor_detector_(frame_.image);
 
             BboxToArmor();
