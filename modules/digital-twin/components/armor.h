@@ -65,22 +65,8 @@ public:
                 {0.115,  0.029,  0.}
         };
 
-        cv::Point2f center_point = cv::Point2f(0, 0);
-        for (const auto & point : box.points)
-            center_point += point;
-        center_point /= 4;
-
-        for (const auto & point : box.points)
-        {
-            if (point.x < center_point.x && point.y > center_point.y)  ///< top left point
-                corners_[0] = point;
-            if (point.x > center_point.x && point.y > center_point.y)  ///< top right point
-                corners_[1] = point;
-            if (point.x > center_point.x && point.y < center_point.y)  ///< bottom right point
-                corners_[2] = point;
-            if (point.x < center_point.x && point.y < center_point.y)  ///< bottom left point
-                corners_[3] = point;
-        }
+        for (auto i = 0; i < 4; ++i)
+            corners_[i] = box.points[i];
 
         cv::Mat rv_cam, tv_cam;
         std::vector<cv::Point2f> image_points(corners_, corners_ + 4);
