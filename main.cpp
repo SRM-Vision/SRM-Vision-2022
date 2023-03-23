@@ -24,7 +24,6 @@ int main(int argc, char *argv[]) {
 
     if (controller == nullptr)
         return -1;
-
     if (!controller->Initialize())
         return 0;
 
