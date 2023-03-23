@@ -1,6 +1,7 @@
 ### C++ template
 # Prerequisites
 *.d
+.cache
 
 # Compiled Object files
 *.slo
