@@ -20,6 +20,7 @@ void SignalHandler(int signal) {
 int main(int argc, char *argv[])
 
     std::cout << "something" << std::endl;
+    std::cout << "ops" << std::endl;
 
     // Parse command line flags.
     CmdlineArgParser::Instance().Parse(argc, argv);
