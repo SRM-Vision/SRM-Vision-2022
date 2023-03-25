@@ -37,9 +37,73 @@ static inline int argmax(const float *ptr, int len)
 	return max_arg;
 }
 
-void YoloNetwork::BuildEngineFromONNX(const std::string &onnx_file)
+YoloNetwork::YoloNetwork(
+	const std::string& file,
+	int num_classes,
+	int num_points,
+	float box_conf_thresh,
+	int max_nms, 
+	float iou_thresh
+):
+	onnx_file(file),
+	NUM_CLASSES(num_classes),
+	NUM_POINTS(num_points),
+
+	BOX_CONF_THRESH(box_conf_thresh),
+	MAX_NMS(max_nms),
+	IOU_THRESH(iou_thresh)
 {
-	LOG(INFO) << "Engine will be built from cache.";
+	std::filesystem::path onnx_file_path(onnx_file);
+	auto cache_file_path = onnx_file_path;
+	cache_file_path.replace_extension("cache");
+	cache_file = cache_file_path.c_str();
+	LOG(INFO) << cache_file;
+	Initialize();
+}
+
+YoloNetwork::~YoloNetwork()
+{
+	delete execution_context;
+	delete engine;
+	cudaFreeHost(input_data_host);
+   	cudaFreeHost(output_data_host);
+}
+
+void YoloNetwork::Initialize()
+{
+	initLibNvInferPlugins(&logger,"");
+	if(!std::filesystem::exists(cache_file))
+		BuildEngineFromONNX();
+	BuildEngineFromCache();
+
+	if(engine == nullptr) LOG(ERROR) << "Build engine failed." ;
+	else LOG(INFO) << "Build done.";
+
+	if (engine->getNbIOTensors() != 2)
+	{
+		LOG(ERROR) << "Must be single input, single Output. Please Modify the onnx file.";
+		return ;
+	}
+
+	auto shape = engine->getTensorShape(engine->getIOTensorName(0));
+	BATCHES = shape.d[0];
+	CHANNELS = shape.d[1];
+	INPUT_W = shape.d[2];
+	INPUT_H = shape.d[3];
+
+	checkRuntime(cudaStreamCreate(&stream));
+	execution_context = engine->createExecutionContext();
+
+	input_numel = BATCHES * CHANNELS * INPUT_H * INPUT_W;
+	checkRuntime(cudaMallocHost(&input_data_host, input_numel * sizeof(float)));
+
+	output_numel = 3 * (80 * 80 + 40 * 40 + 20 * 20) * (5 + NUM_CLASSES + 3 * NUM_POINTS);
+	checkRuntime(cudaMallocHost(&output_data_host, output_numel * sizeof(float)));
+}
+
+void YoloNetwork::BuildEngineFromONNX()
+{
+	LOG(INFO) << "Engine will be built from onnx.";
 	auto builder = make_nvshared(nvinfer1::createInferBuilder(logger));
 	auto config = make_nvshared(builder->createBuilderConfig());
 	auto network = make_nvshared(builder->createNetworkV2(1));
@@ -49,24 +113,15 @@ void YoloNetwork::BuildEngineFromONNX(const std::string &onnx_file)
 		LOG(ERROR) << "Failed to parse " << onnx_file;
 
 	auto profile = builder->createOptimizationProfile();
-
-	// auto input_tensor = network->getInput(0);
-	// auto input_dims = input_tensor->getDimensions();
-	// input_dims.d[0] = 1;
-	// profile->setDimensions(input_tensor->getName(), nvinfer1::OptProfileSelector::kMIN, input_dims);
-	// profile->setDimensions(input_tensor->getName(), nvinfer1::OptProfileSelector::kOPT, input_dims);
-	// profile->setDimensions(input_tensor->getName(), nvinfer1::OptProfileSelector::kMAX, input_dims);
-
 	config->addOptimizationProfile(profile);
-
 	if(builder->platformHasFastFp16())
 	{
 		LOG(INFO) << "Platform supports fp16, fp16 is enabled.";
 		config->setFlag(nvinfer1::BuilderFlag::kFP16);
 		// config->setFlag(nvinfer1::BuilderFlag::kSTRICT_TYPES);
-		// auto formats = 1U << int(nvinfer1::TensorFormat::kHWC8);
-		// network->getInput(0)->setAllowedFormats(formats);
-		// network->getInput(0)->setType(nvinfer1::DataType::kHALF);
+		auto formats = 1U << int(nvinfer1::TensorFormat::kHWC8);
+		network->getInput(0)->setAllowedFormats(formats);
+		network->getInput(0)->setType(nvinfer1::DataType::kHALF);
 	}
 	else
 	{
@@ -78,22 +133,19 @@ void YoloNetwork::BuildEngineFromONNX(const std::string &onnx_file)
 	cudaMemGetInfo(&free, &total);
 	LOG(INFO) << "GPU memory total: " << (total >> 20) << "MB, free: " << (free >> 20) << "MB.";
 	LOG(INFO) << "Max workspace size will use all of free GPU memory.";
-	config->setMaxWorkspaceSize(free >> 1);
+	config->setMemoryPoolLimit(nvinfer1::MemoryPoolType::kWORKSPACE,free >> 1);
 
-	engine = builder->buildEngineWithConfig(*network, *config);
-}
-
-void YoloNetwork::CacheEngine(const std::string &cache_file)    
-{
-	auto model_data = make_nvshared(engine->serialize());
+	auto model_data = make_nvshared(builder->buildSerializedNetwork(*network, *config));
 	FILE* f = fopen(cache_file.c_str(), "wb");
 	fwrite(model_data->data(), 1, model_data->size(), f);
-	fclose(f);
+	fclose(f);	
+
+	LOG(INFO) << "File has be written into cache.";
 }
 
-void YoloNetwork::BuildEngineFromCache(const std::string &cache_file)
+void YoloNetwork::BuildEngineFromCache()
 {
-	LOG(INFO) << "Engine will be built from Cache.";
+	LOG(INFO) << "Engine will be built from cache.";
 	auto load_file = [&] (const std::string &file)->std::vector<unsigned char>
 	{
 		std::ifstream in(file, std::ios::in | std::ios::binary);
@@ -113,44 +165,9 @@ void YoloNetwork::BuildEngineFromCache(const std::string &cache_file)
 		in.close();
 		return data;
 	};
-	auto engine_data = load_file(cache_file.c_str());
+	auto engine_data = load_file(cache_file);
 	auto runtime = make_nvshared(nvinfer1::createInferRuntime(logger));
 	engine = runtime->deserializeCudaEngine(engine_data.data(), engine_data.size());
-}
-
-void YoloNetwork::Initialize(const std::string &onnx_file)
-{
-	std::filesystem::path onnx_file_path(onnx_file);
-	auto cache_file_path = onnx_file_path;
-	cache_file_path.replace_extension("cache");
-
-	initLibNvInferPlugins(&logger,"");
-	if(!std::filesystem::exists(cache_file_path))
-	{
-		BuildEngineFromONNX(onnx_file);
-		CacheEngine(cache_file_path.c_str());
-	} 
-	else BuildEngineFromCache(cache_file_path.c_str());
-
-	if(engine == nullptr) LOG(ERROR) << "Build engine failed." ;
-	else LOG(INFO) << "Build done.";
-
-	if (engine->getNbBindings() != 2)
-	{
-		LOG(ERROR) << "Must be single input, single Output. Please Modify the onnx file.";
-		return ;
-	}
-
-	checkRuntime(cudaStreamCreate(&stream));
-	execution_context = engine->createExecutionContext();
-
-	input_numel = 3 * INPUT_H * INPUT_W;
-	checkRuntime(cudaMallocHost(&input_data_host, input_numel * sizeof(float)));
-	checkRuntime(cudaMalloc(&input_data_device, input_numel * sizeof(float)));
-
-	output_numel = 3 * (80 * 80 + 40 * 40 + 20 * 20) * (5 + NUM_CLASSES + 3 * NUM_POINTS);
-	checkRuntime(cudaMallocHost(&output_data_host, output_numel * sizeof(float)));
-	checkRuntime(cudaMalloc(&output_data_device, output_numel * sizeof(float)));
 }
 
 std::vector<Objects> YoloNetwork::Inference(cv::Mat image)
@@ -163,27 +180,31 @@ std::vector<Objects> YoloNetwork::Inference(cv::Mat image)
 	image /= 255.f;
 
 	cv::Mat image_splits[3];
-    cv::split(image, image_splits);
+	cv::split(image, image_splits);
 	std::swap(image_splits[0], image_splits[2]);
 
 	for(auto & image_split : image_splits)
-    {
+	{
 		memcpy(input_data_host, image_split.data, INPUT_W * INPUT_H * sizeof(float));
-        input_data_host += INPUT_W * INPUT_H;
-    }
-    input_data_host -= input_numel;
+		input_data_host += INPUT_W * INPUT_H;
+	}
+	input_data_host -= input_numel;
 
 	//Inference
 	std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
-	checkRuntime(cudaMemcpyAsync(input_data_device, input_data_host, input_numel * sizeof(float), cudaMemcpyHostToDevice, stream));
-	float* bindings[] = {input_data_device, output_data_device};
-	bool success = execution_context->enqueueV2((void**)bindings, stream, nullptr);
-	checkRuntime(cudaMemcpyAsync(output_data_host, output_data_device, output_numel * sizeof(float), cudaMemcpyDeviceToHost, stream));
+	execution_context->setTensorAddress(engine->getIOTensorName(0), input_data_host);
+	execution_context->setTensorAddress(engine->getIOTensorName(1), output_data_host);
+	execution_context->enqueueV3(stream);
+
+	// checkRuntime(cudaMemcpyAsync(input_data_device, input_data_host, input_numel * sizeof(float), cudaMemcpyHostToDevice, stream));
+	// float* bindings[] = {input_data_device, output_data_device};
+	// bool success = execution_context->enqueueV2((void**)bindings, stream, nullptr);
+	// checkRuntime(cudaMemcpyAsync(output_data_host, output_data_device, output_numel * sizeof(float), cudaMemcpyDeviceToHost, stream));
 	checkRuntime(cudaStreamSynchronize(stream));
 	std::chrono::system_clock::time_point end = std::chrono::system_clock::now();
-    auto dur = end - start;
-    auto time = std::chrono::duration_cast<std::chrono::microseconds>(dur);
-    DLOG(INFO) << "rune model detection time cost:" << time.count();
+	auto dur = end - start;
+	auto time = std::chrono::duration_cast<std::chrono::microseconds>(dur);
+	DLOG(INFO) << "rune model detection time cost:" << time.count();
 
 	// process data
 	std::vector<Objects>objs;
@@ -209,21 +230,21 @@ void YoloNetwork::LetterBox(cv::Mat& image, float &ro, float &dw, float &dh)
 {
 	cv::Size shape = image.size();
 	cv::Size new_shape = {INPUT_W,INPUT_W};
-    ro = std::min( new_shape.width / (float)shape.width, new_shape.height / (float)shape.height);
+	ro = std::min( new_shape.width / (float)shape.width, new_shape.height / (float)shape.height);
 
-    // Compute padding
-    cv::Size new_unpad = {(int)round(shape.width * ro), (int)round(shape.height * ro)};
-    dw = new_shape.width - new_unpad.width, dh = new_shape.height - new_unpad.height;  // wh padding
+	// Compute padding
+	cv::Size new_unpad = {(int)round(shape.width * ro), (int)round(shape.height * ro)};
+	dw = new_shape.width - new_unpad.width, dh = new_shape.height - new_unpad.height;  // wh padding
 
 	// divide padding into 2 sides
-    dw /= 2.0, dh /= 2.0;
+	dw /= 2.0, dh /= 2.0;
 
 	if (shape != new_unpad)   // resize
-        cv::resize(image, image, new_unpad, 0, 0, cv::INTER_LINEAR);
+		cv::resize(image, image, new_unpad, 0, 0, cv::INTER_LINEAR);
 	
 	int top = round(dh - 0.1), bottom = round(dh + 0.1);
-    int left = round(dw - 0.1), right = round(dw + 0.1);
-    cv::copyMakeBorder(image, image, top, bottom, left, right, cv::BORDER_CONSTANT, {114, 114, 114});  // add border
+	int left = round(dw - 0.1), right = round(dw + 0.1);
+	cv::copyMakeBorder(image, image, top, bottom, left, right, cv::BORDER_CONSTANT, {114, 114, 114});  // add border
 }
 
 void YoloNetwork::GetObjects(std::vector<Objects>& objs)
