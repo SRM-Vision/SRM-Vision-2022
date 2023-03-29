@@ -38,15 +38,7 @@ class RuneDetectorYolo : NO_COPY, NO_MOVE {
     static constexpr float MERGE_MIN_IOU = 0.2;
 
 public:
-    RuneDetectorYolo() : engine_(),
-                            context_(),
-                            device_buffer_(),
-                            output_buffer_(),
-                            stream_(),
-                            input_index_(),
-                            output_index_(),
-                            input_size_(),
-                            output_size_() {}
+    RuneDetectorYolo() {}
 
     ~RuneDetectorYolo();
 
