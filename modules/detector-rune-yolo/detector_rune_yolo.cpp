@@ -4,7 +4,7 @@
     Uses yolo-network moudle
 */
 
-#include "detector_rune_network.h"
+#include "detector_rune_yolo.h"
 #include <filesystem>
 #include <fstream>
 #include <cuda.h>
