@@ -12,7 +12,7 @@
 #include "data-structure/frame.h"
 #include <lang-feature-extension/attr-reader.h>
 #include <opencv2/opencv.hpp>
-#include "../yolo-network/yolo_network.h"
+#include "yolo-network/yolo_network.h"
 
 struct BuffObject
 {

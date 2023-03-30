@@ -13,6 +13,7 @@
 #include <logger.h>
 #include <glog/logging.h>
 #include <Eigen/Eigen>
+#include "yolo-network/yolo_network.h"
 
 #define TRT_ASSERT(expr)                                              \
     if(!(expr)) {                                                     \
