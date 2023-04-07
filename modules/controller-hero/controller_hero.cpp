@@ -34,7 +34,7 @@ bool HeroController::Initialize() {
 void HeroController::Run() {
     cv::Rect ROI;
     sleep(2);
-    ArmorPredictor armor_predictor(Entity::kBlue, "hero");
+    ArmorPredictor armor_predictor(Entity::kRed, "hero");
     while (!exit_signal_) {
         static std::chrono::steady_clock::time_point time = std::chrono::steady_clock::now();
 
@@ -92,7 +92,13 @@ void HeroController::Run() {
                 send_packet_.fire = 0;
                 send_packet_.check_sum -= 1;
             }
-
+            std::ostringstream ss_yaw, ss_pitch;
+            ss_yaw << std::fixed << std::setprecision(6) << send_packet_.yaw;
+            ss_pitch << std::fixed << std::setprecision(6) << send_packet_.pitch;
+            cv::putText(frame_.image, "yaw " + ss_yaw.str(),
+                        cv::Point(0, 72), cv::FONT_HERSHEY_SIMPLEX, 1, cv::Scalar(0, 192, 0));
+            cv::putText(frame_.image, "pitch " + ss_pitch.str(),
+                        cv::Point(0, 96), cv::FONT_HERSHEY_SIMPLEX, 1, cv::Scalar(0, 192, 0));
             controller_hero_debug_.DrawArmorDetection(frame_.image,
                                                       {},
                                                       boxes_,

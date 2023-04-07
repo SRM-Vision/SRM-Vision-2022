@@ -4,4 +4,4 @@ ALL_CAMS_CONFIG_FILE: "../config/all-cams-config.yaml"
 ALL_LENS_CONFIG_FILE: "../config/all-lens-config.yaml"
 
 CAMERA: "HV_00D27551310"
-VIDEO: "../assets/disappear.avi"
+VIDEO: "../assets/1.avi"

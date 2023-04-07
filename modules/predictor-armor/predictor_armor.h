@@ -13,6 +13,7 @@
 #include "math-tools/ekf.h"
 #include "trajectory-compensator/trajectory-compensator.h"
 #include "math-tools/exponential-filter.h"
+#include "compensator/compensator.h"
 
 class ArmorPredictor: NO_COPY, NO_MOVE {
 public:
@@ -83,6 +84,7 @@ private:
     Eigen::Vector2d predict_acc_;
 
     compensator::CompensatorTraj compensator_traj_{};
+    CompensatorApproximate compensator_approximate_{};
 
     ExtendedKalmanFilter<7,3> ekf_;
 

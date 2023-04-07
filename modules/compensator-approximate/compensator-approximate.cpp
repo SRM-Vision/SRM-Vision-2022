@@ -15,8 +15,7 @@
     } while(0);
 
 
-bool CompensatorApproximate::Initialize(const std::string &robot_name, double bullet_speed) {
-    bullet_speed_ = bullet_speed;
+bool CompensatorApproximate::Initialize(const std::string &robot_name) {
 
     cv::FileStorage config_;
     config_.open("../config/" + robot_name + "/offset-param.yaml", cv::FileStorage::READ);
@@ -62,7 +61,7 @@ bool CompensatorApproximate::Initialize(const std::string &robot_name, double bu
     return true;
 }
 
-void CompensatorApproximate::Offset(float &pitch, double bullet_speed, float &check_sum, double distance, AimModes mode) {
+void CompensatorApproximate::Offset(float &pitch, double bullet_speed, double distance, AimModes mode) {
     if (pitch == 0 || bullet_speed == 0 || distance == 0)
         return;
 
@@ -95,6 +94,6 @@ void CompensatorApproximate::Offset(float &pitch, double bullet_speed, float &ch
     }
 
     pitch -= delta_pitch;
-    check_sum -= delta_pitch;
+    LOG(INFO)<<"aaa:"<<delta_pitch;
     DLOG(INFO) << "after offset pitch: " << pitch;
 }

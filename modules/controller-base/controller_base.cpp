@@ -44,12 +44,12 @@ bool Controller::Initialize(const std::string &type) {
         image_provider_->SetSerialHandle(serial_.get());
     }
 
-    if (Compensator::Instance().Initialize(type, 15))
-        LOG(INFO) << "Offset initialized.";
-    else {
-        LOG(ERROR) << "Offset initialize failed.";
-        return false;
-    }
+//    if (Compensator::Instance().Initialize(type, 15))
+//        LOG(INFO) << "Offset initialized.";
+//    else {
+//        LOG(ERROR) << "Offset initialize failed.";
+//        return false;
+//    }
 
     if (coordinate::InitializeMatrix("../config/" + type + "/matrix-init.yaml"))
         LOG(INFO) << "Camera initialized.";

@@ -12,8 +12,8 @@
 
 class CompensatorApproximate{
 public:
-    bool Initialize(const std::string& robot_name_, double bullet_speed);
-    void Offset(float &pitch, double bullet_speed, float &check_sum, double distance, AimModes mode);
+    bool Initialize(const std::string &robot_name_);
+    void Offset(float &pitch, double bullet_speed, double distance, AimModes mode);
 
 private:
     double bullet_speed_{};
